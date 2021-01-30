@@ -14,10 +14,10 @@ namespace pboman3
         rollbackTransaction();
 
         if (len) {
-            std::unique_ptr<char[]> data = std::make_unique<char[]>(len);
-            read(data.get(), len);
+            QByteArray bytes(len, Qt::Initialization::Uninitialized);
+            read(bytes.data(), len);
             seek(pos() + 1);
-            value.append(data.get());
+            value.append(bytes);
         }
         return len;
     }

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "model/pbomodel.h"
 #include <QFileDialog>
 
 using namespace pboman3;
@@ -10,6 +9,9 @@ MainWindow::MainWindow(QWidget* parent)
           ui(new Ui::MainWindow) {
     ui->setupUi(this);
     connect(PboModel::instance, &PboModel::onEvent, this, &MainWindow::onModelEvent);
+
+    treeModel = new TreeModel(PboModel::instance);
+    ui->treeView->setModel(treeModel);
 }
 
 MainWindow::~MainWindow() {
@@ -32,8 +34,6 @@ void MainWindow::onModelEvent(const PboModelEvent* event) {
         onLoadFailed(dynamic_cast<const PboLoadFailedEvent*>(event));
     } else if (event->eventType == PboHeaderUpdatedEvent::eventType) {
         onHeaderUpdated(dynamic_cast<const PboHeaderUpdatedEvent*>(event));
-    } else if (event->eventType == PboEntryUpdatedEvent::eventType) {
-        onEntryUpdated(dynamic_cast<const PboEntryUpdatedEvent*>(event));
     }
 }
 

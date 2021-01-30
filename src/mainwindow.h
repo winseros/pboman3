@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPointer>
+#include "treemodel.h"
 #include "model/pbomodelevents.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,6 +27,7 @@ public slots:
 
 private:
     Ui::MainWindow* ui;
+    QPointer<TreeModel> treeModel;
 
     void onLoadBegin(const PboLoadBeginEvent* event);
 

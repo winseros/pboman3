@@ -17,7 +17,7 @@ namespace pboman3 {
     const QString PboLoadCompleteEvent::eventType = "load-complete";
 
     PboLoadCompleteEvent::PboLoadCompleteEvent(const QString& path)
-            : PboModelEvent(PboLoadBeginEvent::eventType),
+            : PboModelEvent(PboLoadCompleteEvent::eventType),
               path(path) {
 
     }

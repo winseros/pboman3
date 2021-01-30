@@ -58,15 +58,15 @@ namespace pboman3 {
     }
 
     void PboModel::registerEntry(unique_ptr<PboEntry_>& entry) {
-        entries_.push_back(std::move(entry));
         auto evt = make_unique<PboEntryUpdatedEvent>(entry.get());
         emit onEvent(evt.get());
+        entries_.push_back(std::move(entry));
     }
 
     void PboModel::registerHeader(unique_ptr<PboHeader>& header) {
-        headers_.push_back(std::move(header));
         auto evt = make_unique<PboHeaderUpdatedEvent>(header.get());
         emit onEvent(evt.get());
+        headers_.push_back(std::move(header));
     }
 
     void PboModel::emitLoadBegin(const QString& path) const {

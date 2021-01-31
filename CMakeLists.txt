@@ -18,7 +18,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 set(PROJECT_SOURCES
         src/io/pbodatastream.cpp
         src/io/pbofile.cpp
-        src/io/pboheaderreader.cpp
+        src/io/pboheaderio.cpp
         src/model/pboentry.cpp
         src/model/pboheader.cpp
         src/model/pbomodel.cpp
@@ -27,8 +27,10 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         src/mainwindow.ui
         src/treemodel.cpp
+        src/treenode.cpp
 )
 
+qt_add_resources(PROJECT_SOURCES src/res/res.qrc)
 qt_add_executable(pbom ${PROJECT_SOURCES})
 target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}\\src)

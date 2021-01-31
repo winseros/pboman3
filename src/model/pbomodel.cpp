@@ -1,5 +1,5 @@
 #include "pbomodel.h"
-#include "io/pboheaderreader.h"
+#include "io/pboheaderio.h"
 #include <memory>
 
 namespace pboman3 {
@@ -16,7 +16,7 @@ namespace pboman3 {
         file_->open(QIODeviceBase::OpenModeFlag::ReadWrite);
         emitLoadBegin(path);
 
-        PboHeaderReader reader(file_.get());
+        PboHeaderIO reader(file_.get());
         unique_ptr<PboEntry_> entry = reader.readNextEntry();
 
 #define BAIL file_->close(); \

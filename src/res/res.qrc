@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>ifolderclosed.png</file>
+        <file>ifolderopened.png</file>
+        <file>ifile.png</file>
+    </qresource>
+</RCC>

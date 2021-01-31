@@ -10,9 +10,9 @@
 namespace pboman3 {
     using namespace std;
 
-    class PboHeaderReader {
+    class PboHeaderIO {
     public:
-        explicit PboHeaderReader(PboFile* file);
+        explicit PboHeaderIO(PboFile* file);
 
         unique_ptr<PboEntry_> readNextEntry();
 

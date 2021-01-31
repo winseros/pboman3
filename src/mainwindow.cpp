@@ -12,6 +12,9 @@ MainWindow::MainWindow(QWidget* parent)
 
     treeModel = new TreeModel(PboModel::instance);
     ui->treeView->setModel(treeModel);
+
+    connect(ui->treeView, &QTreeView::expanded, treeModel, &TreeModel::viewExpanded);
+    connect(ui->treeView, &QTreeView::collapsed, treeModel, &TreeModel::viewCollapsed);
 }
 
 MainWindow::~MainWindow() {

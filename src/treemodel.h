@@ -2,47 +2,10 @@
 
 #include <QAbstractItemModel>
 #include <QRegularExpression>
-#include <QString>
-#include <QVector>
 #include "model/pbomodel.h"
+#include "treenode.h"
 
 namespace pboman3 {
-    enum TreeNodeType {
-        File,
-        Dir,
-        Container
-    };
-
-    class TreeNode {
-    public:
-        TreeNode(QString title, TreeNodeType nodeType);
-        ~TreeNode();
-
-        void addEntry(const PboEntry* entry);
-
-        void setParent(const TreeNode* parent);
-
-        const TreeNode* parent() const;
-
-        const QString& path() const;
-
-        const QString& title() const;
-
-        int row() const;
-
-        int childCount() const;
-
-        const TreeNode* child(int index);
-    private:
-        QVector<TreeNode*> children_;
-        TreeNode* parent_;
-        TreeNodeType nodeType_;
-        QString title_;
-        QString path_;
-
-        TreeNode* getOrCreateChild(QString& childName);
-    };
-
     class TreeModel : public QAbstractItemModel {
     public:
         TreeModel(const PboModel* model);
@@ -59,10 +22,16 @@ namespace pboman3 {
 
         Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+    public slots:
+
+        void viewExpanded(const QModelIndex& index);
+
+        void viewCollapsed(const QModelIndex& index);
+
     private:
         QRegularExpression pathSep_;
         const PboModel* model_;
-        unique_ptr<TreeNode> root_;
+        unique_ptr<RootNode> root_;
     private slots:
 
         void onModelEvent(const PboModelEvent* event);

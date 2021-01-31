@@ -1,14 +1,14 @@
 #include <memory>
-#include "pboheaderreader.h"
+#include "pboheaderio.h"
 
 namespace pboman3 {
     using namespace std;
 
-    PboHeaderReader::PboHeaderReader(PboFile* file)
+    PboHeaderIO::PboHeaderIO(PboFile* file)
             : file_(file) {
     }
 
-    unique_ptr<PboEntry_> PboHeaderReader::readNextEntry() {
+    unique_ptr<PboEntry_> PboHeaderIO::readNextEntry() {
         PboDataStream data(file_);
 #define _EXIT if (data.atEnd()) { return nullptr; }
 
@@ -39,7 +39,7 @@ namespace pboman3 {
         return make_unique<PboEntry_>(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize);
     }
 
-    unique_ptr<PboHeader> PboHeaderReader::readNextHeader() {
+    unique_ptr<PboHeader> PboHeaderIO::readNextHeader() {
         PboDataStream data(file_);
 #define _EXIT if (data.atEnd()) { return nullptr; }
 

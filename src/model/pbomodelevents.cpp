@@ -1,24 +1,26 @@
 #include "pbomodelevents.h"
 
+#include <utility>
+
 namespace pboman3 {
-    PboModelEvent::PboModelEvent(const QString& eventType)
-            : eventType(eventType) {
+    PboModelEvent::PboModelEvent(QString eventType)
+            : eventType(std::move(eventType)) {
 
     }
 
     const QString PboLoadBeginEvent::eventType = "load-begin";
 
-    PboLoadBeginEvent::PboLoadBeginEvent(const QString& path)
+    PboLoadBeginEvent::PboLoadBeginEvent(QString path)
             : PboModelEvent(PboLoadBeginEvent::eventType),
-              path(path) {
+              path(std::move(path)) {
 
     }
 
     const QString PboLoadCompleteEvent::eventType = "load-complete";
 
-    PboLoadCompleteEvent::PboLoadCompleteEvent(const QString& path)
+    PboLoadCompleteEvent::PboLoadCompleteEvent(QString path)
             : PboModelEvent(PboLoadCompleteEvent::eventType),
-              path(path) {
+              path(std::move(path)) {
 
     }
 

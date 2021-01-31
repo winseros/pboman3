@@ -17,31 +17,31 @@ namespace pboman3 {
     }
 
     bool PboEntry::isSignature() const {
-        return packingMethod == PboPackingMethod::product;
+        return packingMethod == product;
     }
 
     bool PboEntry::isCompressed() const {
-        return packingMethod == PboPackingMethod::packed && originalSize != dataSize;
+        return packingMethod == packed && originalSize != dataSize;
     }
 
     bool PboEntry::isContent() const {
-        return !isBoundary() && packingMethod == PboPackingMethod::uncompressed ||
-               packingMethod == PboPackingMethod::packed;
+        return !isBoundary() && packingMethod == uncompressed ||
+               packingMethod == packed;
     }
 
     int PboEntry::size() const {
-        return static_cast<int>(fileName.length()) + PboEntry::sizeOfFields;
+        return static_cast<int>(fileName.length()) + sizeOfFields;
     }
 
     //each header entry consists of 5x4 bytes of fields + filename.length + 1 byte zero string terminator
     const int PboEntry::sizeOfFields = 21;
 
-    PboEntry_::PboEntry_(QString fileName, PboPackingMethod packingMethod,
-                         int originalSize, int reserved,
-                         int timestamp, int dataSize)
-            : PboEntry(std::move(fileName), packingMethod,
-                       originalSize, reserved,
-                       timestamp, dataSize),
+    PboEntry_::PboEntry_(QString pFileName, PboPackingMethod pPackingMethod,
+                         int pOriginalSize, int pReserved,
+                         int pTimestamp, int pDataSize)
+            : PboEntry(std::move(pFileName), pPackingMethod,
+                       pOriginalSize, pReserved,
+                       pTimestamp, pDataSize),
               dataOffset(0) {
     }
 }

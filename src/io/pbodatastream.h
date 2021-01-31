@@ -1,9 +1,6 @@
 #pragma once
 
-#include <QDataStream>
-#include <QString>
 #include "pbofile.h"
-#include "model/pboentry.h"
 
 namespace pboman3 {
     class PboDataStream : public QDataStream {

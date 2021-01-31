@@ -1,7 +1,6 @@
-#include <QIcon>
 #include "treemodel.h"
 
-#define RE_PATH "\\\\|/"
+constexpr const char* RE_PATH = "\\\\|/";
 
 namespace pboman3 {
     TreeModel::TreeModel(const PboModel* model)
@@ -70,12 +69,12 @@ namespace pboman3 {
 
     void TreeModel::onModelEvent(const PboModelEvent* event) {
         if (event->eventType == PboEntryUpdatedEvent::eventType) {
-            auto evt = dynamic_cast<const PboEntryUpdatedEvent*>(event);
+            const auto* evt = dynamic_cast<const PboEntryUpdatedEvent*>(event);
             root_->addEntry(evt->entry);
         } else if (event->eventType == PboLoadBeginEvent::eventType) {
-            auto evt = dynamic_cast<const PboLoadBeginEvent*>(event);
-            int lastSep = static_cast<int>(evt->path.lastIndexOf(pathSep_)) + 1;
-            QString fileName = evt->path.right(evt->path.length() - lastSep);
+            const auto* evt = dynamic_cast<const PboLoadBeginEvent*>(event);
+            const int lastSep = static_cast<int>(evt->path.lastIndexOf(pathSep_)) + 1;
+            auto fileName = evt->path.right(evt->path.length() - lastSep);
             root_ = make_unique<RootNode>(std::move(fileName));
             beginResetModel();
         } else if (event->eventType == PboLoadCompleteEvent::eventType) {
@@ -86,17 +85,15 @@ namespace pboman3 {
         }
     }
 
-    void TreeModel::viewExpanded(const QModelIndex& index) {
+    void TreeModel::viewExpanded(const QModelIndex& index) const {
         if (root_) {
-//            setData(index, QIcon(":ifolderopened"), Qt::DecorationRole);
             auto* node = static_cast<TreeNode*>(index.internalPointer());
             node->expand(true);
         }
     }
 
-    void TreeModel::viewCollapsed(const QModelIndex& index) {
-        if (root_) {
-//            setData(index, QIcon(":ifolderopened"), Qt::DecorationRole);
+    void TreeModel::viewCollapsed(const QModelIndex& index) const {
+        if (root_) {\
             auto* node = static_cast<TreeNode*>(index.internalPointer());
             node->expand(false);
         }

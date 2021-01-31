@@ -5,7 +5,7 @@
 #include "model/pbomodel.h"
 
 namespace pboman3 {
-    enum TreeNodeType {
+    enum class TreeNodeType {
         Root,
         Container,
         Dir,
@@ -45,10 +45,10 @@ namespace pboman3 {
         QVector<TreeNode*> children_;
 
     private:
-        const TreeNode* parent_;
-        TreeNodeType nodeType_;
         QString title_;
+        TreeNodeType nodeType_;
         QString path_;
+        const TreeNode* parent_;
         bool expanded_;
 
         TreeNode* getOrCreateChild(QString& childName);

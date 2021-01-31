@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QObject>
-#include "vector"
 #include <memory>
 #include "pboentry.h"
 #include "pboheader.h"
 #include "pbomodelevents.h"
+#include "vector"
 #include "io/pbofile.h"
 
 namespace pboman3 {

@@ -1,8 +1,8 @@
 #include <QRegularExpression>
 #include "treenode.h"
 
-#define RE_PATH "\\\\|/"
-#define PATH_SEP "\\"
+constexpr const char* RE_PATH = "\\\\|/";
+constexpr const char* PATH_SEP = "\\";
 
 namespace pboman3 {
     TreeNode::TreeNode(QString title, TreeNodeType nodeType, const TreeNode* parent) :
@@ -25,7 +25,7 @@ namespace pboman3 {
     }
 
     void TreeNode::addEntry(const PboEntry* entry) {
-        QRegularExpression reg(RE_PATH, QRegularExpression::PatternOption::DontCaptureOption);
+        const QRegularExpression reg(RE_PATH, QRegularExpression::PatternOption::DontCaptureOption);
         const QList<QString> segments = entry->fileName
                 .right(entry->fileName.length() - path().length())
                 .split(reg, Qt::SplitBehaviorFlags::SkipEmptyParts);
@@ -63,7 +63,7 @@ namespace pboman3 {
     }
 
     void TreeNode::insertSorted(TreeNode* node) {
-        int index = -1;
+	    auto index = -1;
         for (int i = 0; i < children_.count(); i++) {
             if (*node < *children_[i]) {
                 index = i;
@@ -96,7 +96,7 @@ namespace pboman3 {
     }
 
     int TreeNode::childCount() const {
-        return children_.length();
+        return static_cast<int>(children_.length());
     }
 
     const TreeNode* TreeNode::child(int index) {
@@ -118,9 +118,8 @@ namespace pboman3 {
     bool operator<(const TreeNode& one, const TreeNode& two) {
         if (one.nodeType_ == two.nodeType_) {
             return one.title_.compare(two.title_, Qt::CaseInsensitive) < 0;
-        } else {
-            return one.nodeType_ < two.nodeType_;
         }
+        return one.nodeType_ < two.nodeType_;
     }
 
     RootNode::RootNode(QString fileName)

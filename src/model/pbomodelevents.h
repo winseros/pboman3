@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QString>
 #include "pboentry.h"
 #include "pboheader.h"
 
@@ -9,7 +8,7 @@ namespace pboman3 {
     public:
         const QString eventType;
     protected:
-        explicit PboModelEvent(const QString& eventType);
+        explicit PboModelEvent(QString eventType);
 
         virtual ~PboModelEvent() = default;
     };
@@ -20,7 +19,7 @@ namespace pboman3 {
 
         const QString path;
 
-        explicit PboLoadBeginEvent(const QString& path);
+        explicit PboLoadBeginEvent(QString path);
     };
 
     class PboLoadCompleteEvent final : public virtual PboModelEvent {
@@ -29,7 +28,7 @@ namespace pboman3 {
 
         const QString path;
 
-        explicit PboLoadCompleteEvent(const QString& path);
+        explicit PboLoadCompleteEvent(QString path);
     };
 
     class PboLoadFailedEvent final : public virtual PboModelEvent {

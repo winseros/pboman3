@@ -1,6 +1,6 @@
 #include "pbomodel.h"
-#include "io/pboheaderio.h"
 #include <memory>
+#include "io/pboheaderio.h"
 
 namespace pboman3 {
     using namespace std;

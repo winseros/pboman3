@@ -2,8 +2,8 @@
 
 #include <QAbstractItemModel>
 #include <QRegularExpression>
-#include "model/pbomodel.h"
 #include "treenode.h"
+#include "model/pbomodel.h"
 
 namespace pboman3 {
     class TreeModel : public QAbstractItemModel {
@@ -24,9 +24,9 @@ namespace pboman3 {
 
     public slots:
 
-        void viewExpanded(const QModelIndex& index);
+        void viewExpanded(const QModelIndex& index) const;
 
-        void viewCollapsed(const QModelIndex& index);
+        void viewCollapsed(const QModelIndex& index) const;
 
     private:
         QRegularExpression pathSep_;

@@ -32,7 +32,7 @@ namespace pboman3 {
 
         QString childName = segments.first();
         if (segments.length() == 1) {
-            children_.push_back(new TreeNode(std::move(childName), TreeNodeType::File, this));
+            insertSorted(new TreeNode(std::move(childName), TreeNodeType::File, this));
         } else {
             TreeNode* child = getOrCreateChild(childName);
             child->addEntry(entry);
@@ -51,6 +51,32 @@ namespace pboman3 {
         }
     }
 
+    TreeNode* TreeNode::getOrCreateChild(QString& childName) {
+        for (TreeNode* node : children_) {
+            if (node->title() == childName) {
+                return node;
+            }
+        }
+        auto* child = new TreeNode(std::move(childName), TreeNodeType::Dir, this);
+        insertSorted(child);
+        return child;
+    }
+
+    void TreeNode::insertSorted(TreeNode* node) {
+        int index = -1;
+        for (int i = 0; i < children_.count(); i++) {
+            if (*node < *children_[i]) {
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0) {
+            children_.insert(index, node);
+        } else {
+            children_.append(node);
+        }
+    }
+
     const TreeNode* TreeNode::parent() const {
         return parent_;
     }
@@ -61,18 +87,6 @@ namespace pboman3 {
 
     const QString& TreeNode::title() const {
         return title_;
-    }
-
-    TreeNode* TreeNode::getOrCreateChild(QString& childName) {
-        for (TreeNode* node : children_) {
-            if (node->title() == childName) {
-                return node;
-            }
-        }
-
-        auto* child = new TreeNode(std::move(childName), TreeNodeType::Dir, this);
-        children_.push_back(child);
-        return child;
     }
 
     int TreeNode::row() const {
@@ -99,6 +113,14 @@ namespace pboman3 {
 
     void TreeNode::expand(bool expand) {
         expanded_ = expand;
+    }
+
+    bool operator<(const TreeNode& one, const TreeNode& two) {
+        if (one.nodeType_ == two.nodeType_) {
+            return one.title_.compare(two.title_, Qt::CaseInsensitive) < 0;
+        } else {
+            return one.nodeType_ < two.nodeType_;
+        }
     }
 
     RootNode::RootNode(QString fileName)

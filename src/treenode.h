@@ -1,15 +1,15 @@
 #pragma once
 
-#include <QString>
 #include <QIcon>
+#include <QString>
 #include "model/pbomodel.h"
 
 namespace pboman3 {
     enum TreeNodeType {
-        File,
-        Dir,
+        Root,
         Container,
-        Root
+        Dir,
+        File
     };
 
     class TreeNode {
@@ -40,6 +40,7 @@ namespace pboman3 {
 
         void expand(bool expand);
 
+        friend bool operator<(const TreeNode& one, const TreeNode& two);
     protected:
         QVector<TreeNode*> children_;
 
@@ -51,6 +52,8 @@ namespace pboman3 {
         bool expanded_;
 
         TreeNode* getOrCreateChild(QString& childName);
+
+        void insertSorted(TreeNode* node);
     };
 
     class RootNode : public virtual TreeNode {

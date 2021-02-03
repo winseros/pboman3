@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QAction>
 #include "treemodel.h"
 #include "model/pbomodelevents.h"
 
@@ -25,7 +26,11 @@ public slots:
 
     void onFileSaveClick();
 
+    void onSelectionDeleteClick() const;
+
     void onModelEvent(const PboModelEvent* event);
+
+    void onContextMenuRequested(const QPoint& point);
 
 private:
     Ui::MainWindow* ui;

@@ -14,13 +14,13 @@ namespace pboman3 {
 
     class TreeNode {
     public:
-        TreeNode(QString title, TreeNodeType nodeType, const TreeNode* parent);
+        TreeNode(QString title, TreeNodeType nodeType, const TreeNode* parent, const PboEntry* entry);
 
         TreeNode(QString containerName, const TreeNode* parent);
 
         virtual ~TreeNode();
 
-        virtual void addEntry(const PboEntry* entry);
+        virtual void addEntry(const PboEntry* pboEntry);
 
         void setParent(const TreeNode* parent);
 
@@ -41,6 +41,11 @@ namespace pboman3 {
         void expand(bool expand);
 
         friend bool operator<(const TreeNode& one, const TreeNode& two);
+
+        const PboEntry* entry;
+
+        void collectEntries(QMap<const QString, const PboEntry*>& collection) const;
+
     protected:
         QVector<TreeNode*> children_;
 
@@ -60,6 +65,6 @@ namespace pboman3 {
     public:
         RootNode(QString fileName);
 
-        void addEntry(const PboEntry* entry) override;
+        void addEntry(const PboEntry* pboEntry) override;
     };
 }

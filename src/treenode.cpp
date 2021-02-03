@@ -1,41 +1,43 @@
-#include <QRegularExpression>
 #include "treenode.h"
+#include <QRegularExpression>
 
-constexpr const char* RE_PATH = "\\\\|/";
-constexpr const char* PATH_SEP = "\\";
+constexpr const char* rePath = "\\\\|/";
+constexpr const char* pathSep = "\\";
 
 namespace pboman3 {
-    TreeNode::TreeNode(QString title, TreeNodeType nodeType, const TreeNode* parent) :
-            title_(std::move(title)),
-            nodeType_(nodeType),
-            parent_(parent),
-            expanded_(false) {
+    TreeNode::TreeNode(QString title, TreeNodeType nodeType, const TreeNode* parent, const PboEntry* entry = nullptr)
+        : entry(entry),
+          title_(std::move(title)),
+          nodeType_(nodeType),
+          parent_(parent),
+          expanded_(false) {
         setParent(parent);
     }
 
-    TreeNode::TreeNode(QString containerName, const TreeNode* parent) :
-            title_(std::move(containerName)),
-            nodeType_(TreeNodeType::Container),
-            parent_(parent),
-            expanded_(false) {
+    TreeNode::TreeNode(QString containerName, const TreeNode* parent)
+        : entry(nullptr),
+          title_(std::move(containerName)),
+          nodeType_(TreeNodeType::Container),
+          parent_(parent),
+          expanded_(false) {
     }
 
     TreeNode::~TreeNode() {
         qDeleteAll(children_);
     }
 
-    void TreeNode::addEntry(const PboEntry* entry) {
-        const QRegularExpression reg(RE_PATH, QRegularExpression::PatternOption::DontCaptureOption);
-        const QList<QString> segments = entry->fileName
-                .right(entry->fileName.length() - path().length())
-                .split(reg, Qt::SplitBehaviorFlags::SkipEmptyParts);
+    void TreeNode::addEntry(const PboEntry* pboEntry) {
+        const QRegularExpression reg(rePath, QRegularExpression::PatternOption::DontCaptureOption);
+        const QList<QString> segments = pboEntry->fileName
+                                                .right(pboEntry->fileName.length() - path().length())
+                                                .split(reg, Qt::SplitBehaviorFlags::SkipEmptyParts);
 
         QString childName = segments.first();
         if (segments.length() == 1) {
-            insertSorted(new TreeNode(std::move(childName), TreeNodeType::File, this));
+            insertSorted(new TreeNode(std::move(childName), TreeNodeType::File, this, pboEntry));
         } else {
             TreeNode* child = getOrCreateChild(childName);
-            child->addEntry(entry);
+            child->addEntry(pboEntry);
         }
     }
 
@@ -46,7 +48,7 @@ namespace pboman3 {
             if (parent->path().isEmpty()) {
                 path_.append(title_);
             } else {
-                path_.append(parent->path()).append(PATH_SEP).append(title_);
+                path_.append(parent->path()).append(pathSep).append(title_);
             }
         }
     }
@@ -63,7 +65,7 @@ namespace pboman3 {
     }
 
     void TreeNode::insertSorted(TreeNode* node) {
-	    auto index = -1;
+        auto index = -1;
         for (int i = 0; i < children_.count(); i++) {
             if (*node < *children_[i]) {
                 index = i;
@@ -91,8 +93,8 @@ namespace pboman3 {
 
     int TreeNode::row() const {
         return parent_
-               ? static_cast<int>(parent_->children_.indexOf(this))
-               : 1;
+                   ? static_cast<int>(parent_->children_.indexOf(this))
+                   : 1;
     }
 
     int TreeNode::childCount() const {
@@ -105,14 +107,27 @@ namespace pboman3 {
 
     QIcon TreeNode::icon() const {
         return QIcon(nodeType_ == TreeNodeType::File
-                     ? ":ifile.png"
-                     : expanded_
-                       ? ":ifolderopened.png"
-                       : ":ifolderclosed.png");
+                         ? ":ifile.png"
+                         : expanded_
+                         ? ":ifolderopened.png"
+                         : ":ifolderclosed.png");
     }
 
     void TreeNode::expand(bool expand) {
         expanded_ = expand;
+    }
+
+    void TreeNode::collectEntries(QMap<const QString, const PboEntry*>& collection) const {
+        if (nodeType_ == TreeNodeType::Dir) {
+            for (TreeNode* child : children_) {
+                child->collectEntries(collection);
+            }
+        } else if (nodeType_ == TreeNodeType::File) {
+            assert(entry);
+            collection.insert(entry->fileName, entry);
+        } else {
+            assert(false);
+        }
     }
 
     bool operator<(const TreeNode& one, const TreeNode& two) {
@@ -123,11 +138,11 @@ namespace pboman3 {
     }
 
     RootNode::RootNode(QString fileName)
-            : TreeNode("", TreeNodeType::Root, nullptr) {
+        : TreeNode("", TreeNodeType::Root, nullptr) {
         children_.append(new TreeNode(std::move(fileName), this));
     }
 
-    void RootNode::addEntry(const PboEntry* entry) {
-        children_.first()->addEntry(entry);
+    void RootNode::addEntry(const PboEntry* pboEntry) {
+        children_.first()->addEntry(pboEntry);
     }
 }

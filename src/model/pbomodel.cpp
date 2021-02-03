@@ -83,13 +83,13 @@ namespace pboman3 {
 
     void PboModel::moveEntry(const PboEntry* entry, const QString& pboFilePath) {
         const auto* ent = dynamic_cast<const PboEntry_*>(entry);
-        assert(ent);
+        assert(ent && "Must have a special type");
         transforms_.push_back(make_unique<ChangeMove>(ent, pboFilePath));
     }
 
     void PboModel::deleteEntry(const PboEntry* entry) {
         const auto* ent = dynamic_cast<const PboEntry_*>(entry);
-        assert(ent);
+        assert(ent && "Must have a special type");
         transforms_.push_back(make_unique<ChangeDelete>(ent));
     }
 
@@ -146,11 +146,12 @@ namespace pboman3 {
                     entries_.emplace(i, move(moved));
                 }
                 //just skip deleted entries
-            }
-            else {
+            } else {
                 io.writeEntry(entry.get());
             }
         }
+
+        assert(!transforms_.size(), "All the transforms must have been applied");
 
         PboEntry eBnd = PboEntry::makeBoundary();
         io.writeEntry(&eBnd);

@@ -72,8 +72,12 @@ namespace pboman3 {
     void PboHeaderIO::writeHeader(const PboHeader* header) const {
         PboDataStream data(file_);
 
-        data << header->name;
-        data << header->value;
+        if (header->isBoundary()) {
+            data << nullptr;
+        } else {
+            data << header->name;
+            data << header->value;
+        }
     }
 
 }

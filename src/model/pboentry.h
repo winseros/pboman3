@@ -1,15 +1,14 @@
 #pragma once
 
 #include <QString>
-#include <memory>
 
 namespace pboman3 {
     using namespace std;
 
-    enum PboPackingMethod {
-        uncompressed = 0x00000000,
-        packed = 0x43707273,
-        product = 0x56657273
+    enum class PboPackingMethod {
+        Uncompressed = 0x00000000,
+        Packed = 0x43707273,
+        Product = 0x56657273
     };
 
     struct PboEntry {
@@ -20,9 +19,15 @@ namespace pboman3 {
         const int timestamp;
         const int dataSize;
 
+        static PboEntry makeSignature();
+
+        static PboEntry makeBoundary();
+
         PboEntry(QString fileName, PboPackingMethod packingMethod,
                  int originalSize, int reserved,
                  int timestamp, int dataSize);
+
+        virtual ~PboEntry() = default;
 
         bool isBoundary() const;
 

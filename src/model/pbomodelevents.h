@@ -55,4 +55,14 @@ namespace pboman3 {
 
         explicit PboEntryUpdatedEvent(PboEntry* entry);
     };
+
+    class PboEntryMovedEvent final : public virtual PboModelEvent {
+    public:
+        static const QString eventType;
+
+        const PboEntry* prevEntry;
+        const PboEntry* newEntry;
+
+        PboEntryMovedEvent(const PboEntry* prevEntry, const PboEntry* newEntry);
+    };
 }

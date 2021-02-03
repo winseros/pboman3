@@ -15,6 +15,10 @@ namespace pboman3 {
 
         unique_ptr<PboHeader> readNextHeader() const;
 
+        void writeEntry(const PboEntry* entry) const;
+
+        void writeHeader(const PboHeader* header) const;
+
     private:
         PboFile* file_;
     };

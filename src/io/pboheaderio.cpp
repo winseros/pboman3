@@ -58,4 +58,22 @@ namespace pboman3 {
         return make_unique<PboHeader>(name, value);
     }
 
+    void PboHeaderIO::writeEntry(const PboEntry* entry) const {
+        PboDataStream data(file_);
+
+        data << entry->fileName;
+        data << entry->packingMethod;
+        data << entry->originalSize;
+        data << entry->reserved;
+        data << entry->timestamp;
+        data << entry->dataSize;
+    }
+
+    void PboHeaderIO::writeHeader(const PboHeader* header) const {
+        PboDataStream data(file_);
+
+        data << header->name;
+        data << header->value;
+    }
+
 }

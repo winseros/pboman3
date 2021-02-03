@@ -1,6 +1,6 @@
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
 #include <QFileDialog>
+#include "ui_mainwindow.h"
 
 using namespace pboman3;
 
@@ -22,10 +22,14 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::onFileOpenClick() {
-    QString fileName = QFileDialog::getOpenFileName(this, "Select a PBO", "", "PBO Files (*.pbo);;All Files (*.*)");
+    const QString fileName = QFileDialog::getOpenFileName(this, "Select a PBO", "", "PBO Files (*.pbo);;All Files (*.*)");
     if (!fileName.isEmpty()) {
         PboModel::instance->loadFile(fileName);
     }
+}
+
+void MainWindow::onFileSaveClick() {
+    PboModel::instance->saveFile();
 }
 
 void MainWindow::onModelEvent(const PboModelEvent* event) {

@@ -23,6 +23,8 @@ public:
 public slots:
     void onFileOpenClick();
 
+    void onFileSaveClick();
+
     void onModelEvent(const PboModelEvent* event);
 
 private:

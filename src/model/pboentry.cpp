@@ -1,6 +1,14 @@
 #include "pboentry.h"
 
 namespace pboman3 {
+    PboEntry PboEntry::makeSignature() {
+        return PboEntry("", PboPackingMethod::Product, 0, 0, 0, 0);
+    }
+
+    PboEntry PboEntry::makeBoundary() {
+        return PboEntry("", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
+    }
+
     PboEntry::PboEntry(QString fileName, PboPackingMethod packingMethod,
                        int originalSize, int reserved,
                        int timestamp, int dataSize) :
@@ -17,16 +25,16 @@ namespace pboman3 {
     }
 
     bool PboEntry::isSignature() const {
-        return packingMethod == product;
+        return packingMethod == PboPackingMethod::Product;
     }
 
     bool PboEntry::isCompressed() const {
-        return packingMethod == packed && originalSize != dataSize;
+        return packingMethod == PboPackingMethod::Packed && originalSize != dataSize;
     }
 
     bool PboEntry::isContent() const {
-        return !isBoundary() && packingMethod == uncompressed ||
-               packingMethod == packed;
+        return !isBoundary() && packingMethod == PboPackingMethod::Uncompressed ||
+               packingMethod == PboPackingMethod::Packed;
     }
 
     int PboEntry::size() const {

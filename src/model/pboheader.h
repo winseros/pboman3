@@ -4,6 +4,8 @@
 
 namespace pboman3 {
     struct PboHeader {
+        static PboHeader makeBoundary();
+
         const QString name;
         const QString value;
 

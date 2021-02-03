@@ -6,8 +6,10 @@ namespace pboman3 {
     class PboFile : public QFile {
     Q_OBJECT
     public:
-        PboFile(const QString &name) : QFile(name) {};
+        explicit PboFile(const QString& name);
 
-        int readCString(QString &value);
+        int readCString(QString& value);
+
+        int writeCString(const QString& value);
     };
 }

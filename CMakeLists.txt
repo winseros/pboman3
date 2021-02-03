@@ -19,6 +19,7 @@ set(PROJECT_SOURCES
         src/io/pbodatastream.cpp
         src/io/pbofile.cpp
         src/io/pboheaderio.cpp
+        src/model/changestream.cpp
         src/model/pboentry.cpp
         src/model/pboheader.cpp
         src/model/pbomodel.cpp

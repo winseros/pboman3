@@ -74,6 +74,7 @@ Thumbs.db
 # Visual Studio
 .vs/
 out/
+*.user
 
 # CLion
 .idea/

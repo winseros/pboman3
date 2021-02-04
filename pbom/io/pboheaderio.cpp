@@ -6,56 +6,54 @@ namespace pboman3 {
     using namespace std;
 
     PboHeaderIO::PboHeaderIO(PboFile* file)
-            : file_(file) {
+        : file_(file) {
     }
 
     unique_ptr<PboEntry_> PboHeaderIO::readNextEntry() const {
         PboDataStream data(file_);
-#define _EXIT if (data.atEnd()) { return nullptr; }
 
-        _EXIT
-        QString fileName;
-        data >> fileName;
+        try {
+            QString fileName;
+            data >> fileName;
 
-        _EXIT
-        PboPackingMethod packingMethod;
-        data >> packingMethod;
+            PboPackingMethod packingMethod;
+            data >> packingMethod;
 
-        _EXIT
-        int originalSize;
-        data >> originalSize;
+            int originalSize;
+            data >> originalSize;
 
-        _EXIT
-        int reserved;
-        data >> reserved;
+            int reserved;
+            data >> reserved;
 
-        _EXIT
-        int timeStamp;
-        data >> timeStamp;
+            int timeStamp;
+            data >> timeStamp;
 
-        _EXIT
-        long dataSize;
-        data >> dataSize;
+            long dataSize;
+            data >> dataSize;
 
-        return make_unique<PboEntry_>(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize);
+            return make_unique<PboEntry_>(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize);
+        } catch (PboEofException&) {
+            return nullptr;
+        }
     }
 
     unique_ptr<PboHeader> PboHeaderIO::readNextHeader() const {
         PboDataStream data(file_);
-#define _EXIT if (data.atEnd()) { return nullptr; }
 
-        _EXIT
-        QString name;
-        data >> name;
+        try {
+            QString name;
+            data >> name;
 
-        if (name.isEmpty())
-            return make_unique<PboHeader>(QString(), QString());
+            if (name.isEmpty())
+                return make_unique<PboHeader>(QString(), QString());
 
-        _EXIT
-        QString value;
-        data >> value;
+            QString value;
+            data >> value;
 
-        return make_unique<PboHeader>(name, value);
+            return make_unique<PboHeader>(name, value);
+        } catch (PboEofException&) {
+            return nullptr;
+        }
     }
 
     void PboHeaderIO::writeEntry(const PboEntry* entry) const {

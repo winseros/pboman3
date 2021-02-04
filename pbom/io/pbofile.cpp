@@ -20,13 +20,14 @@ namespace pboman3 {
         rollbackTransaction();
 
         if (found) {
+            const auto initialPos = pos();
             if (len) {
                 QByteArray bytes(len, Qt::Initialization::Uninitialized);
                 read(bytes.data(), len);
                 value.append(bytes);
             }
             seek(pos() + 1);
-            return len;
+            return static_cast<int>(pos() - initialPos);
         }
         return 0;
     }
@@ -35,6 +36,6 @@ namespace pboman3 {
         write(value.toUtf8());
         char zero = 0;
         write(&zero, sizeof zero);
-        return value.length() + sizeof zero;
+        return static_cast<int>(value.length() + sizeof zero);
     }
 }

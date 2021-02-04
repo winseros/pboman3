@@ -24,13 +24,13 @@ namespace pboman3::test {
         QString s1;
         const int l1 = p.readCString(s1);
         ASSERT_EQ(s1, "some string value 11");
-        ASSERT_EQ(l1, 20);
+        ASSERT_EQ(l1, 21);
         ASSERT_EQ(p.pos(), 21);
 
         QString s2;
         const int l2 = p.readCString(s2);
         ASSERT_EQ(s2, "some string value 22");
-        ASSERT_EQ(l2, 20);
+        ASSERT_EQ(l2, 21);
         ASSERT_EQ(p.pos(), 42);
     }
 
@@ -49,7 +49,7 @@ namespace pboman3::test {
         QString s1;
         const int l1 = p.readCString(s1);
         ASSERT_TRUE(s1.isEmpty());
-        ASSERT_EQ(l1, 0);
+        ASSERT_EQ(l1, 1);
         ASSERT_EQ(p.pos(), 1);
     }
 

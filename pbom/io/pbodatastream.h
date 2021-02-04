@@ -1,8 +1,12 @@
 #pragma once
 
 #include "pbofile.h"
+#include <QException>
 
 namespace pboman3 {
+    class PboEofException: public QException {    
+    };
+
     class PboDataStream : public QDataStream {
     public:
         explicit PboDataStream(PboFile* file);
@@ -13,7 +17,9 @@ namespace pboman3 {
 
         template <typename T>
         PboDataStream& operator>>(T& out) {
-            file_->read(reinterpret_cast<char*>(&out), sizeof out);
+            if (file_->read(reinterpret_cast<char*>(&out), sizeof out) != sizeof out) {
+                throw PboEofException();
+            }
             return *this;
         }
 

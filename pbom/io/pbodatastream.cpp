@@ -7,7 +7,9 @@ namespace pboman3 {
     }
 
     PboDataStream& PboDataStream::operator>>(QString& out) {
-        file_->readCString(out);
+        if (!file_->readCString(out)) {
+            throw PboEofException();
+        }
         return *this;
     }
 

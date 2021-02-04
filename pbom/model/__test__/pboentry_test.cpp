@@ -24,17 +24,17 @@ namespace pboman3::test {
         ASSERT_FALSE(entry.isContent());
     }
 
-    class PboEntryTest : public testing::TestWithParam<PboPackingMethod> {
+    class PboEntryTest_IsContent : public testing::TestWithParam<PboPackingMethod> {
     };
 
-    TEST_P(PboEntryTest, IsContent_Functional) {
+    TEST_P(PboEntryTest_IsContent, Functional) {
         const PboEntry entry("some-file", GetParam(), 100, 0, 0, 100);
         ASSERT_FALSE(entry.isSignature());
         ASSERT_FALSE(entry.isBoundary());
         ASSERT_TRUE(entry.isContent());
     }
 
-    INSTANTIATE_TEST_SUITE_P(IsContent_Functional, PboEntryTest,
+    INSTANTIATE_TEST_SUITE_P(IsContent, PboEntryTest_IsContent,
                              testing::Values(PboPackingMethod::Packed, PboPackingMethod::Uncompressed));
 
     TEST(PboEntryTest, Size_Functional) {

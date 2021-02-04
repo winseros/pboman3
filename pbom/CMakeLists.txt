@@ -30,6 +30,7 @@ target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_SOURCES
     "io/__test__/pbofile_test.cpp"
+    "io/__test__/pboheaderio_test.cpp"
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
     "__test__/treenode_test.cpp"

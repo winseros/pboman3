@@ -1,7 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+#include <QList>
 #include "changestream.h"
 #include "pboentry.h"
 #include "pboheader.h"
@@ -33,28 +32,28 @@ namespace pboman3 {
     private:
         PboModel() = default;
 
-        unique_ptr<PboFile> file_;
-        vector<unique_ptr<PboEntry_>> entries_;
-        vector<unique_ptr<PboHeader>> headers_;
-        vector<unique_ptr<ChangeAdd>> additions_;
-        vector<unique_ptr<ChangeBase>> transforms_;
+        QSharedPointer<PboFile> file_;
+        QList<QSharedPointer<PboEntry_>> entries_;
+        QList<QSharedPointer<PboHeader>> headers_;
+        QList<QSharedPointer<ChangeAdd>> additions_;
+        QList<QSharedPointer<ChangeBase>> transforms_;
 
         void updateEntriesOffsets(long offsetStart);
 
-        void registerEntry(unique_ptr<PboEntry_>& entry);
+        void registerEntry(QSharedPointer<PboEntry_>& entry);
 
-        void registerHeader(unique_ptr<PboHeader>& header);
+        void registerHeader(QSharedPointer<PboHeader>& header);
 
         void emitLoadBegin(const QString& path) const;
 
         void emitLoadComplete(const QString& path) const;
 
-        void emitEntryMoved(const unique_ptr<PboEntry_>& prevEntry, const unique_ptr<PboEntry_>& newEntry) const;
+        void emitEntryMoved(const QSharedPointer<PboEntry_>& prevEntry, const QSharedPointer<PboEntry_>& newEntry) const;
 
         void writeFileSignature(const PboHeaderIO& io) const;
 
         void writeFileEntries(const PboHeaderIO& io);
 
-        unique_ptr<ChangeBase> getChangeFor(const PboEntry_* entry);
+        QSharedPointer<ChangeBase> getChangeFor(const PboEntry_* entry);
     };
 }

@@ -1,5 +1,6 @@
 #include "io/pboheaderio.h"
 #include <QByteArray>
+#include <QSharedPointer>
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 
@@ -23,7 +24,7 @@ namespace pboman3::test {
 
         const PboHeaderIO io(&f);
 
-        const unique_ptr<PboEntry_> e = io.readNextEntry();
+        const QSharedPointer<PboEntry_> e = io.readNextEntry();
         ASSERT_FALSE(e);
     }
 
@@ -43,7 +44,7 @@ namespace pboman3::test {
 
         const PboHeaderIO io(&f);
 
-        const unique_ptr<PboEntry_> e = io.readNextEntry();
+        const QSharedPointer<PboEntry_> e = io.readNextEntry();
         ASSERT_TRUE(e);
         ASSERT_TRUE(e->isBoundary());
     }
@@ -67,7 +68,7 @@ namespace pboman3::test {
 
         const PboHeaderIO io(&f);
 
-        const unique_ptr<PboHeader> e = io.readNextHeader();
+        const QSharedPointer<PboHeader> e = io.readNextHeader();
         ASSERT_FALSE(e);
     }
 

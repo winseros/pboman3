@@ -1,5 +1,4 @@
 #include "pboheaderio.h"
-#include <memory>
 #include "pbodatastream.h"
 
 namespace pboman3 {
@@ -9,7 +8,7 @@ namespace pboman3 {
         : file_(file) {
     }
 
-    unique_ptr<PboEntry_> PboHeaderIO::readNextEntry() const {
+    QSharedPointer<PboEntry_> PboHeaderIO::readNextEntry() const {
         PboDataStream data(file_);
 
         try {
@@ -31,13 +30,13 @@ namespace pboman3 {
             long dataSize;
             data >> dataSize;
 
-            return make_unique<PboEntry_>(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize);
+            return QSharedPointer<PboEntry_>(new PboEntry_(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize));
         } catch (PboEofException&) {
             return nullptr;
         }
     }
 
-    unique_ptr<PboHeader> PboHeaderIO::readNextHeader() const {
+    QSharedPointer<PboHeader> PboHeaderIO::readNextHeader() const {
         PboDataStream data(file_);
 
         try {
@@ -45,12 +44,12 @@ namespace pboman3 {
             data >> name;
 
             if (name.isEmpty())
-                return make_unique<PboHeader>(QString(), QString());
+                return QSharedPointer<PboHeader>(new PboHeader("", ""));
 
             QString value;
             data >> value;
 
-            return make_unique<PboHeader>(name, value);
+            return QSharedPointer<PboHeader>(new PboHeader(name, value));
         } catch (PboEofException&) {
             return nullptr;
         }

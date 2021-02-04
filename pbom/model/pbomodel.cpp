@@ -14,22 +14,22 @@ namespace pboman3 {
             file_->close();
         }
 
-        file_ = make_unique<PboFile>(path);
+        file_ = QSharedPointer<PboFile>(new PboFile(path));
         file_->open(QIODeviceBase::OpenModeFlag::ReadWrite);
         emitLoadBegin(path);
 
         const PboHeaderIO reader(file_.get());
-        unique_ptr<PboEntry_> entry = reader.readNextEntry();
+        QSharedPointer<PboEntry_> entry = reader.readNextEntry();
 
 #define QUIT file_->close(); \
-        unique_ptr<PboLoadFailedEvent> evt = make_unique<PboLoadFailedEvent>(); \
+        const auto evt = QSharedPointer<PboLoadFailedEvent>(new PboLoadFailedEvent); \
         emit onEvent(evt.get()); \
         return;
 
         if (!entry) { QUIT }
 
         if (entry->isSignature()) {
-            unique_ptr<PboHeader> header = reader.readNextHeader();
+            QSharedPointer<PboHeader> header = reader.readNextHeader();
             while (header && !header->isBoundary()) {
                 registerHeader(header);
                 header = reader.readNextHeader();
@@ -64,7 +64,7 @@ namespace pboman3 {
 
             writeFileSignature(io);
 
-            for (const unique_ptr<PboHeader>& header : headers_) {
+            for (const QSharedPointer<PboHeader>& header : headers_) {
                 io.writeHeader(header.get());
             }
 
@@ -78,35 +78,35 @@ namespace pboman3 {
     }
 
     void PboModel::createEntry(const QString& systemFilePath, const QString& pboFilePath) {
-        additions_.push_back(make_unique<ChangeAdd>(systemFilePath, pboFilePath));
+        additions_.push_back(QSharedPointer<ChangeAdd>(new ChangeAdd(systemFilePath, pboFilePath)));
     }
 
     void PboModel::moveEntry(const PboEntry* entry, const QString& pboFilePath) {
         const auto* ent = dynamic_cast<const PboEntry_*>(entry);
         assert(ent && "Must have a special type");
-        transforms_.push_back(make_unique<ChangeMove>(ent, pboFilePath));
+        transforms_.push_back(QSharedPointer<ChangeMove>(new ChangeMove(ent, pboFilePath)));
     }
 
     void PboModel::deleteEntry(const PboEntry* entry) {
         const auto* ent = dynamic_cast<const PboEntry_*>(entry);
         assert(ent && "Must have a special type");
-        transforms_.push_back(make_unique<ChangeDelete>(ent));
+        transforms_.push_back(QSharedPointer<ChangeDelete>(new ChangeDelete(ent)));
     }
 
     void PboModel::updateEntriesOffsets(long offsetStart) {
-        for (unique_ptr<PboEntry_>& entry : entries_) {
+        for (QSharedPointer<PboEntry_>& entry : entries_) {
             entry->dataOffset = offsetStart;
             offsetStart += entry->dataSize;
         }
     }
 
-    void PboModel::registerEntry(unique_ptr<PboEntry_>& entry) {
+    void PboModel::registerEntry(QSharedPointer<PboEntry_>& entry) {
         const auto evt = make_unique<PboEntryUpdatedEvent>(entry.get());
         emit onEvent(evt.get());
         entries_.push_back(move(entry));
     }
 
-    void PboModel::registerHeader(unique_ptr<PboHeader>& header) {
+    void PboModel::registerHeader(QSharedPointer<PboHeader>& header) {
         const auto evt = make_unique<PboHeaderUpdatedEvent>(header.get());
         emit onEvent(evt.get());
         headers_.push_back(move(header));
@@ -118,12 +118,12 @@ namespace pboman3 {
     }
 
     void PboModel::emitLoadComplete(const QString& path) const {
-        const auto evt = make_unique<PboLoadCompleteEvent>(path);
+        const auto evt = QSharedPointer<PboLoadCompleteEvent>(new PboLoadCompleteEvent(path));
         emit onEvent(evt.get());
     }
 
-    void PboModel::emitEntryMoved(const unique_ptr<PboEntry_>& prevEntry, const unique_ptr<PboEntry_>& newEntry) const {
-        const auto evt = make_unique<PboEntryMovedEvent>(prevEntry.get(), newEntry.get());
+    void PboModel::emitEntryMoved(const QSharedPointer<PboEntry_>& prevEntry, const QSharedPointer<PboEntry_>& newEntry) const {
+        const auto evt = QSharedPointer<PboEntryMovedEvent>(new PboEntryMovedEvent(prevEntry.get(), newEntry.get()));
         emit onEvent(evt.get());
     }
 
@@ -134,16 +134,16 @@ namespace pboman3 {
 
     void PboModel::writeFileEntries(const PboHeaderIO& io) {
         for (auto i = entries_.begin(); i != entries_.end(); ++i) {
-            const unique_ptr<PboEntry_>& entry = *i;
-            if (const unique_ptr<ChangeBase> change = getChangeFor(entry.get())) {
+            const QSharedPointer<PboEntry_>& entry = *i;
+            if (const QSharedPointer<ChangeBase> change = getChangeFor(entry.get())) {
                 if (const auto* cMove = dynamic_cast<ChangeMove*>(change.get())) {
-                    unique_ptr<PboEntry_> moved = make_unique<PboEntry_>(
+                    auto moved = QSharedPointer<PboEntry_>(new PboEntry_(
                         cMove->pboFilePath, entry->packingMethod, entry->originalSize, entry->reserved,
-                        entry->timestamp, entry->dataSize);
+                        entry->timestamp, entry->dataSize));
                     moved->dataOffset = entry->dataOffset;
                     io.writeEntry(moved.get());
                     emitEntryMoved(entry, moved);
-                    entries_.emplace(i, move(moved));
+                    entries_.emplace(i, moved);
                 }
                 //just skip deleted entries
             } else {
@@ -151,17 +151,18 @@ namespace pboman3 {
             }
         }
 
-        assert(!transforms_.size(), "All the transforms must have been applied");
+        assert(!transforms_.count() && "All the transforms must have been applied");
 
         PboEntry eBnd = PboEntry::makeBoundary();
         io.writeEntry(&eBnd);
     }
 
-    unique_ptr<ChangeBase> PboModel::getChangeFor(const PboEntry_* entry) {
+    QSharedPointer<ChangeBase> PboModel::getChangeFor(const PboEntry_* entry) {
         for (auto i = transforms_.begin(); i != transforms_.end(); ++i) {
-            unique_ptr<ChangeBase>& change = *i;
+            QSharedPointer<ChangeBase>& change = *i;
             if (change->entry == entry) {
-                unique_ptr<ChangeBase> result(move(change));
+                QSharedPointer<ChangeBase> result;
+                change.swap(result);
                 transforms_.erase(i);
                 return result;
             }

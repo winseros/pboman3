@@ -2,6 +2,7 @@
 
 #include <QAbstractItemModel>
 #include <QRegularExpression>
+#include <QSharedPointer>
 #include "treenode.h"
 #include "model/pbomodel.h"
 
@@ -29,7 +30,7 @@ namespace pboman3 {
 
     private:
         QRegularExpression pathSep_;
-        unique_ptr<RootNode> root_;
+        QSharedPointer<RootNode> root_;
 
     private slots:
         void onModelEvent(const PboModelEvent* event);

@@ -1,5 +1,6 @@
 #include "treenode.h"
 #include <QRegularExpression>
+#include <algorithm>
 
 constexpr const char* rePath = "\\\\|/";
 constexpr const char* pathSep = "\\";
@@ -10,7 +11,8 @@ namespace pboman3 {
           title_(std::move(title)),
           nodeType_(nodeType),
           parent_(parent),
-          expanded_(false) {
+          expanded_(false),
+          isPendingToBeRemoved_(false) {
         setParent(parent);
     }
 
@@ -19,7 +21,8 @@ namespace pboman3 {
           title_(std::move(containerName)),
           nodeType_(TreeNodeType::Container),
           parent_(parent),
-          expanded_(false) {
+          expanded_(false),
+          isPendingToBeRemoved_(false) {
     }
 
     TreeNode::~TreeNode() {
@@ -27,17 +30,40 @@ namespace pboman3 {
     }
 
     void TreeNode::addEntry(const PboEntry* pboEntry) {
-        const QRegularExpression reg(rePath, QRegularExpression::PatternOption::DontCaptureOption);
-        const QList<QString> segments = pboEntry->fileName
-                                                .right(pboEntry->fileName.length() - path().length())
-                                                .split(reg, Qt::SplitBehaviorFlags::SkipEmptyParts);
-
-        QString childName = segments.first();
+        const QList<QString> segments = getChildPathSegments(pboEntry);
+        const QString& childName = segments.first();
         if (segments.length() == 1) {
-            insertSorted(new TreeNode(std::move(childName), TreeNodeType::File, this, pboEntry));
+            insertSorted(new TreeNode(childName, TreeNodeType::File, this, pboEntry));
         } else {
             TreeNode* child = getOrCreateChild(childName);
             child->addEntry(pboEntry);
+        }
+    }
+
+    void TreeNode::scheduleRemove(const PboEntry* pboEntry, bool schedule) {
+        if (nodeType_ == TreeNodeType::Root) {
+            children_.at(0)->scheduleRemove(pboEntry, schedule);
+        } else if (nodeType_ == TreeNodeType::File) {
+            assert(entry == pboEntry);
+            isPendingToBeRemoved_ = schedule;
+        } else {
+            const QList<QString> segments = getChildPathSegments(pboEntry);
+            const QString& childName = segments.first();
+
+            bool set = false;
+            int childrenPending = 0;
+            for (TreeNode* node : children_) {
+                if (!set && node->title() == childName) {
+                    node->scheduleRemove(pboEntry, schedule);
+                    set = true;
+                }
+                if (node->isPendingToBeRemoved() == schedule) childrenPending++;
+            }
+
+            if (nodeType_ == TreeNodeType::Dir)
+                isPendingToBeRemoved_ = childrenPending == childCount();
+
+            assert(set && "Could not set the child deletion pending status");
         }
     }
 
@@ -53,7 +79,15 @@ namespace pboman3 {
         }
     }
 
-    TreeNode* TreeNode::getOrCreateChild(QString& childName) {
+    QList<QString> TreeNode::getChildPathSegments(const PboEntry* pboEntry) const {
+        const QRegularExpression reg(rePath, QRegularExpression::PatternOption::DontCaptureOption);
+        QList<QString> segments = pboEntry->fileName
+                                          .right(pboEntry->fileName.length() - path().length())
+                                          .split(reg, Qt::SplitBehaviorFlags::SkipEmptyParts);
+        return segments;
+    }
+
+    TreeNode* TreeNode::getOrCreateChild(const QString& childName) {
         for (TreeNode* node : children_) {
             if (node->title() == childName) {
                 return node;
@@ -115,6 +149,10 @@ namespace pboman3 {
 
     void TreeNode::expand(bool expand) {
         expanded_ = expand;
+    }
+
+    bool TreeNode::isPendingToBeRemoved() const {
+        return isPendingToBeRemoved_;
     }
 
     void TreeNode::collectEntries(QMap<const QString, const PboEntry*>& collection) const {

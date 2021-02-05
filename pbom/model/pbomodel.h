@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QList>
+#include <QMap>
+#include <QSet>
 #include "changestream.h"
 #include "pboentry.h"
 #include "pboheader.h"
@@ -24,7 +26,9 @@ namespace pboman3 {
 
         void moveEntry(const PboEntry* entry, const QString& pboFilePath);
 
-        void deleteEntry(const PboEntry* entry);
+        void scheduleEntryDelete(const PboEntry* entry);
+
+        void cancelEntryDelete(const PboEntry* entry);
 
     signals:
         void onEvent(const PboModelEvent* event) const;
@@ -35,8 +39,9 @@ namespace pboman3 {
         QSharedPointer<PboFile> file_;
         QList<QSharedPointer<PboEntry_>> entries_;
         QList<QSharedPointer<PboHeader>> headers_;
-        QList<QSharedPointer<ChangeAdd>> additions_;
-        QList<QSharedPointer<ChangeBase>> transforms_;
+        QList<QSharedPointer<ChangeAdd>> pendingAdds_;
+        QMap<QString, QSharedPointer<ChangeMove>> pendingMoves_;
+        QSet<QString> pendingDeletes_;
 
         void updateEntriesOffsets(long offsetStart);
 
@@ -48,12 +53,12 @@ namespace pboman3 {
 
         void emitLoadComplete(const QString& path) const;
 
-        void emitEntryMoved(const QSharedPointer<PboEntry_>& prevEntry, const QSharedPointer<PboEntry_>& newEntry) const;
-
         void writeFileSignature(const PboHeaderIO& io) const;
 
         void writeFileEntries(const PboHeaderIO& io);
 
-        QSharedPointer<ChangeBase> getChangeFor(const PboEntry_* entry);
+        bool isDeletePending(const PboEntry_* entry);
+
+        QSharedPointer<ChangeMove> findPendingMove(const PboEntry_* entry);
     };
 }

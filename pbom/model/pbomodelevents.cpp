@@ -1,48 +1,50 @@
 #include "pbomodelevents.h"
 
 namespace pboman3 {
-    PboModelEvent::PboModelEvent(QString eventType)
-        : eventType(std::move(eventType)) {
-    }
-
-    const QString PboLoadBeginEvent::eventType = "load-begin";
+    PboModelEvent::PboModelEvent() = default;
 
     PboLoadBeginEvent::PboLoadBeginEvent(QString path)
-        : PboModelEvent(PboLoadBeginEvent::eventType),
+        : PboModelEvent(),
           path(std::move(path)) {
     }
-
-    const QString PboLoadCompleteEvent::eventType = "load-complete";
 
     PboLoadCompleteEvent::PboLoadCompleteEvent(QString path)
-        : PboModelEvent(PboLoadCompleteEvent::eventType),
+        : PboModelEvent(),
           path(std::move(path)) {
     }
 
-    const QString PboLoadFailedEvent::eventType = "load-failed";
-
     PboLoadFailedEvent::PboLoadFailedEvent()
-        : PboModelEvent(PboLoadFailedEvent::eventType) {
+        : PboModelEvent() {
     }
 
-    const QString PboHeaderUpdatedEvent::eventType = "header-updated";
-
-    PboHeaderUpdatedEvent::PboHeaderUpdatedEvent(const PboHeader* header) :
-        PboModelEvent(PboHeaderUpdatedEvent::eventType),
+    PboHeaderCreatedEvent::PboHeaderCreatedEvent(const PboHeader* header) :
+        PboModelEvent(),
         header(header) {
     }
 
-    const QString PboEntryUpdatedEvent::eventType = "entry-updated";
-
-    PboEntryUpdatedEvent::PboEntryUpdatedEvent(PboEntry* entry)
-        : PboModelEvent(PboEntryUpdatedEvent::eventType),
+    PboEntryCreatedEvent::PboEntryCreatedEvent(const PboEntry* entry)
+        : PboModelEvent(),
           entry(entry) {
     }
 
-    const QString PboEntryMovedEvent::eventType = "entry-moved";
+    PboEntryDeleteScheduledEvent::PboEntryDeleteScheduledEvent(const PboEntry* entry)
+        : PboModelEvent(),
+          entry(entry) {
+    }
+
+    PboEntryDeleteCanceledEvent::PboEntryDeleteCanceledEvent(const PboEntry* entry)
+        : PboModelEvent(),
+          entry(entry) {
+    }
+
+    PboEntryDeleteCompleteEvent::PboEntryDeleteCompleteEvent(const PboEntry* entry)
+        : PboModelEvent(),
+          entry(entry) {
+    }
+
 
     PboEntryMovedEvent::PboEntryMovedEvent(const PboEntry* prevEntry, const PboEntry* newEntry)
-        : PboModelEvent(PboEntryMovedEvent::eventType),
+        : PboModelEvent(),
           prevEntry(prevEntry),
           newEntry(newEntry) {
     }

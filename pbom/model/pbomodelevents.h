@@ -5,61 +5,68 @@
 
 namespace pboman3 {
     class PboModelEvent {
-    public:
-        const QString eventType;
     protected:
-        explicit PboModelEvent(QString eventType);
+        explicit PboModelEvent();
 
         virtual ~PboModelEvent() = default;
     };
 
-    class PboLoadBeginEvent final : public virtual PboModelEvent {
+    class PboLoadBeginEvent final : public PboModelEvent {
     public:
-        static const QString eventType;
-
         const QString path;
 
         explicit PboLoadBeginEvent(QString path);
     };
 
-    class PboLoadCompleteEvent final : public virtual PboModelEvent {
+    class PboLoadCompleteEvent final : public PboModelEvent {
     public:
-        static const QString eventType;
-
         const QString path;
 
         explicit PboLoadCompleteEvent(QString path);
     };
 
-    class PboLoadFailedEvent final : public virtual PboModelEvent {
+    class PboLoadFailedEvent final : public PboModelEvent {
     public:
-        static const QString eventType;
-
         PboLoadFailedEvent();
     };
 
-    class PboHeaderUpdatedEvent final : public virtual PboModelEvent {
+    class PboHeaderCreatedEvent final : public PboModelEvent {
     public:
-        static const QString eventType;
-
         const PboHeader* const header;
 
-        explicit PboHeaderUpdatedEvent(const PboHeader* header);
+        explicit PboHeaderCreatedEvent(const PboHeader* header);
     };
 
-    class PboEntryUpdatedEvent final : public virtual PboModelEvent {
+    class PboEntryCreatedEvent final : public PboModelEvent {
     public:
-        static const QString eventType;
-
         const PboEntry* entry;
 
-        explicit PboEntryUpdatedEvent(PboEntry* entry);
+        explicit PboEntryCreatedEvent(const PboEntry* entry);
     };
 
-    class PboEntryMovedEvent final : public virtual PboModelEvent {
+    class PboEntryDeleteScheduledEvent final : public PboModelEvent {
     public:
-        static const QString eventType;
+        const PboEntry* entry;
 
+        explicit PboEntryDeleteScheduledEvent(const PboEntry* entry);
+    };
+
+    class PboEntryDeleteCanceledEvent final : public PboModelEvent {
+    public:
+        const PboEntry* entry;
+
+        explicit PboEntryDeleteCanceledEvent(const PboEntry* entry);
+    };
+
+    class PboEntryDeleteCompleteEvent final : public PboModelEvent {
+    public:
+        const PboEntry* entry;
+
+        explicit PboEntryDeleteCompleteEvent(const PboEntry* entry);
+    };
+
+    class PboEntryMovedEvent final : public PboModelEvent {
+    public:
         const PboEntry* prevEntry;
         const PboEntry* newEntry;
 

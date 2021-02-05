@@ -22,6 +22,8 @@ namespace pboman3 {
 
         virtual void addEntry(const PboEntry* pboEntry);
 
+        void scheduleRemove(const PboEntry* pboEntry, bool schedule = true);
+
         void setParent(const TreeNode* parent);
 
         const TreeNode* parent() const;
@@ -40,6 +42,8 @@ namespace pboman3 {
 
         void expand(bool expand);
 
+        bool isPendingToBeRemoved() const;
+
         friend bool operator<(const TreeNode& one, const TreeNode& two);
 
         const PboEntry* entry;
@@ -55,8 +59,11 @@ namespace pboman3 {
         QString path_;
         const TreeNode* parent_;
         bool expanded_;
+        bool isPendingToBeRemoved_;
 
-        TreeNode* getOrCreateChild(QString& childName);
+        QList<QString> getChildPathSegments(const PboEntry* pboEntry) const;
+
+        TreeNode* getOrCreateChild(const QString& childName);
 
         void insertSorted(TreeNode* node);
     };
@@ -66,5 +73,7 @@ namespace pboman3 {
         RootNode(QString fileName);
 
         void addEntry(const PboEntry* pboEntry) override;
+
+
     };
 }

@@ -41,7 +41,7 @@ private:
 
     void onLoadFailed(const PboLoadFailedEvent* event);
 
-    void onHeaderUpdated(const PboHeaderUpdatedEvent* event);
+    void onHeaderCreated(const PboHeaderCreatedEvent* event);
 
-    void onEntryUpdated(const PboEntryUpdatedEvent* event);
+    void onEntryUpdated(const PboEntryCreatedEvent* event);
 };

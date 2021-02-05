@@ -47,19 +47,19 @@ void MainWindow::onSelectionDeleteClick() const {
         payload->collectEntries(affectedEntries);
     }
     for (const PboEntry* entry: affectedEntries.values()) {
-        PboModel::instance->deleteEntry(entry);
+        PboModel::instance->scheduleEntryDelete(entry);
     }
 }
 
 void MainWindow::onModelEvent(const PboModelEvent* event) {
-    if (event->eventType == PboLoadBeginEvent::eventType) {
-        onLoadBegin(dynamic_cast<const PboLoadBeginEvent*>(event));
-    } else if (event->eventType == PboLoadCompleteEvent::eventType) {
-        onLoadComplete(dynamic_cast<const PboLoadCompleteEvent*>(event));
-    } else if (event->eventType == PboLoadFailedEvent::eventType) {
-        onLoadFailed(dynamic_cast<const PboLoadFailedEvent*>(event));
-    } else if (event->eventType == PboHeaderUpdatedEvent::eventType) {
-        onHeaderUpdated(dynamic_cast<const PboHeaderUpdatedEvent*>(event));
+    if (const auto* evt1 = dynamic_cast<const PboLoadBeginEvent*>(event)) {
+        onLoadBegin(evt1);
+    } else if (const auto* evt2 = dynamic_cast<const PboLoadCompleteEvent*>(event)) {
+        onLoadComplete(evt2);
+    } else if (const auto* evt3 = dynamic_cast<const PboLoadFailedEvent*>(event)) {
+        onLoadFailed(evt3);
+    } else if (const auto* evt4 = dynamic_cast<const PboHeaderCreatedEvent*>(event)) {
+        onHeaderCreated(evt4);
     }
 }
 
@@ -92,9 +92,9 @@ void MainWindow::onLoadFailed(const PboLoadFailedEvent* event) {
 
 }
 
-void MainWindow::onHeaderUpdated(const PboHeaderUpdatedEvent* event) {
+void MainWindow::onHeaderCreated(const PboHeaderCreatedEvent* event) {
 
 }
 
-void MainWindow::onEntryUpdated(const PboEntryUpdatedEvent* event) {
+void MainWindow::onEntryUpdated(const PboEntryCreatedEvent* event) {
 }

@@ -100,4 +100,52 @@ namespace pboman3::test {
         ASSERT_EQ(root.child(0)->child(1)->child(2)->childCount(), 0);
         ASSERT_EQ(root.child(0)->child(1)->child(2)->entry, &e6);
     }
+
+    TEST(TreeNodeTest, ScheduleRemove_Schedules) {
+        const PboEntry_ e1{"e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0};
+        const PboEntry_ e2{"f2/e2", PboPackingMethod::Uncompressed, 0, 0, 0, 0};
+        const PboEntry_ e3{"f2/e3", PboPackingMethod::Uncompressed, 0, 0, 0, 0};
+
+        //add entries
+        RootNode root("root-name");
+        root.addEntry(&e1);
+        root.addEntry(&e2);
+        root.addEntry(&e3);
+
+        //mark e1
+        root.scheduleRemove(&e1);
+        ASSERT_FALSE(root.isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->child(0)->isPendingToBeRemoved()); //f2
+        ASSERT_FALSE(root.child(0)->child(0)->child(0)->isPendingToBeRemoved()); //f2/e2
+        ASSERT_FALSE(root.child(0)->child(0)->child(1)->isPendingToBeRemoved()); //f2/e3
+        ASSERT_TRUE(root.child(0)->child(1)->isPendingToBeRemoved()); //e1
+
+        //mark e2
+        root.scheduleRemove(&e2);
+        ASSERT_FALSE(root.isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->child(0)->isPendingToBeRemoved()); //f2
+        ASSERT_TRUE(root.child(0)->child(0)->child(0)->isPendingToBeRemoved()); //f2/e2
+        ASSERT_FALSE(root.child(0)->child(0)->child(1)->isPendingToBeRemoved()); //f2/e3
+        ASSERT_TRUE(root.child(0)->child(1)->isPendingToBeRemoved()); //e1
+
+        //mark e3
+        root.scheduleRemove(&e3);
+        ASSERT_FALSE(root.isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->isPendingToBeRemoved());
+        ASSERT_TRUE(root.child(0)->child(0)->isPendingToBeRemoved()); //f2
+        ASSERT_TRUE(root.child(0)->child(0)->child(0)->isPendingToBeRemoved()); //f2/e2
+        ASSERT_TRUE(root.child(0)->child(0)->child(1)->isPendingToBeRemoved()); //f2/e3
+        ASSERT_TRUE(root.child(0)->child(1)->isPendingToBeRemoved()); //e1
+
+        //unmark e3
+        root.scheduleRemove(&e3, false);
+        ASSERT_FALSE(root.isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->isPendingToBeRemoved());
+        ASSERT_FALSE(root.child(0)->child(0)->isPendingToBeRemoved()); //f2
+        ASSERT_TRUE(root.child(0)->child(0)->child(0)->isPendingToBeRemoved()); //f2/e2
+        ASSERT_FALSE(root.child(0)->child(0)->child(1)->isPendingToBeRemoved()); //f2/e3
+        ASSERT_TRUE(root.child(0)->child(1)->isPendingToBeRemoved()); //e1
+    }
 }

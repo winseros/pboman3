@@ -137,22 +137,26 @@ namespace pboman3 {
     }
 
     void PboModel::writeFileEntries(const PboHeaderIO& io) {
-        for (auto i = entries_.begin(); i != entries_.end(); ++i) {
-            const QSharedPointer<PboEntry_>& entry = *i;
+        auto it = entries_.begin();
+        while (it != entries_.end()) {
+            const QSharedPointer<PboEntry_>& entry = *it;
             assert(entry.get()->fileName.length() > 0);
             if (isDeletePending(entry.get())) {
                 QSharedPointer<PboEntryDeleteCompleteEvent> evt(new PboEntryDeleteCompleteEvent(entry.get()));
                 emit onEvent(evt.get());
-                entries_.erase(i);
-            } else if (const QSharedPointer<ChangeMove> move = findPendingMove(entry.get())) {
+                it = entries_.erase(it);
+            }
+            else if (const QSharedPointer<ChangeMove> move = findPendingMove(entry.get())) {
                 auto moved = QSharedPointer<PboEntry_>(new PboEntry_(
-                        move->pboFilePath, entry->packingMethod, entry->originalSize, entry->reserved,
-                        entry->timestamp, entry->dataSize));
-                    moved->dataOffset = entry->dataOffset;
-                    io.writeEntry(moved.get());
-                    entries_.emplace(i, moved);
-            } else {
+                    move->pboFilePath, entry->packingMethod, entry->originalSize, entry->reserved,
+                    entry->timestamp, entry->dataSize));
+                moved->dataOffset = entry->dataOffset;
+                io.writeEntry(moved.get());
+                it = entries_.emplace(it, moved);
+            }
+            else {
                 io.writeEntry(entry.get());
+                ++it;
             }
         }
 

@@ -1,5 +1,4 @@
 #include "treemodel.h"
-#include <QFont>
 
 namespace pboman3 {
     TreeModel::TreeModel(const PboModel* model) {
@@ -17,7 +16,7 @@ namespace pboman3 {
                                    ? static_cast<TreeNode*>(parent.internalPointer())
                                    : root_.get();
 
-        const TreeNode* childNode = parentNode->child(row);
+        const QPointer<TreeNode> childNode = parentNode->childNode(row);
         return createIndex(row, column, childNode);
     }
 
@@ -26,7 +25,7 @@ namespace pboman3 {
             return QModelIndex();
 
         auto* childNode = static_cast<TreeNode*>(child.internalPointer());
-        const TreeNode* parentNode = childNode->parent();
+        const QPointer<TreeNode> parentNode = childNode->parentNode();
         return parentNode
                    ? createIndex(parentNode->row(), 0, parentNode)
                    : QModelIndex();
@@ -40,7 +39,7 @@ namespace pboman3 {
                                ? static_cast<TreeNode*>(parent.internalPointer())
                                : root_.get();
 
-        return parentNode->childCount();
+        return parentNode->childNodeCount();
     }
 
     int TreeModel::columnCount(const QModelIndex& parent) const {
@@ -61,9 +60,7 @@ namespace pboman3 {
         case Qt::DecorationRole:
             return node->icon();
         case Qt::FontRole: {
-            QFont f;
-            f.setStrikeOut(node->isPendingToBeRemoved());
-            return f;
+            return node->font();
         }
         default:
             return QVariant();
@@ -86,7 +83,11 @@ namespace pboman3 {
             root_->scheduleRemove(evt2->entry, false);
             emit dataChanged(QModelIndex(), QModelIndex());
         } else if (const auto* evt4 = dynamic_cast<const PboEntryDeleteCompleteEvent*>(event)) {
-
+            const QPointer<TreeNode> node = root_->prepareRemove(evt4->entry);
+            const int row = node->row();
+            beginRemoveRows(createIndex(row, 0, node).parent(), row, row);
+            root_->completeRemove(evt4->entry);
+            endRemoveRows();
         } else if (const auto* evt5 = dynamic_cast<const PboLoadBeginEvent*>(event)) {
             const int lastSep = static_cast<int>(evt5->path.lastIndexOf(pathSep_)) + 1;
             auto fileName = evt5->path.right(evt5->path.length() - lastSep);
@@ -97,20 +98,6 @@ namespace pboman3 {
         } else if (dynamic_cast<const PboLoadFailedEvent*>(event)) {
             root_ = nullptr;
             endResetModel();
-        }
-    }
-
-    void TreeModel::viewExpanded(const QModelIndex& index) const {
-        if (root_) {
-            auto* node = static_cast<TreeNode*>(index.internalPointer());
-            node->expand(true);
-        }
-    }
-
-    void TreeModel::viewCollapsed(const QModelIndex& index) const {
-        if (root_) {
-            auto* node = static_cast<TreeNode*>(index.internalPointer());
-            node->expand(false);
         }
     }
 }

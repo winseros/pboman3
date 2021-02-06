@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QAbstractItemModel>
 #include <QRegularExpression>
 #include <QSharedPointer>
 #include "treenode.h"
@@ -22,11 +21,6 @@ namespace pboman3 {
         QVariant data(const QModelIndex& index, int role) const override;
 
         Qt::ItemFlags flags(const QModelIndex& index) const override;
-
-    public slots:
-        void viewExpanded(const QModelIndex& index) const;
-
-        void viewCollapsed(const QModelIndex& index) const;
 
     private:
         QRegularExpression pathSep_;

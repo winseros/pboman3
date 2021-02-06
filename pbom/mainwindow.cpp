@@ -9,21 +9,21 @@ using namespace pboman3;
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
-      ui(new Ui::MainWindow) {
-    ui->setupUi(this);
+      ui_(new Ui::MainWindow) {
+    ui_->setupUi(this);
     connect(PboModel::instance, &PboModel::onEvent, this, &MainWindow::onModelEvent);
 
-    treeModel = QSharedPointer<TreeModel>(new TreeModel(PboModel::instance));
-    ui->treeView->setModel(treeModel.get());
-    ui->treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+    treeModel_ = QSharedPointer<TreeModel>(new TreeModel(PboModel::instance));
+    ui_->treeView->setModel(treeModel_.get());
+    ui_->treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-    connect(ui->treeView, &QTreeView::expanded, treeModel.get(), &TreeModel::viewExpanded);
-    connect(ui->treeView, &QTreeView::collapsed, treeModel.get(), &TreeModel::viewCollapsed);
-    connect(ui->treeView, &QTreeView::customContextMenuRequested, this, &MainWindow::onContextMenuRequested);
+    connect(ui_->treeView, &QTreeView::expanded, this, &MainWindow::onTreeNodeExpanded);
+    connect(ui_->treeView, &QTreeView::collapsed, this, &MainWindow::onTreeNodeCollapsed);
+    connect(ui_->treeView, &QTreeView::customContextMenuRequested, this, &MainWindow::onContextMenuRequested);
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+    delete ui_;
 }
 
 void MainWindow::onFileOpenClick() {
@@ -39,14 +39,14 @@ void MainWindow::onFileSaveClick() {
 }
 
 void MainWindow::onSelectionDeleteClick() const {
-    const QItemSelectionModel* selection = ui->treeView->selectionModel();
+    const QItemSelectionModel* selection = ui_->treeView->selectionModel();
     assert(selection->hasSelection());
     QMap<const QString, const PboEntry*> affectedEntries;
-    for (const QModelIndex& selected: selection->selectedIndexes()) {
+    for (const QModelIndex& selected : selection->selectedIndexes()) {
         const auto* payload = static_cast<const TreeNode*>(selected.constInternalPointer());
         payload->collectEntries(affectedEntries);
     }
-    for (const PboEntry* entry: affectedEntries.values()) {
+    for (const PboEntry* entry : affectedEntries.values()) {
         PboModel::instance->scheduleEntryDelete(entry);
     }
 }
@@ -64,21 +64,31 @@ void MainWindow::onModelEvent(const PboModelEvent* event) {
 }
 
 void MainWindow::onContextMenuRequested(const QPoint& point) {
-    QItemSelectionModel* selection = ui->treeView->selectionModel();
+    QItemSelectionModel* selection = ui_->treeView->selectionModel();
     if (selection->hasSelection()) {
         const QModelIndexList selected = selection->selectedIndexes();
         if (selected.size() == 1) {
             const auto* model = static_cast<const TreeModel*>(selected.first().constInternalPointer());
             QMenu menu;
-            menu.addAction(ui->actionSelectionOpen);
-            menu.addAction(ui->actionSelectionCopy);
-            menu.addAction(ui->actionSelectionCut);
-            menu.addAction(ui->actionSelectionDelete);
-            menu.exec(ui->treeView->mapToGlobal(point));
+            menu.addAction(ui_->actionSelectionOpen);
+            menu.addAction(ui_->actionSelectionCopy);
+            menu.addAction(ui_->actionSelectionCut);
+            menu.addAction(ui_->actionSelectionDelete);
+            menu.exec(ui_->treeView->mapToGlobal(point));
         } else {
-            
+
         }
     }
+}
+
+void MainWindow::onTreeNodeExpanded(const QModelIndex& index) const {
+    auto* node = static_cast<TreeNode*>(index.internalPointer());
+    node->expand(true);
+}
+
+void MainWindow::onTreeNodeCollapsed(const QModelIndex& index) const {
+    auto* node = static_cast<TreeNode*>(index.internalPointer());
+    node->expand(false);
 }
 
 void MainWindow::onLoadBegin(const PboLoadBeginEvent* event) {

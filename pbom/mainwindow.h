@@ -32,8 +32,12 @@ public slots:
     void onContextMenuRequested(const QPoint& point);
 
 private:
-    Ui::MainWindow* ui;
-    QSharedPointer<TreeModel> treeModel;
+    Ui::MainWindow* ui_;
+    QSharedPointer<TreeModel> treeModel_;
+
+    void onTreeNodeExpanded(const QModelIndex& index) const;
+
+    void onTreeNodeCollapsed(const QModelIndex& index) const;
 
     void onLoadBegin(const PboLoadBeginEvent* event);
 

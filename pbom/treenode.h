@@ -1,6 +1,10 @@
 #pragma once
 
+#include <QFont>
 #include <QIcon>
+#include <QModelIndex>
+#include <QPointer>
+#include <QSharedPointer>
 #include <QString>
 #include "model/pbomodel.h"
 
@@ -12,60 +16,67 @@ namespace pboman3 {
         File
     };
 
-    class TreeNode {
+    class TreeNode : public QObject {
+    Q_OBJECT
+
     public:
-        TreeNode(QString title, TreeNodeType nodeType, const TreeNode* parent, const PboEntry* entry);
+        TreeNode(QString title, TreeNodeType nodeType, const QPointer<TreeNode>& parentNode, const PboEntry* entry);
 
-        TreeNode(QString containerName, const TreeNode* parent);
-
-        virtual ~TreeNode();
-
-        virtual void addEntry(const PboEntry* pboEntry);
-
-        void scheduleRemove(const PboEntry* pboEntry, bool schedule = true);
-
-        void setParent(const TreeNode* parent);
-
-        const TreeNode* parent() const;
-
-        const QString& path() const;
-
-        const QString& title() const;
-
-        int row() const;
-
-        int childCount() const;
-
-        const TreeNode* child(int index) const;
-
-        QIcon icon() const;
-
-        void expand(bool expand);
-
-        bool isPendingToBeRemoved() const;
+        TreeNode(QString containerName, const QPointer<TreeNode>& parentNode);
 
         friend bool operator<(const TreeNode& one, const TreeNode& two);
 
-        const PboEntry* entry;
+        virtual void addEntry(const PboEntry* entry);
+
+        void scheduleRemove(const PboEntry* entry, bool schedule = true);
+
+        QPointer<TreeNode> prepareRemove(const PboEntry* entry) const;
+
+        void completeRemove(const PboEntry* entry);
 
         void collectEntries(QMap<const QString, const PboEntry*>& collection) const;
 
+        QPointer<TreeNode> parentNode() const;
+
+        void setParentNode(const QPointer<TreeNode>& parentNode);
+
+        const PboEntry* entry() const;
+
+        const QString& title() const;
+
+        const QString& path() const;
+
+        void expand(bool expand);
+
+        QIcon icon() const;
+
+        QFont font() const;
+
+        int row() const;
+
+        int childNodeCount() const;
+
+        QPointer<TreeNode> childNode(int index) const;
+
     protected:
-        QVector<TreeNode*> children_;
+        QVector<QSharedPointer<TreeNode>> childNodes_;
 
     private:
+        const PboEntry* entry_;
         QString title_;
         TreeNodeType nodeType_;
         QString path_;
-        const TreeNode* parent_;
+        QPointer<TreeNode> parentNode_;
         bool expanded_;
         bool isPendingToBeRemoved_;
 
-        QList<QString> getChildPathSegments(const PboEntry* pboEntry) const;
+        QSharedPointer<TreeNode> getOrCreateChild(const QString& childName);
 
-        TreeNode* getOrCreateChild(const QString& childName);
+        QPointer<TreeNode> findFileNode(const PboEntry* entry) const;
 
-        void insertSorted(TreeNode* node);
+        QList<QString> getPathComponents(const PboEntry* entry) const;
+
+        void insertSorted(const QSharedPointer<TreeNode>& node);
     };
 
     class RootNode : public virtual TreeNode {
@@ -73,7 +84,5 @@ namespace pboman3 {
         RootNode(QString fileName);
 
         void addEntry(const PboEntry* pboEntry) override;
-
-
     };
 }

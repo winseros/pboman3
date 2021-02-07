@@ -29,12 +29,13 @@ target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_SOURCES
+    "__test__/treenode_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
-    "__test__/treenode_test.cpp"
-)
+    "model/__test__/pbomodel_test.cpp"
+ )
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)

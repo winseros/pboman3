@@ -43,9 +43,21 @@ namespace pboman3 {
     }
 
 
-    PboEntryMovedEvent::PboEntryMovedEvent(const PboEntry* prevEntry, const PboEntry* newEntry)
+    PboEntryMoveScheduledEvent::PboEntryMoveScheduledEvent(const PboEntry* entry, const PboEntry* movedEntry)
         : PboModelEvent(),
-          prevEntry(prevEntry),
-          newEntry(newEntry) {
+          entry(entry),
+          movedEntry(movedEntry) {
+    }
+
+    PboEntryMoveCanceledEvent::PboEntryMoveCanceledEvent(const PboEntry* entry, const PboEntry* movedEntry)
+        : PboModelEvent(),
+        entry(entry),
+        movedEntry(movedEntry) {
+    }
+
+    PboEntryMoveCompleteEvent::PboEntryMoveCompleteEvent(const PboEntry* entry, const PboEntry* movedEntry)
+        : PboModelEvent(),
+        entry(entry),
+        movedEntry(movedEntry) {
     }
 }

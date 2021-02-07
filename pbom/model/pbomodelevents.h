@@ -65,11 +65,27 @@ namespace pboman3 {
         explicit PboEntryDeleteCompleteEvent(const PboEntry* entry);
     };
 
-    class PboEntryMovedEvent final : public PboModelEvent {
+    class PboEntryMoveScheduledEvent final : public PboModelEvent {
     public:
-        const PboEntry* prevEntry;
-        const PboEntry* newEntry;
+        const PboEntry* entry;
+        const PboEntry* movedEntry;
 
-        PboEntryMovedEvent(const PboEntry* prevEntry, const PboEntry* newEntry);
+        PboEntryMoveScheduledEvent(const PboEntry* entry, const PboEntry* movedEntry);
+    };
+
+    class PboEntryMoveCanceledEvent final : public PboModelEvent {
+    public:
+        const PboEntry* entry;
+        const PboEntry* movedEntry;
+
+        PboEntryMoveCanceledEvent(const PboEntry* entry, const PboEntry* movedEntry);
+    };
+
+    class PboEntryMoveCompleteEvent final : public PboModelEvent {
+    public:
+        const PboEntry* entry;
+        const PboEntry* movedEntry;
+
+        PboEntryMoveCompleteEvent(const PboEntry* entry, const PboEntry* movedEntry);
     };
 }

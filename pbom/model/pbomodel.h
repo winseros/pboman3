@@ -24,7 +24,9 @@ namespace pboman3 {
 
         void createEntry(const QString& systemFilePath, const QString& pboFilePath);
 
-        void moveEntry(const PboEntry* entry, const QString& pboFilePath);
+        void scheduleEntryMove(const PboEntry* entry, const QString& pboFilePath);
+
+        void cancelEntryMove(const PboEntry* entry);
 
         void scheduleEntryDelete(const PboEntry* entry);
 
@@ -34,13 +36,11 @@ namespace pboman3 {
         void onEvent(const PboModelEvent* event) const;
 
     private:
-        PboModel() = default;
-
         QSharedPointer<PboFile> file_;
         QList<QSharedPointer<PboEntry_>> entries_;
         QList<QSharedPointer<PboHeader>> headers_;
         QList<QSharedPointer<ChangeAdd>> pendingAdds_;
-        QMap<QString, QSharedPointer<ChangeMove>> pendingMoves_;
+        QMap<QString, QSharedPointer<PboEntry_>> pendingMoves_;
         QSet<QString> pendingDeletes_;
 
         void updateEntriesOffsets(long offsetStart);
@@ -57,8 +57,10 @@ namespace pboman3 {
 
         void writeFileEntries(const PboHeaderIO& io);
 
-        bool isDeletePending(const PboEntry_* entry);
+        bool findPendingDelete(const PboEntry* entry, bool pop);
 
-        QSharedPointer<ChangeMove> findPendingMove(const PboEntry_* entry);
+        bool isEntryRegistered(const PboEntry* entry);
+
+        QSharedPointer<PboEntry_> findPendingMove(const PboEntry* entry);
     };
 }

@@ -1,6 +1,8 @@
 #include "pbomodel.h"
 #include <QDir>
+#include <QScopedPointer>
 #include <QUuid>
+#include <algorithm>
 #include <memory>
 #include "io/pboheaderio.h"
 
@@ -81,23 +83,45 @@ namespace pboman3 {
         // additions_.push_back(QSharedPointer<ChangeAdd>(new ChangeAdd(systemFilePath, pboFilePath)));
     }
 
-    void PboModel::moveEntry(const PboEntry* entry, const QString& pboFilePath) {
-        // const auto* ent = dynamic_cast<const PboEntry_*>(entry);
-        // assert(ent && "Must have a special type");
-        // transforms_.push_back(QSharedPointer<ChangeMove>(new ChangeMove(ent, pboFilePath)));
+    void PboModel::scheduleEntryMove(const PboEntry* entry, const QString& pboFilePath) {
+        if (!findPendingDelete(entry, false) && isEntryRegistered(entry)) {
+            const auto moved = QSharedPointer<PboEntry_>(new PboEntry_(
+                pboFilePath, entry->packingMethod, entry->originalSize, entry->reserved,
+                entry->timestamp, entry->dataSize));
+            const auto* ent = dynamic_cast<const PboEntry_*>(entry);
+            assert(ent && "The entry must be created by the pbomodel, not by hand");
+            moved->dataOffset = ent->dataOffset;
+
+            if (const auto existingMove = findPendingMove(entry)) {
+                const QScopedPointer<PboEntryMoveCanceledEvent> evt(new PboEntryMoveCanceledEvent(entry, existingMove.get()));
+                emit onEvent(evt.get());
+            }
+            pendingMoves_.insert(entry->fileName, moved);
+            const QScopedPointer<PboEntryMoveScheduledEvent> evt(new PboEntryMoveScheduledEvent(entry, moved.get()));
+            emit onEvent(evt.get());
+        }
+    }
+
+    void PboModel::cancelEntryMove(const PboEntry* entry) {
+        if (isEntryRegistered(entry)) {
+            if (const auto existingMove = findPendingMove(entry)) {
+                const QScopedPointer<PboEntryMoveCanceledEvent> evt(new PboEntryMoveCanceledEvent(entry, existingMove.get()));
+                emit onEvent(evt.get());
+            }
+        }
     }
 
     void PboModel::scheduleEntryDelete(const PboEntry* entry) {
-        if (!pendingDeletes_.contains(entry->fileName)) {
+        if (!pendingDeletes_.contains(entry->fileName) && isEntryRegistered(entry)) {
             pendingDeletes_.insert(entry->fileName);
-            const QSharedPointer<PboEntryDeleteScheduledEvent> evt(new PboEntryDeleteScheduledEvent(entry));
+            const QScopedPointer<PboEntryDeleteScheduledEvent> evt(new PboEntryDeleteScheduledEvent(entry));
             emit onEvent(evt.get());
         }
     }
 
     void PboModel::cancelEntryDelete(const PboEntry* entry) {
         if (pendingDeletes_.remove(entry->fileName)) {
-            const QSharedPointer<PboEntryDeleteScheduledEvent> evt(new PboEntryDeleteScheduledEvent(entry));
+            const QScopedPointer<PboEntryDeleteCanceledEvent> evt(new PboEntryDeleteCanceledEvent(entry));
             emit onEvent(evt.get());
         }
     }
@@ -109,25 +133,25 @@ namespace pboman3 {
         }
     }
 
-    void PboModel::registerEntry(QSharedPointer<PboEntry_>& entry) {;
-        const QSharedPointer<PboEntryCreatedEvent> evt(new PboEntryCreatedEvent(entry.get()));
+    void PboModel::registerEntry(QSharedPointer<PboEntry_>& entry) {
+        const QScopedPointer<PboEntryCreatedEvent> evt(new PboEntryCreatedEvent(entry.get()));
         emit onEvent(evt.get());
-        entries_.push_back(entry);
+        entries_.append(entry);
     }
 
     void PboModel::registerHeader(QSharedPointer<PboHeader>& header) {
-        const QSharedPointer<PboHeaderCreatedEvent> evt(new PboHeaderCreatedEvent(header.get()));
+        const QScopedPointer<PboHeaderCreatedEvent> evt(new PboHeaderCreatedEvent(header.get()));
         emit onEvent(evt.get());
-        headers_.push_back(header);
+        headers_.append(header);
     }
 
     void PboModel::emitLoadBegin(const QString& path) const {
-        const QSharedPointer<PboLoadBeginEvent> evt(new PboLoadBeginEvent(path));
+        const QScopedPointer<PboLoadBeginEvent> evt(new PboLoadBeginEvent(path));
         emit onEvent(evt.get());
     }
 
     void PboModel::emitLoadComplete(const QString& path) const {
-        const auto evt = QSharedPointer<PboLoadCompleteEvent>(new PboLoadCompleteEvent(path));
+        const auto evt = QScopedPointer<PboLoadCompleteEvent>(new PboLoadCompleteEvent(path));
         emit onEvent(evt.get());
     }
 
@@ -141,20 +165,16 @@ namespace pboman3 {
         while (it != entries_.end()) {
             const QSharedPointer<PboEntry_>& entry = *it;
             assert(entry.get()->fileName.length() > 0);
-            if (isDeletePending(entry.get())) {
-                QSharedPointer<PboEntryDeleteCompleteEvent> evt(new PboEntryDeleteCompleteEvent(entry.get()));
+            if (findPendingDelete(entry.get(), true)) {
+                const QScopedPointer<PboEntryDeleteCompleteEvent> evt(new PboEntryDeleteCompleteEvent(entry.get()));
                 emit onEvent(evt.get());
                 it = entries_.erase(it);
-            }
-            else if (const QSharedPointer<ChangeMove> move = findPendingMove(entry.get())) {
-                auto moved = QSharedPointer<PboEntry_>(new PboEntry_(
-                    move->pboFilePath, entry->packingMethod, entry->originalSize, entry->reserved,
-                    entry->timestamp, entry->dataSize));
-                moved->dataOffset = entry->dataOffset;
+            } else if (const QSharedPointer<PboEntry_> moved = findPendingMove(entry.get())) {
+                const QScopedPointer<PboEntryMoveCompleteEvent> evt(new PboEntryMoveCompleteEvent(it->get(), moved.get()));
+                emit onEvent(evt.get());
                 io.writeEntry(moved.get());
                 it = entries_.emplace(it, moved);
-            }
-            else {
+            } else {
                 io.writeEntry(entry.get());
                 ++it;
             }
@@ -163,22 +183,32 @@ namespace pboman3 {
         assert(!pendingDeletes_.count() && "All the deletes must have been applied");
         assert(!pendingMoves_.count() && "All the moves must have been applied");
 
-        PboEntry eBnd = PboEntry::makeBoundary();
+        const PboEntry eBnd = PboEntry::makeBoundary();
         io.writeEntry(&eBnd);
     }
 
-    bool PboModel::isDeletePending(const PboEntry_* entry) {
+    bool PboModel::findPendingDelete(const PboEntry* entry, const bool pop) {
         if (pendingDeletes_.contains(entry->fileName)) {
-            pendingDeletes_.remove(entry->fileName);
+            if (pop) {
+                pendingDeletes_.remove(entry->fileName);
+            }
             return true;
         }
         return false;
     }
 
-    QSharedPointer<ChangeMove> PboModel::findPendingMove(const PboEntry_* entry) {
+    bool PboModel::isEntryRegistered(const PboEntry* entry) {
+        const QString& fn = entry->fileName;
+        return std::any_of(entries_.begin(), entries_.end(),
+                           [&fn](const QSharedPointer<PboEntry>& e) {
+                               return e->fileName == fn;
+                           });
+    }
+
+    QSharedPointer<PboEntry_> PboModel::findPendingMove(const PboEntry* entry) {
         const auto found = pendingMoves_.find(entry->fileName);
         if (found != pendingMoves_.end()) {
-            QSharedPointer<ChangeMove> result;
+            QSharedPointer<PboEntry_> result;
             found.value().swap(result);
             pendingMoves_.erase(found);
             return result;

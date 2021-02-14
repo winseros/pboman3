@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 #include <QFileDialog>
-#include <QModelIndex>
+#include <QFileInfo>
 #include <QPoint>
-#include "treemodel.h"
 #include "ui_mainwindow.h"
 
 using namespace pboman3;
@@ -11,15 +10,11 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
       ui_(new Ui::MainWindow) {
     ui_->setupUi(this);
-    connect(PboModel::instance, &PboModel::onEvent, this, &MainWindow::onModelEvent);
 
-    treeModel_ = QSharedPointer<TreeModel>(new TreeModel(PboModel::instance));
-    ui_->treeView->setModel(treeModel_.get());
-    ui_->treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+    connect(&model_, &PboModel2::onEvent, this, &MainWindow::onModelEvent);
 
-    connect(ui_->treeView, &QTreeView::expanded, this, &MainWindow::onTreeNodeExpanded);
-    connect(ui_->treeView, &QTreeView::collapsed, this, &MainWindow::onTreeNodeCollapsed);
-    connect(ui_->treeView, &QTreeView::customContextMenuRequested, this, &MainWindow::onContextMenuRequested);
+    ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+    treeCtrl_ = QSharedPointer<TreeControl>(new TreeControl(ui_->treeWidget));
 }
 
 MainWindow::~MainWindow() {
@@ -30,16 +25,16 @@ void MainWindow::onFileOpenClick() {
     const QString fileName = QFileDialog::getOpenFileName(this, "Select a PBO", "",
                                                           "PBO Files (*.pbo);;All Files (*.*)");
     if (!fileName.isEmpty()) {
-        PboModel::instance->loadFile(fileName);
+        model_.loadFile(fileName);
     }
 }
 
 void MainWindow::onFileSaveClick() {
-    PboModel::instance->saveFile();
+    model_.saveFile();
 }
 
 void MainWindow::onSelectionDeleteClick() const {
-    const QItemSelectionModel* selection = ui_->treeView->selectionModel();
+    /*const QItemSelectionModel* selection = ui_->treeView->selectionModel();
     assert(selection->hasSelection());
     QMap<const QString, const PboEntry*> affectedEntries;
     for (const QModelIndex& selected : selection->selectedIndexes()) {
@@ -48,23 +43,22 @@ void MainWindow::onSelectionDeleteClick() const {
     }
     for (const PboEntry* entry : affectedEntries.values()) {
         PboModel::instance->scheduleEntryDelete(entry);
-    }
+    }*/
 }
 
 void MainWindow::onModelEvent(const PboModelEvent* event) {
-    if (const auto* evt1 = dynamic_cast<const PboLoadBeginEvent*>(event)) {
-        onLoadBegin(evt1);
-    } else if (const auto* evt2 = dynamic_cast<const PboLoadCompleteEvent*>(event)) {
-        onLoadComplete(evt2);
-    } else if (const auto* evt3 = dynamic_cast<const PboLoadFailedEvent*>(event)) {
-        onLoadFailed(evt3);
-    } else if (const auto* evt4 = dynamic_cast<const PboHeaderCreatedEvent*>(event)) {
-        onHeaderCreated(evt4);
+    if (const auto* eLoadBegin = dynamic_cast<const PboLoadBeginEvent*>(event)) {
+        const QFileInfo fi(eLoadBegin->path);
+        treeCtrl_->setNewRoot(fi.fileName());
+    } else if (dynamic_cast<const PboLoadCompleteEvent*>(event)) {
+        treeCtrl_->commitRoot();
+    } else if (const auto* eNodeCreated = dynamic_cast<const PboNodeCreatedEvent*>(event)) {
+        treeCtrl_->addNewNode(*eNodeCreated->path, eNodeCreated->nodeType);
     }
 }
 
 void MainWindow::onContextMenuRequested(const QPoint& point) {
-    QItemSelectionModel* selection = ui_->treeView->selectionModel();
+    /*QItemSelectionModel* selection = ui_->treeView->selectionModel();
     if (selection->hasSelection()) {
         const QModelIndexList selected = selection->selectedIndexes();
         if (selected.size() == 1) {
@@ -78,33 +72,5 @@ void MainWindow::onContextMenuRequested(const QPoint& point) {
         } else {
 
         }
-    }
-}
-
-void MainWindow::onTreeNodeExpanded(const QModelIndex& index) const {
-    auto* node = static_cast<TreeNode*>(index.internalPointer());
-    node->expand(true);
-}
-
-void MainWindow::onTreeNodeCollapsed(const QModelIndex& index) const {
-    auto* node = static_cast<TreeNode*>(index.internalPointer());
-    node->expand(false);
-}
-
-void MainWindow::onLoadBegin(const PboLoadBeginEvent* event) {
-}
-
-void MainWindow::onLoadComplete(const PboLoadCompleteEvent* event) {
-
-}
-
-void MainWindow::onLoadFailed(const PboLoadFailedEvent* event) {
-
-}
-
-void MainWindow::onHeaderCreated(const PboHeaderCreatedEvent* event) {
-
-}
-
-void MainWindow::onEntryUpdated(const PboEntryCreatedEvent* event) {
+    }*/
 }

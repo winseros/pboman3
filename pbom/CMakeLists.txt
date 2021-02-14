@@ -12,19 +12,17 @@ set(PROJECT_SOURCES
         io/pbodatastream.cpp
         io/pbofile.cpp
         io/pboheaderio.cpp
-        model/changestream.cpp
         model/pboentry.cpp
         model/pboheader.cpp
-        model/pbomodel.cpp
         model/pbomodel2.cpp
         model/pbomodelevents.cpp
         model/pbonode.cpp
         model/pbonodeevents.cpp
         model/pbotreeexception.cpp
+        ui/treecontrol.cpp
+        ui/treewidgetitem.cpp
         mainwindow.cpp
         mainwindow.ui
-        treemodel.cpp
-        treenode.cpp
 )
 
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
@@ -33,12 +31,10 @@ target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_SOURCES
-    "__test__/treenode_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
-    "model/__test__/pbomodel_test.cpp"
     "model/__test__/pbonode_test.cpp"
     "model/__test__/pbonode_events_tets.cpp"
 )

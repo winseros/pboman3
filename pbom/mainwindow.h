@@ -1,10 +1,12 @@
 #pragma once
 
-#include <QMainWindow>
-#include <QSharedPointer>
 #include <QAction>
+#include <QMainWindow>
 #include "treemodel.h"
+#include "model/pbomodel2.h"
 #include "model/pbomodelevents.h"
+
+#include "ui/treecontrol.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,19 +35,6 @@ public slots:
 
 private:
     Ui::MainWindow* ui_;
-    QSharedPointer<TreeModel> treeModel_;
-
-    void onTreeNodeExpanded(const QModelIndex& index) const;
-
-    void onTreeNodeCollapsed(const QModelIndex& index) const;
-
-    void onLoadBegin(const PboLoadBeginEvent* event);
-
-    void onLoadComplete(const PboLoadCompleteEvent* event);
-
-    void onLoadFailed(const PboLoadFailedEvent* event);
-
-    void onHeaderCreated(const PboHeaderCreatedEvent* event);
-
-    void onEntryUpdated(const PboEntryCreatedEvent* event);
+    PboModel2 model_;
+    QSharedPointer<TreeControl> treeCtrl_;
 };

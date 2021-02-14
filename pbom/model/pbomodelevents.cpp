@@ -51,13 +51,13 @@ namespace pboman3 {
 
     PboEntryMoveCanceledEvent::PboEntryMoveCanceledEvent(const PboEntry* entry, const PboEntry* movedEntry)
         : PboModelEvent(),
-        entry(entry),
-        movedEntry(movedEntry) {
+          entry(entry),
+          movedEntry(movedEntry) {
     }
 
     PboEntryMoveCompleteEvent::PboEntryMoveCompleteEvent(const PboEntry* entry, const PboEntry* movedEntry)
         : PboModelEvent(),
-        entry(entry),
-        movedEntry(movedEntry) {
+          entry(entry),
+          movedEntry(movedEntry) {
     }
 }

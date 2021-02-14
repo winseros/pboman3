@@ -16,7 +16,11 @@ set(PROJECT_SOURCES
         model/pboentry.cpp
         model/pboheader.cpp
         model/pbomodel.cpp
+        model/pbomodel2.cpp
         model/pbomodelevents.cpp
+        model/pbonode.cpp
+        model/pbonodeevents.cpp
+        model/pbotreeexception.cpp
         mainwindow.cpp
         mainwindow.ui
         treemodel.cpp
@@ -35,7 +39,9 @@ set(TEST_SOURCES
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbomodel_test.cpp"
- )
+    "model/__test__/pbonode_test.cpp"
+    "model/__test__/pbonode_events_tets.cpp"
+)
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)

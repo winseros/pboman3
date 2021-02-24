@@ -3,7 +3,6 @@
 #include "pbotreeexception.h"
 
 namespace pboman3 {
-
     PboNode::PboNode(QString title, PboNodeType nodeType, const QPointer<PboNode>& par, const QPointer<PboNode>& root)
         : QObject(),
           nodeType_(nodeType),
@@ -16,29 +15,25 @@ namespace pboman3 {
         qDeleteAll(children_);
     }
 
-    void PboNode::addEntry(const PboEntry* entry) {
-        const QRegularExpression reg("\\\\|/");
-        const QList<QString> segs = entry->fileName.split(reg, Qt::SplitBehaviorFlags::SkipEmptyParts);
-
+    void PboNode::addEntry(const PboPath& entryPath) {
         PboNode* parent = this;
-        for (int i = 0; i < segs.length() - 1; i++) {
-            QPointer<PboNode> child = parent->findChild(segs.at(i));
+        for (int i = 0; i < entryPath.length() - 1; i++) {
+            QPointer<PboNode> child = parent->findChild(entryPath.at(i));
             if (!child) {
-                child = QPointer<PboNode>(new PboNode(segs.at(i), PboNodeType::Folder, parent, root_));
+                child = QPointer<PboNode>(new PboNode(entryPath.at(i), PboNodeType::Folder, parent, root_));
                 parent->children_.append(child);
 
-                const PboPath nodePath = child->makePath();
-                const PboNodeCreatedEvent evt(&nodePath, child->nodeType_);
+                const PboPath childPath = child->makePath();
+                const PboNodeCreatedEvent evt(&childPath, child->nodeType_);
                 root_->onEvent(&evt);
             }
             parent = child.get();
         }
 
-        const QPointer<PboNode> node(new PboNode(segs.last(), PboNodeType::File, parent, root_));
+        const QPointer<PboNode> node(new PboNode(entryPath.last(), PboNodeType::File, parent, root_));
         parent->children_.append(node);
 
-        const PboPath nodePath = node->makePath();
-        const PboNodeCreatedEvent evt(&nodePath, node->nodeType_);
+        const PboNodeCreatedEvent evt(&entryPath, node->nodeType_);
         root_->onEvent(&evt);
     }
 
@@ -130,15 +125,16 @@ namespace pboman3 {
     }
 
     void PboNode::removeNode(const PboPath& node) {
-        QPointer<PboNode> n = get(node);
-        assert(n && "The node must exist");
-        QPointer<PboNode> op = n->par_;
-        op->children_.removeOne(n);
-        delete n.get();
-        cleanupNodeHierarchy(op);
+        const QPointer<PboNode> n = get(node);
+        if (n) {
+            QPointer<PboNode> op = n->par_;
+            op->children_.removeOne(n);
+            delete n.get();
+            cleanupNodeHierarchy(op);
 
-        const PboNodeRemovedEvent evt(&node);
-        root_->onEvent(&evt);
+            const PboNodeRemovedEvent evt(&node);
+            root_->onEvent(&evt);
+        }
     }
 
     QPointer<PboNode> PboNode::findChild(const QString& title) const {

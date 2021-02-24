@@ -5,10 +5,6 @@
 
 namespace pboman3::test {
     TEST(PboNodeEventsTest, AddEntry_Emits) {
-        const PboEntry e1("e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e2("f2/e2", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e3("f2/e3", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent* evt) {
             i++;
@@ -38,22 +34,18 @@ namespace pboman3::test {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
         QObject::connect(&root, &PboNode::onEvent, onEvent);
 
-        root.addEntry(&e1);
-        root.addEntry(&e2);
-        root.addEntry(&e3);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("f2/e2"));
+        root.addEntry(PboPath("f2/e3"));
 
         ASSERT_EQ(i, 4);
     }
 
     TEST(PboNodeTest, MoveNode_Emits_When_No_Conflicts) {
-        const PboEntry e1("e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e2("f2/e2", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e3("f3/e3", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(&e1);
-        root.addEntry(&e2);
-        root.addEntry(&e3);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("f2/e2"));
+        root.addEntry(PboPath("f3/e3"));
 
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent* evt) {
@@ -82,12 +74,9 @@ namespace pboman3::test {
     }
 
     TEST(PboNodeTest, MoveNode_Emits_If_Conflict_Resolved_In_Rename) {
-        const PboEntry e1("e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e2("f2/e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(&e1);
-        root.addEntry(&e2);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("f2/e1"));
 
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent* evt) {
@@ -107,12 +96,9 @@ namespace pboman3::test {
     }
 
     TEST(PboNodeTest, MoveNode_Emits_If_Conflict_Resolved_In_Replace) {
-        const PboEntry e1("e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e2("f2/e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(&e1);
-        root.addEntry(&e2);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("f2/e1"));
 
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent* evt) {
@@ -136,12 +122,9 @@ namespace pboman3::test {
     }
 
     TEST(PboNodeTest, MoveNode_Emits_If_Conflict_Resolved_In_Merge) {
-        const PboEntry e1("f1/e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e3("f2/f1/e2", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(&e1);
-        root.addEntry(&e3);
+        root.addEntry(PboPath("f1/e1"));
+        root.addEntry(PboPath("f2/f1/e2"));
 
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent* evt) {
@@ -165,12 +148,9 @@ namespace pboman3::test {
     }
 
     TEST(PboNodeTest, MoveNode_Not_Emits_If_Conflict_Resolved_In_Abort) {
-        const PboEntry e1("e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-        const PboEntry e2("f2/e1", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
-
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(&e1);
-        root.addEntry(&e2);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("f2/e1"));
 
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent* evt) {

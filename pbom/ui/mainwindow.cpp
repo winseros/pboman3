@@ -1,7 +1,10 @@
 #include "mainwindow.h"
+#include <QDrag>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMimeData>
 #include <QPoint>
+#include <QtConcurrent/QtConcurrentRun>
 #include "ui_mainwindow.h"
 
 using namespace pboman3;
@@ -10,11 +13,11 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
       ui_(new Ui::MainWindow) {
     ui_->setupUi(this);
+    ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
     connect(&model_, &PboModel2::onEvent, this, &MainWindow::onModelEvent);
-
-    ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-    treeCtrl_ = QSharedPointer<TreeControl>(new TreeControl(ui_->treeWidget));
+    connect(ui_->treeWidget, &TreeWidget::dragStarted, this, &MainWindow::dragStarted);
+    connect(ui_->treeWidget, &TreeWidget::dragDropped, this, &MainWindow::dragDropped);
 }
 
 MainWindow::~MainWindow() {
@@ -46,14 +49,17 @@ void MainWindow::onSelectionDeleteClick() const {
     }*/
 }
 
-void MainWindow::onModelEvent(const PboModelEvent* event) {
+void MainWindow::onModelEvent(const PboModelEvent* event) const {
     if (const auto* eLoadBegin = dynamic_cast<const PboLoadBeginEvent*>(event)) {
         const QFileInfo fi(eLoadBegin->path);
-        treeCtrl_->setNewRoot(fi.fileName());
+        ui_->treeWidget->setNewRoot(fi.fileName());
     } else if (dynamic_cast<const PboLoadCompleteEvent*>(event)) {
-        treeCtrl_->commitRoot();
+        ui_->treeWidget->commitRoot();
+        ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
     } else if (const auto* eNodeCreated = dynamic_cast<const PboNodeCreatedEvent*>(event)) {
-        treeCtrl_->addNewNode(*eNodeCreated->path, eNodeCreated->nodeType);
+        ui_->treeWidget->addNewNode(*eNodeCreated->path, eNodeCreated->nodeType);
+    } else if (const auto* eNodeRemoved = dynamic_cast<const PboNodeRemovedEvent*>(event)) {
+        ui_->treeWidget->removeNode(*eNodeRemoved->nodePath);
     }
 }
 
@@ -73,4 +79,41 @@ void MainWindow::onContextMenuRequested(const QPoint& point) {
 
         }
     }*/
+}
+
+void MainWindow::dragStarted(const QList<PboPath>& paths) {
+    QFuture<InteractionData> future = QtConcurrent::run(
+        [this](QPromise<InteractionData>& promise, const QList<PboPath>& pPaths) {
+            InteractionData data = model_.interactionPrepare(pPaths, [&promise]() { return promise.isCanceled(); });
+            promise.addResult(data);
+        }, paths);
+
+    future.waitForFinished();
+
+    if (!future.isCanceled()) {
+        const InteractionData data = future.takeResult();
+        auto* mimeData = new QMimeData;
+        mimeData->setUrls(data.paths);
+        //mimeData->setData("application/pboman3", data.binary);
+
+        QDrag drag(ui_->treeWidget);
+        drag.setMimeData(mimeData);
+
+        const Qt::DropAction result = drag.exec(Qt::DropAction::CopyAction | Qt::DropAction::MoveAction);
+        if (result == Qt::DropAction::MoveAction) {
+            for (const PboPath& path : paths) {
+                model_.removeNode(path);
+            }
+        }
+    }
+}
+
+
+void MainWindow::dragDropped(const PboPath& target, const QMimeData* mimeData) {
+    if (mimeData->hasFormat("application/pboman3")) {
+        const QByteArray data = mimeData->data("application/pboman3");
+        model_.createNodeSet(target, data);
+    } else if (mimeData->hasUrls()) {
+        model_.createNodeSet(target, mimeData->urls());
+    }
 }

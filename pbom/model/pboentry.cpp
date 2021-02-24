@@ -41,6 +41,10 @@ namespace pboman3 {
         return static_cast<int>(fileName.length()) + sizeOfFields;
     }
 
+    PboPath PboEntry::makePath() const {
+        return PboPath(fileName);
+    }
+
     //each header entry consists of 5x4 bytes of fields + filename.length + 1 byte zero string terminator
     const int PboEntry::sizeOfFields = 21;
 

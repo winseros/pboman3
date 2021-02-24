@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QString>
+#include "pbopath.h"
 
 namespace pboman3 {
     using namespace std;
@@ -39,6 +39,7 @@ namespace pboman3 {
 
         int size() const;
 
+        PboPath makePath() const;
     private:
         static const int sizeOfFields;
     };

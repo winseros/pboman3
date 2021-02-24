@@ -5,7 +5,7 @@
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
 #include "pbopath.h"
-#include "model/pboentry.h"
+#include "io/binarysource.h"
 
 namespace pboman3 {
     enum class PboConflictResolution {
@@ -18,11 +18,13 @@ namespace pboman3 {
     Q_OBJECT
 
     public:
+        QSharedPointer<BinarySource> binarySource;
+
         PboNode(QString title, PboNodeType nodeType, const QPointer<PboNode>& par, const QPointer<PboNode>& root);
 
         ~PboNode() override;
 
-        void addEntry(const PboEntry* entry);
+        void addEntry(const PboPath& entryPath);
 
         PboPath makePath() const;
 

@@ -1,5 +1,6 @@
 #include "pbomodel2.h"
 #include <QDir>
+#include <QUrl>
 #include <QUuid>
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
@@ -19,7 +20,7 @@ namespace pboman3 {
         emitLoadBegin(path);
 
         const PboHeaderIO reader(file_.get());
-        QSharedPointer<PboEntry_> entry = reader.readNextEntry();
+        QSharedPointer<PboEntry> entry = reader.readNextEntry();
 
 #define QUIT file_->close(); \
         const auto evt = QSharedPointer<PboLoadFailedEvent>(new PboLoadFailedEvent); \
@@ -27,6 +28,8 @@ namespace pboman3 {
         return;
 
         if (!entry) { QUIT }
+
+        QList<QSharedPointer<PboEntry>> entries;
 
         if (entry->isSignature()) {
             QSharedPointer<PboHeader> header = reader.readNextHeader();
@@ -36,19 +39,30 @@ namespace pboman3 {
             }
             if (!header) { QUIT }
         } else if (entry->isContent()) {
-            root_->addEntry(entry.get());
+            entries.append(entry);
+            root_->addEntry(entry->makePath());
         } else {
             QUIT
         }
 
         entry = reader.readNextEntry();
         while (entry && entry->isContent()) {
-            root_->addEntry(entry.get());
+            entries.append(entry);
+            root_->addEntry(entry->makePath());
             entry = reader.readNextEntry();
         }
         if (!entry || !entry->isBoundary()) { QUIT }
 
-        //updateEntriesOffsets(static_cast<long>(file_->pos()));
+        size_t entryDataOffset = file_->pos();
+        for (const QSharedPointer<PboEntry>& pEntry : entries) {
+            PboDataInfo dataInfo{pEntry->dataSize, entryDataOffset};
+            entryDataOffset += dataInfo.dataSize;
+            root_->get(pEntry->makePath())->binarySource = QSharedPointer<PboBasedBinarySource>(
+                new PboBasedBinarySource(path, dataInfo));
+        }
+
+        binaryBackend_ = QSharedPointer<BinaryBackend>(new BinaryBackend);
+
         emitLoadComplete(path);
     }
 
@@ -77,6 +91,15 @@ namespace pboman3 {
         }
     }
 
+
+    void PboModel2::createNodeSet(const PboPath& parent, const QList<QUrl>& urls) {
+
+    }
+
+    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data) {
+
+    }
+
     void PboModel2::moveNode(const PboPath& node, const PboPath& newParent,
                              PboConflictResolution (* onConflict)(const PboPath&, PboNodeType)) const {
         if (!root_)
@@ -94,6 +117,20 @@ namespace pboman3 {
         if (!root_)
             throw PboTreeException("The model is not initialized");
         root_->removeNode(node);
+    }
+
+    InteractionData PboModel2::interactionPrepare(const QList<PboPath>& paths, const Cancel& cancel) const {
+        QList<PboNode*> nodes;
+        nodes.reserve(paths.length());
+        for (const PboPath& p : paths) {
+            QPointer<PboNode> node = root_->get(p);
+            nodes.append(node);
+        }
+
+        QList<QUrl> locations = binaryBackend_->hddSync(nodes, cancel);
+        QByteArray binary;
+        InteractionData data{std::move(locations), std::move(binary)};
+        return data;
     }
 
     void PboModel2::registerHeader(QSharedPointer<PboHeader>& header) {

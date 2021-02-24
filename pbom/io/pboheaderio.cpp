@@ -8,7 +8,7 @@ namespace pboman3 {
         : file_(file) {
     }
 
-    QSharedPointer<PboEntry_> PboHeaderIO::readNextEntry() const {
+    QSharedPointer<PboEntry> PboHeaderIO::readNextEntry() const {
         PboDataStream data(file_);
 
         try {
@@ -30,7 +30,7 @@ namespace pboman3 {
             long dataSize;
             data >> dataSize;
 
-            return QSharedPointer<PboEntry_>(new PboEntry_(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize));
+            return QSharedPointer<PboEntry>(new PboEntry(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize));
         } catch (PboEofException&) {
             return nullptr;
         }

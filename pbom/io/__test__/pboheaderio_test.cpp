@@ -24,7 +24,7 @@ namespace pboman3::test {
 
         const PboHeaderIO io(&f);
 
-        const QSharedPointer<PboEntry_> e = io.readNextEntry();
+        const QSharedPointer<PboEntry> e = io.readNextEntry();
         ASSERT_FALSE(e);
     }
 
@@ -44,7 +44,7 @@ namespace pboman3::test {
 
         const PboHeaderIO io(&f);
 
-        const QSharedPointer<PboEntry_> e = io.readNextEntry();
+        const QSharedPointer<PboEntry> e = io.readNextEntry();
         ASSERT_TRUE(e);
         ASSERT_TRUE(e->isBoundary());
     }

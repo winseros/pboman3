@@ -12,7 +12,7 @@ namespace pboman3 {
     public:
         explicit PboHeaderIO(PboFile* file);
 
-        QSharedPointer<PboEntry_> readNextEntry() const;
+        QSharedPointer<PboEntry> readNextEntry() const;
 
         QSharedPointer<PboHeader> readNextHeader() const;
 

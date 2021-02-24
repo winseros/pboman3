@@ -1,21 +1,23 @@
 #pragma once
 
 #include <QAction>
+#include <QDropEvent>
 #include <QMainWindow>
-#include "treemodel.h"
 #include "model/pbomodel2.h"
 #include "model/pbomodelevents.h"
 
-#include "ui/treecontrol.h"
-
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+
+namespace Ui {
+    class MainWindow;
+}
+
 QT_END_NAMESPACE
 
 using namespace pboman3;
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);
@@ -29,12 +31,16 @@ public slots:
 
     void onSelectionDeleteClick() const;
 
-    void onModelEvent(const PboModelEvent* event);
+    void onModelEvent(const PboModelEvent* event) const;
 
     void onContextMenuRequested(const QPoint& point);
 
 private:
     Ui::MainWindow* ui_;
     PboModel2 model_;
-    QSharedPointer<TreeControl> treeCtrl_;
+
+private slots:
+    void dragStarted(const QList<PboPath>& paths);
+
+    void dragDropped(const PboPath& target, const QMimeData* mimeData);
 };

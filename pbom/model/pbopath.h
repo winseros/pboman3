@@ -1,37 +1,37 @@
 #pragma once
 
-#include <QMap>
+#include <QUrl>
 
 namespace pboman3 {
     class PboPath : public QList<QString> {
     public:
-        PboPath makeParent() const {
-            if (length() == 0) {
-                return *this;
-            }
+        PboPath();
 
-            PboPath result;
-            for (auto i = 0; i < length() - 1; i++) {
-                result.append(this->at(i));
-            }
-            return result;
-        }
+        explicit PboPath(std::initializer_list<QString> args);
+
+        explicit PboPath(const QString& source);
+
+        explicit PboPath(const QUrl& source);
+
+        PboPath makeParent() const;
+
+        bool operator ==(const PboPath& other);
     };
 
     inline bool operator ==(const PboPath& p1, const PboPath& p2) {
         if (p1.length() != p2.length())
             return false;
-
+    
         auto it1 = p1.begin();
         auto it2 = p2.begin();
-
+    
         while (it1 != p1.end()) {
             if (*it1 != *it2)
                 return false;
             ++it1;
             ++it2;
         }
-
+    
         return true;
     }
 

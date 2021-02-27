@@ -59,7 +59,7 @@ namespace pboman3 {
             const auto* sel = dynamic_cast<const TreeWidgetItem*>(selected);
             assert(sel && "Can not be null");
 
-            if (sel->nodeType() == PboNodeType::File || sel->nodeType() == PboNodeType::Container) {
+            if (sel->nodeType() == PboNodeType::File || sel->nodeType() == PboNodeType::Folder) {
                 paths.append(sel->makePath());
             }
         }

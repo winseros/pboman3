@@ -42,6 +42,44 @@ namespace pboman3 {
         root_->setExpanded(true);
     }
 
+    bool TreeWidget::isSelectionValid() const {
+        return !topLevelItem(0)->isSelected();
+    }
+
+    QList<TreeWidgetItem*> TreeWidget::getSelection() const {
+        const QList<QTreeWidgetItem*> selected = selectedItems();
+        QList<TreeWidgetItem*> result;
+        result.reserve(selected.length());
+
+        for (QTreeWidgetItem* item: selected) {
+            QTreeWidgetItem* p = item->parent();
+            bool abortItem = false;
+            while (p && !abortItem) {
+                if (p->isSelected()) {
+                    abortItem = true;
+                    continue;
+                }
+                p = p->parent();
+            }
+            if (!abortItem)
+                result.append(dynamic_cast<TreeWidgetItem*>(item));
+        }
+
+        return result;
+    }
+
+    TreeWidgetItem* TreeWidget::getSelectedFolder() const {
+        TreeWidgetItem* result = nullptr;
+        const QList<QTreeWidgetItem*> selected = selectedItems();
+        if (selected.length() == 1) {
+            auto* item = dynamic_cast<TreeWidgetItem*>(selected.at(0));
+            if (item->nodeType() == PboNodeType::Container || item->nodeType() == PboNodeType::Folder) {
+                result = item;
+            }
+        }
+        return result;
+    }
+
     void TreeWidget::onItemExpanded(QTreeWidgetItem* item) {
         item->setIcon(0, QIcon(":ifolderopened.png"));
     }

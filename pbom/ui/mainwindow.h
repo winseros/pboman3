@@ -31,27 +31,36 @@ public slots:
 
     void onFileSaveClick();
 
+    void onSelectionPasteClick();
+
+    void onSelectionCopyClick();
+
     void onSelectionDeleteClick() const;
 
     void onModelEvent(const PboModelEvent* event) const;
 
-    void onContextMenuRequested(const QPoint& point);
+    void treeContextMenuRequested(const QPoint& point) const;
+
+    void treeDragStartRequested(const QList<PboPath>& paths);
+
+    void treeDragDropped(const PboPath& target, const QMimeData* mimeData);
+
+    void treeSelectionChanged() const;
 
 private:
     Ui::MainWindow* ui_;
     PboModel2 model_;
-    QFutureWatcher<InteractionData> interactionData_;
+    QFutureWatcher<InteractionData> dragDropWatcher;
+    QFutureWatcher<InteractionData> cutCopyWatcher;
     QProgressBar* busy_;
     int busyCount_;
-
-private slots:
-    void dragStartPrepare(const QList<PboPath>& paths);
-
-    void dragStart();
-
-    void dragDropped(const PboPath& target, const QMimeData* mimeData);
 
     void setBusy();
 
     void resetBusy();
+
+private slots:
+    void dragStartExecute();
+
+    void copyOrCutExecute();
 };

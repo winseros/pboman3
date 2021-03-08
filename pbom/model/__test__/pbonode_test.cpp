@@ -238,4 +238,10 @@ namespace pboman3::test {
         root.removeNode(PboPath{{"f2", "e3"}});
         ASSERT_EQ(root.childCount(), 0);
     }
+
+    TEST(PboNodeTest, Get_Returns_Root) {
+        PboNode root("file.pbo", PboNodeType::Container, nullptr, nullptr);
+        const QPointer<PboNode> node = root.get(PboPath());
+        ASSERT_EQ(node.get(), &root);
+    }
 }

@@ -19,6 +19,12 @@ namespace pboman3 {
 
         void commitRoot();
 
+        bool isSelectionValid() const;
+
+        QList<TreeWidgetItem*> getSelection() const;
+
+        TreeWidgetItem* getSelectedFolder() const;
+
     signals:
         void dragStarted(const QList<PboPath>& items);
 

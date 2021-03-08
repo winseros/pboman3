@@ -57,7 +57,7 @@
        <enum>QAbstractItemView::NoDragDrop</enum>
       </property>
       <property name="defaultDropAction">
-       <enum>Qt::CopyAction</enum>
+       <enum>Qt::IgnoreAction</enum>
       </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -69,13 +69,13 @@
        <bool>false</bool>
       </property>
       <property name="animated">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="headerHidden">
        <bool>true</bool>
       </property>
       <property name="expandsOnDoubleClick">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="columnCount">
        <number>1</number>
@@ -122,6 +122,10 @@
      <string>Edit</string>
     </property>
     <addaction name="actionSelectionOpen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelectionRename"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelectionPaste"/>
     <addaction name="actionSelectionCopy"/>
     <addaction name="actionSelectionCut"/>
     <addaction name="actionSelectionDelete"/>
@@ -140,6 +144,9 @@
    </property>
   </action>
   <action name="actionFileSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -148,6 +155,9 @@
    </property>
   </action>
   <action name="actionFileSaveAs">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Save as..</string>
    </property>
@@ -156,6 +166,9 @@
    </property>
   </action>
   <action name="actionFileExit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -169,6 +182,9 @@
    </property>
   </action>
   <action name="actionSelectionOpen">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Open</string>
    </property>
@@ -177,6 +193,9 @@
    </property>
   </action>
   <action name="actionSelectionCopy">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
@@ -185,6 +204,9 @@
    </property>
   </action>
   <action name="actionSelectionCut">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
@@ -193,11 +215,36 @@
    </property>
   </action>
   <action name="actionSelectionDelete">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Delete</string>
    </property>
    <property name="shortcut">
     <string>Del</string>
+   </property>
+  </action>
+  <action name="actionSelectionRename">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Rename</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+  <action name="actionSelectionPaste">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>
@@ -206,6 +253,10 @@
    <class>pboman3::TreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>treewidget.h</header>
+   <slots>
+    <signal>dragStarted(QList&lt;PboPath&gt;)</signal>
+    <signal>dragDropped(PboPath,QMimeData*)</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -258,10 +309,112 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSelectionCopy</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectionCopyClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>treeWidget</sender>
+   <signal>customContextMenuRequested(QPoint)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>treeContextMenuRequested(QPoint)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>treeWidget</sender>
+   <signal>dragStarted(QList&lt;PboPath&gt;)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>treeDragStartRequested(QList&lt;PboPath&gt;)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>treeWidget</sender>
+   <signal>dragDropped(const PboPath, const QMimeData*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>treeDragDropped(const PboPath, const QMimeData*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>treeWidget</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>treeSelectionChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelectionPaste</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectionPasteClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFileOpenClick()</slot>
   <slot>onFileSaveClick()</slot>
   <slot>onSelectionDeleteClick()</slot>
+  <slot>onSelectionCopyClick()</slot>
+  <slot>treeContextMenuRequested(QPoint)</slot>
+  <slot>treeDragStartRequested(QList&lt;PboPath&gt;)</slot>
+  <slot>treeDragDropped(PboPath,QMimeData*)</slot>
+  <slot>treeSelectionChanged()</slot>
+  <slot>onSelectionPasteClick()</slot>
  </slots>
 </ui>

@@ -61,6 +61,9 @@ namespace pboman3 {
     }
 
     QPointer<PboNode> PboNode::get(const PboPath& node) const {
+        if (node.isEmpty())
+            return QPointer<PboNode>(const_cast<PboNode*>(this));
+
         QPointer<PboNode> result = findChild(node.first());
         if (!result)
             return nullptr;
@@ -142,7 +145,8 @@ namespace pboman3 {
 
     void PboNode::removeNode(const PboPath& node) const {
         QPointer<PboNode> n = get(node);
-        assert(n && "The node must exist");
+        if (!n)
+            throw PboTreeException("The node must exist");
 
         PboPath nodePath;
 

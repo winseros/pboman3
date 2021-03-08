@@ -30,14 +30,11 @@ namespace pboman3 {
         parent->addChildSorted(newNode);
     }
 
-
     void TreeWidget::removeNode(const PboPath& path) const {
         TreeWidgetItem* node = root_->get(path);
-        if (node) {
-            QTreeWidgetItem* parent = node->parent();
-            parent->removeChild(node);
-            delete node;
-        }
+        QTreeWidgetItem* parent = node->parent();
+        parent->removeChild(node);
+        delete node;
     }
 
     void TreeWidget::commitRoot() {

@@ -3,7 +3,8 @@
 #include <QVariant>
 
 namespace pboman3 {
-    BinarySource::BinarySource(const QString& path) {
+    BinarySource::BinarySource(const QString& path)
+        : path_(path) {
         file_ = new QFile(path);
         assert(file_->open(QIODeviceBase::ReadOnly) && "Must be able to open this");
     }
@@ -13,13 +14,17 @@ namespace pboman3 {
         delete file_;
     }
 
+    const QString& BinarySource::path() const {
+        return path_;
+    }
+
 
     FileBasedBinarySource::FileBasedBinarySource(const QString& path, size_t bufferSize)
         : BinarySource(path),
           bufferSize_(bufferSize) {
     }
 
-    void FileBasedBinarySource::writeTo(QFileDevice* targetFile, const Cancel& cancel) {
+    void FileBasedBinarySource::writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) {
         file_->seek(0);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
@@ -33,6 +38,9 @@ namespace pboman3 {
         }
     }
 
+    void FileBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
+    }
+
 
     PboBasedBinarySource::PboBasedBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize)
         : BinarySource(path),
@@ -40,7 +48,7 @@ namespace pboman3 {
           bufferSize_(bufferSize) {
     }
 
-    void PboBasedBinarySource::writeTo(QFileDevice* targetFile, const Cancel& cancel) {
+    void PboBasedBinarySource::writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) {
         file_->seek(dataInfo_.dataOffset);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
@@ -55,4 +63,14 @@ namespace pboman3 {
         }
     }
 
+    void PboBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
+    }
+
+    const PboDataInfo& PboBasedBinarySource::getInfo() const {
+        return dataInfo_;
+    }
+
+    bool PboBasedBinarySource::isCompressed() const {
+        return dataInfo_.originalSize > dataInfo_.dataSize;
+    }
 }

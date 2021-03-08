@@ -2,6 +2,7 @@
 #include <QDrag>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
@@ -11,13 +12,16 @@ using namespace pboman3;
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
-      ui_(new Ui::MainWindow) {
+      ui_(new Ui::MainWindow),
+      busy_(nullptr),
+      busyCount_(0) {
     ui_->setupUi(this);
     ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
     connect(&model_, &PboModel2::onEvent, this, &MainWindow::onModelEvent);
-    connect(ui_->treeWidget, &TreeWidget::dragStarted, this, &MainWindow::dragStarted);
+    connect(ui_->treeWidget, &TreeWidget::dragStarted, this, &MainWindow::dragStartPrepare);
     connect(ui_->treeWidget, &TreeWidget::dragDropped, this, &MainWindow::dragDropped);
+    connect(&interactionData_, &QFutureWatcher<InteractionData>::finished, this, &MainWindow::dragStart);
 }
 
 MainWindow::~MainWindow() {
@@ -57,7 +61,7 @@ void MainWindow::onModelEvent(const PboModelEvent* event) const {
         ui_->treeWidget->commitRoot();
         ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
     } else if (const auto* eNodeCreated = dynamic_cast<const PboNodeCreatedEvent*>(event)) {
-        ui_->treeWidget->addNewNode(*eNodeCreated->path, eNodeCreated->nodeType);
+        ui_->treeWidget->addNewNode(*eNodeCreated->nodePath, eNodeCreated->nodeType);
     } else if (const auto* eNodeRemoved = dynamic_cast<const PboNodeRemovedEvent*>(event)) {
         ui_->treeWidget->removeNode(*eNodeRemoved->nodePath);
     }
@@ -81,39 +85,60 @@ void MainWindow::onContextMenuRequested(const QPoint& point) {
     }*/
 }
 
-void MainWindow::dragStarted(const QList<PboPath>& paths) {
-    QFuture<InteractionData> future = QtConcurrent::run(
+void MainWindow::dragStartPrepare(const QList<PboPath>& paths) {
+    setBusy();
+    const QFuture<InteractionData> future = QtConcurrent::run(
         [this](QPromise<InteractionData>& promise, const QList<PboPath>& pPaths) {
             InteractionData data = model_.interactionPrepare(pPaths, [&promise]() { return promise.isCanceled(); });
             promise.addResult(data);
         }, paths);
 
-    future.waitForFinished();
 
-    if (!future.isCanceled()) {
-        const InteractionData data = future.takeResult();
-        auto* mimeData = new QMimeData;
-        mimeData->setUrls(data.paths);
-        //mimeData->setData("application/pboman3", data.binary);
+    interactionData_.setFuture(future);
+}
 
-        QDrag drag(ui_->treeWidget);
-        drag.setMimeData(mimeData);
+void MainWindow::dragStart() {
+    const InteractionData data = interactionData_.future().takeResult();
+    qDebug() << data.urls;
+    auto* mimeData = new QMimeData;
+    mimeData->setUrls(data.urls);
+    mimeData->setData("application/pboman3", data.binary);
 
-        const Qt::DropAction result = drag.exec(Qt::DropAction::CopyAction | Qt::DropAction::MoveAction);
-        if (result == Qt::DropAction::MoveAction) {
-            for (const PboPath& path : paths) {
-                model_.removeNode(path);
-            }
+    QDrag drag(ui_->treeWidget);
+    drag.setMimeData(mimeData);
+
+    resetBusy();
+
+    const Qt::DropAction result = drag.exec(Qt::DropAction::CopyAction | Qt::DropAction::MoveAction, Qt::CopyAction);
+    if (result == Qt::DropAction::MoveAction) {
+        for (const PboPath& path : data.nodes) {
+            model_.removeNode(path);
         }
     }
 }
 
-
 void MainWindow::dragDropped(const PboPath& target, const QMimeData* mimeData) {
     if (mimeData->hasFormat("application/pboman3")) {
         const QByteArray data = mimeData->data("application/pboman3");
-        model_.createNodeSet(target, data);
+        model_.createNodeSet(target, data, nullptr);
     } else if (mimeData->hasUrls()) {
         model_.createNodeSet(target, mimeData->urls());
     }
+}
+
+void MainWindow::setBusy() {
+    if (!busy_) {
+        busy_ = new QProgressBar();
+        busy_->setTextVisible(false);
+        busy_->setMinimum(0);
+        busy_->setMaximum(0);
+        busy_->setFixedHeight(15);
+        ui_->statusBar->addWidget(busy_, 1);
+    }
+    busyCount_ += 1;
+    busy_->setVisible(true);
+}
+
+void MainWindow::resetBusy() {
+    busy_->setVisible(busyCount_-- == 0);
 }

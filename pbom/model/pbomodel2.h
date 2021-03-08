@@ -10,8 +10,9 @@
 
 namespace pboman3 {
     struct InteractionData {
-        const QList<QUrl> paths;
+        const QList<QUrl> urls;
         const QByteArray binary;
+        const QList<PboPath> nodes;
     };
 
     class PboModel2 : public QObject {
@@ -23,10 +24,7 @@ namespace pboman3 {
 
         void createNodeSet(const PboPath& parent, const QList<QUrl>& urls);
 
-        void createNodeSet(const PboPath& parent, const QByteArray& data);
-
-        void moveNode(const PboPath& node, const PboPath& newParent,
-                      PboConflictResolution (*onConflict)(const PboPath&, PboNodeType)) const;
+        void createNodeSet(const PboPath& parent, const QByteArray& data, const OnConflict& onConflict);
 
         void renameNode(const PboPath& node, const QString& title) const;
 

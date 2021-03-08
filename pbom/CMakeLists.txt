@@ -15,12 +15,14 @@ set(PROJECT_SOURCES
         io/pbofile.cpp
         io/pboheaderio.cpp
         io/pboioexception.cpp
+        model/parcelmanager.cpp
         model/pboentry.cpp
         model/pboheader.cpp
         model/pbomodel2.cpp
         model/pbomodelevents.cpp
         model/pbonode.cpp
         model/pbonodeevents.cpp
+        model/pboparcel.cpp
         model/pbopath.cpp
         model/pbotreeexception.cpp
         ui/treewidget.cpp
@@ -39,10 +41,12 @@ set(TEST_SOURCES
     "io/__test__/binarybackend_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
+    "model/__test__/parcelmanager_test.cpp"
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbonode_test.cpp"
     "model/__test__/pbonode_events_tets.cpp"
+    "model/__test__/pboparcel_test.cpp"
     "model/__test__/pbopath_test.cpp"
  )
 

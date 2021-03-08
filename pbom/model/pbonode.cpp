@@ -16,25 +16,48 @@ namespace pboman3 {
     }
 
     void PboNode::addEntry(const PboPath& entryPath) {
-        PboNode* parent = this;
-        for (int i = 0; i < entryPath.length() - 1; i++) {
-            QPointer<PboNode> child = parent->findChild(entryPath.at(i));
-            if (!child) {
-                child = QPointer<PboNode>(new PboNode(entryPath.at(i), PboNodeType::Folder, parent, root_));
-                parent->children_.append(child);
+        QPointer<PboNode> parent = createFolderHierarchy(entryPath);
+        createFileNode(entryPath.last(), parent);
+    }
 
-                const PboPath childPath = child->makePath();
-                const PboNodeCreatedEvent evt(&childPath, child->nodeType_);
-                root_->onEvent(&evt);
+    QPointer<PboNode> PboNode::addEntry(const PboPath& entryPath, const OnConflict& onConflict) {
+        QPointer<PboNode> result;
+        const QPointer<PboNode> existing = get(entryPath);
+        if (existing) {
+            if (existing->nodeType_ != PboNodeType::File) {
+                throw PboTreeException("Can add only file entries here");
             }
-            parent = child.get();
+            const PboConflictResolution resolution = onConflict(existing->makePath(), existing->nodeType_);
+            switch (resolution) {
+                case PboConflictResolution::Replace: {
+                    const PboPath existingPath = existing->makePath();
+
+                    QPointer<PboNode> parent = existing->par_;
+                    assert(parent->children_.removeOne(existing) && "Must have deleted the node");
+                    delete existing.get();//TODO: Check!
+
+                    const PboNodeRemovedEvent evtR(&existingPath);
+                    root_->onEvent(&evtR);
+
+                    result = createFileNode(entryPath.last(), parent);
+                    break;
+                }
+                case PboConflictResolution::Copy: {
+                    QPointer<PboNode> parent = existing->par_;
+                    const QString title = resolveNameConflict(parent, existing);
+                    result = createFileNode(title, parent);
+                    break;
+                }
+                case PboConflictResolution::Abort: {
+                    break;
+                }
+            }
+        } else {
+            QPointer<PboNode> parent = createFolderHierarchy(entryPath);
+            result = createFileNode(entryPath.last(), parent);
         }
 
-        const QPointer<PboNode> node(new PboNode(entryPath.last(), PboNodeType::File, parent, root_));
-        parent->children_.append(node);
-
-        const PboNodeCreatedEvent evt(&entryPath, node->nodeType_);
-        root_->onEvent(&evt);
+        return result;
     }
 
     QPointer<PboNode> PboNode::get(const PboPath& node) const {
@@ -54,9 +77,24 @@ namespace pboman3 {
         return result;
     }
 
-
     QPointer<PboNode> PboNode::child(int index) const {
         return QPointer<PboNode>(children_.at(index).get());
+    }
+
+    QList<QPointer<PboNode>>::const_iterator PboNode::end() const {
+        return children_.end();
+    }
+
+    QList<QPointer<PboNode>>::iterator PboNode::begin() {
+        return children_.begin();
+    }
+
+    QList<QPointer<PboNode>>::iterator PboNode::end() {
+        return children_.end();
+    }
+
+    QList<QPointer<PboNode>>::const_iterator PboNode::begin() const {
+        return children_.begin();
     }
 
     int PboNode::childCount() const {
@@ -89,29 +127,7 @@ namespace pboman3 {
         return root_;
     }
 
-
-    void PboNode::addNode(const PboPath& node) {
-
-    }
-
-    void PboNode::moveNode(const PboPath& node, const PboPath& newParent,
-                           PboConflictResolution (*onConflict)(const PboPath&, PboNodeType)) {
-        QPointer<PboNode> n = get(node);
-        assert(n && "The node must exist");
-
-        QPointer<PboNode> np = newParent.length() ? get(newParent) : QPointer<PboNode>(this);
-        assert(np && "The new parent must exist");
-
-        if (np->nodeType_ == PboNodeType::Folder || np->nodeType_ == PboNodeType::Container) {
-            QPointer<PboNode> op = n->par_;
-            moveNodeImpl(n, np, onConflict);
-            cleanupNodeHierarchy(op);
-        } else {
-            throw PboTreeException("Only a Folder or Container node can be a parent");
-        }
-    }
-
-    void PboNode::renameNode(const PboPath& node, const QString& title) {
+    void PboNode::renameNode(const PboPath& node, const QString& title) const {
         QPointer<PboNode> n = get(node);
         assert(n && "The node must exist");
 
@@ -124,17 +140,50 @@ namespace pboman3 {
         }
     }
 
-    void PboNode::removeNode(const PboPath& node) {
-        const QPointer<PboNode> n = get(node);
-        if (n) {
-            QPointer<PboNode> op = n->par_;
-            op->children_.removeOne(n);
-            delete n.get();
-            cleanupNodeHierarchy(op);
+    void PboNode::removeNode(const PboPath& node) const {
+        QPointer<PboNode> n = get(node);
+        assert(n && "The node must exist");
 
-            const PboNodeRemovedEvent evt(&node);
-            root_->onEvent(&evt);
+        PboPath nodePath;
+
+        do {
+            nodePath = n->makePath();
+
+            QPointer<PboNode> p = n->par_;
+            p->children_.removeOne(n);
+            delete n.get();
+            n = p;
+        } while (n->nodeType_ != PboNodeType::Container && n->childCount() == 0);
+
+        const PboNodeRemovedEvent evt(&nodePath);
+        root_->onEvent(&evt);
+    }
+
+    QPointer<PboNode> PboNode::createFolderHierarchy(const PboPath& path) {
+        QPointer<PboNode> parent = this;
+        for (int i = 0; i < path.length() - 1; i++) {
+            QPointer<PboNode> child = parent->findChild(path.at(i));
+            if (!child) {
+                child = QPointer<PboNode>(new PboNode(path.at(i), PboNodeType::Folder, parent, root_));
+                parent->children_.append(child);
+
+                const PboPath childPath = child->makePath();
+                const PboNodeCreatedEvent evt(&childPath, child->nodeType_);
+                root_->onEvent(&evt);
+            }
+            parent = child;
         }
+        return parent;
+    }
+
+    QPointer<PboNode> PboNode::createFileNode(const QString& title, QPointer<PboNode>& parent) const {
+        QPointer<PboNode> node(new PboNode(title, PboNodeType::File, parent, root_));
+        parent->children_.append(node);
+
+        const auto nodePath = node->makePath();
+        const PboNodeCreatedEvent evt(&nodePath, node->nodeType_);
+        root_->onEvent(&evt);
+        return node;
     }
 
     QPointer<PboNode> PboNode::findChild(const QString& title) const {
@@ -146,15 +195,11 @@ namespace pboman3 {
     }
 
     QString PboNode::resolveNameConflict(const QPointer<PboNode>& parent, const QPointer<PboNode>& node) const {
-        QString fileName;
-        QString extName;
-        if (node->nodeType_ == PboNodeType::File) {
-            const qsizetype extensionPoint = node->title_.lastIndexOf(".");
-            extName = extensionPoint >= 0 ? node->title_.right(node->title_.length() - extensionPoint) : "";
-            fileName = node->title_.left(extensionPoint);
-        } else {
-            fileName = node->title();
-        }
+        assert(node->nodeType_ == PboNodeType::File && "The conflicts must occur only between files");
+
+        const qsizetype extensionPoint = node->title_.lastIndexOf(".");
+        const QString extName = extensionPoint >= 0 ? node->title_.right(node->title_.length() - extensionPoint) : "";
+        const QString fileName = node->title_.left(extensionPoint);
 
         int i = 1;
         QString newName = fileName;
@@ -173,102 +218,5 @@ namespace pboman3 {
         }
 
         return newName;
-    }
-
-    void PboNode::moveNodeImpl(QPointer<PboNode>& node, QPointer<PboNode>& newParent,
-                               PboConflictResolution (* onConflict)(const PboPath&, PboNodeType)) {
-
-        QPointer<PboNode> oldParent = node->par_;
-
-        auto existing = newParent->findChild(node->title_);
-        if (existing && existing->nodeType_ == node->nodeType_) {
-            const PboConflictResolution resolution = onConflict(node->makePath(), node->nodeType_);
-            switch (resolution) {
-                case PboConflictResolution::ReplaceOrMerge: {
-                    if (node->nodeType_ == PboNodeType::File) {
-                        const PboPath existingPath = existing->makePath();
-
-                        newParent->children_.removeOne(existing);
-                        delete existing.get();
-
-                        const PboNodeRemovedEvent evtR(&existingPath);
-                        root_->onEvent(&evtR);
-
-                        const PboPath prevNodePath = node->makePath();
-                        oldParent->children_.removeOne(node);
-                        newParent->children_.append(node);
-                        node->par_ = QPointer<PboNode>(newParent.get());
-
-                        const PboPath newNodePath = node->makePath();
-                        const PboNodeMovedEvent evtM(&prevNodePath, &newNodePath);
-                        root_->onEvent(&evtM);
-                    } else {
-                        for (QPointer<PboNode>& child : node->children_) {
-                            moveNodeImpl(child, existing, onConflict);
-                        }
-                        tryCleanupNode(node);
-                    }
-                    break;
-                }
-                case PboConflictResolution::Copy: {
-                    const PboPath prevNodePath = node->makePath();
-
-                    node->title_ = resolveNameConflict(newParent, node);
-                    oldParent->children_.removeOne(node);
-                    newParent->children_.append(node);
-                    node->par_ = QPointer<PboNode>(newParent.get());
-
-                    const PboPath newNodePath = node->makePath();
-                    const PboNodeMovedEvent evt(&prevNodePath, &newNodePath);
-                    root_->onEvent(&evt);
-
-                    break;
-
-                }
-                case PboConflictResolution::Abort: {
-                    return;
-                }
-            }
-        } else {
-            const PboPath prevNodePath = node->makePath();
-
-            oldParent->children_.removeOne(node);
-            newParent->children_.append(node);
-            node->par_ = QPointer<PboNode>(newParent.get());
-
-            const PboPath newNodePath = node->makePath();
-            const PboNodeMovedEvent evt(&prevNodePath, &newNodePath);
-            root_->onEvent(&evt);
-        }
-    }
-
-    void PboNode::cleanupNodeHierarchy(QPointer<PboNode>& node) {
-        while (node->nodeType_ != PboNodeType::Container && node->childCount() == 0) {
-            const PboPath nodePath = node->makePath();
-
-            QPointer<PboNode> p = node->par_;
-            p->children_.removeOne(node);
-            delete node.get();
-            node = p;
-
-            const PboNodeRemovedEvent evt(&nodePath);
-            root_->onEvent(&evt);
-        }
-    }
-
-    bool PboNode::tryCleanupNode(QPointer<PboNode>& node) {
-        assert(node->nodeType_ != PboNodeType::File && "File node can not be cleaned up");
-        if (node->nodeType_ == PboNodeType::Folder && node->childCount() == 0) {
-            const PboPath nodePath = node->makePath();
-
-            node->par_->children_.removeOne(node);
-            delete node.get();
-
-            const PboNodeRemovedEvent evt(&nodePath);
-            root_->onEvent(&evt);
-
-            return true;
-        }
-        return false;
     }
 }

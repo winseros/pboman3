@@ -1,9 +1,9 @@
 #include "pbonodeevents.h"
 
 namespace pboman3 {
-    PboNodeCreatedEvent::PboNodeCreatedEvent(const PboPath* pPath, PboNodeType pNodeType)
+    PboNodeCreatedEvent::PboNodeCreatedEvent(const PboPath* pNodePath, PboNodeType pNodeType)
         : PboNodeEvent(),
-          path(pPath),
+          nodePath(pNodePath),
           nodeType(pNodeType) {
     }
 

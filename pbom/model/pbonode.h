@@ -1,18 +1,23 @@
 #pragma once
 
 #include <QPointer>
+#include <functional>
 #include <qobject.h>
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
+#include "pboparcel.h"
 #include "pbopath.h"
 #include "io/binarysource.h"
 
 namespace pboman3 {
+ 
     enum class PboConflictResolution {
         Abort,
         Copy,
-        ReplaceOrMerge
+        Replace
     };
+
+    typedef std::function<PboConflictResolution(const PboPath&, PboNodeType)> OnConflict;
 
     class PboNode final : public QObject {
     Q_OBJECT
@@ -25,6 +30,8 @@ namespace pboman3 {
         ~PboNode() override;
 
         void addEntry(const PboPath& entryPath);
+
+        QPointer<PboNode> addEntry(const PboPath& entryPath, const OnConflict& onConflict);
 
         PboPath makePath() const;
 
@@ -42,14 +49,17 @@ namespace pboman3 {
 
         int childCount() const;
 
-        void addNode(const PboPath& node);
+        QList<QPointer<PboNode>>::iterator begin();
 
-        void moveNode(const PboPath& node, const PboPath& newParent,
-                      PboConflictResolution (*onConflict)(const PboPath&, PboNodeType));
+        QList<QPointer<PboNode>>::iterator end();
 
-        void renameNode(const PboPath& node, const QString& title);
+        QList<QPointer<PboNode>>::const_iterator begin() const;
 
-        void removeNode(const PboPath& node);
+        QList<QPointer<PboNode>>::const_iterator end() const;
+
+        void renameNode(const PboPath& node, const QString& title) const;
+
+        void removeNode(const PboPath& node) const;
 
     signals:
         void onEvent(const PboNodeEvent* evt) const;
@@ -61,16 +71,12 @@ namespace pboman3 {
         QPointer<PboNode> root_;
         QList<QPointer<PboNode>> children_;
 
+        QPointer<PboNode> createFolderHierarchy(const PboPath& path);
+
+        QPointer<PboNode> createFileNode(const QString& title, QPointer<PboNode>& parent) const;
+
         QPointer<PboNode> findChild(const QString& title) const;
 
         QString resolveNameConflict(const QPointer<PboNode>& parent, const QPointer<PboNode>& node) const;
-
-        void moveNodeImpl(QPointer<PboNode>& node, QPointer<PboNode>& newParent,
-                          PboConflictResolution (*onConflict)(
-                              const PboPath&, PboNodeType));
-
-        void cleanupNodeHierarchy(QPointer<PboNode>& node);
-
-        bool tryCleanupNode(QPointer<PboNode>& node);
     };
 }

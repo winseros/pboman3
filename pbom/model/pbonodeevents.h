@@ -10,8 +10,8 @@ namespace pboman3 {
 
     class PboNodeCreatedEvent final : public PboNodeEvent {
     public:
-        PboNodeCreatedEvent(const PboPath* pPath, PboNodeType pNodeType);
-        const PboPath* path;
+        PboNodeCreatedEvent(const PboPath* pNodePath, PboNodeType pNodeType);
+        const PboPath* nodePath;
         const PboNodeType nodeType;
     };
 

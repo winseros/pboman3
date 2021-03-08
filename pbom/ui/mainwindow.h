@@ -2,7 +2,9 @@
 
 #include <QAction>
 #include <QDropEvent>
+#include <QFutureWatcher>
 #include <QMainWindow>
+#include <QProgressBar>
 #include "model/pbomodel2.h"
 #include "model/pbomodelevents.h"
 
@@ -38,9 +40,18 @@ public slots:
 private:
     Ui::MainWindow* ui_;
     PboModel2 model_;
+    QFutureWatcher<InteractionData> interactionData_;
+    QProgressBar* busy_;
+    int busyCount_;
 
 private slots:
-    void dragStarted(const QList<PboPath>& paths);
+    void dragStartPrepare(const QList<PboPath>& paths);
+
+    void dragStart();
 
     void dragDropped(const PboPath& target, const QMimeData* mimeData);
+
+    void setBusy();
+
+    void resetBusy();
 };

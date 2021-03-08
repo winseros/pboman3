@@ -40,7 +40,7 @@ namespace pboman3 {
             QSaveFile file(fsPath);
             file.open(QIODeviceBase::WriteOnly);
 
-            node->binarySource->writeTo(&file, cancel);
+            node->binarySource->writeDecompressed(&file, cancel);
 
             if (cancel())
                 file.cancelWriting();
@@ -58,12 +58,13 @@ namespace pboman3 {
     }
 
     void BinaryBackend::syncPboDir(const PboNode* node, const Cancel& cancel) const {
-        const int cnt = node->childCount();
-        for (auto i = 0; i < cnt; i++) {
-            if (node->nodeType() == PboNodeType::File)
-                syncPboFileNode(node->child(i), cancel);
+        auto it = node->begin();
+        while (it != node->end()) {
+            if ((*it)->nodeType() == PboNodeType::File)
+                syncPboFileNode(*it, cancel);
             else
-                syncPboDir(node->child(i), cancel);
+                syncPboDir(*it, cancel);
+            ++it;
         }
     }
 

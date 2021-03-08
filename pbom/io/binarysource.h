@@ -10,23 +10,33 @@ namespace pboman3 {
 
         virtual ~BinarySource();
 
-        virtual void writeTo(QFileDevice* targetFile, const Cancel& cancel) = 0;
+        virtual void writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) = 0;
+
+        virtual void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) = 0;
+
+        const QString& path() const;
 
     protected:
         QFileDevice* file_;
+
+    private:
+        QString path_;
     };
 
     class FileBasedBinarySource : public BinarySource {
     public:
         FileBasedBinarySource(const QString& path, size_t bufferSize = 1024 ^ 3);
 
-        void writeTo(QFileDevice* targetFile, const Cancel& cancel) override;
+        void writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) override;
+
+        void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) override;
 
     private:
         size_t bufferSize_;
     };
 
     struct PboDataInfo {
+        const int originalSize;
         const int dataSize;
         const size_t dataOffset;
     };
@@ -35,10 +45,16 @@ namespace pboman3 {
     public:
         PboBasedBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize = 1024 ^ 3);
 
-        void writeTo(QFileDevice* targetFile, const Cancel& cancel) override;
+        void writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) override;
+
+        void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) override;
+
+        const PboDataInfo& getInfo() const;
 
     private:
         PboDataInfo dataInfo_;
         size_t bufferSize_;
+
+        bool isCompressed() const;
     };
 }

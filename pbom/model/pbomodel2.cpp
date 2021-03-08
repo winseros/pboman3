@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
+#include "parcelmanager.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
 
@@ -46,7 +47,7 @@ namespace pboman3 {
         }
 
         entry = reader.readNextEntry();
-        while (entry && entry->isContent()) {
+        while (entry && !entry->isBoundary()) {
             entries.append(entry);
             root_->addEntry(entry->makePath());
             entry = reader.readNextEntry();
@@ -55,7 +56,7 @@ namespace pboman3 {
 
         size_t entryDataOffset = file_->pos();
         for (const QSharedPointer<PboEntry>& pEntry : entries) {
-            PboDataInfo dataInfo{pEntry->dataSize, entryDataOffset};
+            PboDataInfo dataInfo{pEntry->originalSize, pEntry->dataSize, entryDataOffset};
             entryDataOffset += dataInfo.dataSize;
             root_->get(pEntry->makePath())->binarySource = QSharedPointer<PboBasedBinarySource>(
                 new PboBasedBinarySource(path, dataInfo));
@@ -96,15 +97,14 @@ namespace pboman3 {
 
     }
 
-    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data) {
-
-    }
-
-    void PboModel2::moveNode(const PboPath& node, const PboPath& newParent,
-                             PboConflictResolution (* onConflict)(const PboPath&, PboNodeType)) const {
+    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data, const OnConflict& onConflict) {
         if (!root_)
             throw PboTreeException("The model is not initialized");
-        root_->moveNode(node, newParent, onConflict);
+        QPointer<PboNode> node = root_->get(parent);
+        if (!node) 
+            throw PboTreeException("The requested parent does not exist");
+        const PboParcel parcel = PboParcel::deserialize(data);
+        ParcelManager().unpackTree(node, parcel, onConflict);
     }
 
     void PboModel2::renameNode(const PboPath& node, const QString& title) const {
@@ -127,9 +127,9 @@ namespace pboman3 {
             nodes.append(node);
         }
 
-        QList<QUrl> locations = binaryBackend_->hddSync(nodes, cancel);
-        QByteArray binary;
-        InteractionData data{std::move(locations), std::move(binary)};
+        QList<QUrl> urls = binaryBackend_->hddSync(nodes, cancel);
+        QByteArray binary = ParcelManager().packTree(*root_, paths).serialize();
+        InteractionData data{std::move(urls), std::move(binary), paths};
         return data;
     }
 

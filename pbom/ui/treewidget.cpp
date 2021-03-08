@@ -46,7 +46,7 @@ namespace pboman3 {
         return !topLevelItem(0)->isSelected();
     }
 
-    QList<TreeWidgetItem*> TreeWidget::getSelection() const {
+    QList<TreeWidgetItem*> TreeWidget::getSelectedItems() const {
         const QList<QTreeWidgetItem*> selected = selectedItems();
         QList<TreeWidgetItem*> result;
         result.reserve(selected.length());
@@ -78,6 +78,29 @@ namespace pboman3 {
             }
         }
         return result;
+    }
+
+    TreeWidgetItem* TreeWidget::getSelectedFile() const {
+        TreeWidgetItem* result = nullptr;
+        const QList<QTreeWidgetItem*> selected = selectedItems();
+        if (selected.length() == 1) {
+            auto* item = dynamic_cast<TreeWidgetItem*>(selected.at(0));
+            if (item->nodeType() == PboNodeType::File) {
+                result = item;
+            }
+        }
+        return result;
+    }
+
+    QList<PboPath> TreeWidget::getSelectedPaths() const {
+        const QList<TreeWidgetItem*> selected = getSelectedItems();
+
+        QList<PboPath> paths;
+        paths.reserve(selected.length());
+        for (const TreeWidgetItem* item : selected)
+            paths.append(item->makePath());
+
+        return paths;
     }
 
     void TreeWidget::onItemExpanded(QTreeWidgetItem* item) {

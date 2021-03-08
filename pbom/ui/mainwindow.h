@@ -33,7 +33,9 @@ public slots:
 
     void onSelectionPasteClick();
 
-    void onSelectionCopyClick();
+    void onSelectionCutClick();
+
+    QList<PboPath> onSelectionCopyClick();
 
     void onSelectionDeleteClick() const;
 
@@ -50,8 +52,9 @@ public slots:
 private:
     Ui::MainWindow* ui_;
     PboModel2 model_;
-    QFutureWatcher<InteractionData> dragDropWatcher;
-    QFutureWatcher<InteractionData> cutCopyWatcher;
+    QFutureWatcher<InteractionData> dragDropWatcher_;
+    QFutureWatcher<InteractionData> cutCopyWatcher_;
+    QList<PboPath> pendingCutOp_;
     QProgressBar* busy_;
     int busyCount_;
 

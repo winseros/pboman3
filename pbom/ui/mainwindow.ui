@@ -125,9 +125,10 @@
     <addaction name="separator"/>
     <addaction name="actionSelectionRename"/>
     <addaction name="separator"/>
-    <addaction name="actionSelectionPaste"/>
-    <addaction name="actionSelectionCopy"/>
     <addaction name="actionSelectionCut"/>
+    <addaction name="actionSelectionCopy"/>
+    <addaction name="actionSelectionPaste"/>
+    <addaction name="separator"/>
     <addaction name="actionSelectionDelete"/>
    </widget>
    <addaction name="menuFile"/>
@@ -405,6 +406,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSelectionCut</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectionCutClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFileOpenClick()</slot>
@@ -416,5 +433,6 @@
   <slot>treeDragDropped(PboPath,QMimeData*)</slot>
   <slot>treeSelectionChanged()</slot>
   <slot>onSelectionPasteClick()</slot>
+  <slot>onSelectionCutClick()</slot>
  </slots>
 </ui>

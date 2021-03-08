@@ -11,6 +11,8 @@
 
 using namespace pboman3;
 
+#define MIME_TYPE_PBOMAN "application/pboman3"
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
       ui_(new Ui::MainWindow),
@@ -20,8 +22,8 @@ MainWindow::MainWindow(QWidget* parent)
     ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
     connect(&model_, &PboModel2::onEvent, this, &MainWindow::onModelEvent);
-    connect(&dragDropWatcher, &QFutureWatcher<InteractionData>::finished, this, &MainWindow::dragStartExecute);
-    connect(&cutCopyWatcher, &QFutureWatcher<InteractionData>::finished, this, &MainWindow::copyOrCutExecute);
+    connect(&dragDropWatcher_, &QFutureWatcher<InteractionData>::finished, this, &MainWindow::dragStartExecute);
+    connect(&cutCopyWatcher_, &QFutureWatcher<InteractionData>::finished, this, &MainWindow::copyOrCutExecute);
 }
 
 MainWindow::~MainWindow() {
@@ -47,21 +49,25 @@ void MainWindow::onSelectionPasteClick() {
         TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
         const QByteArray data = mimeData->data("application/pboman3");
         model_.createNodeSet(item->makePath(), data, nullptr);
-    }
-    else if (mimeData->hasUrls()) {
+    } else if (mimeData->hasUrls()) {
         TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
         model_.createNodeSet(item->makePath(), mimeData->urls());
     }
+    for (const PboPath& path : pendingCutOp_) {
+        model_.removeNode(path);
+    }
+    pendingCutOp_.clear();
 }
 
-void MainWindow::onSelectionCopyClick() {
-    setBusy();
-    const QList<TreeWidgetItem*> selection = ui_->treeWidget->getSelection();
 
-    QList<PboPath> paths;
-    paths.reserve(selection.length());
-    for (const TreeWidgetItem* item : selection)
-        paths.append(item->makePath());
+void MainWindow::onSelectionCutClick() {
+    pendingCutOp_ = onSelectionCopyClick();
+}
+
+QList<PboPath> MainWindow::onSelectionCopyClick() {
+    setBusy();
+
+    QList<PboPath> paths = ui_->treeWidget->getSelectedPaths();
 
     const QFuture<InteractionData> future = QtConcurrent::run(
         [this](QPromise<InteractionData>& promise, const QList<PboPath>& pPaths) {
@@ -69,11 +75,14 @@ void MainWindow::onSelectionCopyClick() {
             promise.addResult(data);
         }, paths);
 
-    cutCopyWatcher.setFuture(future);
+    pendingCutOp_.clear();
+    cutCopyWatcher_.setFuture(future);
+
+    return paths;
 }
 
 void MainWindow::onSelectionDeleteClick() const {
-    const QList<TreeWidgetItem*> selection = ui_->treeWidget->getSelection();
+    const QList<TreeWidgetItem*> selection = ui_->treeWidget->getSelectedItems();
     for (const TreeWidgetItem* item : selection) {
         model_.removeNode(item->makePath());
     }
@@ -115,36 +124,50 @@ void MainWindow::resetBusy() {
 
 void MainWindow::treeContextMenuRequested(const QPoint& point) const {
     QMenu menu;
-    menu.addAction(ui_->actionSelectionOpen);
-    menu.addSeparator();
-    menu.addAction(ui_->actionSelectionRename);
-    menu.addSeparator();
 
-    TreeWidgetItem* selectedFolder = ui_->treeWidget->getSelectedFolder();
-    if (selectedFolder) {
+    if (ui_->actionSelectionOpen->isEnabled()) {
+        menu.addAction(ui_->actionSelectionOpen);
+        menu.addSeparator();
+    }
+
+    if (ui_->actionSelectionRename->isEnabled()) {
+        menu.addAction(ui_->actionSelectionRename);
+        menu.addSeparator();
+    }
+
+    if (ui_->actionSelectionCopy->isEnabled()) {
+        menu.addAction(ui_->actionSelectionCut);
+        menu.addAction(ui_->actionSelectionCopy);
+    }
+
+    if (ui_->actionSelectionPaste->isEnabled()) {
         menu.addAction(ui_->actionSelectionPaste);
     }
 
-    menu.addAction(ui_->actionSelectionCopy);
-    menu.addAction(ui_->actionSelectionCut);
-    menu.addAction(ui_->actionSelectionDelete);
+    if (ui_->actionSelectionDelete->isEnabled()) {
+        menu.addSeparator();
+        menu.addAction(ui_->actionSelectionDelete);
+    }
+    
     menu.exec(ui_->treeWidget->mapToGlobal(point));
 }
 
 void MainWindow::treeDragStartRequested(const QList<PboPath>& paths) {
     setBusy();
+
     const QFuture<InteractionData> future = QtConcurrent::run(
         [this](QPromise<InteractionData>& promise, const QList<PboPath>& pPaths) {
             InteractionData data = model_.interactionPrepare(pPaths, [&promise]() { return promise.isCanceled(); });
             promise.addResult(data);
         }, paths);
 
-    dragDropWatcher.setFuture(future);
+    pendingCutOp_.clear();
+    dragDropWatcher_.setFuture(future);
 }
 
 void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeData) {
-    if (mimeData->hasFormat("application/pboman3")) {
-        const QByteArray data = mimeData->data("application/pboman3");
+    if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
+        const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
         model_.createNodeSet(target, data, nullptr);
     } else if (mimeData->hasUrls()) {
         model_.createNodeSet(target, mimeData->urls());
@@ -152,9 +175,11 @@ void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeDat
 }
 
 void MainWindow::treeSelectionChanged() const {
+    TreeWidgetItem* selectedFile = ui_->treeWidget->getSelectedFile();
+    ui_->actionSelectionOpen->setDisabled(!selectedFile);
+
     const QList<QTreeWidgetItem*> items = ui_->treeWidget->selectedItems();
     const bool isSelectionValid = ui_->treeWidget->isSelectionValid();
-    ui_->actionSelectionOpen->setDisabled(!isSelectionValid || items.length() > 1);
     ui_->actionSelectionRename->setDisabled(!isSelectionValid || items.length() > 1);
     ui_->actionSelectionCopy->setDisabled(!isSelectionValid);
     ui_->actionSelectionCut->setDisabled(!isSelectionValid);
@@ -165,10 +190,10 @@ void MainWindow::treeSelectionChanged() const {
 }
 
 void MainWindow::dragStartExecute() {
-    const InteractionData data = dragDropWatcher.future().takeResult();
+    const InteractionData data = dragDropWatcher_.future().takeResult();
     auto* mimeData = new QMimeData;
     mimeData->setUrls(data.urls);
-    mimeData->setData("application/pboman3", data.binary);
+    mimeData->setData(MIME_TYPE_PBOMAN, data.binary);
 
     QDrag drag(ui_->treeWidget);
     drag.setMimeData(mimeData);
@@ -184,10 +209,10 @@ void MainWindow::dragStartExecute() {
 }
 
 void MainWindow::copyOrCutExecute() {
-    const InteractionData data = cutCopyWatcher.future().takeResult();
+    const InteractionData data = cutCopyWatcher_.future().takeResult();
     auto* mimeData = new QMimeData;
     mimeData->setUrls(data.urls);
-    mimeData->setData("application/pboman3", data.binary);
+    mimeData->setData(MIME_TYPE_PBOMAN, data.binary);
 
     QClipboard* clipboard = QGuiApplication::clipboard();
     clipboard->setMimeData(mimeData);

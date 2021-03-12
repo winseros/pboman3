@@ -14,6 +14,8 @@ namespace pboman3 {
 
         virtual void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
+        virtual void writeRaw(QFileDevice* targetFile, const Cancel& cancel) = 0;
+
         const QString& path() const;
 
     protected:
@@ -31,6 +33,7 @@ namespace pboman3 {
 
         void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) override;
 
+        void writeRaw(QFileDevice* targetFile, const Cancel& cancel) override;
     private:
         size_t bufferSize_;
     };
@@ -51,15 +54,15 @@ namespace pboman3 {
 
         void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) override;
 
+        void writeRaw(QFileDevice* targetFile, const Cancel& cancel) override;
+
         const PboDataInfo& getInfo() const;
 
     private:
         PboDataInfo dataInfo_;
         size_t bufferSize_;
 
-        void writeBytesRaw(QFileDevice* targetFile, const Cancel& cancel) const;
-
-        void writeBytesDecompressed(QFileDevice* targetFile, const Cancel& cancel) const;
+        bool tryWriteDecompressed(QFileDevice* targetFile, const Cancel& cancel) const;
 
         bool isCompressed() const;
     };

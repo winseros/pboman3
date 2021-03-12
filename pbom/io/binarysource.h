@@ -39,6 +39,8 @@ namespace pboman3 {
         const int originalSize;
         const int dataSize;
         const size_t dataOffset;
+
+        PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset);
     };
 
     class PboBasedBinarySource : public BinarySource {
@@ -54,6 +56,10 @@ namespace pboman3 {
     private:
         PboDataInfo dataInfo_;
         size_t bufferSize_;
+
+        void writeBytesRaw(QFileDevice* targetFile, const Cancel& cancel) const;
+
+        void writeBytesDecompressed(QFileDevice* targetFile, const Cancel& cancel) const;
 
         bool isCompressed() const;
     };

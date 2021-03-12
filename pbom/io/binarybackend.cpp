@@ -1,12 +1,11 @@
 #include "binarybackend.h"
 #include <QDir>
-#include <QSaveFile>
 #include <QUuid>
 #include "pboioexception.h"
 
 namespace pboman3 {
     BinaryBackend::BinaryBackend() {
-        tree_ = QUuid::createUuid().toString(QUuid::WithoutBraces) + "/tree_";
+        tree_ = "pboman3/" +  QUuid::createUuid().toString(QUuid::WithoutBraces) + "/tree_";
         if (!QDir::temp().mkpath(tree_)) {
             throw PboIoException("Could not initialize the temporary folder");
         }
@@ -37,15 +36,16 @@ namespace pboman3 {
             if (!QDir::temp().mkpath(fsRelative))
                 throw PboIoException("Could not create folder in temp: " + fsRelative);
 
-            QSaveFile file(fsPath);
-            file.open(QIODeviceBase::WriteOnly);
+            QFile file(fsPath);
+            if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
+                throw PboIoException("Could not open file: " + fsPath);
 
             node->binarySource->writeDecompressed(&file, cancel);
 
+            file.close();
+
             if (cancel())
-                file.cancelWriting();
-            else
-                file.commit();
+                file.remove();
         }
 
         return fsPath;

@@ -11,6 +11,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Test REQUIRED)
 set(PROJECT_SOURCES
         io/binarybackend.cpp
         io/binarysource.cpp
+        io/lzh.cpp
         io/pbodatastream.cpp
         io/pbofile.cpp
         io/pboheaderio.cpp
@@ -29,6 +30,7 @@ set(PROJECT_SOURCES
         ui/treewidgetitem.cpp
         ui/mainwindow.cpp
         ui/mainwindow.ui
+        util/appexception.cpp
 )
 
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
@@ -37,8 +39,9 @@ target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_SOURCES
-    "io/__test__/binarysource_test.cpp"
     "io/__test__/binarybackend_test.cpp"
+    "io/__test__/binarysource_test.cpp"
+    "io/__test__/lzh_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "model/__test__/parcelmanager_test.cpp"
@@ -54,3 +57,5 @@ add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)
 target_link_libraries(pbom_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets gtest gmock)
 target_include_directories(pbom_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_compile_definitions(pbom_test PRIVATE SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

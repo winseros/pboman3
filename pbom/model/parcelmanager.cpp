@@ -76,10 +76,10 @@ namespace pboman3 {
             if (created) {
                 created->binarySource = item.originalSize > 0
                                             ? QSharedPointer<BinarySource>(
-                                                new PboBasedBinarySource(item.file, PboDataInfo{
+                                                new PboBasedBinarySource(item.file, PboDataInfo(
                                                                              item.originalSize, item.dataSize,
                                                                              item.dataOffset
-                                                                         }))
+                                                                         )))
                                             : QSharedPointer<BinarySource>(new FileBasedBinarySource(item.file));
             }
         }

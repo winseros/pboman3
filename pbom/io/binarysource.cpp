@@ -1,6 +1,7 @@
 #include "binarysource.h"
 #include <QFile>
 #include <QVariant>
+#include "lzh.h"
 
 namespace pboman3 {
     BinarySource::BinarySource(const QString& path)
@@ -42,6 +43,12 @@ namespace pboman3 {
     }
 
 
+    PboDataInfo::PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset)
+        : originalSize(pOriginalSize),
+          dataSize(pDataSize),
+          dataOffset(pDataOffset) {
+    }
+
     PboBasedBinarySource::PboBasedBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize)
         : BinarySource(path),
           dataInfo_(dataInfo),
@@ -49,6 +56,21 @@ namespace pboman3 {
     }
 
     void PboBasedBinarySource::writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) {
+        if (isCompressed())
+            writeBytesDecompressed(targetFile, cancel);
+        else
+            writeBytesRaw(targetFile, cancel);
+    }
+
+    void PboBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
+    }
+
+    const PboDataInfo& PboBasedBinarySource::getInfo() const {
+        return dataInfo_;
+    }
+
+
+    void PboBasedBinarySource::writeBytesRaw(QFileDevice* targetFile, const Cancel& cancel) const {
         file_->seek(dataInfo_.dataOffset);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
@@ -63,11 +85,9 @@ namespace pboman3 {
         }
     }
 
-    void PboBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
-    }
-
-    const PboDataInfo& PboBasedBinarySource::getInfo() const {
-        return dataInfo_;
+    void PboBasedBinarySource::writeBytesDecompressed(QFileDevice* targetFile, const Cancel& cancel) const {
+        file_->seek(dataInfo_.dataOffset);
+        Lzh::decompress(file_, targetFile, dataInfo_.originalSize, cancel);
     }
 
     bool PboBasedBinarySource::isCompressed() const {

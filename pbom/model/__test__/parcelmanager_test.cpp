@@ -19,7 +19,7 @@ namespace pboman3::test {
         root.child(0)->binarySource = QSharedPointer<BinarySource>(new FileBasedBinarySource(t.fileName()));
         root.child(1)->child(0)->binarySource = QSharedPointer<BinarySource>(new FileBasedBinarySource(t.fileName()));
         root.child(1)->child(1)->binarySource = QSharedPointer<BinarySource>(
-            new PboBasedBinarySource(t.fileName(), PboDataInfo{10, 20, 30}));
+            new PboBasedBinarySource(t.fileName(), PboDataInfo(10, 20, 30)));
         root.child(2)->child(0)->binarySource = QSharedPointer<BinarySource>(new FileBasedBinarySource(t.fileName()));
 
         //test the method

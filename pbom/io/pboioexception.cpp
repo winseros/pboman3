@@ -2,18 +2,12 @@
 
 namespace pboman3 {
     PboIoException::PboIoException(QString message)
-        : QException(),
-          message_(std::move(message)) {
-    }
-
-    const QString& PboIoException::message() const {
-        return message_;
+        : AppException(std::move(message)) {
     }
 
     QDebug operator<<(QDebug debug, const PboIoException& ex) {
-        return debug << "PboIoException: " << ex.message_;
+        return debug << "PboIoException: " << ex.message();
     }
-
 
     void PboIoException::raise() const {
         throw* this;

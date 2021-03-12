@@ -1,14 +1,17 @@
 #pragma once
 
-#include <QException>
+#include <QDebug>
+#include "util/appexception.h"
 
 namespace pboman3 {
-    class PboTreeException: public QException {
+    class PboTreeException : public AppException {
     public:
         PboTreeException(QString message);
 
-        const QString& message() const;
-    private:
-        const QString message_;
+        friend QDebug operator<<(QDebug debug, const PboTreeException& ex);
+
+        void raise() const override;
+
+        QException* clone() const override;
     };
 }

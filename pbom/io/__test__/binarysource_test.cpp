@@ -65,7 +65,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo{ 8, 8, 1 };
+        const PboDataInfo dataInfo( 8, 8, 1 );
         QTemporaryFile targetFile;
         targetFile.open();
         PboBasedBinarySource bs(sourceFile.fileName(), dataInfo, 5);
@@ -91,7 +91,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo{ 8, 8, 1 };
+        const PboDataInfo dataInfo( 8, 8, 1 );
         QTemporaryFile targetFile;
         targetFile.open();
         PboBasedBinarySource bs(sourceFile.fileName(), dataInfo, 100);

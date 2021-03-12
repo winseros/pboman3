@@ -1,14 +1,12 @@
 #pragma once
 
 #include <QDebug>
-#include <QException>
+#include "util/appexception.h"
 
 namespace pboman3 {
-    class PboIoException : public QException {
+    class PboIoException : public AppException {
     public:
         PboIoException(QString message);
-
-        const QString& message() const;
 
         friend QDebug operator<<(QDebug debug, const PboIoException& ex);
 

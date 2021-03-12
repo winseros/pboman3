@@ -3,17 +3,25 @@
 #include <gtest/gtest.h>
 
 namespace pboman3::test {
-#define TEST_FILE(F) SOURCE_DIR F
+    struct LzhTestParam {
+        QString original;
+        QString source;
+    };
 
-    TEST(LzhTest, TryDecompress_Unpacks_Lzh) {
+    class LzhTest : public testing::TestWithParam<LzhTestParam> {
+    };
+
+    TEST_P(LzhTest, TryDecompress_Unpacks_Lzh) {
         QTemporaryFile t;
         t.open();
 
-        QFile original(TEST_FILE("\\io\\__test__\\data\\lzh\\gpl-3.0.txt"));
+        const LzhTestParam p = GetParam();
+
+        QFile original(p.original);
         original.open(QIODeviceBase::ReadOnly);
         assert(original.size() && "Could not open the file for some reason");
 
-        QFile source(TEST_FILE("\\io\\__test__\\data\\lzh\\gpl-3.0.lzh"));
+        QFile source(p.source);
         source.open(QIODeviceBase::ReadOnly);
 
         Lzh::decompress(&source, &t, original.size(), []() { return false; });
@@ -28,6 +36,17 @@ namespace pboman3::test {
 
         ASSERT_TRUE(targetBytes.length());
         ASSERT_EQ(originalBytes.length(), targetBytes.length());
-        ASSERT_EQ(originalBytes, targetBytes);   
+        ASSERT_EQ(originalBytes, targetBytes);
     }
+
+#define TEST_FILE(F) SOURCE_DIR F
+    INSTANTIATE_TEST_SUITE_P(LzhTest, LzhTest,
+                             testing::Values(
+                                 LzhTestParam{
+                                 TEST_FILE("\\io\\__test__\\data\\lzh\\gpl-3.0.txt") ,
+                                 TEST_FILE("\\io\\__test__\\data\\lzh\\gpl-3.0.lzh") },
+                                 LzhTestParam{
+                                 TEST_FILE("\\io\\__test__\\data\\lzh\\mission.sqm") ,
+                                 TEST_FILE("\\io\\__test__\\data\\lzh\\mission.lzh") }
+                             ));
 }

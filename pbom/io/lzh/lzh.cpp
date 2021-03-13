@@ -1,24 +1,10 @@
 #include "lzh.h"
+#include "compressionchunk.h"
+#include "lzhdecompressionexception.h"
 
 namespace pboman3 {
-    LzhDecompressionException::LzhDecompressionException(QString message):
-        PboIoException(std::move(message)) {
-    }
-
-    QDebug operator<<(QDebug debug, const LzhDecompressionException& ex) {
-        return debug << "LzhDecompressionException: " << ex.message();
-    }
-
-    void LzhDecompressionException::raise() const {
-        throw *this;
-    }
-
-    QException* LzhDecompressionException::clone() const {
-        return new LzhDecompressionException(*this);
-    }
-
     void Lzh::decompress(QFileDevice* source, QFileDevice* target, int outputLength, const Cancel& cancel) {
-        ProcessContext ctx(source, target);
+        DecompressionContext ctx(source, target);
         const qint64 maxTargetOffset = target->pos() + outputLength;
         const qint64 maxSourceOffset = source->size() - 2;
         while (target->pos() < maxTargetOffset && !source->atEnd() && !cancel()) {
@@ -29,12 +15,28 @@ namespace pboman3 {
                 processBlock(ctx);
             }
         }
-        const bool valid = isValid(ctx);
+        const bool valid = cancel() || isValid(ctx);
         if (!valid)
             throw LzhDecompressionException("Could not decompress the file");
     }
 
-    void Lzh::processBlock(ProcessContext& ctx) {
+    void Lzh::compress(QFileDevice* source, QFileDevice* target, const Cancel& cancel) {
+        if (source->pos() > 0)
+            throw PboIoException("File offset must be 0 for LZH compression");
+
+        CompressionBuffer dict(CompressionBuffer::defaultSize);
+
+        while (!source->atEnd() && !cancel()) {
+            CompressionChunk chunk;
+            chunk.compose(source, dict);
+            chunk.flush(target);
+        }
+
+        if (!cancel())
+            writeCrc(source, target);
+    }
+
+    void Lzh::processBlock(DecompressionContext& ctx) {
         constexpr int packetFormatUncompressed = 1;
         constexpr char whitespaceChar = 0x20;
 
@@ -75,7 +77,7 @@ namespace pboman3 {
         }
     }
 
-    bool Lzh::isValid(ProcessContext& ctx) {
+    bool Lzh::isValid(DecompressionContext& ctx) {
         bool valid = false;
 
         if (ctx.source->size() - ctx.source->pos() >= static_cast<qint32>(sizeof(uint))) {
@@ -87,38 +89,18 @@ namespace pboman3 {
         return valid;
     }
 
-    Lzh::ProcessContext::ProcessContext(QFileDevice* pSource, QFileDevice* pTarget)
-        : format(0),
-          crc(0),
-          source(pSource),
-          target(pTarget) {
-        buffer.resize(18);
-    }
+    void Lzh::writeCrc(QFileDevice* source, QFileDevice* target) {
+        QByteArray buffer(1024, Qt::Initialization::Uninitialized);
+        quint32 crc = 0;
 
-    void Lzh::ProcessContext::write(char data) {
-        target->write(&data, sizeof data);
-        updateCrc(data);
-    }
-
-    void Lzh::ProcessContext::write(const QByteArray& data, int chunkSize) {
-        target->write(data.data(), chunkSize);
-        updateCrc(data, chunkSize);
-    }
-
-    void Lzh::ProcessContext::setBuffer(qint64 offset, int length) {
-        const qint64 pos = target->pos();
-        target->seek(offset);
-        target->read(buffer.data(), length);
-        target->seek(pos);
-    }
-
-    void Lzh::ProcessContext::updateCrc(char data) {
-        crc = crc + static_cast<quint8>(data);
-    }
-
-    void Lzh::ProcessContext::updateCrc(const QByteArray& data, int chunkSize) {
-        for (int i = 0; i < chunkSize; i++) {
-            crc = crc + static_cast<quint8>(data[i]);
+        source->seek(0);
+        while (!source->atEnd()) {
+           const qint64 read = source->read(buffer.data(), buffer.length());
+            for (qint64 i = 0; i < read; i++) {
+                crc += static_cast<quint8>(buffer[i]);
+            }
         }
+
+        target->write(reinterpret_cast<char*>(&crc), sizeof crc);
     }
 }

@@ -1,7 +1,8 @@
 #include "binarysource.h"
 #include <QFile>
 #include <QVariant>
-#include "lzh.h"
+#include "lzh/lzh.h"
+#include "lzh/lzhdecompressionexception.h"
 
 namespace pboman3 {
     BinarySource::BinarySource(const QString& path)
@@ -26,6 +27,13 @@ namespace pboman3 {
     }
 
     void FileBasedBinarySource::writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) {
+        writeRaw(targetFile, cancel);
+    }
+
+    void FileBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
+    }
+
+    void FileBasedBinarySource::writeRaw(QFileDevice* targetFile, const Cancel& cancel) {
         file_->seek(0);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
@@ -37,13 +45,6 @@ namespace pboman3 {
             targetFile->write(buf.data(), hasRead);
             remaining -= hasRead;
         }
-    }
-
-    void FileBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
-    }
-
-    void FileBasedBinarySource::writeRaw(QFileDevice* targetFile, const Cancel& cancel) {
-        writeDecompressed(targetFile, cancel);
     }
 
 

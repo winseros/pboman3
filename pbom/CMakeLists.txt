@@ -9,9 +9,13 @@ find_package(QT NAMES Qt6 COMPONENTS Widgets Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Test REQUIRED)
 
 set(PROJECT_SOURCES
+        io/lzh/compressionbuffer.cpp
+        io/lzh/compressionchunk.cpp
+        io/lzh/decompressioncontext.cpp
+        io/lzh/lzh.cpp
+        io/lzh/lzhdecompressionexception.cpp
         io/binarybackend.cpp
         io/binarysource.cpp
-        io/lzh.cpp
         io/pbodatastream.cpp
         io/pbofile.cpp
         io/pboheaderio.cpp
@@ -39,9 +43,11 @@ target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_SOURCES
+    "io/lzh/__test__/compressionbuffer_test.cpp"
+    "io/lzh/__test__/compressionchunk_test.cpp"
+    "io/lzh/__test__/lzh_test.cpp"
     "io/__test__/binarybackend_test.cpp"
     "io/__test__/binarysource_test.cpp"
-    "io/__test__/lzh_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "model/__test__/parcelmanager_test.cpp"

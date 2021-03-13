@@ -129,7 +129,7 @@ namespace pboman3 {
 
     void TreeWidget::dragEnterEvent(QDragEnterEvent* event) {
         if (tryAcceptEvent(event->mimeData(), event->position().toPoint())) {
-            event->accept();
+            event->acceptProposedAction();
         } else {
             event->ignore();
         }
@@ -141,7 +141,7 @@ namespace pboman3 {
 
     void TreeWidget::dragMoveEvent(QDragMoveEvent* event) {
         if (tryAcceptEvent(event->mimeData(), event->position().toPoint())) {
-            event->accept();
+            event->acceptProposedAction();
         } else {
             event->ignore();
         }

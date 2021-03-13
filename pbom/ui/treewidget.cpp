@@ -149,13 +149,14 @@ namespace pboman3 {
 
     bool TreeWidget::tryAcceptEvent(const QMimeData* mimeData, const QPoint& pos) {
         if (mimeData->hasUrls()) {
-            auto* item = dynamic_cast<TreeWidgetItem*>(itemAt(pos));
-            if (item) {
-                if (item->nodeType() == PboNodeType::File)
-                    item = dynamic_cast<TreeWidgetItem*>(item->parent());
-                setDragOverItem(item);
-                return true;
-            }
+            QTreeWidgetItem* treeItem = itemAt(pos);
+            if (!treeItem)
+                treeItem = topLevelItem(0);
+            auto* item = dynamic_cast<TreeWidgetItem*>(treeItem);
+            if (item->nodeType() == PboNodeType::File)
+                item = dynamic_cast<TreeWidgetItem*>(item->parent());
+            setDragOverItem(item);
+            return true;
         }
         setDragOverItem(nullptr);
         return false;

@@ -5,6 +5,7 @@
 #include "parcelmanager.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
+#include "io/bs/pbobasedbinarysource.h"
 
 namespace pboman3 {
     void PboModel2::loadFile(const QString& path) {

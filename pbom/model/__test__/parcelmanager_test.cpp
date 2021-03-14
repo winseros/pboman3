@@ -1,6 +1,8 @@
 #include "model/parcelmanager.h"
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
+#include "io/bs/filebasedbinarysource.h"
+#include "io/bs/pbobasedbinarysource.h"
 #include "model/pbonode.h"
 
 namespace pboman3::test {

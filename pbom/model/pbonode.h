@@ -1,13 +1,13 @@
 #pragma once
 
+#include <QObject.h>
 #include <QPointer>
 #include <functional>
-#include <qobject.h>
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
 #include "pboparcel.h"
 #include "pbopath.h"
-#include "io/binarysource.h"
+#include "io/bs/binarysource.h"
 
 namespace pboman3 {
  

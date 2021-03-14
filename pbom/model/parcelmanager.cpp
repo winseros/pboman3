@@ -1,6 +1,8 @@
 #include "parcelmanager.h"
 #include <QSet>
-#include "io/binarysource.h"
+#include "io/bs/binarysource.h"
+#include "io/bs/filebasedbinarysource.h"
+#include "io/bs/pbobasedbinarysource.h"
 
 namespace pboman3 {
     PboParcel ParcelManager::packTree(const PboNode& root, const QList<PboPath>& paths) const {

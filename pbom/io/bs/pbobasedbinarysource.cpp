@@ -27,8 +27,12 @@ namespace pboman3 {
     }
 
     void PboBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
-        file_->seek(0);
-        Lzh::compress(file_, targetFile, cancel);
+        if (isCompressed()) {
+            writeRaw(targetFile, cancel);
+        } else {
+            file_->seek(0);
+            Lzh::compress(file_, targetFile, cancel);
+        }
     }
 
     bool PboBasedBinarySource::tryWriteDecompressed(QFileDevice* targetFile, const Cancel& cancel) const {

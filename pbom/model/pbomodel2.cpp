@@ -5,6 +5,7 @@
 #include "parcelmanager.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
+#include "io/bs/filebasedbinarysource.h"
 #include "io/bs/pbobasedbinarysource.h"
 
 namespace pboman3 {
@@ -93,16 +94,27 @@ namespace pboman3 {
         }
     }
 
-
-    void PboModel2::createNodeSet(const PboPath& parent, const QList<QUrl>& urls) {
-
-    }
-
-    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data, const OnConflict& onConflict) {
+    void PboModel2::createNodeSet(const PboPath& parent, const FilesystemFiles& files, const OnConflict& onConflict) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
         QPointer<PboNode> node = root_->get(parent);
-        if (!node) 
+        if (!node)
+            throw PboTreeException("The requested parent does not exist");
+
+        for (const FilesystemFile& item : files) {
+            const PboPath path(item.pboPath);
+            const QPointer<PboNode> created = node->addEntry(path, onConflict);
+            if (created) {
+                created->binarySource = QSharedPointer<BinarySource>(new FileBasedBinarySource(item.fsPath));
+            }
+        }
+    }
+
+    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data, const OnConflict& onConflict) const {
+        if (!root_)
+            throw PboTreeException("The model is not initialized");
+        QPointer<PboNode> node = root_->get(parent);
+        if (!node)
             throw PboTreeException("The requested parent does not exist");
         const PboParcel parcel = PboParcel::deserialize(data);
         ParcelManager().unpackTree(node, parcel, onConflict);

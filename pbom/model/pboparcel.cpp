@@ -1,4 +1,5 @@
 #include "pboparcel.h"
+#include <QDataStream>
 
 namespace pboman3 {
 

@@ -32,6 +32,10 @@ set(PROJECT_SOURCES
         model/pboparcel.cpp
         model/pbopath.cpp
         model/pbotreeexception.cpp
+        ui/compressdialog.cpp
+        ui/compressdialog.ui
+        ui/compressionlistmodel.cpp
+        ui/fscollector.cpp
         ui/treewidget.cpp
         ui/treewidgetitem.cpp
         ui/mainwindow.cpp
@@ -60,6 +64,7 @@ set(TEST_SOURCES
     "model/__test__/pbonode_events_tets.cpp"
     "model/__test__/pboparcel_test.cpp"
     "model/__test__/pbopath_test.cpp"
+    "ui/__test__/fscollector__test.cpp"
  )
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)

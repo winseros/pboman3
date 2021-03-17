@@ -7,7 +7,10 @@
 #include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
+#include "compressdialog.h"
+#include "fscollector.h"
 #include "ui_mainwindow.h"
+#include "model/filesystemfiles.h"
 
 using namespace pboman3;
 
@@ -50,8 +53,7 @@ void MainWindow::onSelectionPasteClick() {
         const QByteArray data = mimeData->data("application/pboman3");
         model_.createNodeSet(item->makePath(), data, nullptr);
     } else if (mimeData->hasUrls()) {
-        TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
-        model_.createNodeSet(item->makePath(), mimeData->urls());
+        appendFilesToModel(mimeData->urls());
     }
     for (const PboPath& path : pendingCutOp_) {
         model_.removeNode(path);
@@ -85,6 +87,17 @@ void MainWindow::onSelectionDeleteClick() const {
     const QList<TreeWidgetItem*> selection = ui_->treeWidget->getSelectedItems();
     for (const TreeWidgetItem* item : selection) {
         model_.removeNode(item->makePath());
+    }
+}
+
+void MainWindow::appendFilesToModel(const QList<QUrl>& urls) {
+    FsCollector collector;
+    const FilesystemFiles files = collector.collectFiles(urls);
+    CompressDialog compressDialog(this, &files);
+    const int result = compressDialog.exec();
+    if (result == QDialog::DialogCode::Accepted) {
+        TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
+        model_.createNodeSet(item->makePath(), files, nullptr);
     }
 }
 
@@ -148,7 +161,7 @@ void MainWindow::treeContextMenuRequested(const QPoint& point) const {
         menu.addSeparator();
         menu.addAction(ui_->actionSelectionDelete);
     }
-    
+
     menu.exec(ui_->treeWidget->mapToGlobal(point));
 }
 
@@ -170,7 +183,7 @@ void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeDat
         const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
         model_.createNodeSet(target, data, nullptr);
     } else if (mimeData->hasUrls()) {
-        model_.createNodeSet(target, mimeData->urls());
+        appendFilesToModel(mimeData->urls());
     }
 }
 
@@ -199,7 +212,6 @@ void MainWindow::dragStartExecute() {
     drag.setMimeData(mimeData);
 
     resetBusy();
-
     const Qt::DropAction result = drag.exec(Qt::DropAction::CopyAction | Qt::DropAction::MoveAction);
     if (result == Qt::DropAction::MoveAction) {
         for (const PboPath& path : data.nodes) {

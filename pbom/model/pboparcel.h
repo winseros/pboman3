@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QDataStream>
 #include <QList>
 
 namespace pboman3 {

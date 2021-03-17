@@ -39,6 +39,8 @@ public slots:
 
     void onSelectionDeleteClick() const;
 
+    void appendFilesToModel(const QList<QUrl>& urls);
+
     void onModelEvent(const PboModelEvent* event) const;
 
     void treeContextMenuRequested(const QPoint& point) const;

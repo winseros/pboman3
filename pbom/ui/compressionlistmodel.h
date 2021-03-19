@@ -23,6 +23,7 @@ namespace pboman3 {
         QModelIndex index(int row, int column, const QModelIndex& parent) const override;
 
         QModelIndex parent(const QModelIndex& child) const override;
+
     private:
         const FilesystemFiles* files_;
     };

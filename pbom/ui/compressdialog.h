@@ -26,9 +26,13 @@ public:
 protected:
     void resizeEvent(QResizeEvent*) override;
 
+    void keyReleaseEvent(QKeyEvent* event) override;
+
 private:
     Ui::CompressDialog* ui_;
     bool columnWidthSet_;
     const FilesystemFiles* files_;
     QSharedPointer<CompressionListModel> model_;
+
+    void toggleSelectedItems() const;
 };

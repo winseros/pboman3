@@ -32,6 +32,7 @@ namespace pboman3 {
         if (index.isValid() && index.column() == 1 && role == Qt::CheckStateRole) {
             auto* file = static_cast<FilesystemFile*>(index.internalPointer());
             file->compress = value == Qt::Checked;
+            emit dataChanged(index, index, QList<int>{{Qt::CheckStateRole}});
         }
         return false;
     }
@@ -44,7 +45,8 @@ namespace pboman3 {
     }
 
     Qt::ItemFlags CompressionListModel::flags(const QModelIndex& index) const {
-        Qt::ItemFlags flags = Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable;
+        Qt::ItemFlags flags = Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemNeverHasChildren |
+            Qt::ItemFlag::ItemIsSelectable;
 
         if (index.column() == 1)
             flags |= Qt::ItemFlag::ItemIsUserCheckable;

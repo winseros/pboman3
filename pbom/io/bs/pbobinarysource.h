@@ -11,21 +11,21 @@ namespace pboman3 {
         PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset);
     };
 
-    class PboBasedBinarySource : public BinarySource {
+    class PboBinarySource : public BinarySource {
     public:
-        PboBasedBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize = 1024 ^ 3);
+        PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize = 1024 ^ 3);
 
-        void writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) override;
+        void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override;
 
-        void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) override;
-
-        void writeRaw(QFileDevice* targetFile, const Cancel& cancel) override;
+        void writeToFs(QFileDevice* targetFile, const Cancel& cancel) override;
 
         const PboDataInfo& getInfo() const;
 
     private:
         PboDataInfo dataInfo_;
         size_t bufferSize_;
+
+        void writeRaw(QFileDevice* targetFile, const Cancel& cancel) const;
 
         bool tryWriteDecompressed(QFileDevice* targetFile, const Cancel& cancel) const;
 

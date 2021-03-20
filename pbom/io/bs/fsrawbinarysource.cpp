@@ -1,22 +1,20 @@
-#include "filebasedbinarysource.h"
-#include "io/lzh/lzh.h"
+#include "fsrawbinarysource.h"
 
 namespace pboman3 {
-    FileBasedBinarySource::FileBasedBinarySource(const QString& path, size_t bufferSize)
+    FsRawBinarySource::FsRawBinarySource(const QString& path, size_t bufferSize)
         : BinarySource(path),
         bufferSize_(bufferSize) {
     }
 
-    void FileBasedBinarySource::writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) {
+    void FsRawBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {
         writeRaw(targetFile, cancel);
     }
 
-    void FileBasedBinarySource::writeCompressed(QFileDevice* targetFile, const Cancel& cancel) {
-        file_->seek(0);
-        Lzh::compress(file_, targetFile, cancel);
+    void FsRawBinarySource::writeToFs(QFileDevice* targetFile, const Cancel& cancel) {
+        writeRaw(targetFile, cancel);
     }
 
-    void FileBasedBinarySource::writeRaw(QFileDevice* targetFile, const Cancel& cancel) {
+    void FsRawBinarySource::writeRaw(QFileDevice* targetFile, const Cancel& cancel) const {
         file_->seek(0);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);

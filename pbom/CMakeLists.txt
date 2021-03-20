@@ -10,8 +10,9 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Test REQUIRED)
 
 set(PROJECT_SOURCES
         io/bs/binarysource.cpp
-        io/bs/filebasedbinarysource.cpp
-        io/bs/pbobasedbinarysource.cpp
+        io/bs/fslzhbinarysource.cpp
+        io/bs/fsrawbinarysource.cpp
+        io/bs/pbobinarysource.cpp
         io/lzh/compressionbuffer.cpp
         io/lzh/compressionchunk.cpp
         io/lzh/decompressioncontext.cpp
@@ -49,8 +50,9 @@ target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TEST_SOURCES
-    "io/bs/__test__/filebasedbinarysource_test.cpp"
-    "io/bs/__test__/pbobasedbinarysource_test.cpp"
+    "io/bs/__test__/fslzhbinarysource_test.cpp"
+    "io/bs/__test__/fsrawbinarysource_test.cpp"
+    "io/bs/__test__/pbobinarysource_test.cpp"
     "io/lzh/__test__/compressionbuffer_test.cpp"
     "io/lzh/__test__/compressionchunk_test.cpp"
     "io/lzh/__test__/lzh_test.cpp"

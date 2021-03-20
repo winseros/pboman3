@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QMap>
 #include "model/pbonode.h"
 #include "util/util.h"
 

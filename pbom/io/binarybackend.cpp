@@ -40,7 +40,7 @@ namespace pboman3 {
             if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
                 throw PboIoException("Could not open file: " + fsPath);
 
-            node->binarySource->writeDecompressed(&file, cancel);
+            node->binarySource->writeToFs(&file, cancel);
 
             file.close();
 

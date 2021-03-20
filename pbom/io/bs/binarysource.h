@@ -10,11 +10,9 @@ namespace pboman3 {
 
         virtual ~BinarySource();
 
-        virtual void writeDecompressed(QFileDevice* targetFile, const Cancel& cancel) = 0;
+        virtual void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
-        virtual void writeCompressed(QFileDevice* targetFile, const Cancel& cancel) = 0;
-
-        virtual void writeRaw(QFileDevice* targetFile, const Cancel& cancel) = 0;
+        virtual void writeToFs(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
         const QString& path() const;
 

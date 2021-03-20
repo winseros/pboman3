@@ -5,8 +5,8 @@
 #include "parcelmanager.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
-#include "io/bs/filebasedbinarysource.h"
-#include "io/bs/pbobasedbinarysource.h"
+#include "io/bs/fsrawbinarysource.h"
+#include "io/bs/pbobinarysource.h"
 
 namespace pboman3 {
     void PboModel2::loadFile(const QString& path) {
@@ -60,8 +60,8 @@ namespace pboman3 {
         for (const QSharedPointer<PboEntry>& pEntry : entries) {
             PboDataInfo dataInfo{pEntry->originalSize, pEntry->dataSize, entryDataOffset};
             entryDataOffset += dataInfo.dataSize;
-            root_->get(pEntry->makePath())->binarySource = QSharedPointer<PboBasedBinarySource>(
-                new PboBasedBinarySource(path, dataInfo));
+            root_->get(pEntry->makePath())->binarySource = QSharedPointer<PboBinarySource>(
+                new PboBinarySource(path, dataInfo));
         }
 
         binaryBackend_ = QSharedPointer<BinaryBackend>(new BinaryBackend);
@@ -105,7 +105,7 @@ namespace pboman3 {
             const PboPath path(item.pboPath);
             const QPointer<PboNode> created = node->addEntry(path, onConflict);
             if (created) {
-                created->binarySource = QSharedPointer<BinarySource>(new FileBasedBinarySource(item.fsPath));
+                created->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(item.fsPath));
             }
         }
     }

@@ -1,8 +1,8 @@
 #include "parcelmanager.h"
 #include <QSet>
 #include "io/bs/binarysource.h"
-#include "io/bs/filebasedbinarysource.h"
-#include "io/bs/pbobasedbinarysource.h"
+#include "io/bs/fsrawbinarysource.h"
+#include "io/bs/pbobinarysource.h"
 
 namespace pboman3 {
     PboParcel ParcelManager::packTree(const PboNode& root, const QList<PboPath>& paths) const {
@@ -51,7 +51,7 @@ namespace pboman3 {
             if (!dedupe.contains(node)) {
                 dedupe.insert(node);
                 const QString nodePath = parentPath + node->title();
-                if (const auto* pboSource = dynamic_cast<const PboBasedBinarySource*>(node->binarySource.get())) {
+                if (const auto* pboSource = dynamic_cast<const PboBinarySource*>(node->binarySource.get())) {
                     const auto pboDataInfo = pboSource->getInfo();
                     parcel.append(PboParcelItem{
                         nodePath, pboSource->path(), pboDataInfo.dataOffset, pboDataInfo.dataSize,
@@ -78,11 +78,11 @@ namespace pboman3 {
             if (created) {
                 created->binarySource = item.originalSize > 0
                                             ? QSharedPointer<BinarySource>(
-                                                new PboBasedBinarySource(item.file, PboDataInfo(
+                                                new PboBinarySource(item.file, PboDataInfo(
                                                                              item.originalSize, item.dataSize,
                                                                              item.dataOffset
                                                                          )))
-                                            : QSharedPointer<BinarySource>(new FileBasedBinarySource(item.file));
+                                            : QSharedPointer<BinarySource>(new FsRawBinarySource(item.file));
             }
         }
     }

@@ -23,6 +23,7 @@ set(PROJECT_SOURCES
         io/pbofile.cpp
         io/pboheaderio.cpp
         io/pboioexception.cpp
+        model/addentrycancelexception.cpp
         model/parcelmanager.cpp
         model/pboentry.cpp
         model/pboheader.cpp

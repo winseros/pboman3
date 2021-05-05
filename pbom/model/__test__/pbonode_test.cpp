@@ -2,6 +2,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include "gmock/gmock.h"
+#include "model/addentrycancelexception.h"
 #include "model/pbotreeexception.h"
 
 namespace pboman3::test {
@@ -159,13 +160,12 @@ namespace pboman3::test {
         root.addEntry(PboPath("f2/e1.txt"));
         const QPointer<PboNode> e1Old = root.child(0)->child(0);
 
-        const QPointer<PboNode> e1New = root.addEntry(PboPath("f2/e1.txt"), [](const PboPath&, PboNodeType) {
-            return PboConflictResolution::Abort;
-        });
+        ASSERT_THROW(root.addEntry(PboPath("f2/e1.txt"), [](const PboPath&, PboNodeType) {
+                         return PboConflictResolution::Abort;
+                         }), AddEntryCancelException);
 
         ASSERT_EQ(root.child(0)->childCount(), 1);
         ASSERT_EQ(root.child(0)->child(0), e1Old);
-        ASSERT_TRUE(e1New.isNull());
     }
 
     TEST(PboNodeTest, MakePath_Returns_Path) {

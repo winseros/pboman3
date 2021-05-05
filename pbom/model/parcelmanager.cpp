@@ -1,5 +1,5 @@
 #include "parcelmanager.h"
-#include <QSet>
+#include "addentrycancelexception.h"
 #include "io/bs/binarysource.h"
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
@@ -73,17 +73,20 @@ namespace pboman3 {
 
     void ParcelManager::unpackTree(QPointer<PboNode>& parent, const PboParcel& parcel,
                                    const OnConflict& onConflict) const {
-        for (const PboParcelItem& item : parcel) {
-            QPointer<PboNode> created = parent->addEntry(PboPath(item.path), onConflict);
-            if (created) {
-                created->binarySource = item.originalSize > 0
-                                            ? QSharedPointer<BinarySource>(
-                                                new PboBinarySource(item.file, PboDataInfo(
-                                                                             item.originalSize, item.dataSize,
-                                                                             item.dataOffset
-                                                                         )))
-                                            : QSharedPointer<BinarySource>(new FsRawBinarySource(item.file));
+        try {
+            for (const PboParcelItem& item : parcel) {
+                QPointer<PboNode> created = parent->addEntry(PboPath(item.path), onConflict);
+                if (created) {
+                    created->binarySource = item.originalSize > 0
+                                                ? QSharedPointer<BinarySource>(
+                                                    new PboBinarySource(item.file, PboDataInfo(
+                                                                            item.originalSize, item.dataSize,
+                                                                            item.dataOffset
+                                                                        )))
+                                                : QSharedPointer<BinarySource>(new FsRawBinarySource(item.file));
+                }
             }
+        } catch (AddEntryCancelException&) {
         }
     }
 }

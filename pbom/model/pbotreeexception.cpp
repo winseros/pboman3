@@ -15,5 +15,5 @@ namespace pboman3 {
 
     QException* PboTreeException::clone() const {
         return new PboTreeException(*this);
-    }    
+    }
 }

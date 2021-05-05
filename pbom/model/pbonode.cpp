@@ -1,5 +1,6 @@
 #include "pbonode.h"
 #include <QRegularExpression>
+#include "addentrycancelexception.h"
 #include "pbotreeexception.h"
 
 namespace pboman3 {
@@ -49,7 +50,7 @@ namespace pboman3 {
                     break;
                 }
                 case PboConflictResolution::Abort: {
-                    break;
+                    throw AddEntryCancelException("The operation was cancelled");
                 }
             }
         } else {

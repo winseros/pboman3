@@ -1,5 +1,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "model/addentrycancelexception.h"
 #include "model/pbonode.h"
 #include "model/pbonodetype.h"
 
@@ -144,9 +145,9 @@ namespace pboman3::test {
 
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        root.addEntry(PboPath("f2/e2"), [](const PboPath&, PboNodeType) {
-            return PboConflictResolution::Abort;
-        });
+        ASSERT_THROW(root.addEntry(PboPath("f2/e2"), [](const PboPath&, PboNodeType) {
+                         return PboConflictResolution::Abort;
+                         }), AddEntryCancelException);
 
         ASSERT_EQ(i, 0);
     }

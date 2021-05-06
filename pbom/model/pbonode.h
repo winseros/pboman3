@@ -1,24 +1,15 @@
 #pragma once
 
-#include <QObject.h>
+#include <QObject>
 #include <QPointer>
-#include <functional>
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
 #include "pboparcel.h"
 #include "pbopath.h"
+#include "treeconflictresolution.h"
 #include "io/bs/binarysource.h"
 
 namespace pboman3 {
- 
-    enum class PboConflictResolution {
-        Abort,
-        Copy,
-        Replace
-    };
-
-    typedef std::function<PboConflictResolution(const PboPath&, PboNodeType)> OnConflict;
-
     class PboNode final : public QObject {
     Q_OBJECT
 
@@ -31,7 +22,7 @@ namespace pboman3 {
 
         void addEntry(const PboPath& entryPath);
 
-        QPointer<PboNode> addEntry(const PboPath& entryPath, const OnConflict& onConflict);
+        QPointer<PboNode> addEntry(const PboPath& entryPath, const TreeConflictResolution& onConflict);
 
         PboPath makePath() const;
 
@@ -43,7 +34,9 @@ namespace pboman3 {
 
         const QPointer<PboNode>& root() const;
 
-        QPointer<PboNode> get(const PboPath& node) const;
+        bool fileExists(const PboPath& path) const;
+
+        QPointer<PboNode> get(const PboPath& path) const;
 
         QPointer<PboNode> child(int index) const;
 

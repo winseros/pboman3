@@ -51,8 +51,6 @@ public slots:
 
     void treeSelectionChanged() const;
 
-    PboConflictResolution onPboEntryConflict(const PboPath& path, PboNodeType nodeType);
-
 private:
     Ui::MainWindow* ui_;
     PboModel2 model_;

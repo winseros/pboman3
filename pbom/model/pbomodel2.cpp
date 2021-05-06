@@ -2,7 +2,6 @@
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
-#include "addentrycancelexception.h"
 #include "parcelmanager.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
@@ -96,26 +95,33 @@ namespace pboman3 {
     }
 
     void PboModel2::createNodeSet(const PboPath& parent, const FilesystemFiles& files,
-                                  const OnConflict& onConflict) const {
+                                  const ResolveConflictsFn& onConflict) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
         QPointer<PboNode> node = root_->get(parent);
         if (!node)
             throw PboTreeException("The requested parent does not exist");
 
-        try {
-            for (const FilesystemFile& item : files) {
-                const PboPath path(item.pboPath);
-                const QPointer<PboNode> created = node->addEntry(path, onConflict);
-                if (created) {
-                    created->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(item.fsPath));
-                }
+        TreeConflicts conflicts;
+        for (const FilesystemFile& item : files) {
+            conflicts.inspect(node, item.pboPath);
+        }
+
+        if (!conflicts.isEmpty())
+            onConflict(conflicts);
+
+        for (const FilesystemFile& item : files) {
+            const TreeConflictResolution resolution = conflicts.getResolution(item.pboPath);
+            const PboPath path(item.pboPath);
+            const QPointer<PboNode> created = node->addEntry(path, resolution);
+            if (created) {
+                created->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(item.fsPath));
             }
-        } catch (AddEntryCancelException&) {
         }
     }
 
-    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data, const OnConflict& onConflict) const {
+    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data,
+                                  const ResolveConflictsFn& onConflict) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
         QPointer<PboNode> node = root_->get(parent);

@@ -1,5 +1,4 @@
 #include "parcelmanager.h"
-#include "addentrycancelexception.h"
 #include "io/bs/binarysource.h"
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
@@ -72,21 +71,28 @@ namespace pboman3 {
     }
 
     void ParcelManager::unpackTree(QPointer<PboNode>& parent, const PboParcel& parcel,
-                                   const OnConflict& onConflict) const {
-        try {
-            for (const PboParcelItem& item : parcel) {
-                QPointer<PboNode> created = parent->addEntry(PboPath(item.path), onConflict);
-                if (created) {
-                    created->binarySource = item.originalSize > 0
-                                                ? QSharedPointer<BinarySource>(
-                                                    new PboBinarySource(item.file, PboDataInfo(
-                                                                            item.originalSize, item.dataSize,
-                                                                            item.dataOffset
-                                                                        )))
-                                                : QSharedPointer<BinarySource>(new FsRawBinarySource(item.file));
-                }
+                                   const ResolveConflictsFn& onConflict) const {
+
+        TreeConflicts conflicts;
+        for (const PboParcelItem& item : parcel) {
+            conflicts.inspect(parent, item.path);
+        }
+
+        if (!conflicts.isEmpty())
+            onConflict(conflicts);
+
+        for (const PboParcelItem& item : parcel) {
+            const TreeConflictResolution resolution = conflicts.getResolution(item.path);
+            QPointer<PboNode> created = parent->addEntry(PboPath(item.path), resolution);
+            if (created) {
+                created->binarySource = item.originalSize > 0
+                                            ? QSharedPointer<BinarySource>(
+                                                new PboBinarySource(item.file, PboDataInfo(
+                                                                        item.originalSize, item.dataSize,
+                                                                        item.dataOffset
+                                                                    )))
+                                            : QSharedPointer<BinarySource>(new FsRawBinarySource(item.file));
             }
-        } catch (AddEntryCancelException&) {
         }
     }
 }

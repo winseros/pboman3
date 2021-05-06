@@ -5,6 +5,7 @@
 #include "filesystemfiles.h"
 #include "pbomodelevents.h"
 #include "pbonode.h"
+#include "treeconflicts.h"
 #include "io/binarybackend.h"
 #include "io/pbofile.h"
 #include "io/pboheaderio.h"
@@ -23,9 +24,9 @@ namespace pboman3 {
 
         void saveFile();
 
-        void createNodeSet(const PboPath& parent, const FilesystemFiles& data, const OnConflict& onConflict) const;
+        void createNodeSet(const PboPath& parent, const FilesystemFiles& data, const ResolveConflictsFn& onConflict) const;
 
-        void createNodeSet(const PboPath& parent, const QByteArray& data, const OnConflict& onConflict) const;
+        void createNodeSet(const PboPath& parent, const QByteArray& data, const ResolveConflictsFn& onConflict) const;
 
         void renameNode(const PboPath& node, const QString& title) const;
 

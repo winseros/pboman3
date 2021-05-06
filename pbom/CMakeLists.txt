@@ -23,7 +23,6 @@ set(PROJECT_SOURCES
         io/pbofile.cpp
         io/pboheaderio.cpp
         io/pboioexception.cpp
-        model/addentrycancelexception.cpp
         model/parcelmanager.cpp
         model/pboentry.cpp
         model/pboheader.cpp
@@ -34,6 +33,7 @@ set(PROJECT_SOURCES
         model/pboparcel.cpp
         model/pbopath.cpp
         model/pbotreeexception.cpp
+        model/treeconflicts.cpp
         ui/compressdialog.cpp
         ui/compressdialog.ui
         ui/compressionlistmodel.cpp
@@ -67,6 +67,7 @@ set(TEST_SOURCES
     "model/__test__/pbonode_events_tets.cpp"
     "model/__test__/pboparcel_test.cpp"
     "model/__test__/pbopath_test.cpp"
+    "model/__test__/treeconflicts_test.cpp"
     "ui/__test__/fscollector__test.cpp"
  )
 

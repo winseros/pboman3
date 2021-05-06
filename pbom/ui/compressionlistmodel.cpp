@@ -32,7 +32,7 @@ namespace pboman3 {
         if (index.isValid() && index.column() == 1 && role == Qt::CheckStateRole) {
             auto* file = static_cast<FilesystemFile*>(index.internalPointer());
             file->compress = value == Qt::Checked;
-            emit dataChanged(index, index, QList<int>{{Qt::CheckStateRole}});
+            emit dataChanged(index, index, QList<int>{Qt::CheckStateRole});
         }
         return false;
     }

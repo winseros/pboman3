@@ -1,8 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include "model/addentrycancelexception.h"
 #include "model/pbonode.h"
 #include "model/pbonodetype.h"
+#include "model/pbotreeexception.h"
 
 namespace pboman3::test {
     TEST(PboNodeEventsTest, AddEntry1_Emits) {
@@ -72,9 +72,9 @@ namespace pboman3::test {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
         QObject::connect(&root, &PboNode::onEvent, onEvent);
 
-        root.addEntry(PboPath("e1"), nullptr);
-        root.addEntry(PboPath("f2/e2"), nullptr);
-        root.addEntry(PboPath("f2/e3"), nullptr);
+        root.addEntry(PboPath("e1"), TreeConflictResolution::Throw);
+        root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw);
+        root.addEntry(PboPath("f2/e3"), TreeConflictResolution::Throw);
 
         ASSERT_EQ(i, 4);
     }
@@ -101,9 +101,7 @@ namespace pboman3::test {
 
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        root.addEntry(PboPath("f2/e2"), [](const PboPath&, PboNodeType) {
-            return PboConflictResolution::Replace;
-        });
+        root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Replace);
 
         ASSERT_EQ(i, 2);
     }
@@ -126,29 +124,25 @@ namespace pboman3::test {
 
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        root.addEntry(PboPath("f2/e2"), [](const PboPath&, PboNodeType) {
-            return PboConflictResolution::Copy;
-        });
+        root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Copy);
 
         ASSERT_EQ(i, 1);
     }
 
-    TEST(PboNodeEventsTest, AddEntry2_Not_Emits_When_Aborting_On_Conflicting_Entry) {
+    TEST(PboNodeEventsTest, AddEntry2_Not_Emits_When_Throwing_On_Conflicting_Entry) {
         auto i = 0;
         const auto onEvent = [&i](const PboNodeEvent*) {
             i++;
         };
-
+    
         //initial root setup
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
         root.addEntry(PboPath("f2/e2"));
-
+    
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        ASSERT_THROW(root.addEntry(PboPath("f2/e2"), [](const PboPath&, PboNodeType) {
-                         return PboConflictResolution::Abort;
-                         }), AddEntryCancelException);
-
+        ASSERT_THROW(root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw), PboTreeException);
+    
         ASSERT_EQ(i, 0);
     }
 

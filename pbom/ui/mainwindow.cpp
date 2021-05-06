@@ -51,9 +51,7 @@ void MainWindow::onSelectionPasteClick() {
     if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
         TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
         const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
-        model_.createNodeSet(item->makePath(), data, [this](const PboPath& path, PboNodeType nodeType) {
-            return onPboEntryConflict(path, nodeType);
-        });
+        model_.createNodeSet(item->makePath(), data, [this](TreeConflicts&) {});
     } else if (mimeData->hasUrls()) {
         appendFilesToModel(mimeData->urls());
     }
@@ -98,7 +96,7 @@ void MainWindow::appendFilesToModel(const QList<QUrl>& urls) {
     const int result = compressDialog.exec();
     if (result == QDialog::DialogCode::Accepted) {
         TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
-        model_.createNodeSet(item->makePath(), files, nullptr);
+        model_.createNodeSet(item->makePath(), files, [this](TreeConflicts) {});
     }
 }
 
@@ -182,9 +180,7 @@ void MainWindow::treeDragStartRequested(const QList<PboPath>& paths) {
 void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeData) {
     if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
         const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
-        model_.createNodeSet(target, data, [this](const PboPath& path, PboNodeType nodeType) {
-            return onPboEntryConflict(path, nodeType);
-        });
+        model_.createNodeSet(target, data, [this](TreeConflicts) {});
     } else if (mimeData->hasUrls()) {
         appendFilesToModel(mimeData->urls());
     }
@@ -203,10 +199,6 @@ void MainWindow::treeSelectionChanged() const {
 
     TreeWidgetItem* selectedFolder = ui_->treeWidget->getSelectedFolder();
     ui_->actionSelectionPaste->setDisabled(!selectedFolder);
-}
-
-PboConflictResolution MainWindow::onPboEntryConflict(const PboPath& path, PboNodeType nodeType) {
-    return PboConflictResolution::Abort;
 }
 
 void MainWindow::dragStartExecute() {

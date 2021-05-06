@@ -1,6 +1,5 @@
 #include "pbonode.h"
 #include <QRegularExpression>
-#include "addentrycancelexception.h"
 #include "pbotreeexception.h"
 
 namespace pboman3 {
@@ -21,16 +20,16 @@ namespace pboman3 {
         createFileNode(entryPath.last(), parent);
     }
 
-    QPointer<PboNode> PboNode::addEntry(const PboPath& entryPath, const OnConflict& onConflict) {
+    QPointer<PboNode> PboNode::addEntry(const PboPath& entryPath, const TreeConflictResolution& onConflict) {
         QPointer<PboNode> result;
         const QPointer<PboNode> existing = get(entryPath);
         if (existing) {
             if (existing->nodeType_ != PboNodeType::File) {
                 throw PboTreeException("Can add only file entries here");
             }
-            const PboConflictResolution resolution = onConflict(existing->makePath(), existing->nodeType_);
-            switch (resolution) {
-                case PboConflictResolution::Replace: {
+            
+            switch (onConflict) {
+                case TreeConflictResolution::Replace: {
                     const PboPath existingPath = existing->makePath();
 
                     QPointer<PboNode> parent = existing->par_;
@@ -43,14 +42,14 @@ namespace pboman3 {
                     result = createFileNode(entryPath.last(), parent);
                     break;
                 }
-                case PboConflictResolution::Copy: {
+                case TreeConflictResolution::Copy: {
                     QPointer<PboNode> parent = existing->par_;
                     const QString title = resolveNameConflict(parent, existing);
                     result = createFileNode(title, parent);
                     break;
                 }
-                case PboConflictResolution::Abort: {
-                    throw AddEntryCancelException("The operation was cancelled");
+                case TreeConflictResolution::Throw: {
+                    throw PboTreeException("An unresolved name conflict occurred while adding the entry");
                 }
             }
         } else {
@@ -61,18 +60,23 @@ namespace pboman3 {
         return result;
     }
 
-    QPointer<PboNode> PboNode::get(const PboPath& node) const {
-        if (node.isEmpty())
+    bool PboNode::fileExists(const PboPath& path) const {
+        const QPointer<PboNode> node = get(path);
+        return node && node->nodeType_ == PboNodeType::File;
+    }
+
+    QPointer<PboNode> PboNode::get(const PboPath& path) const {
+        if (path.isEmpty())
             return QPointer<PboNode>(const_cast<PboNode*>(this));
 
-        QPointer<PboNode> result = findChild(node.first());
+        QPointer<PboNode> result = findChild(path.first());
         if (!result)
             return nullptr;
 
-        auto it = node.begin();
+        auto it = path.begin();
         ++it;
 
-        while (it != node.end()) {
+        while (it != path.end()) {
             result = result->findChild(*it);
             if (!result)
                 return nullptr;

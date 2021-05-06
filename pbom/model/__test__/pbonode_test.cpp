@@ -2,7 +2,6 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include "gmock/gmock.h"
-#include "model/addentrycancelexception.h"
 #include "model/pbotreeexception.h"
 
 namespace pboman3::test {
@@ -56,7 +55,7 @@ namespace pboman3::test {
     TEST(PboNodeTest, AddEntry2_Creates_Tree_If_Entries_Make_No_Conflicts) {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
 
-        QPointer<PboNode> e1 = root.addEntry(PboPath("e1"), nullptr);
+        QPointer<PboNode> e1 = root.addEntry(PboPath("e1"), TreeConflictResolution::Throw);
         ASSERT_EQ(root.childCount(), 1);
 
         //e1 check
@@ -69,7 +68,7 @@ namespace pboman3::test {
         ASSERT_EQ(root.child(0)->par(), &root);
 
         //f2 check
-        QPointer<PboNode> e2 = root.addEntry(PboPath("f2/e2"), nullptr);
+        QPointer<PboNode> e2 = root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw);
 
         ASSERT_TRUE(e2);
         ASSERT_EQ(e2->nodeType(), PboNodeType::File);
@@ -87,7 +86,7 @@ namespace pboman3::test {
         ASSERT_EQ(root.child(1)->child(0)->par(), root.child(1));
 
         //f3 check
-        QPointer<PboNode> e3 = root.addEntry(PboPath("f2/e3"), nullptr);
+        QPointer<PboNode> e3 = root.addEntry(PboPath("f2/e3"), TreeConflictResolution::Throw);
 
         ASSERT_TRUE(e3);
         ASSERT_EQ(e3->nodeType(), PboNodeType::File);
@@ -106,9 +105,7 @@ namespace pboman3::test {
         root.addEntry(PboPath("f2/e1"));
         const QPointer<PboNode> e1Old = root.child(0)->child(0);
 
-        const QPointer<PboNode> e1New = root.addEntry(PboPath("f2/e1"), [](const PboPath&, PboNodeType) {
-            return PboConflictResolution::Replace;
-        });
+        const QPointer<PboNode> e1New = root.addEntry(PboPath("f2/e1"), TreeConflictResolution::Replace);
 
         ASSERT_EQ(root.child(0)->childCount(), 1);
         ASSERT_EQ(root.child(0)->child(0), e1New);
@@ -128,13 +125,10 @@ namespace pboman3::test {
         const QPointer<PboNode> c3Old = root.child(2)->child(0);
         const QPointer<PboNode> c4Old = root.child(2)->child(1);
 
-        const auto onConflict = [](const PboPath&, PboNodeType) {
-            return PboConflictResolution::Copy;
-        };
-        const QPointer<PboNode> c1New = root.addEntry(PboPath("e1"), onConflict);
-        const QPointer<PboNode> c2New = root.addEntry(PboPath("e1.txt"), onConflict);
-        const QPointer<PboNode> c3New = root.addEntry(PboPath("f2/e1.txt"), onConflict);
-        const QPointer<PboNode> c4New = root.addEntry(PboPath("f2/e1-copy.txt"), onConflict);
+        const QPointer<PboNode> c1New = root.addEntry(PboPath("e1"), TreeConflictResolution::Copy);
+        const QPointer<PboNode> c2New = root.addEntry(PboPath("e1.txt"), TreeConflictResolution::Copy);
+        const QPointer<PboNode> c3New = root.addEntry(PboPath("f2/e1.txt"), TreeConflictResolution::Copy);
+        const QPointer<PboNode> c4New = root.addEntry(PboPath("f2/e1-copy.txt"), TreeConflictResolution::Copy);
 
         ASSERT_EQ(root.childCount(), 5);
         ASSERT_EQ(root.child(0), c1Old);
@@ -154,16 +148,14 @@ namespace pboman3::test {
         ASSERT_EQ(c2New->title(), "e1-copy.txt");
     }
 
-    TEST(PboNodeTest, AddEntry2_Aborts_In_Case_Of_Conflict) {
+    TEST(PboNodeTest, AddEntry2_Throws_In_Case_Of_Conflict) {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-
+    
         root.addEntry(PboPath("f2/e1.txt"));
         const QPointer<PboNode> e1Old = root.child(0)->child(0);
-
-        ASSERT_THROW(root.addEntry(PboPath("f2/e1.txt"), [](const PboPath&, PboNodeType) {
-                         return PboConflictResolution::Abort;
-                         }), AddEntryCancelException);
-
+    
+        ASSERT_THROW(root.addEntry(PboPath("f2/e1.txt"), TreeConflictResolution::Throw), PboTreeException);
+    
         ASSERT_EQ(root.child(0)->childCount(), 1);
         ASSERT_EQ(root.child(0)->child(0), e1Old);
     }
@@ -179,6 +171,16 @@ namespace pboman3::test {
         ASSERT_THAT(root.child(1)->makePath(), testing::ElementsAre("f2"));
         ASSERT_THAT(root.child(1)->child(0)->makePath(), testing::ElementsAre("f2", "e2"));
         ASSERT_THAT(root.child(1)->child(1)->makePath(), testing::ElementsAre("f2", "e3"));
+    }
+
+    TEST(PboNodeTest, FileExists_Returns_Correct_Results) {
+        PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("f2/e2"));
+
+        ASSERT_TRUE(root.fileExists(PboPath("e1")));
+        ASSERT_FALSE(root.fileExists(PboPath("f2")));
+        ASSERT_FALSE(root.fileExists(PboPath("f2/e3")));
     }
 
     TEST(PboNodeTest, Get_Returns_Node) {

@@ -44,6 +44,7 @@ namespace pboman3 {
         void dragMoveEvent(QDragMoveEvent* event) override;
 
         void dropEvent(QDropEvent* event) override;
+
     private:
         QSharedPointer<TreeWidgetItem> root_;
         TreeWidgetItem* dragOverItem_;

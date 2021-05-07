@@ -98,7 +98,7 @@ namespace pboman3 {
                                   const ResolveConflictsFn& onConflict) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
-        QPointer<PboNode> node = root_->get(parent);
+        PboNode* node = root_->get(parent);
         if (!node)
             throw PboTreeException("The requested parent does not exist");
 
@@ -113,7 +113,7 @@ namespace pboman3 {
         for (const FilesystemFile& item : files) {
             const TreeConflictResolution resolution = conflicts.getResolution(item.pboPath);
             const PboPath path(item.pboPath);
-            const QPointer<PboNode> created = node->addEntry(path, resolution);
+            PboNode* created = node->addEntry(path, resolution);
             if (created) {
                 created->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(item.fsPath));
             }
@@ -124,7 +124,7 @@ namespace pboman3 {
                                   const ResolveConflictsFn& onConflict) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
-        QPointer<PboNode> node = root_->get(parent);
+        PboNode* node = root_->get(parent);
         if (!node)
             throw PboTreeException("The requested parent does not exist");
         const PboParcel parcel = PboParcel::deserialize(data);
@@ -147,12 +147,12 @@ namespace pboman3 {
         QList<PboNode*> nodes;
         nodes.reserve(paths.length());
         for (const PboPath& p : paths) {
-            QPointer<PboNode> node = root_->get(p);
+            PboNode* node = root_->get(p);
             nodes.append(node);
         }
 
         QList<QUrl> urls = binaryBackend_->hddSync(nodes, cancel);
-        QByteArray binary = ParcelManager().packTree(*root_, paths).serialize();
+        QByteArray binary = ParcelManager().packTree(root_.get(), paths).serialize();
         InteractionData data{std::move(urls), std::move(binary), paths};
         return data;
     }

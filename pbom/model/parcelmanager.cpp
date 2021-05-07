@@ -4,7 +4,7 @@
 #include "io/bs/pbobinarysource.h"
 
 namespace pboman3 {
-    PboParcel ParcelManager::packTree(const PboNode& root, const QList<PboPath>& paths) const {
+    PboParcel ParcelManager::packTree(PboNode* root, const QList<PboPath>& paths) const {
         PboParcel parcel;
         parcel.reserve(paths.length() * 2);
 
@@ -29,7 +29,7 @@ namespace pboman3 {
         });
 
         for (const PboPath& path : paths) {
-            const QPointer<PboNode>& node = root.get(path);
+            PboNode* node = root->get(path);
             if (node->nodeType() == PboNodeType::File) {
                 files.append(node);
             } else {
@@ -70,7 +70,7 @@ namespace pboman3 {
         }
     }
 
-    void ParcelManager::unpackTree(QPointer<PboNode>& parent, const PboParcel& parcel,
+    void ParcelManager::unpackTree(PboNode* parent, const PboParcel& parcel,
                                    const ResolveConflictsFn& onConflict) const {
 
         TreeConflicts conflicts;
@@ -83,7 +83,7 @@ namespace pboman3 {
 
         for (const PboParcelItem& item : parcel) {
             const TreeConflictResolution resolution = conflicts.getResolution(item.path);
-            QPointer<PboNode> created = parent->addEntry(PboPath(item.path), resolution);
+            PboNode* created = parent->addEntry(PboPath(item.path), resolution);
             if (created) {
                 created->binarySource = item.originalSize > 0
                                             ? QSharedPointer<BinarySource>(

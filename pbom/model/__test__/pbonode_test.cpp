@@ -1,4 +1,5 @@
 #include "model/pbonode.h"
+#include <QPointer>
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include "gmock/gmock.h"
@@ -10,13 +11,13 @@ namespace pboman3::test {
         ASSERT_EQ(nodeA.nodeType(), PboNodeType::Folder);
         ASSERT_EQ(nodeA.title(), "a-node");
         ASSERT_FALSE(nodeA.par());
-        ASSERT_EQ(nodeA.root().get(), &nodeA);
+        ASSERT_EQ(nodeA.root(), &nodeA);
 
-        const PboNode nodeB("b-node", PboNodeType::File, QPointer<PboNode>(&nodeA), nullptr);
+        const PboNode nodeB("b-node", PboNodeType::File, &nodeA, nullptr);
         ASSERT_EQ(nodeB.nodeType(), PboNodeType::File);
         ASSERT_EQ(nodeB.title(), "b-node");
         ASSERT_EQ(nodeB.par(), &nodeA);
-        ASSERT_EQ(nodeB.root().get(), &nodeB);
+        ASSERT_EQ(nodeB.root(), &nodeB);
     }
 
     TEST(PboNodeTest, AddEntry1_Creates_Tree) {
@@ -55,7 +56,7 @@ namespace pboman3::test {
     TEST(PboNodeTest, AddEntry2_Creates_Tree_If_Entries_Make_No_Conflicts) {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
 
-        QPointer<PboNode> e1 = root.addEntry(PboPath("e1"), TreeConflictResolution::Throw);
+        PboNode* e1 = root.addEntry(PboPath("e1"), TreeConflictResolution::Throw);
         ASSERT_EQ(root.childCount(), 1);
 
         //e1 check
@@ -68,7 +69,7 @@ namespace pboman3::test {
         ASSERT_EQ(root.child(0)->par(), &root);
 
         //f2 check
-        QPointer<PboNode> e2 = root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw);
+        PboNode* e2 = root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw);
 
         ASSERT_TRUE(e2);
         ASSERT_EQ(e2->nodeType(), PboNodeType::File);
@@ -86,7 +87,7 @@ namespace pboman3::test {
         ASSERT_EQ(root.child(1)->child(0)->par(), root.child(1));
 
         //f3 check
-        QPointer<PboNode> e3 = root.addEntry(PboPath("f2/e3"), TreeConflictResolution::Throw);
+        PboNode* e3 = root.addEntry(PboPath("f2/e3"), TreeConflictResolution::Throw);
 
         ASSERT_TRUE(e3);
         ASSERT_EQ(e3->nodeType(), PboNodeType::File);
@@ -105,7 +106,7 @@ namespace pboman3::test {
         root.addEntry(PboPath("f2/e1"));
         const QPointer<PboNode> e1Old = root.child(0)->child(0);
 
-        const QPointer<PboNode> e1New = root.addEntry(PboPath("f2/e1"), TreeConflictResolution::Replace);
+        PboNode* e1New = root.addEntry(PboPath("f2/e1"), TreeConflictResolution::Replace);
 
         ASSERT_EQ(root.child(0)->childCount(), 1);
         ASSERT_EQ(root.child(0)->child(0), e1New);
@@ -120,15 +121,15 @@ namespace pboman3::test {
         root.addEntry(PboPath("f2/e1.txt"));
         root.addEntry(PboPath("f2/e1-copy.txt"));
 
-        const QPointer<PboNode> c1Old = root.child(0);
-        const QPointer<PboNode> c2Old = root.child(1);
-        const QPointer<PboNode> c3Old = root.child(2)->child(0);
-        const QPointer<PboNode> c4Old = root.child(2)->child(1);
+        PboNode* c1Old = root.child(0);
+        PboNode* c2Old = root.child(1);
+        PboNode* c3Old = root.child(2)->child(0);
+        PboNode* c4Old = root.child(2)->child(1);
 
-        const QPointer<PboNode> c1New = root.addEntry(PboPath("e1"), TreeConflictResolution::Copy);
-        const QPointer<PboNode> c2New = root.addEntry(PboPath("e1.txt"), TreeConflictResolution::Copy);
-        const QPointer<PboNode> c3New = root.addEntry(PboPath("f2/e1.txt"), TreeConflictResolution::Copy);
-        const QPointer<PboNode> c4New = root.addEntry(PboPath("f2/e1-copy.txt"), TreeConflictResolution::Copy);
+        PboNode* c1New = root.addEntry(PboPath("e1"), TreeConflictResolution::Copy);
+        PboNode* c2New = root.addEntry(PboPath("e1.txt"), TreeConflictResolution::Copy);
+        PboNode* c3New = root.addEntry(PboPath("f2/e1.txt"), TreeConflictResolution::Copy);
+        PboNode* c4New = root.addEntry(PboPath("f2/e1-copy.txt"), TreeConflictResolution::Copy);
 
         ASSERT_EQ(root.childCount(), 5);
         ASSERT_EQ(root.child(0), c1Old);
@@ -152,7 +153,7 @@ namespace pboman3::test {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
     
         root.addEntry(PboPath("f2/e1.txt"));
-        const QPointer<PboNode> e1Old = root.child(0)->child(0);
+        PboNode* e1Old = root.child(0)->child(0);
     
         ASSERT_THROW(root.addEntry(PboPath("f2/e1.txt"), TreeConflictResolution::Throw), PboTreeException);
     
@@ -243,7 +244,7 @@ namespace pboman3::test {
 
     TEST(PboNodeTest, Get_Returns_Root) {
         PboNode root("file.pbo", PboNodeType::Container, nullptr, nullptr);
-        const QPointer<PboNode> node = root.get(PboPath());
-        ASSERT_EQ(node.get(), &root);
+        PboNode* node = root.get(PboPath());
+        ASSERT_EQ(node, &root);
     }
 }

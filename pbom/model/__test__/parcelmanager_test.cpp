@@ -26,7 +26,7 @@ namespace pboman3::test {
 
         //test the method
         const QList<PboPath> paths{PboPath("e1"), PboPath("f2/e2"), PboPath("f2"), PboPath("f3/e1")};
-        PboParcel parcel = ParcelManager().packTree(root, paths);
+        PboParcel parcel = ParcelManager().packTree(&root, paths);
 
         //verify the results
         ASSERT_EQ(parcel.length(), 4);
@@ -67,8 +67,7 @@ namespace pboman3::test {
         QByteArray data = parcel.serialize();
 
         PboNode root("file.pbo", PboNodeType::Container, nullptr, nullptr);
-        QPointer<PboNode> pRoot(&root);
-        ParcelManager().unpackTree(pRoot, parcel, nullptr);
+        ParcelManager().unpackTree(&root, parcel, nullptr);
 
         ASSERT_EQ(root.childCount(), 2);
         ASSERT_EQ(root.child(0)->title(), "e1.txt");

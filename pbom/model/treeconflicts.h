@@ -10,7 +10,7 @@ namespace pboman3 {
             QHash() {
         }
 
-        void inspect(const PboNode* node, const QString& path);
+        void inspect(PboNode* node, const QString& path);
 
         TreeConflictResolution getResolution(const QString& path);
     };

@@ -1,16 +1,16 @@
 #pragma once
 
 #include <QDir>
-#include "model/filesystemfiles.h"
+#include "model/interactionparcel.h"
 
 namespace pboman3 {
     class FsCollector {
     public:
-        FilesystemFiles collectFiles(const QList<QUrl>& urls);
+        NodeDescriptors collectFiles(const QList<QUrl>& urls);
 
     private:
-        void collectDir(const QFileInfo& fi, const QDir& parent, FilesystemFiles& collection);
+        void collectDir(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors);
 
-        void collectFile(const QFileInfo& fi, const QDir& parent, FilesystemFiles& collection);
+        void collectFile(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors);
     };
 }

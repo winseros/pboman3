@@ -4,7 +4,8 @@
 #include <QDropEvent>
 #include <QFutureWatcher>
 #include <QMainWindow>
-#include <QProgressBar>
+#include "busybar.h"
+#include "deleteop.h"
 #include "model/pbomodel2.h"
 #include "model/pbomodelevents.h"
 
@@ -22,7 +23,7 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(QWidget* parent, PboModel2* model);
 
     ~MainWindow();
 
@@ -31,7 +32,7 @@ public slots:
 
     void onFileSaveClick();
 
-    void onSelectionPasteClick();
+    void onSelectionPasteClick() const;
 
     void onSelectionCutClick();
 
@@ -39,7 +40,7 @@ public slots:
 
     void onSelectionDeleteClick() const;
 
-    void appendFilesToModel(const QList<QUrl>& urls);
+    void appendFilesToModel(const QList<QUrl>& urls) const;
 
     void onModelEvent(const PboModelEvent* event) const;
 
@@ -53,19 +54,14 @@ public slots:
 
 private:
     Ui::MainWindow* ui_;
-    PboModel2 model_;
-    QFutureWatcher<InteractionData> dragDropWatcher_;
-    QFutureWatcher<InteractionData> cutCopyWatcher_;
-    QList<PboPath> pendingCutOp_;
-    QProgressBar* busy_;
-    int busyCount_;
-
-    void setBusy();
-
-    void resetBusy();
+    PboModel2* model_;
+    QFutureWatcher<InteractionParcel> dragDropWatcher_;
+    QFutureWatcher<InteractionParcel> cutCopyWatcher_;
+    QSharedPointer<DeleteOp> delete_;    
+    BusyBar* busy_;
 
 private slots:
-    void dragStartExecute();
+    void dragStartExecute() const;
 
-    void copyOrCutExecute();
+    void copyOrCutExecute() const;
 };

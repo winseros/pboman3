@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QAbstractItemModel>
-#include "model/filesystemfiles.h"
 
 namespace pboman3 {
     class CompressionListModel: public QAbstractItemModel {

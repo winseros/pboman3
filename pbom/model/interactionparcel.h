@@ -1,0 +1,86 @@
+#pragma once
+
+#include "pbonode.h"
+#include "pbopath.h"
+#include "io/bs/binarysource.h"
+#include "io/bs/fslzhbinarysource.h"
+#include "io/bs/fsrawbinarysource.h"
+#include "io/bs/pbobinarysource.h"
+
+namespace pboman3 {
+    enum class BinarySourceType {
+        Pbo = 0,
+        FsLzh = 1,
+        FsRaw = 2
+    };
+
+    class NodeDescriptor {
+    public:
+        NodeDescriptor(QSharedPointer<BinarySource> binarySource,
+                    QString path)
+            : binarySource_(std::move(binarySource)),
+              path_(std::move(path)) {
+        }
+
+        const QSharedPointer<BinarySource>& binarySource() const {
+            return binarySource_;
+        }
+
+        const QString& path() const {
+            return path_;
+        }
+
+    private:
+        QSharedPointer<BinarySource> binarySource_;
+        QString path_;
+    };
+
+    class NodeDescriptors : public QList<NodeDescriptor> {
+    public:
+        static QByteArray serialize(const NodeDescriptors& data);
+
+        static NodeDescriptors deserialize(const QByteArray& data);
+
+        static NodeDescriptors packTree(PboNode* root, const QList<PboPath>& paths);
+
+    private:
+        static void writeNodeInfo(QDataStream& stream, const NodeDescriptor& nodeInfo);
+
+        static void writeBinarySource(QDataStream& stream, const PboBinarySource* bs);
+
+        static void writeBinarySource(QDataStream& stream, const FsLzhBinarySource* bs);
+
+        static void writeBinarySource(QDataStream& stream, const FsRawBinarySource* bs);
+
+        static NodeDescriptor readNodeInfo(QDataStream& stream);
+
+        static QSharedPointer<BinarySource> readPboBinarySource(QDataStream& stream);
+
+        static QSharedPointer<BinarySource> readFsLzhBinarySource(QDataStream& stream);
+
+        static QSharedPointer<BinarySource> readFsRawBinarySource(QDataStream& stream);
+
+        static void addNodeToParcel(NodeDescriptors& descriptors, PboNode* node, const QString& parentPath,
+                                    QSet<PboNode*>& dedupe);
+    };
+
+    class InteractionParcel {
+    public:
+        InteractionParcel(QList<QUrl> files, NodeDescriptors nodes)
+            : files_(std::move(files)),
+              nodes_(std::move(nodes)) {
+        }
+
+        const QList<QUrl>& files() const {
+            return files_;
+        }
+
+        const NodeDescriptors& nodes() const {
+            return nodes_;
+        }
+
+    private:
+        QList<QUrl> files_;
+        NodeDescriptors nodes_;
+    };
+}

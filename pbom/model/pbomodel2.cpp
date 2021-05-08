@@ -2,10 +2,8 @@
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
-#include "parcelmanager.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderio.h"
-#include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
 
 namespace pboman3 {
@@ -94,7 +92,7 @@ namespace pboman3 {
         }
     }
 
-    void PboModel2::createNodeSet(const PboPath& parent, const FilesystemFiles& files,
+    /*void PboModel2::createNodeSet(const PboPath& parent, const FilesystemFiles& files,
                                   const ResolveConflictsFn& onConflict) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
@@ -115,7 +113,10 @@ namespace pboman3 {
             const PboPath path(item.pboPath);
             PboNode* created = node->addEntry(path, resolution);
             if (created) {
-                created->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(item.fsPath));
+                created->binarySource = QSharedPointer<BinarySource>(
+                    item.compress
+                        ? new FsLzhBinarySource(item.fsPath)
+                        : new FsRawBinarySource(item.fsPath));
             }
         }
     }
@@ -129,6 +130,20 @@ namespace pboman3 {
             throw PboTreeException("The requested parent does not exist");
         const PboParcel parcel = PboParcel::deserialize(data);
         ParcelManager().unpackTree(node, parcel, onConflict);
+    }*/
+
+
+    void PboModel2::createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors) const {
+        if (!root_)
+            throw PboTreeException("The model is not initialized");
+        PboNode* node = root_->get(parent);
+        if (!node)
+            throw PboTreeException("The requested parent does not exist");
+
+        for (const NodeDescriptor& descriptor : descriptors) {
+            PboNode* created = node->addEntry(PboPath(descriptor.path()), TreeConflictResolution::Copy);
+            created->binarySource = descriptor.binarySource();
+        }
     }
 
     void PboModel2::renameNode(const PboPath& node, const QString& title) const {
@@ -143,18 +158,18 @@ namespace pboman3 {
         root_->removeNode(node);
     }
 
-    InteractionData PboModel2::interactionPrepare(const QList<PboPath>& paths, const Cancel& cancel) const {
-        QList<PboNode*> nodes;
-        nodes.reserve(paths.length());
+    InteractionParcel PboModel2::interactionPrepare(const QList<PboPath>& paths, const Cancel& cancel) const {
+        QList<PboNode*> sync;
+        sync.reserve(paths.length());
+
         for (const PboPath& p : paths) {
             PboNode* node = root_->get(p);
-            nodes.append(node);
+            sync.append(node);
         }
 
-        QList<QUrl> urls = binaryBackend_->hddSync(nodes, cancel);
-        QByteArray binary = ParcelManager().packTree(root_.get(), paths).serialize();
-        InteractionData data{std::move(urls), std::move(binary), paths};
-        return data;
+        QList<QUrl> files = binaryBackend_->hddSync(sync, cancel);
+        NodeDescriptors nodes = NodeDescriptors::packTree(root_.get(), paths);
+        return InteractionParcel(std::move(files), std::move(nodes));
     }
 
     void PboModel2::registerHeader(QSharedPointer<PboHeader>& header) {

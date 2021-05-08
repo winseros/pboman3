@@ -4,7 +4,6 @@
 #include <QSharedPointer>
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
-#include "pboparcel.h"
 #include "pbopath.h"
 #include "treeconflictresolution.h"
 #include "io/bs/binarysource.h"

@@ -23,20 +23,20 @@ set(PROJECT_SOURCES
         io/pbofile.cpp
         io/pboheaderio.cpp
         io/pboioexception.cpp
-        model/parcelmanager.cpp
+        model/interactionparcel.cpp
         model/pboentry.cpp
         model/pboheader.cpp
         model/pbomodel2.cpp
         model/pbomodelevents.cpp
         model/pbonode.cpp
         model/pbonodeevents.cpp
-        model/pboparcel.cpp
         model/pbopath.cpp
         model/pbotreeexception.cpp
-        model/treeconflicts.cpp
-        ui/compressdialog.cpp
-        ui/compressdialog.ui
-        ui/compressionlistmodel.cpp
+        ui/busybar.cpp
+        #ui/compressdialog.cpp
+        #ui/compressdialog.ui
+        #ui/compressionlistmodel.cpp
+        ui/deleteop.cpp
         ui/fscollector.cpp
         ui/treewidget.cpp
         ui/treewidgetitem.cpp
@@ -60,14 +60,12 @@ set(TEST_SOURCES
     "io/__test__/binarybackend_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
-    "model/__test__/parcelmanager_test.cpp"
+    "model/__test__/interactionparcel_test.cpp"
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbonode_test.cpp"
     "model/__test__/pbonode_events_tets.cpp"
-    "model/__test__/pboparcel_test.cpp"
     "model/__test__/pbopath_test.cpp"
-    "model/__test__/treeconflicts_test.cpp"
     "ui/__test__/fscollector__test.cpp"
  )
 

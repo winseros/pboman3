@@ -48,7 +48,7 @@ public slots:
 
     void treeDragStartRequested(const QList<PboPath>& paths);
 
-    void treeDragDropped(const PboPath& target, const QMimeData* mimeData);
+    void treeDragDropped(const PboPath& target, const QMimeData* mimeData) const;
 
     void treeSelectionChanged() const;
 

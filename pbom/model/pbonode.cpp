@@ -20,16 +20,15 @@ namespace pboman3 {
         createFileNode(entryPath.last(), parent);
     }
 
-    PboNode* PboNode::addEntry(const PboPath& entryPath, const TreeConflictResolution& onConflict) {
+    PboNode* PboNode::addEntry(const PboPath& entryPath, const ConflictResolution& onConflict) {
         PboNode* result = nullptr;
-        const PboNode* existing = get(entryPath);
-        if (existing) {
+        if (const PboNode* existing = get(entryPath)) {
             if (existing->nodeType_ != PboNodeType::File) {
                 throw PboTreeException("Can add only file entries here");
             }
-            
+
             switch (onConflict) {
-                case TreeConflictResolution::Replace: {
+                case ConflictResolution::Replace: {
                     const PboPath existingPath = existing->makePath();
 
                     PboNode* parent = existing->par_;
@@ -42,14 +41,17 @@ namespace pboman3 {
                     result = createFileNode(entryPath.last(), parent);
                     break;
                 }
-                case TreeConflictResolution::Copy: {
+                case ConflictResolution::Copy: {
                     PboNode* parent = existing->par_;
                     const QString title = resolveNameConflict(parent, existing);
                     result = createFileNode(title, parent);
                     break;
                 }
-                case TreeConflictResolution::Throw: {
-                    throw PboTreeException("An unresolved name conflict occurred while adding the entry");
+                case ConflictResolution::Skip: {
+                    throw PboTreeException("Unsupported conflict resolution strategy: Skip");
+                }
+                case ConflictResolution::Unset: {
+                    throw PboTreeException("Unsupported conflict resolution strategy: Unset");
                 }
             }
         } else {
@@ -75,7 +77,7 @@ namespace pboman3 {
 
         auto it = path.begin();
         ++it;
-        
+
         while (it != path.end()) {
             result = result->findChild(*it);
             if (!result)
@@ -139,8 +141,7 @@ namespace pboman3 {
         PboNode* n = get(node);
         assert(n && "The node must exist");
 
-        PboNode* existing = n->par_->findChild(title);
-        if (!existing) {
+        if (PboNode* existing = n->par_->findChild(title); !existing) {
             n->title_ = title;
 
             const PboNodeRenamedEvent evt(&node, title);

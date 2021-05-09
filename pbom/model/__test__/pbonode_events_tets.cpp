@@ -72,9 +72,9 @@ namespace pboman3::test {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
         QObject::connect(&root, &PboNode::onEvent, onEvent);
 
-        root.addEntry(PboPath("e1"), TreeConflictResolution::Throw);
-        root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw);
-        root.addEntry(PboPath("f2/e3"), TreeConflictResolution::Throw);
+        root.addEntry(PboPath("e1"), ConflictResolution::Unset);
+        root.addEntry(PboPath("f2/e2"), ConflictResolution::Unset);
+        root.addEntry(PboPath("f2/e3"), ConflictResolution::Unset);
 
         ASSERT_EQ(i, 4);
     }
@@ -101,7 +101,7 @@ namespace pboman3::test {
 
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Replace);
+        root.addEntry(PboPath("f2/e2"), ConflictResolution::Replace);
 
         ASSERT_EQ(i, 2);
     }
@@ -124,7 +124,7 @@ namespace pboman3::test {
 
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Copy);
+        root.addEntry(PboPath("f2/e2"), ConflictResolution::Copy);
 
         ASSERT_EQ(i, 1);
     }
@@ -141,7 +141,8 @@ namespace pboman3::test {
     
         //add a conflicting entry
         QObject::connect(&root, &PboNode::onEvent, onEvent);
-        ASSERT_THROW(root.addEntry(PboPath("f2/e2"), TreeConflictResolution::Throw), PboTreeException);
+        ASSERT_THROW(root.addEntry(PboPath("f2/e2"), ConflictResolution::Unset), PboTreeException);
+        ASSERT_THROW(root.addEntry(PboPath("f2/e2"), ConflictResolution::Skip), PboTreeException);
     
         ASSERT_EQ(i, 0);
     }

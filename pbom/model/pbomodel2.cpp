@@ -92,48 +92,8 @@ namespace pboman3 {
         }
     }
 
-    /*void PboModel2::createNodeSet(const PboPath& parent, const FilesystemFiles& files,
-                                  const ResolveConflictsFn& onConflict) const {
-        if (!root_)
-            throw PboTreeException("The model is not initialized");
-        PboNode* node = root_->get(parent);
-        if (!node)
-            throw PboTreeException("The requested parent does not exist");
-
-        TreeConflicts conflicts;
-        for (const FilesystemFile& item : files) {
-            conflicts.inspect(node, item.pboPath);
-        }
-
-        if (!conflicts.isEmpty())
-            onConflict(conflicts);
-
-        for (const FilesystemFile& item : files) {
-            const TreeConflictResolution resolution = conflicts.getResolution(item.pboPath);
-            const PboPath path(item.pboPath);
-            PboNode* created = node->addEntry(path, resolution);
-            if (created) {
-                created->binarySource = QSharedPointer<BinarySource>(
-                    item.compress
-                        ? new FsLzhBinarySource(item.fsPath)
-                        : new FsRawBinarySource(item.fsPath));
-            }
-        }
-    }
-
-    void PboModel2::createNodeSet(const PboPath& parent, const QByteArray& data,
-                                  const ResolveConflictsFn& onConflict) const {
-        if (!root_)
-            throw PboTreeException("The model is not initialized");
-        PboNode* node = root_->get(parent);
-        if (!node)
-            throw PboTreeException("The requested parent does not exist");
-        const PboParcel parcel = PboParcel::deserialize(data);
-        ParcelManager().unpackTree(node, parcel, onConflict);
-    }*/
-
-
-    void PboModel2::createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors) const {
+    void PboModel2::createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors,
+                                  const ConflictsParcel& conflicts) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
         PboNode* node = root_->get(parent);
@@ -141,8 +101,11 @@ namespace pboman3 {
             throw PboTreeException("The requested parent does not exist");
 
         for (const NodeDescriptor& descriptor : descriptors) {
-            PboNode* created = node->addEntry(PboPath(descriptor.path()), TreeConflictResolution::Copy);
-            created->binarySource = descriptor.binarySource();
+            const ConflictResolution resolution = conflicts.getResolution(descriptor);
+            if (resolution != ConflictResolution::Skip) {
+                PboNode* created = node->addEntry(PboPath(descriptor.path()), resolution);
+                created->binarySource = descriptor.binarySource();
+            }
         }
     }
 
@@ -170,6 +133,22 @@ namespace pboman3 {
         QList<QUrl> files = binaryBackend_->hddSync(sync, cancel);
         NodeDescriptors nodes = NodeDescriptors::packTree(root_.get(), paths);
         return InteractionParcel(std::move(files), std::move(nodes));
+    }
+
+    ConflictsParcel PboModel2::checkConflicts(const PboPath& parent, const QList<NodeDescriptor>& descriptors) const {
+        if (!root_)
+            throw PboTreeException("The model is not initialized");
+        PboNode* node = root_->get(parent);
+        if (!node)
+            throw PboTreeException("The requested parent does not exist");
+
+        ConflictsParcel conflicts;
+        for (const NodeDescriptor& descriptor : descriptors) {
+            if (node->get(PboPath(descriptor.path()))) {
+                conflicts.setResolution(descriptor, ConflictResolution::Copy);
+            }
+        }
+        return conflicts;
     }
 
     void PboModel2::registerHeader(QSharedPointer<PboHeader>& header) {

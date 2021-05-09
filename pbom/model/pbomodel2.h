@@ -2,6 +2,7 @@
 
 #include <QFuture>
 #include <QObject>
+#include "conflictsparcel.h"
 #include "interactionparcel.h"
 #include "pbomodelevents.h"
 #include "pbonode.h"
@@ -17,17 +18,15 @@ namespace pboman3 {
 
         void saveFile();
 
-        // void createNodeSet(const PboPath& parent, const FilesystemFiles& data, const ResolveConflictsFn& onConflict) const;
-        //
-        // void createNodeSet(const PboPath& parent, const QByteArray& data, const ResolveConflictsFn& onConflict) const;
-
-        void createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors) const;
+        void createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors, const ConflictsParcel& conflicts) const;
 
         void renameNode(const PboPath& node, const QString& title) const;
 
         void removeNode(const PboPath& node) const;
 
         InteractionParcel interactionPrepare(const QList<PboPath>& paths, const Cancel& cancel) const;
+
+        ConflictsParcel checkConflicts(const PboPath& parent, const QList<NodeDescriptor>& descriptors) const;
 
     signals:
         void onEvent(const PboModelEvent* event) const;

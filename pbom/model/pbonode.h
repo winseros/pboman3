@@ -5,7 +5,7 @@
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
 #include "pbopath.h"
-#include "treeconflictresolution.h"
+#include "conflictresolution.h"
 #include "io/bs/binarysource.h"
 
 namespace pboman3 {
@@ -21,7 +21,7 @@ namespace pboman3 {
 
         void addEntry(const PboPath& entryPath);
 
-        PboNode* addEntry(const PboPath& entryPath, const TreeConflictResolution& onConflict);
+        PboNode* addEntry(const PboPath& entryPath, const ConflictResolution& onConflict);
 
         PboPath makePath() const;
 

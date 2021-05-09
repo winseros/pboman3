@@ -1,9 +1,10 @@
 #pragma once
 
 namespace pboman3 {
-    enum class TreeConflictResolution {
+    enum class ConflictResolution {
         Copy,
         Replace,
-        Throw
+        Skip,
+        Unset
     };
 }

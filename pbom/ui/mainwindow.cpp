@@ -50,9 +50,11 @@ void MainWindow::onSelectionPasteClick() const {
     const QMimeData* mimeData = clipboard->mimeData();
     if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
         TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
+        const PboPath itemPath = item->makePath();
         const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
         const NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
-        model_->createNodeSet(item->makePath(), descriptors);
+        const ConflictsParcel conflicts = model_->checkConflicts(itemPath, descriptors);
+        model_->createNodeSet(item->makePath(), descriptors, conflicts);
         delete_->commit();
     } else if (mimeData->hasUrls()) {
         appendFilesToModel(mimeData->urls());
@@ -95,7 +97,9 @@ void MainWindow::appendFilesToModel(const QList<QUrl>& urls) const {
     //const int result = compressDialog.exec();
     //if (result == QDialog::DialogCode::Accepted) {
         TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
-        model_->createNodeSet(item->makePath(), files);
+        const PboPath itemPath = item->makePath();
+        const ConflictsParcel conflicts = model_->checkConflicts(itemPath, files);
+        model_->createNodeSet(itemPath, files, conflicts);
     //}
 }
 
@@ -156,11 +160,12 @@ void MainWindow::treeDragStartRequested(const QList<PboPath>& paths) {
     dragDropWatcher_.setFuture(future);
 }
 
-void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeData) {
+void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeData) const {
     if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
         const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
         const NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
-        model_->createNodeSet(target, descriptors);
+        const ConflictsParcel conflicts = model_->checkConflicts(target, descriptors);
+        model_->createNodeSet(target, descriptors, conflicts);
     } else if (mimeData->hasUrls()) {
         appendFilesToModel(mimeData->urls());
     }

@@ -36,8 +36,7 @@ namespace pboman3::test {
         f5.open(QIODeviceBase::ReadWrite);
         f5.close();
 
-        FsCollector collector;
-        const NodeDescriptors files = collector.collectFiles(QList<QUrl>{
+        const NodeDescriptors files = FsCollector::collectFiles(QList{
             QUrl::fromLocalFile(tempDir.filePath(d2)),
             QUrl::fromLocalFile(f1.fileName()),
             QUrl::fromLocalFile(tempDir.filePath(d1))
@@ -45,19 +44,19 @@ namespace pboman3::test {
 
         ASSERT_EQ(files.length(), 5);
 
-        ASSERT_EQ(files[0].path(), "f1.txt");
-        ASSERT_EQ(files[0].binarySource()->path(), f1.fileName());
+        ASSERT_EQ(files[0].path(), PboPath("f1/f11/f3.txt"));
+        ASSERT_EQ(files[0].binarySource()->path(), f3.fileName());
 
-        ASSERT_EQ(files[1].path(), "f1/f11/f3.txt");
-        ASSERT_EQ(files[1].binarySource()->path(), f3.fileName());
+        ASSERT_EQ(files[1].path(), PboPath("f1/f11/f4.txt"));
+        ASSERT_EQ(files[1].binarySource()->path(), f4.fileName());
 
-        ASSERT_EQ(files[2].path(), "f1/f11/f4.txt");
-        ASSERT_EQ(files[2].binarySource()->path(), f4.fileName());
+        ASSERT_EQ(files[2].path(), PboPath("f1/f2.txt"));
+        ASSERT_EQ(files[2].binarySource()->path(), f2.fileName());
 
-        ASSERT_EQ(files[3].path(), "f1/f2.txt");
-        ASSERT_EQ(files[3].binarySource()->path(), f2.fileName());
+        ASSERT_EQ(files[3].path(), PboPath("f1.txt"));
+        ASSERT_EQ(files[3].binarySource()->path(), f1.fileName());
 
-        ASSERT_EQ(files[4].path(), "f2/f5.txt");
+        ASSERT_EQ(files[4].path(), PboPath("f2/f5.txt"));
         ASSERT_EQ(files[4].binarySource()->path(), f5.fileName());
     }
 }

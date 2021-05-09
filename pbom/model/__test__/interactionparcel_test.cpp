@@ -27,22 +27,22 @@ namespace pboman3::test {
         root.child(2)->child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
 
         //test the method
-        const QList<PboPath> paths{PboPath("e1"), PboPath("f2/e2"), PboPath("f2"), PboPath("f3/e1")};
+        const QList paths{PboPath("e1"), PboPath("f2/e2"), PboPath("f2"), PboPath("f3/e1")};
         const NodeDescriptors descriptors = NodeDescriptors::packTree(&root, paths);
 
         //verify the results
         ASSERT_EQ(descriptors.length(), 4);
 
-        ASSERT_EQ(descriptors.at(0).path(), "f2/e2");
+        ASSERT_EQ(descriptors.at(0).path(), PboPath("f2/e2"));
         ASSERT_EQ(descriptors.at(0).binarySource(), root.child(1)->child(0)->binarySource);
 
-        ASSERT_EQ(descriptors.at(1).path(), "f2/e3");
+        ASSERT_EQ(descriptors.at(1).path(), PboPath("f2/e3"));
         ASSERT_EQ(descriptors.at(1).binarySource(), root.child(1)->child(1)->binarySource);
 
-        ASSERT_EQ(descriptors.at(2).path(), "e1");
+        ASSERT_EQ(descriptors.at(2).path(), PboPath("e1"));
         ASSERT_EQ(descriptors.at(2).binarySource(), root.child(0)->binarySource);
 
-        ASSERT_EQ(descriptors.at(3).path(), "e1");
+        ASSERT_EQ(descriptors.at(3).path(), PboPath("e1"));
         ASSERT_EQ(descriptors.at(3).binarySource(), root.child(2)->child(0)->binarySource);
     }
 
@@ -63,9 +63,9 @@ namespace pboman3::test {
         const auto bs3 = QSharedPointer<FsLzhBinarySource>(new FsLzhBinarySource(t3.fileName()));
 
         NodeDescriptors source;
-        source.append(NodeDescriptor(bs1, "pbo/entry/path1"));
-        source.append(NodeDescriptor(bs2, "pbo/entry/path2"));
-        source.append(NodeDescriptor(bs3, "pbo/entry/path3"));
+        source.append(NodeDescriptor(bs1, PboPath("pbo/entry/path1")));
+        source.append(NodeDescriptor(bs2, PboPath("pbo/entry/path2")));
+        source.append(NodeDescriptor(bs3, PboPath("pbo/entry/path3")));
         const QByteArray serialized = NodeDescriptors::serialize(source);
 
         const NodeDescriptors copy = NodeDescriptors::deserialize(serialized);

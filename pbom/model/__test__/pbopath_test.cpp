@@ -31,20 +31,4 @@ namespace pboman3::test {
         ASSERT_EQ(p2.at(1), "e2");
         ASSERT_EQ(p2.at(2), "e3");
     }
-
-    TEST(PboPath, Ctor_Initializes_Path_From_Url) {
-        const PboPath p1(QUrl("/p1/p2/p3?abcd=1"));
-
-        ASSERT_EQ(p1.length(), 3);
-        ASSERT_EQ(p1.at(0), "p1");
-        ASSERT_EQ(p1.at(1), "p2");
-        ASSERT_EQ(p1.at(2), "p3");
-
-        const PboPath p2(QUrl("p1/p2/p3?abcd=1"));
-
-        ASSERT_EQ(p2.length(), 3);
-        ASSERT_EQ(p2.at(0), "p1");
-        ASSERT_EQ(p2.at(1), "p2");
-        ASSERT_EQ(p2.at(2), "p3");
-    }
 }

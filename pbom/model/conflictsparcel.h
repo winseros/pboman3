@@ -13,6 +13,6 @@ namespace pboman3 {
 
         bool hasConflicts() const;
     private:
-        QHash<QString, ConflictResolution> conflicts_;
+        QHash<PboPath, ConflictResolution> conflicts_;
     };
 }

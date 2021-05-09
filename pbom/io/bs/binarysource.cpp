@@ -2,9 +2,9 @@
 #include <QFile>
 
 namespace pboman3 {
-    BinarySource::BinarySource(const QString& path)
-        : path_(path) {
-        file_ = new QFile(path);
+    BinarySource::BinarySource(QString path)
+        : path_(std::move(path)) {
+        file_ = new QFile(path_);
         assert(file_->open(QIODeviceBase::ReadOnly) && "Must be able to open this");
     }
 

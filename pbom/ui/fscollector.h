@@ -6,11 +6,11 @@
 namespace pboman3 {
     class FsCollector {
     public:
-        NodeDescriptors collectFiles(const QList<QUrl>& urls);
+        static NodeDescriptors collectFiles(const QList<QUrl>& urls);
 
     private:
-        void collectDir(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors);
+        static void collectDir(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors);
 
-        void collectFile(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors);
+        static void collectFile(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors);
     };
 }

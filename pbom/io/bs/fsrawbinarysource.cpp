@@ -1,8 +1,8 @@
 #include "fsrawbinarysource.h"
 
 namespace pboman3 {
-    FsRawBinarySource::FsRawBinarySource(const QString& path, size_t bufferSize)
-        : BinarySource(path),
+    FsRawBinarySource::FsRawBinarySource(QString path, size_t bufferSize)
+        : BinarySource(std::move(path)),
         bufferSize_(bufferSize) {
     }
 

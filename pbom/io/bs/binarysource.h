@@ -6,7 +6,7 @@
 namespace pboman3 {
     class BinarySource {
     public:
-        BinarySource(const QString& path);
+        BinarySource(QString path);
 
         virtual ~BinarySource();
 

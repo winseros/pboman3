@@ -4,12 +4,12 @@
 namespace pboman3::test {
     TEST(ConflictsParcelTest, GetResolution_Returns_Unset_If_Resolution_Was_Not_Set) {
         const ConflictsParcel conflicts;
-        const ConflictResolution res = conflicts.getResolution(NodeDescriptor(nullptr, "some-path"));
+        const ConflictResolution res = conflicts.getResolution(NodeDescriptor(nullptr, PboPath("some-path")));
         ASSERT_EQ(res, ConflictResolution::Unset);
     }
 
     TEST(ConflictsParcelTest, GetResolution_Returns_Resolution_If_Resolution_Was_Set) {
-        const NodeDescriptor nd(nullptr, "some-path");
+        const NodeDescriptor nd(nullptr, PboPath("some-path"));
         ConflictsParcel conflicts;
         conflicts.setResolution(nd, ConflictResolution::Copy);
         const ConflictResolution res = conflicts.getResolution(nd);
@@ -20,7 +20,7 @@ namespace pboman3::test {
         ConflictsParcel conflicts;
         ASSERT_FALSE(conflicts.hasConflicts());
 
-        conflicts.setResolution(NodeDescriptor(nullptr, "some-path"), ConflictResolution::Copy);
+        conflicts.setResolution(NodeDescriptor(nullptr, PboPath("some-path")), ConflictResolution::Copy);
         ASSERT_TRUE(conflicts.hasConflicts());
     }
 }

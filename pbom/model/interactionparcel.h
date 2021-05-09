@@ -16,9 +16,9 @@ namespace pboman3 {
 
     class NodeDescriptor {
     public:
-        NodeDescriptor(QSharedPointer<BinarySource> binarySource,
-                    QString path)
-            : binarySource_(std::move(binarySource)),
+        NodeDescriptor(const QSharedPointer<BinarySource>& binarySource,
+                    PboPath path)
+            : binarySource_(binarySource),
               path_(std::move(path)) {
         }
 
@@ -26,13 +26,13 @@ namespace pboman3 {
             return binarySource_;
         }
 
-        const QString& path() const {
+        const PboPath& path() const {
             return path_;
         }
 
     private:
         QSharedPointer<BinarySource> binarySource_;
-        QString path_;
+        PboPath path_;
     };
 
     class NodeDescriptors : public QList<NodeDescriptor> {
@@ -60,7 +60,7 @@ namespace pboman3 {
 
         static QSharedPointer<BinarySource> readFsRawBinarySource(QDataStream& stream);
 
-        static void addNodeToParcel(NodeDescriptors& descriptors, PboNode* node, const QString& parentPath,
+        static void addNodeToParcel(NodeDescriptors& descriptors, PboNode* node, const PboPath& parentPath,
                                     QSet<PboNode*>& dedupe);
     };
 

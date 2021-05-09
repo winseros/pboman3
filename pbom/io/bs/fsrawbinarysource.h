@@ -5,7 +5,7 @@
 namespace pboman3 {
     class FsRawBinarySource : public BinarySource {
     public:
-        FsRawBinarySource(const QString& path, size_t bufferSize = 1024 ^ 3);
+        FsRawBinarySource(QString path, size_t bufferSize = 1024 ^ 3);
 
         void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override;
 

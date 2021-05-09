@@ -8,6 +8,7 @@
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
 #include "fscollector.h"
+#include "insertdialog.h"
 #include "ui_mainwindow.h"
 
 using namespace pboman3;
@@ -45,19 +46,15 @@ void MainWindow::onFileSaveClick() {
     model_->saveFile();
 }
 
-void MainWindow::onSelectionPasteClick() const {
-    QClipboard* clipboard = QGuiApplication::clipboard();
-    const QMimeData* mimeData = clipboard->mimeData();
-    if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
-        TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
-        const PboPath itemPath = item->makePath();
-        const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
-        const NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
-        const ConflictsParcel conflicts = model_->checkConflicts(itemPath, descriptors);
-        model_->createNodeSet(item->makePath(), descriptors, conflicts);
-        delete_->commit();
-    } else if (mimeData->hasUrls()) {
-        appendFilesToModel(mimeData->urls());
+void MainWindow::onSelectionPasteClick() {
+    if (TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder()) {
+        QClipboard* clipboard = QGuiApplication::clipboard();
+        const QMimeData* mimeData = clipboard->mimeData();
+        if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
+            addFilesFromPbo(item->makePath(), mimeData);
+        } else if (mimeData->hasUrls()) {
+            addFilesFromFilesystem(mimeData->urls());
+        }
     }
 }
 
@@ -73,7 +70,8 @@ QList<PboPath> MainWindow::onSelectionCopyClick() {
 
     const QFuture<InteractionParcel> future = QtConcurrent::run(
         [this](QPromise<InteractionParcel>& promise, const QList<PboPath>& selection) {
-            InteractionParcel data = model_->interactionPrepare(selection, [&promise]() { return promise.isCanceled(); });
+            InteractionParcel data = model_->interactionPrepare(
+                selection, [&promise]() { return promise.isCanceled(); });
             promise.addResult(data);
         }, paths);
 
@@ -88,19 +86,6 @@ void MainWindow::onSelectionDeleteClick() const {
     for (const TreeWidgetItem* item : selection) {
         model_->removeNode(item->makePath());
     }
-}
-
-void MainWindow::appendFilesToModel(const QList<QUrl>& urls) const {
-    FsCollector collector;
-    const NodeDescriptors files = collector.collectFiles(urls);
-    //CompressDialog compressDialog(this, &files);
-    //const int result = compressDialog.exec();
-    //if (result == QDialog::DialogCode::Accepted) {
-        TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
-        const PboPath itemPath = item->makePath();
-        const ConflictsParcel conflicts = model_->checkConflicts(itemPath, files);
-        model_->createNodeSet(itemPath, files, conflicts);
-    //}
 }
 
 void MainWindow::onModelEvent(const PboModelEvent* event) const {
@@ -152,7 +137,8 @@ void MainWindow::treeDragStartRequested(const QList<PboPath>& paths) {
 
     const QFuture<InteractionParcel> future = QtConcurrent::run(
         [this](QPromise<InteractionParcel>& promise, const QList<PboPath>& selection) {
-            InteractionParcel data = model_->interactionPrepare(selection, [&promise]() { return promise.isCanceled(); });
+            InteractionParcel data = model_->interactionPrepare(
+                selection, [&promise]() { return promise.isCanceled(); });
             promise.addResult(data);
         }, paths);
 
@@ -160,14 +146,36 @@ void MainWindow::treeDragStartRequested(const QList<PboPath>& paths) {
     dragDropWatcher_.setFuture(future);
 }
 
-void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeData) const {
+void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeData) {
     if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
-        const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
-        const NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
-        const ConflictsParcel conflicts = model_->checkConflicts(target, descriptors);
-        model_->createNodeSet(target, descriptors, conflicts);
+        addFilesFromPbo(target, mimeData);
     } else if (mimeData->hasUrls()) {
-        appendFilesToModel(mimeData->urls());
+        addFilesFromFilesystem(mimeData->urls());
+    }
+}
+
+void MainWindow::addFilesFromPbo(const PboPath& target, const QMimeData* mimeData) {
+    const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
+    NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
+    const ConflictsParcel conflicts = model_->checkConflicts(target, descriptors);
+    if (conflicts.hasConflicts()) {
+        if (InsertDialog(this, &target, &descriptors, &conflicts).exec() == QDialog::DialogCode::Accepted) {
+            model_->createNodeSet(target, descriptors, conflicts);
+            delete_->commit();
+        }
+    } else {
+        model_->createNodeSet(target, descriptors, conflicts);
+        delete_->commit();
+    }
+}
+
+void MainWindow::addFilesFromFilesystem(const QList<QUrl>& urls) {
+    NodeDescriptors files = FsCollector::collectFiles(urls);
+    TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
+    const PboPath itemPath = item->makePath();
+    const ConflictsParcel conflicts = model_->checkConflicts(itemPath, files);
+    if (InsertDialog(this, &itemPath, &files, &conflicts).exec() == QDialog::DialogCode::Accepted) {
+        model_->createNodeSet(itemPath, files, conflicts);
     }
 }
 

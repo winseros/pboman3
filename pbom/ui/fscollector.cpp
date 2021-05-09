@@ -32,10 +32,11 @@ namespace pboman3 {
 
     void FsCollector::collectFile(const QFileInfo& fi, const QDir& parent, NodeDescriptors& descriptors) {
         if (!fi.isShortcut() && !fi.isSymbolicLink()) {
-            const QString fsPath = fi.canonicalFilePath();
+            QString fsPath = fi.canonicalFilePath();
 
             const QString pboPath = parent.relativeFilePath(fi.canonicalFilePath());
-            descriptors.append(NodeDescriptor(QSharedPointer<BinarySource>(new FsRawBinarySource(fsPath)), pboPath));
+            descriptors.append(NodeDescriptor(QSharedPointer<BinarySource>(new FsRawBinarySource(std::move(fsPath))),
+                                              PboPath(pboPath)));
         }
     }
 }

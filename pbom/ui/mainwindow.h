@@ -32,7 +32,7 @@ public slots:
 
     void onFileSaveClick();
 
-    void onSelectionPasteClick() const;
+    void onSelectionPasteClick();
 
     void onSelectionCutClick();
 
@@ -40,15 +40,17 @@ public slots:
 
     void onSelectionDeleteClick() const;
 
-    void appendFilesToModel(const QList<QUrl>& urls) const;
-
     void onModelEvent(const PboModelEvent* event) const;
 
     void treeContextMenuRequested(const QPoint& point) const;
 
     void treeDragStartRequested(const QList<PboPath>& paths);
 
-    void treeDragDropped(const PboPath& target, const QMimeData* mimeData) const;
+    void treeDragDropped(const PboPath& target, const QMimeData* mimeData);
+
+    void addFilesFromPbo(const PboPath& target, const QMimeData* mimeData);
+
+    void addFilesFromFilesystem(const QList<QUrl>& urls);
 
     void treeSelectionChanged() const;
 

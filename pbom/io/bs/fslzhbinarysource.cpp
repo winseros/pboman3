@@ -2,8 +2,8 @@
 #include "io/lzh/lzh.h"
 
 namespace pboman3 {
-    FsLzhBinarySource::FsLzhBinarySource(const QString& path, size_t bufferSize)
-        : FsRawBinarySource(path, bufferSize){
+    FsLzhBinarySource::FsLzhBinarySource(QString path, size_t bufferSize)
+        : FsRawBinarySource(std::move(path), bufferSize){
     }
 
     void FsLzhBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {

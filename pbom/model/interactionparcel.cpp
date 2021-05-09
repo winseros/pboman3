@@ -5,11 +5,11 @@
 namespace pboman3 {
     QByteArray NodeDescriptors::serialize(const NodeDescriptors& data) {
         QByteArray result;
-        result.reserve(1024);//just some arbitrary value
+        result.reserve(1024); //just some arbitrary value
 
         QDataStream stream(&result, QIODeviceBase::ReadWrite);
         stream << static_cast<qint16>(data.length());
-        
+
         for (const NodeDescriptor& nodeInfo : data) {
             writeNodeInfo(stream, nodeInfo);
         }
@@ -26,7 +26,7 @@ namespace pboman3 {
             writeBinarySource(stream, fsLzh);
         } else if (const auto* bsFs = dynamic_cast<const FsRawBinarySource*>(bs)) {
             writeBinarySource(stream, bsFs);
-        }else {
+        } else {
             assert(false && "Unknown binary source type");
         }
     }
@@ -57,7 +57,7 @@ namespace pboman3 {
 
         NodeDescriptors result;
         result.reserve(length);
-        
+
         for (short i = 0; i < length; i++) {
             NodeDescriptor nodeInfo = readNodeInfo(stream);
             result.append(nodeInfo);
@@ -67,7 +67,7 @@ namespace pboman3 {
     }
 
     NodeDescriptor NodeDescriptors::readNodeInfo(QDataStream& stream) {
-        QString path;
+        PboPath path;
         stream >> path;
 
         int8_t sourceType;
@@ -147,27 +147,27 @@ namespace pboman3 {
             if (node->nodeType() == PboNodeType::File) {
                 files.append(node);
             } else {
-                addNodeToParcel(descriptors, node, "", dedupe);
+                addNodeToParcel(descriptors, node, PboPath(), dedupe);
             }
         }
 
         for (PboNode* file : files) {
-            addNodeToParcel(descriptors, file, "", dedupe);
+            addNodeToParcel(descriptors, file, PboPath(), dedupe);
         }
 
         return descriptors;
     }
 
-    void NodeDescriptors::addNodeToParcel(NodeDescriptors& descriptors, PboNode* node, const QString& parentPath,
-        QSet<PboNode*>& dedupe) {
+    void NodeDescriptors::addNodeToParcel(NodeDescriptors& descriptors, PboNode* node, const PboPath& parentPath,
+                                          QSet<PboNode*>& dedupe) {
         if (node->nodeType() == PboNodeType::File) {
             if (!dedupe.contains(node)) {
                 dedupe.insert(node);
-                const QString nodePath = parentPath + node->title();
-                descriptors.append(NodeDescriptor(node->binarySource, nodePath));
+                PboPath nodePath = parentPath.makeChild(node->title());
+                descriptors.append(NodeDescriptor(node->binarySource, std::move(nodePath)));
             }
         } else {
-            const QString nodePath = parentPath + node->title() + "/";
+            const PboPath nodePath = parentPath.makeChild(node->title());
             auto it = node->begin();
             while (it != node->end()) {
                 addNodeToParcel(descriptors, *it, nodePath, dedupe);

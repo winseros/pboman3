@@ -22,13 +22,13 @@ namespace pboman3 {
               path_(std::move(path)) {
         }
 
-        const QSharedPointer<BinarySource>& binarySource() const {
-            return binarySource_;
-        }
+        const QSharedPointer<BinarySource>& binarySource() const;
 
-        const PboPath& path() const {
-            return path_;
-        }
+        const PboPath& path() const;
+
+        bool isCompressed() const;
+
+        void setCompressed(bool compressed);
 
     private:
         QSharedPointer<BinarySource> binarySource_;

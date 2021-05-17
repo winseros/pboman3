@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QDialog>
-
+#include <QComboBox>
+#include <QStyledItemDelegate>
+#include "ui_insertdialog.h"
 #include "model/conflictsparcel.h"
-#include "model/interactionparcel.h"
 
 namespace Ui {
     class InsertDialog;
@@ -14,16 +14,24 @@ namespace pboman3 {
     Q_OBJECT
 
     public:
-        InsertDialog(QWidget* parent, const PboPath* rootPath, NodeDescriptors* descriptors, const ConflictsParcel* conflicts);
+        enum class Mode;
+
+        InsertDialog(QWidget* parent, Mode dialogMode, NodeDescriptors* descriptors, ConflictsParcel* conflicts);
 
         ~InsertDialog();
 
+    public slots:
+        void next();
+
+        void back();
+
     private:
         Ui::InsertDialog* ui_;
-        const PboPath* rootPath_;
-        NodeDescriptors* descriptors_;
-        const ConflictsParcel* conflicts_;
 
-        void inflateView();
+    public:
+        enum class Mode {
+            InternalFiles,
+            ExternalFiles
+        };
     };
 }

@@ -157,9 +157,11 @@ void MainWindow::treeDragDropped(const PboPath& target, const QMimeData* mimeDat
 void MainWindow::addFilesFromPbo(const PboPath& target, const QMimeData* mimeData) {
     const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
     NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
-    const ConflictsParcel conflicts = model_->checkConflicts(target, descriptors);
+    ConflictsParcel conflicts = model_->checkConflicts(target, descriptors);
     if (conflicts.hasConflicts()) {
-        if (InsertDialog(this, &target, &descriptors, &conflicts).exec() == QDialog::DialogCode::Accepted) {
+        if (InsertDialog(this, InsertDialog::Mode::InternalFiles, &descriptors,
+                         &conflicts).exec() ==
+            QDialog::DialogCode::Accepted) {
             model_->createNodeSet(target, descriptors, conflicts);
             delete_->commit();
         }
@@ -173,8 +175,9 @@ void MainWindow::addFilesFromFilesystem(const QList<QUrl>& urls) {
     NodeDescriptors files = FsCollector::collectFiles(urls);
     TreeWidgetItem* item = ui_->treeWidget->getSelectedFolder();
     const PboPath itemPath = item->makePath();
-    const ConflictsParcel conflicts = model_->checkConflicts(itemPath, files);
-    if (InsertDialog(this, &itemPath, &files, &conflicts).exec() == QDialog::DialogCode::Accepted) {
+    ConflictsParcel conflicts = model_->checkConflicts(itemPath, files);
+    if (InsertDialog(this, InsertDialog::Mode::ExternalFiles, &files, &conflicts).exec() ==
+        QDialog::DialogCode::Accepted) {
         model_->createNodeSet(itemPath, files, conflicts);
     }
 }

@@ -27,14 +27,76 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QListWidget" name="list">
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
+    <widget class="QWidget" name="conflictsWidget" native="true">
+     <layout class="QVBoxLayout" name="conflictsBox">
+      <item>
+       <widget class="QLabel" name="conflictsLabel">
+        <property name="text">
+         <string>The following files already exist:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="pboman3::ConflictsList" name="conflictsList">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <property name="uniformRowHeights">
+         <bool>true</bool>
+        </property>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttons">
+    <widget class="QWidget" name="compressWidget" native="true">
+     <layout class="QVBoxLayout" name="compressBox">
+      <item>
+       <widget class="QLabel" name="compressLabel">
+        <property name="text">
+         <string>Choose files to compress:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="pboman3::CompressList" name="compressList">
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <property name="uniformRowHeights">
+         <bool>true</bool>
+        </property>
+        <property name="itemsExpandable">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="pboman3::InsertDialogButtons" name="buttons">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -42,6 +104,27 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>pboman3::CompressList</class>
+   <extends>QTreeView</extends>
+   <header>ui/compresslist.h</header>
+  </customwidget>
+  <customwidget>
+   <class>pboman3::ConflictsList</class>
+   <extends>QTreeWidget</extends>
+   <header>ui/conflictslist.h</header>
+  </customwidget>
+  <customwidget>
+   <class>pboman3::InsertDialogButtons</class>
+   <extends>QDialogButtonBox</extends>
+   <header>ui/insertdialogbuttons.h</header>
+   <slots>
+    <signal>next()</signal>
+    <signal>back()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -76,5 +159,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>next()</signal>
+   <receiver>InsertDialog</receiver>
+   <slot>next()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>393</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>393</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>back()</signal>
+   <receiver>InsertDialog</receiver>
+   <slot>back()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>393</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>393</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>next()</slot>
+  <slot>back()</slot>
+ </slots>
 </ui>

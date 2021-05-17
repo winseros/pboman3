@@ -48,11 +48,14 @@ namespace pboman3 {
     }
 
     QString PboPath::toString() const {
-        QString path = this->at(0);
-        for (auto i = 1; i < length(); i++) {
-            path = path + "/" + this->at(i);
+        if (count()) {
+            QString path = this->at(0);
+            for (auto i = 1; i < length(); i++) {
+                path = path + "/" + this->at(i);
+            }
+            return path;
         }
-        return path;
+        return "";
     }
 
     QDebug operator<<(QDebug debug, const PboPath& p) {

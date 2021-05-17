@@ -2,9 +2,9 @@
 
 namespace pboman3 {
     enum class ConflictResolution {
-        Copy,
-        Replace,
-        Skip,
-        Unset
+        Unset = -1,
+        Skip = 0,
+        Copy = 1,
+        Replace = 2,
     };
 }

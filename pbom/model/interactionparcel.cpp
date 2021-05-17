@@ -2,7 +2,39 @@
 #include <QDataStream>
 #include <QSet>
 
+#include "util/appexception.h"
+
 namespace pboman3 {
+    const QSharedPointer<BinarySource>& NodeDescriptor::binarySource() const {
+        return binarySource_;
+    }
+
+    const PboPath& NodeDescriptor::path() const {
+        return path_;
+    }
+
+    bool NodeDescriptor::isCompressed() const {
+        if (dynamic_cast<PboBinarySource*>(binarySource_.get())) {
+            throw AppException("Can't query compression status");
+        }
+
+        return dynamic_cast<FsLzhBinarySource*>(binarySource_.get());
+    }
+
+    void NodeDescriptor::setCompressed(bool compressed) {
+        if (dynamic_cast<PboBinarySource*>(binarySource_.get())) {
+            throw AppException("Can't query compression status");
+        }
+
+        if (compressed) {
+            if (dynamic_cast<FsRawBinarySource*>(binarySource_.get()))
+                binarySource_ = QSharedPointer<BinarySource>(new FsLzhBinarySource(binarySource_->path()));
+        } else {
+            if (dynamic_cast<FsLzhBinarySource*>(binarySource_.get()))
+                binarySource_ = QSharedPointer<BinarySource>(new FsRawBinarySource(binarySource_->path()));
+        }
+    }
+
     QByteArray NodeDescriptors::serialize(const NodeDescriptors& data) {
         QByteArray result;
         result.reserve(1024); //just some arbitrary value

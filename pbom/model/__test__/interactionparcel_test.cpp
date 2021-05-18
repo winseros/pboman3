@@ -5,8 +5,61 @@
 #include "io/bs/pbobinarysource.h"
 #include "model/pbonode.h"
 #include "model/pbopath.h"
+#include "util/appexception.h"
 
 namespace pboman3::test {
+    TEST(NodeDescriptorTest, Ctor_Initializes_Fields) {
+        QTemporaryFile t;
+        t.open();
+        t.close();
+
+        const QSharedPointer<BinarySource> bs(new FsRawBinarySource(t.fileName()));
+        const PboPath pt("f1/f2/e1");
+        const NodeDescriptor d(bs, pt);
+
+        ASSERT_EQ(d.binarySource(), bs);
+        ASSERT_EQ(d.path(), pt);
+    }
+
+    TEST(NodeDescriptorTest, SetCompressed_Changes_Binary_Source) {
+        QTemporaryFile t;
+        t.open();
+        t.close();
+
+        const QSharedPointer<BinarySource> bs(new FsRawBinarySource(t.fileName()));
+        const PboPath pt("f1/f2/e1");
+        NodeDescriptor d(bs, pt);
+
+        //matches the type of the initial binary source
+        ASSERT_FALSE(d.isCompressed());
+
+        //changed to compressed
+        d.setCompressed(true);
+        ASSERT_TRUE(d.isCompressed());
+        auto* lzh = dynamic_cast<FsLzhBinarySource*>(d.binarySource().get());
+        ASSERT_TRUE(lzh);
+        ASSERT_EQ(lzh->path(), t.fileName());
+
+        //changed to uncompressed
+        d.setCompressed(false);
+        ASSERT_FALSE(d.isCompressed());
+        auto* raw = dynamic_cast<FsRawBinarySource*>(d.binarySource().get());
+        ASSERT_TRUE(raw);
+        ASSERT_EQ(raw->path(), t.fileName());
+    }
+
+    TEST(NodeDescriptorTest, IsCompressed_Throws_If_BinarySource_Is_Pbo) {
+        QTemporaryFile t;
+        t.open();
+        t.close();
+
+        const QSharedPointer<BinarySource> bs(new PboBinarySource(t.fileName(), PboDataInfo(10, 20, 30)));
+        const PboPath pt("f1/f2/e1");
+        NodeDescriptor d(bs, pt);
+
+        ASSERT_THROW(d.isCompressed(), AppException);
+    }
+
     TEST(NodeDescriptorsTest, PackTree_Creates_Descriptors) {
         //the pbo nodes tree
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);

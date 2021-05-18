@@ -11,6 +11,7 @@ namespace pboman3 {
 
     void InsertDialogButtons::setIsTwoStep() {
         btnNext_ = addButton("Next", ActionRole);
+        btnNext_->setFocus();
         btnBack_ = addButton("Back", ActionRole);
         button(Ok)->hide();
         btnBack_->hide();
@@ -19,12 +20,14 @@ namespace pboman3 {
     void InsertDialogButtons::onButtonClicked(QAbstractButton* btn) {
         if (btn == btnNext_) {
             button(Ok)->show();
+            button(Ok)->setFocus();
             btnNext_->hide();
             btnBack_->show();
             emit next();
         } else if (btn == btnBack_) {
             button(Ok)->hide();
             btnNext_->show();
+            btnNext_->setFocus();
             btnBack_->hide();
             emit back();
         }

@@ -42,7 +42,7 @@ namespace pboman3 {
             && event->key() == Qt::Key_Space) {
             toggleSelectedItems();
         } else {
-            QTreeView::keyReleaseEvent(event);
+            QTreeWidget::keyReleaseEvent(event);
         }
     }
 
@@ -75,7 +75,7 @@ namespace pboman3 {
         if (column == colCompressIndex) {
             auto* changed = dynamic_cast<CompressListItem*>(item);
             assert(changed && "Must not be null");
-            auto descriptor = const_cast<NodeDescriptor&>(descriptors_->at(changed->id()));
+            NodeDescriptor& descriptor = (*descriptors_)[changed->id()];
             descriptor.setCompressed(item->checkState(column) == Qt::Checked);
         }
     }

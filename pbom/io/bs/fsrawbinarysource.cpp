@@ -1,9 +1,10 @@
 #include "fsrawbinarysource.h"
+#include <QFileInfo>
 
 namespace pboman3 {
     FsRawBinarySource::FsRawBinarySource(QString path, size_t bufferSize)
         : BinarySource(std::move(path)),
-        bufferSize_(bufferSize) {
+          bufferSize_(bufferSize) {
     }
 
     void FsRawBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {
@@ -26,5 +27,19 @@ namespace pboman3 {
             targetFile->write(buf.data(), hasRead);
             remaining -= hasRead;
         }
+    }
+
+    quint32 FsRawBinarySource::readOriginalSize() const {
+        const QFileInfo fi(path());
+        return static_cast<quint32>(fi.size());
+    }
+
+    quint32 FsRawBinarySource::readTimestamp() const {
+        const QFileInfo fi(path());
+        return static_cast<quint32>(fi.lastModified().toSecsSinceEpoch());
+    }
+
+    bool FsRawBinarySource::isCompressed() const {
+        return false;
     }
 }

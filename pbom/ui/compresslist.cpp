@@ -20,7 +20,9 @@ namespace pboman3 {
             auto* item = new CompressListItem(i);
             item->setText(colTitleIndex, descriptor.path().toString());
             item->setText(colExtensionIndex, QFileInfo(descriptor.path().last()).suffix());
-            item->setCheckState(colCompressIndex, descriptor.isCompressed() ? Qt::Checked : Qt::Unchecked);
+            item->setCheckState(colCompressIndex, descriptor.binarySource()->isCompressed()
+                                                      ? Qt::Checked
+                                                      : Qt::Unchecked);
             addTopLevelItem(item);
         }
         setHeaderLabels(QList<QString>{"File", "Extension", "Compress"});

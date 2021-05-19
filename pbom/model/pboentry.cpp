@@ -10,50 +10,66 @@ namespace pboman3 {
     }
 
     PboEntry::PboEntry(QString fileName, PboPackingMethod packingMethod,
-                       int originalSize, int reserved,
-                       int timestamp, int dataSize) :
-            fileName(std::move(fileName)),
-            packingMethod(packingMethod),
-            originalSize(originalSize),
-            reserved(reserved),
-            timestamp(timestamp),
-            dataSize(dataSize) {
+                       qint32 originalSize, qint32 reserved,
+                       qint32 timestamp, qint32 dataSize) :
+            fileName_(std::move(fileName)),
+            packingMethod_(packingMethod),
+            originalSize_(originalSize),
+            reserved_(reserved),
+            timestamp_(timestamp),
+            dataSize_(dataSize) {
     }
 
     bool PboEntry::isBoundary() const {
-        return fileName.isEmpty();
+        return fileName_.isEmpty();
     }
 
     bool PboEntry::isSignature() const {
-        return packingMethod == PboPackingMethod::Product;
+        return packingMethod_ == PboPackingMethod::Product;
     }
 
     bool PboEntry::isCompressed() const {
-        return packingMethod == PboPackingMethod::Packed && originalSize != dataSize;
+        return packingMethod_ == PboPackingMethod::Packed && originalSize_ != dataSize_;
     }
 
     bool PboEntry::isContent() const {
-        return !isBoundary() && packingMethod == PboPackingMethod::Uncompressed ||
-               packingMethod == PboPackingMethod::Packed;
+        return !isBoundary() && packingMethod_ == PboPackingMethod::Uncompressed ||
+               packingMethod_ == PboPackingMethod::Packed;
     }
 
     int PboEntry::size() const {
-        return static_cast<int>(fileName.length()) + sizeOfFields;
+        return static_cast<int>(fileName_.length()) + sizeOfFields;
     }
 
     PboPath PboEntry::makePath() const {
-        return PboPath(fileName);
+        return PboPath(fileName_);
     }
 
     //each header entry consists of 5x4 bytes of fields + filename.length + 1 byte zero string terminator
     const int PboEntry::sizeOfFields = 21;
 
-    PboEntry_::PboEntry_(QString pFileName, PboPackingMethod pPackingMethod,
-                         int pOriginalSize, int pReserved,
-                         int pTimestamp, int pDataSize)
-            : PboEntry(std::move(pFileName), pPackingMethod,
-                       pOriginalSize, pReserved,
-                       pTimestamp, pDataSize),
-              dataOffset(0) {
+
+    const QString& PboEntry::fileName() const {
+        return fileName_;
+    }
+
+    PboPackingMethod PboEntry::packingMethod() const {
+        return packingMethod_;
+    }
+
+    qint32 PboEntry::originalSize() const {
+        return originalSize_;
+    }
+
+    qint32 PboEntry::reserved() const {
+        return reserved_;
+    }
+
+    qint32 PboEntry::timestamp() const {
+        return timestamp_;
+    }
+
+    qint32 PboEntry::dataSize() const {
+        return dataSize_;
     }
 }

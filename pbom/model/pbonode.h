@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QObject>
-#include <QSharedPointer>
 #include "pbonodeevents.h"
 #include "pbonodetype.h"
 #include "pbopath.h"
@@ -19,7 +18,7 @@ namespace pboman3 {
 
         ~PboNode() override;
 
-        void addEntry(const PboPath& entryPath);
+        PboNode* addEntry(const PboPath& entryPath);
 
         PboNode* addEntry(const PboPath& entryPath, const ConflictResolution& onConflict);
 

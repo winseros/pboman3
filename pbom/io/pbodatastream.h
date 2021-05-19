@@ -24,7 +24,7 @@ namespace pboman3 {
         }
 
         template <typename T>
-        PboDataStream& operator<<(T& src) {
+        PboDataStream& operator<<(const T& src) {
             file_->write(reinterpret_cast<const char*>(&src), sizeof src);
             return *this;
         }

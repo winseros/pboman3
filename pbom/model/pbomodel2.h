@@ -16,7 +16,7 @@ namespace pboman3 {
     public:
         void loadFile(const QString& path);
 
-        void saveFile();
+        void saveFile(const Cancel& cancel);
 
         void createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors, const ConflictsParcel& conflicts) const;
 
@@ -43,6 +43,6 @@ namespace pboman3 {
 
         void emitLoadComplete(const QString& path) const;
 
-        void writeFileSignature(const PboHeaderIO& io) const;
+        void emitLoadFailed() const;
     };
 }

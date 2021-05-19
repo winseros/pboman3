@@ -14,7 +14,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(8, 8, 1);//not compressed
+        const PboDataInfo dataInfo(8, 8, 1); //not compressed
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 5);
@@ -127,4 +127,48 @@ namespace pboman3::test {
 
         ASSERT_EQ(data, QString("corrupted decompress data"));
     }
+
+    TEST(PboBinarySource, ReadOriginalSize_Returns_OriginalSize) {
+        //create a binary source
+        QTemporaryFile sourceFile;
+        sourceFile.open();
+        sourceFile.close();
+
+        //call the service
+        const PboDataInfo dataInfo(30, 25, 0); //the file is marked as compressed
+        QTemporaryFile targetFile;
+        const PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+
+        //assert the file
+        ASSERT_EQ(bs.readOriginalSize(), 30);
+    }
+
+    struct IsCompressedParam {
+        int originalSize;
+        int dataSize;
+        bool expectedCompressed;
+    };
+
+    class IsCompressedTest : public testing::TestWithParam<IsCompressedParam> {
+    };
+
+    TEST_P(IsCompressedTest, Returns_True) {
+        //create a binary source
+        QTemporaryFile sourceFile;
+        sourceFile.open();
+        sourceFile.close();
+
+        //call the service
+        const PboDataInfo dataInfo(GetParam().originalSize, GetParam().dataSize, 0); //the file is marked as compressed
+        QTemporaryFile targetFile;
+        const PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+
+        //assert the file
+        ASSERT_EQ(bs.isCompressed(), GetParam().expectedCompressed);
+    }
+    
+    INSTANTIATE_TEST_SUITE_P(PboBinarySource, IsCompressedTest, testing::Values(
+                                 IsCompressedParam{25, 25, false},
+                                 IsCompressedParam{25, 24, true}
+                             ));
 }

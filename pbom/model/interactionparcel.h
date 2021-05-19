@@ -26,8 +26,6 @@ namespace pboman3 {
 
         const PboPath& path() const;
 
-        bool isCompressed() const;
-
         void setCompressed(bool compressed);
 
     private:

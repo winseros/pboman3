@@ -1,9 +1,10 @@
 #include "pbomodel2.h"
 #include <QDir>
 #include <QUrl>
-#include <QUuid>
 #include "pbotreeexception.h"
-#include "io/pboheaderio.h"
+#include "io/pboioexception.h"
+#include "io/pboheaderreader.h"
+#include "io/pbowriter.h"
 #include "io/bs/pbobinarysource.h"
 
 namespace pboman3 {
@@ -20,76 +21,37 @@ namespace pboman3 {
 
         emitLoadBegin(path);
 
-        const PboHeaderIO reader(file_.get());
-        QSharedPointer<PboEntry> entry = reader.readNextEntry();
+        try {
+            PboFileHeader header = PboHeaderReader::readFileHeader(file_.get());
 
-#define QUIT file_->close(); \
-        const auto evt = QSharedPointer<PboLoadFailedEvent>(new PboLoadFailedEvent); \
-        emit onEvent(evt.get()); \
-        return;
-
-        if (!entry) { QUIT }
-
-        QList<QSharedPointer<PboEntry>> entries;
-
-        if (entry->isSignature()) {
-            QSharedPointer<PboHeader> header = reader.readNextHeader();
-            while (header && !header->isBoundary()) {
-                registerHeader(header);
-                header = reader.readNextHeader();
+            size_t entryDataOffset = file_->pos();
+            for (const QSharedPointer<PboEntry>& entry : header.entries) {
+                PboNode* node = root_->addEntry(entry->makePath());
+                PboDataInfo dataInfo{entry->originalSize(), entry->dataSize(), entryDataOffset};
+                entryDataOffset += dataInfo.dataSize;
+                node->binarySource = QSharedPointer<PboBinarySource>(
+                    new PboBinarySource(path, dataInfo));
             }
-            if (!header) { QUIT }
-        } else if (entry->isContent()) {
-            entries.append(entry);
-            root_->addEntry(entry->makePath());
-        } else {
-            QUIT
+
+            binaryBackend_ = QSharedPointer<BinaryBackend>(new BinaryBackend);
+            headers_ = header.headers;
+
+            emitLoadComplete(path);
+        } catch (PboIoException&) {
+            emitLoadFailed();
         }
-
-        entry = reader.readNextEntry();
-        while (entry && !entry->isBoundary()) {
-            entries.append(entry);
-            root_->addEntry(entry->makePath());
-            entry = reader.readNextEntry();
-        }
-        if (!entry || !entry->isBoundary()) { QUIT }
-
-        size_t entryDataOffset = file_->pos();
-        for (const QSharedPointer<PboEntry>& pEntry : entries) {
-            PboDataInfo dataInfo{pEntry->originalSize, pEntry->dataSize, entryDataOffset};
-            entryDataOffset += dataInfo.dataSize;
-            root_->get(pEntry->makePath())->binarySource = QSharedPointer<PboBinarySource>(
-                new PboBinarySource(path, dataInfo));
-        }
-
-        binaryBackend_ = QSharedPointer<BinaryBackend>(new BinaryBackend);
-
-        emitLoadComplete(path);
     }
 
-    void PboModel2::saveFile() {
-        const QString tempFolderName = "pboman3";
-        QDir temp(QDir::tempPath());
-        if (temp.mkpath(tempFolderName)) {
-            temp.cd(tempFolderName);
-            PboFile tempFile(temp.filePath(QUuid::createUuid().toString(QUuid::WithoutBraces)));
-            tempFile.open(QIODeviceBase::NewOnly);
+    void PboModel2::saveFile(const Cancel& cancel) {
+        PboWriter writer;
+        writer.usePath(file_->fileName() + ".t")
+              .useRoot(root_.get());
 
-            const PboHeaderIO io(&tempFile);
-
-            writeFileSignature(io);
-
-            for (const QSharedPointer<PboHeader>& header : headers_) {
-                io.writeHeader(header.get());
-            }
-
-            PboHeader hBnd = PboHeader::makeBoundary();
-            io.writeHeader(&hBnd);
-
-            //writeFileEntries(io);
-
-            tempFile.close();
+        for (const QSharedPointer<PboHeader>& header : headers_) {
+            writer.addHeader(header.get());
         }
+
+        writer.write(cancel);
     }
 
     void PboModel2::createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors,
@@ -167,8 +129,8 @@ namespace pboman3 {
         emit onEvent(&evt);
     }
 
-    void PboModel2::writeFileSignature(const PboHeaderIO& io) const {
-        PboEntry eSig = PboEntry::makeSignature();
-        io.writeEntry(&eSig);
+    void PboModel2::emitLoadFailed() const {
+        PboLoadFailedEvent evt;
+        emit onEvent(&evt);
     }
 }

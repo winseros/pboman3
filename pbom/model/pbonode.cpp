@@ -15,9 +15,10 @@ namespace pboman3 {
         qDeleteAll(children_);
     }
 
-    void PboNode::addEntry(const PboPath& entryPath) {
+    PboNode* PboNode::addEntry(const PboPath& entryPath) {
         PboNode* parent = createFolderHierarchy(entryPath);
-        createFileNode(entryPath.last(), parent);
+        PboNode* node = createFileNode(entryPath.last(), parent);
+        return node;
     }
 
     PboNode* PboNode::addEntry(const PboPath& entryPath, const ConflictResolution& onConflict) {

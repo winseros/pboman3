@@ -1,7 +1,6 @@
 #include "interactionparcel.h"
 #include <QDataStream>
 #include <QSet>
-
 #include "util/appexception.h"
 
 namespace pboman3 {
@@ -11,14 +10,6 @@ namespace pboman3 {
 
     const PboPath& NodeDescriptor::path() const {
         return path_;
-    }
-
-    bool NodeDescriptor::isCompressed() const {
-        if (dynamic_cast<PboBinarySource*>(binarySource_.get())) {
-            throw AppException("Can't query compression status");
-        }
-
-        return dynamic_cast<FsLzhBinarySource*>(binarySource_.get());
     }
 
     void NodeDescriptor::setCompressed(bool compressed) {

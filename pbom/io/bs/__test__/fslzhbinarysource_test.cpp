@@ -26,4 +26,17 @@ namespace pboman3::test {
 
         ASSERT_THAT(data, testing::ElementsAre(0x05, 0x61, 0x0E, 0x0A, 0x62, 0x63, 0x02, 0x00, 0x00));
     }
+
+    TEST(FsLzhBinarySourceTest, IsCompressed_Returns_False) {
+        //create a binary source
+        QTemporaryFile sourceFile;
+        sourceFile.open();
+        sourceFile.close();
+
+        //call the service
+        const FsLzhBinarySource bs(sourceFile.fileName());
+
+        //assert the file
+        ASSERT_TRUE(bs.isCompressed());
+    }
 }

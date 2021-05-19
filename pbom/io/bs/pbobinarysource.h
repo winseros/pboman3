@@ -13,13 +13,19 @@ namespace pboman3 {
 
     class PboBinarySource : public BinarySource {
     public:
-        PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize = 1024 ^ 3);
+        PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize = 1024 * 1024);
 
         void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override;
 
         void writeToFs(QFileDevice* targetFile, const Cancel& cancel) override;
 
         const PboDataInfo& getInfo() const;
+
+        quint32 readOriginalSize() const override;
+
+        quint32 readTimestamp() const override;
+
+        bool isCompressed() const override;
 
     private:
         PboDataInfo dataInfo_;
@@ -28,7 +34,5 @@ namespace pboman3 {
         void writeRaw(QFileDevice* targetFile, const Cancel& cancel) const;
 
         bool tryWriteDecompressed(QFileDevice* targetFile, const Cancel& cancel) const;
-
-        bool isCompressed() const;
     };
 }

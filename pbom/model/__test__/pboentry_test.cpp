@@ -4,12 +4,12 @@
 namespace pboman3::test {
     TEST(PboEntryTest, Ctor_Functional) {
         const PboEntry entry("some-file", PboPackingMethod::Packed, 1, 2, 3, 4);
-        ASSERT_EQ(entry.fileName, "some-file");
-        ASSERT_EQ(entry.packingMethod, PboPackingMethod::Packed);
-        ASSERT_EQ(entry.originalSize, 1);
-        ASSERT_EQ(entry.reserved, 2);
-        ASSERT_EQ(entry.timestamp, 3);
-        ASSERT_EQ(entry.dataSize, 4);
+        ASSERT_EQ(entry.fileName(), "some-file");
+        ASSERT_EQ(entry.packingMethod(), PboPackingMethod::Packed);
+        ASSERT_EQ(entry.originalSize(), 1);
+        ASSERT_EQ(entry.reserved(), 2);
+        ASSERT_EQ(entry.timestamp(), 3);
+        ASSERT_EQ(entry.dataSize(), 4);
     }
 
     TEST(PboEntryTest, IsBoundary_Functional) {
@@ -39,7 +39,7 @@ namespace pboman3::test {
 
     TEST(PboEntryTest, Size_Functional) {
         const PboEntry entry("some-file", PboPackingMethod::Packed, 1, 2, 3, 4);
-        ASSERT_EQ(entry.size(), entry.fileName.size() + 21);
+        ASSERT_EQ(entry.size(), entry.fileName().size() + 21);
     }
 
     TEST(PboEntryTest, IsCompressed_Functional) {

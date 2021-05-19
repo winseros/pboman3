@@ -43,7 +43,7 @@ void MainWindow::onFileOpenClick() {
 }
 
 void MainWindow::onFileSaveClick() {
-    model_->saveFile();
+    model_->saveFile([]() { return false; });
 }
 
 void MainWindow::onSelectionPasteClick() {

@@ -22,7 +22,9 @@ set(PROJECT_SOURCES
         io/pbodatastream.cpp
         io/pbofile.cpp
         io/pboheaderio.cpp
+        io/pboheaderreader.cpp
         io/pboioexception.cpp
+        io/pbowriter.cpp
         model/conflictsparcel.cpp
         model/interactionparcel.cpp
         model/pboentry.cpp
@@ -63,6 +65,8 @@ set(TEST_SOURCES
     "io/__test__/binarybackend_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
+    "io/__test__/pboheaderreader_test.cpp"
+    "io/__test__/pbowriter_test.cpp"
     "model/__test__/conflictsparcel_test.cpp"
     "model/__test__/interactionparcel_test.cpp"
     "model/__test__/pboentry_test.cpp"

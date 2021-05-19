@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QSharedPointer>
 #include "pbopath.h"
+#include "io/bs/binarysource.h"
 
 namespace pboman3 {
     using namespace std;
@@ -11,21 +13,15 @@ namespace pboman3 {
         Product = 0x56657273
     };
 
-    struct PboEntry {
-        const QString fileName;
-        const PboPackingMethod packingMethod;
-        const int originalSize;
-        const int reserved;
-        const int timestamp;
-        const int dataSize;
-
+    class PboEntry {
+    public:
         static PboEntry makeSignature();
 
         static PboEntry makeBoundary();
 
         PboEntry(QString fileName, PboPackingMethod packingMethod,
-                 int originalSize, int reserved,
-                 int timestamp, int dataSize);
+                 qint32 originalSize, qint32 reserved,
+                 qint32 timestamp, qint32 dataSize);
 
         virtual ~PboEntry() = default;
 
@@ -40,15 +36,27 @@ namespace pboman3 {
         int size() const;
 
         PboPath makePath() const;
+
+        const QString& fileName() const;
+
+        PboPackingMethod packingMethod() const;
+
+        qint32 originalSize() const;
+
+        qint32 reserved() const;
+
+        qint32 timestamp() const;
+
+        qint32 dataSize() const;
+
     private:
         static const int sizeOfFields;
-    };
 
-    struct PboEntry_ : public PboEntry {
-        long dataOffset;
-
-        PboEntry_(QString fileName, PboPackingMethod packingMethod,
-                  int originalSize, int reserved,
-                  int timestamp, int dataSize);
+        QString fileName_;
+        PboPackingMethod packingMethod_;
+        qint32 originalSize_;
+        qint32 reserved_;
+        qint32 timestamp_;
+        qint32 dataSize_;
     };
 }

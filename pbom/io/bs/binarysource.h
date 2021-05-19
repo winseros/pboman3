@@ -16,6 +16,12 @@ namespace pboman3 {
 
         const QString& path() const;
 
+        virtual quint32 readOriginalSize() const = 0;
+
+        virtual quint32 readTimestamp() const = 0;
+
+        virtual bool isCompressed() const = 0;
+
     protected:
         QFileDevice* file_;
 

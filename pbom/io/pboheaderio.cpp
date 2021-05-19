@@ -18,16 +18,16 @@ namespace pboman3 {
             PboPackingMethod packingMethod;
             data >> packingMethod;
 
-            int originalSize;
+            qint32 originalSize;
             data >> originalSize;
 
-            int reserved;
+            qint32 reserved;
             data >> reserved;
 
-            int timeStamp;
+            qint32 timeStamp;
             data >> timeStamp;
 
-            long dataSize;
+            qint32 dataSize;
             data >> dataSize;
 
             return QSharedPointer<PboEntry>(new PboEntry(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize));
@@ -55,25 +55,25 @@ namespace pboman3 {
         }
     }
 
-    void PboHeaderIO::writeEntry(const PboEntry* entry) const {
+    void PboHeaderIO::writeEntry(const PboEntry& entry) const {
         PboDataStream data(file_);
 
-        data << entry->fileName;
-        data << entry->packingMethod;
-        data << entry->originalSize;
-        data << entry->reserved;
-        data << entry->timestamp;
-        data << entry->dataSize;
+        data << entry.fileName();
+        data << entry.packingMethod();
+        data << entry.originalSize();
+        data << entry.reserved();
+        data << entry.timestamp();
+        data << entry.dataSize();
     }
 
-    void PboHeaderIO::writeHeader(const PboHeader* header) const {
+    void PboHeaderIO::writeHeader(const PboHeader& header) const {
         PboDataStream data(file_);
 
-        if (header->isBoundary()) {
-            data << nullptr;
+        if (header.isBoundary()) {
+            data << static_cast<quint8>(0);
         } else {
-            data << header->name;
-            data << header->value;
+            data << header.name;
+            data << header.value;
         }
     }
 

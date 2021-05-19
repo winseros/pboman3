@@ -61,6 +61,14 @@ namespace pboman3 {
         return dataInfo_;
     }
 
+    quint32 PboBinarySource::readOriginalSize() const {
+        return dataInfo_.originalSize;
+    }
+
+    quint32 PboBinarySource::readTimestamp() const {
+        return 0;
+    }
+
     bool PboBinarySource::isCompressed() const {
         return dataInfo_.originalSize > dataInfo_.dataSize;
     }

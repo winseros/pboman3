@@ -30,34 +30,17 @@ namespace pboman3::test {
         const PboPath pt("f1/f2/e1");
         NodeDescriptor d(bs, pt);
 
-        //matches the type of the initial binary source
-        ASSERT_FALSE(d.isCompressed());
-
         //changed to compressed
         d.setCompressed(true);
-        ASSERT_TRUE(d.isCompressed());
         auto* lzh = dynamic_cast<FsLzhBinarySource*>(d.binarySource().get());
         ASSERT_TRUE(lzh);
         ASSERT_EQ(lzh->path(), t.fileName());
 
         //changed to uncompressed
         d.setCompressed(false);
-        ASSERT_FALSE(d.isCompressed());
         auto* raw = dynamic_cast<FsRawBinarySource*>(d.binarySource().get());
         ASSERT_TRUE(raw);
         ASSERT_EQ(raw->path(), t.fileName());
-    }
-
-    TEST(NodeDescriptorTest, IsCompressed_Throws_If_BinarySource_Is_Pbo) {
-        QTemporaryFile t;
-        t.open();
-        t.close();
-
-        const QSharedPointer<BinarySource> bs(new PboBinarySource(t.fileName(), PboDataInfo(10, 20, 30)));
-        const PboPath pt("f1/f2/e1");
-        NodeDescriptor d(bs, pt);
-
-        ASSERT_THROW(d.isCompressed(), AppException);
     }
 
     TEST(NodeDescriptorsTest, PackTree_Creates_Descriptors) {

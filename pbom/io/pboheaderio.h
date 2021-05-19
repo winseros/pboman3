@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QSharedPointer>
 #include "pbofile.h"
 #include "model/pboentry.h"
 #include "model/pboheader.h"
@@ -16,9 +15,9 @@ namespace pboman3 {
 
         QSharedPointer<PboHeader> readNextHeader() const;
 
-        void writeEntry(const PboEntry* entry) const;
+        void writeEntry(const PboEntry& entry) const;
 
-        void writeHeader(const PboHeader* header) const;
+        void writeHeader(const PboHeader& header) const;
 
     private:
         PboFile* file_;

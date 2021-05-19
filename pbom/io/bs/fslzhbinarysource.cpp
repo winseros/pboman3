@@ -10,4 +10,8 @@ namespace pboman3 {
         file_->seek(0);
         Lzh::compress(file_, targetFile, cancel);
     }
+
+    bool FsLzhBinarySource::isCompressed() const {
+        return true;
+    }
 }

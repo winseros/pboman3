@@ -18,7 +18,8 @@ using namespace pboman3;
 MainWindow::MainWindow(QWidget* parent, PboModel2* model)
     : QMainWindow(parent),
       ui_(new Ui::MainWindow),
-      model_(model) {
+      model_(model),
+      hasChanges_(false) {
     ui_->setupUi(this);
     ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
@@ -28,6 +29,7 @@ MainWindow::MainWindow(QWidget* parent, PboModel2* model)
     connect(model_, &PboModel2::onEvent, this, &MainWindow::onModelEvent);
     connect(&dragDropWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &MainWindow::dragStartExecute);
     connect(&cutCopyWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &MainWindow::copyOrCutExecute);
+    connect(&saveWatcher_, &QFutureWatcher<void>::finished, this, &MainWindow::saveComplete);
 }
 
 MainWindow::~MainWindow() {
@@ -43,7 +45,17 @@ void MainWindow::onFileOpenClick() {
 }
 
 void MainWindow::onFileSaveClick() {
-    model_->saveFile([]() { return false; });
+    busy_->start();
+
+    const QFuture<void> future = QtConcurrent::run([this](QPromise<void>& promise) {
+        model_->saveFile([&promise]() { return promise.isCanceled(); });
+    });
+
+    saveWatcher_.setFuture(future);
+}
+
+void MainWindow::onFileCloseClick() {
+    model_->unloadFile();
 }
 
 void MainWindow::onSelectionPasteClick() {
@@ -88,17 +100,30 @@ void MainWindow::onSelectionDeleteClick() const {
     }
 }
 
-void MainWindow::onModelEvent(const PboModelEvent* event) const {
+void MainWindow::onModelEvent(const PboModelEvent* event) {
     if (const auto* eLoadBegin = dynamic_cast<const PboLoadBeginEvent*>(event)) {
         const QFileInfo fi(eLoadBegin->path);
         ui_->treeWidget->setNewRoot(fi.fileName());
     } else if (dynamic_cast<const PboLoadCompleteEvent*>(event)) {
         ui_->treeWidget->commitRoot();
         ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
+        ui_->actionFileSaveAs->setEnabled(true);
+        ui_->actionFileClose->setEnabled(true);
+        setHasChanges(false);
+    } else if (dynamic_cast<const PboUnloadEvent*>(event)) {
+        ui_->treeWidget->resetRoot();
+        ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);        
+        ui_->actionFileSaveAs->setEnabled(false);
+        ui_->actionFileClose->setEnabled(false);
+        setHasChanges(false);
     } else if (const auto* eNodeCreated = dynamic_cast<const PboNodeCreatedEvent*>(event)) {
         ui_->treeWidget->addNewNode(*eNodeCreated->nodePath, eNodeCreated->nodeType);
+        setHasChanges(true);
     } else if (const auto* eNodeRemoved = dynamic_cast<const PboNodeRemovedEvent*>(event)) {
         ui_->treeWidget->removeNode(*eNodeRemoved->nodePath);
+        setHasChanges(true);
+    } else if (dynamic_cast<const PboNodeRenamedEvent*>(event)) {
+        setHasChanges(true);
     }
 }
 
@@ -223,4 +248,14 @@ void MainWindow::copyOrCutExecute() const {
     clipboard->setMimeData(mimeData);
 
     busy_->stop();
+}
+
+void MainWindow::saveComplete() {
+    setHasChanges(false);
+    busy_->stop();
+}
+
+void MainWindow::setHasChanges(bool hasChanges) {
+    ui_->actionFileSave->setEnabled(hasChanges);
+    hasChanges_ = hasChanges_;
 }

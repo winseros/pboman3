@@ -7,12 +7,6 @@ namespace pboman3 {
           nodeType(pNodeType) {
     }
 
-    PboNodeMovedEvent::PboNodeMovedEvent(const PboPath* pPrevNodePath, const PboPath* pNewNodePath)
-        : PboNodeEvent(),
-          prevNodePath(pPrevNodePath),
-          newNodePath(pNewNodePath) {
-    }
-
     PboNodeRenamedEvent::PboNodeRenamedEvent(const PboPath* pNodePath, QString pNewNodeTitle)
         : PboNodeEvent(),
           nodePath(pNodePath),

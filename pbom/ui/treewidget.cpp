@@ -2,26 +2,32 @@
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include "util/appexception.h"
 
 namespace pboman3 {
     TreeWidget::TreeWidget(QWidget* parent)
         : QTreeWidget(parent),
+          root_(nullptr),
           dragOverItem_(nullptr) {
-        root_ = QSharedPointer<TreeWidgetItem>(new TreeWidgetItem(PboNodeType::Container));
         connect(this, &QTreeWidget::itemExpanded, this, &TreeWidget::onItemExpanded);
         connect(this, &QTreeWidget::itemCollapsed, this, &TreeWidget::onItemCollapsed);
     }
 
     void TreeWidget::setNewRoot(const QString& fileName) {
+        if (root_)
+            throw AppException("Please commit or reset the existing root before");
+
         clear();
+        root_ = new TreeWidgetItem(PboNodeType::Container);
         root_->setText(0, fileName);
         root_->setIcon(0, QIcon(":ifolderopened.png"));
     }
 
     void TreeWidget::addNewNode(const PboPath& path, PboNodeType nodeType) const {
         const PboPath parentPath = path.makeParent();
-        TreeWidgetItem* parent = parentPath.length() ? root_->get(parentPath) : root_.get();
-        if (!parent) parent = root_.get();
+        TreeWidgetItem* parent = parentPath.length() ? root_->get(parentPath) : root_;
+        if (!parent)
+            parent = root_;
 
         auto* newNode = new TreeWidgetItem(nodeType);
         newNode->setText(0, path.last());
@@ -38,8 +44,15 @@ namespace pboman3 {
     }
 
     void TreeWidget::commitRoot() {
-        addTopLevelItem(root_.get());
+        addTopLevelItem(root_);
         root_->setExpanded(true);
+    }
+
+    void TreeWidget::resetRoot() {
+        if (root_ && !topLevelItemCount())
+            delete root_; //setNewRoot() called without commitRoot()
+        clear();
+        root_ = nullptr;
     }
 
     bool TreeWidget::isSelectionValid() const {
@@ -51,7 +64,7 @@ namespace pboman3 {
         QList<TreeWidgetItem*> result;
         result.reserve(selected.length());
 
-        for (QTreeWidgetItem* item: selected) {
+        for (QTreeWidgetItem* item : selected) {
             QTreeWidgetItem* p = item->parent();
             bool abortItem = false;
             while (p && !abortItem) {

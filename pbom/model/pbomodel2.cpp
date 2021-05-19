@@ -9,9 +9,8 @@
 
 namespace pboman3 {
     void PboModel2::loadFile(const QString& path) {
-        if (file_) {
-            file_->close();
-        }
+        if (file_)
+            unloadFile();
 
         file_ = QSharedPointer<PboFile>(new PboFile(path));
         file_->open(QIODeviceBase::OpenModeFlag::ReadWrite);
@@ -52,6 +51,17 @@ namespace pboman3 {
         }
 
         writer.write(cancel);
+    }
+
+    void PboModel2::unloadFile() {
+        if (!root_)
+            throw PboTreeException("The model is not initialized");
+
+        emitUnload();
+
+        file_->close();
+        file_.clear();
+        root_.clear();
     }
 
     void PboModel2::createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors,
@@ -131,6 +141,11 @@ namespace pboman3 {
 
     void PboModel2::emitLoadFailed() const {
         PboLoadFailedEvent evt;
+        emit onEvent(&evt);
+    }
+
+    void PboModel2::emitUnload() const {
+        PboUnloadEvent evt;
         emit onEvent(&evt);
     }
 }

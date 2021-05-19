@@ -18,6 +18,8 @@ namespace pboman3 {
 
         void saveFile(const Cancel& cancel);
 
+        void unloadFile();
+
         void createNodeSet(const PboPath& parent, const QList<NodeDescriptor>& descriptors, const ConflictsParcel& conflicts) const;
 
         void renameNode(const PboPath& node, const QString& title) const;
@@ -44,5 +46,7 @@ namespace pboman3 {
         void emitLoadComplete(const QString& path) const;
 
         void emitLoadFailed() const;
+
+        void emitUnload() const;
     };
 }

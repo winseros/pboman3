@@ -19,6 +19,8 @@ namespace pboman3 {
 
         void commitRoot();
 
+        void resetRoot();
+
         bool isSelectionValid() const;
 
         QList<TreeWidgetItem*> getSelectedItems() const;
@@ -46,7 +48,7 @@ namespace pboman3 {
         void dropEvent(QDropEvent* event) override;
 
     private:
-        QSharedPointer<TreeWidgetItem> root_;
+        TreeWidgetItem* root_;
         TreeWidgetItem* dragOverItem_;
 
         void onItemExpanded(QTreeWidgetItem* item);

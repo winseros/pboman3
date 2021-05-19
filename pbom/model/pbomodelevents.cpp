@@ -17,6 +17,10 @@ namespace pboman3 {
         : PboModelEvent() {
     }
 
+    PboUnloadEvent::PboUnloadEvent()
+        : PboModelEvent() {
+    }
+
     PboHeaderCreatedEvent::PboHeaderCreatedEvent(const PboHeader* header) :
         PboModelEvent(),
         header(header) {

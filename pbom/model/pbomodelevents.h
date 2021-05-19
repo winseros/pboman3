@@ -30,6 +30,11 @@ namespace pboman3 {
         PboLoadFailedEvent();
     };
 
+    class PboUnloadEvent final : public PboModelEvent {
+    public:
+        PboUnloadEvent();
+    };
+
     class PboHeaderCreatedEvent final : public PboModelEvent {
     public:
         const PboHeader* const header;

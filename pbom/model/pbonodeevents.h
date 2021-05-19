@@ -15,13 +15,6 @@ namespace pboman3 {
         const PboNodeType nodeType;
     };
 
-    class PboNodeMovedEvent final : public PboNodeEvent {
-    public:
-        PboNodeMovedEvent(const PboPath* pPrevNodePath, const PboPath* pNewNodePath);
-        const PboPath* prevNodePath;
-        const PboPath* newNodePath;
-    };
-
     class PboNodeRenamedEvent final : public PboNodeEvent {
     public:
         PboNodeRenamedEvent(const PboPath* pNodePath, QString pNewNodeTitle);

@@ -24,10 +24,6 @@ namespace pboman3 {
     PboNode* PboNode::addEntry(const PboPath& entryPath, const ConflictResolution& onConflict) {
         PboNode* result = nullptr;
         if (const PboNode* existing = get(entryPath)) {
-            if (existing->nodeType_ != PboNodeType::File) {
-                throw PboTreeException("Can add only file entries here");
-            }
-
             switch (onConflict) {
                 case ConflictResolution::Replace: {
                     const PboPath existingPath = existing->makePath();
@@ -138,13 +134,31 @@ namespace pboman3 {
         return root_;
     }
 
-    void PboNode::renameNode(const PboPath& node, const QString& title) {
+    void PboNode::renameNode(const PboPath& node, const QString& title, const ConflictResolution& onConflict) {
         PboNode* n = get(node);
         assert(n && "The node must exist");
 
-        if (PboNode* existing = n->par_->findChild(title); !existing) {
+        const PboNode* existing = n->par_->findChild(title);
+        if (existing) {
+            switch (onConflict) {
+                case ConflictResolution::Copy: {
+                    n->title_ = resolveNameConflict(n->par_, existing);
+                    const PboNodeRenamedEvent evt(&node, title);
+                    root_->onEvent(&evt);
+                    break;
+                }
+                case ConflictResolution::Replace: {
+                    throw PboTreeException("Unsupported conflict resolution strategy: Replace");
+                }
+                case ConflictResolution::Skip: {
+                    throw PboTreeException("Unsupported conflict resolution strategy: Skip");
+                }
+                case ConflictResolution::Unset: {
+                    throw PboTreeException("Unsupported conflict resolution strategy: Unset");
+                }
+            }
+        } else {
             n->title_ = title;
-
             const PboNodeRenamedEvent evt(&node, title);
             root_->onEvent(&evt);
         }

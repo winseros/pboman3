@@ -84,7 +84,7 @@ namespace pboman3 {
     void PboModel2::renameNode(const PboPath& node, const QString& title) const {
         if (!root_)
             throw PboTreeException("The model is not initialized");
-        root_->renameNode(node, title);
+        root_->renameNode(node, title, ConflictResolution::Unset);
     }
 
     void PboModel2::removeNode(const PboPath& node) const {
@@ -121,6 +121,14 @@ namespace pboman3 {
             }
         }
         return conflicts;
+    }
+
+    bool PboModel2::doesExist(const PboPath& path) const {
+        if (!root_)
+            throw PboTreeException("The model is not initialized");
+
+        const bool exists = root_->get(path);
+        return exists;
     }
 
     void PboModel2::registerHeader(QSharedPointer<PboHeader>& header) {

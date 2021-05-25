@@ -37,13 +37,13 @@ namespace pboman3 {
         return result;
     }
 
-    PboPath PboPath::makeChild(const PboPath& child) const {
+    PboPath PboPath::makeSibling(const QString& sibling) const {
         PboPath result;
-        result.reserve(length() + child.length());
-        for (const QString& s : *this)
-            result.append(s);
-        for (const QString& s : child)
-            result.append(s);
+        result.reserve(length());
+        for (auto i = 0; i < length() - 1; i++) {
+            result.append(this->at(i));
+        }
+        result.append(sibling);
         return result;
     }
 

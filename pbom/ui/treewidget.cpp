@@ -43,6 +43,11 @@ namespace pboman3 {
         delete node;
     }
 
+    void TreeWidget::renameNode(const PboPath& path, const QString& title) const {
+        TreeWidgetItem* node = root_->get(path);
+        node->setText(0, title);
+    }
+
     void TreeWidget::commitRoot() {
         addTopLevelItem(root_);
         root_->setExpanded(true);

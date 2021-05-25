@@ -48,7 +48,7 @@ namespace pboman3 {
 
         QList<PboNode*>::const_iterator end() const;
 
-        void renameNode(const PboPath& node, const QString& title);
+        void renameNode(const PboPath& node, const QString& title, const ConflictResolution& onConflict);
 
         void removeNode(const PboPath& node);
 

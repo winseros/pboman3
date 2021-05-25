@@ -17,6 +17,8 @@ namespace pboman3 {
 
         void removeNode(const PboPath& path) const;
 
+        void renameNode(const PboPath& path, const QString& title) const;
+
         void commitRoot();
 
         void resetRoot();

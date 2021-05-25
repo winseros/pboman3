@@ -15,7 +15,7 @@ namespace pboman3 {
 
         PboPath makeChild(const QString& child) const;
 
-        PboPath makeChild(const PboPath& child) const;
+        PboPath makeSibling(const QString& sibling) const;
 
         QString toString() const;
 

@@ -203,23 +203,33 @@ namespace pboman3::test {
         root.addEntry(PboPath("e1"));
         root.addEntry(PboPath("e2"));
 
-        root.renameNode(PboPath{{"e1"}}, "e3");
+        root.renameNode(PboPath("e1"), "e3", ConflictResolution::Unset);
 
         ASSERT_EQ(root.childCount(), 2);
         ASSERT_EQ(root.child(0)->title(), "e3");
         ASSERT_EQ(root.child(1)->title(), "e2");
     }
 
-    TEST(PboNodeTest, RenameNode_Does_Not_Rename_If_Conflict) {
+     TEST(PboNodeTest, RenameNode_Copies) {
         PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
         root.addEntry(PboPath("e1"));
         root.addEntry(PboPath("e2"));
 
-        root.renameNode(PboPath{{"e1"}}, "e2");
+        root.renameNode(PboPath("e1"), "e2", ConflictResolution::Copy);
 
         ASSERT_EQ(root.childCount(), 2);
-        ASSERT_EQ(root.child(0)->title(), "e1");
+        ASSERT_EQ(root.child(0)->title(), "e2-copy");
         ASSERT_EQ(root.child(1)->title(), "e2");
+    }
+
+    TEST(PboNodeTest, RenameNode_Throws_In_Case_Of_Conflict) {
+        PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
+        root.addEntry(PboPath("e1"));
+        root.addEntry(PboPath("e2"));
+
+        ASSERT_THROW(root.renameNode(PboPath("e1"), "e2", ConflictResolution::Unset), PboTreeException);
+        ASSERT_THROW(root.renameNode(PboPath("e1"), "e2", ConflictResolution::Replace), PboTreeException);
+        ASSERT_THROW(root.renameNode(PboPath("e1"), "e2", ConflictResolution::Skip), PboTreeException);
     }
 
     TEST(PboNodeTest, RemoveNode_Removes) {

@@ -30,6 +30,8 @@ namespace pboman3 {
 
         ConflictsParcel checkConflicts(const PboPath& parent, const QList<NodeDescriptor>& descriptors) const;
 
+        bool doesExist(const PboPath& path) const;
+
     signals:
         void onEvent(const PboModelEvent* event) const;
 

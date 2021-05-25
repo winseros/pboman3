@@ -460,6 +460,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSelectionRename</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectionRenameClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onFileOpenClick()</slot>
@@ -473,5 +489,6 @@
   <slot>onSelectionPasteClick()</slot>
   <slot>onSelectionCutClick()</slot>
   <slot>onFileCloseClick()</slot>
+  <slot>onSelectionRenameClick()</slot>
  </slots>
 </ui>

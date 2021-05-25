@@ -9,6 +9,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include "fscollector.h"
 #include "insertdialog.h"
+#include "renamedialog.h"
 #include "ui_mainwindow.h"
 
 using namespace pboman3;
@@ -75,6 +76,20 @@ void MainWindow::onSelectionCutClick() {
     delete_->schedule(std::move(paths));
 }
 
+void MainWindow::onSelectionRenameClick() {
+    QTreeWidgetItem* item = ui_->treeWidget->selectedItems().last();
+    auto selected = dynamic_cast<TreeWidgetItem*>(item);
+    auto validate = [this](const PboPath& path) {
+        return model_->doesExist(path) ? "The item already exists" : "";
+    };
+
+    RenameDialog rename(this, selected, validate);
+    if (rename.exec() == QDialog::DialogCode::Accepted) {
+        const QString title = rename.getTitle();
+        model_->renameNode(selected->makePath(), title);
+    }
+}
+
 QList<PboPath> MainWindow::onSelectionCopyClick() {
     busy_->start();
 
@@ -112,7 +127,7 @@ void MainWindow::onModelEvent(const PboModelEvent* event) {
         setHasChanges(false);
     } else if (dynamic_cast<const PboUnloadEvent*>(event)) {
         ui_->treeWidget->resetRoot();
-        ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);        
+        ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
         ui_->actionFileSaveAs->setEnabled(false);
         ui_->actionFileClose->setEnabled(false);
         setHasChanges(false);
@@ -122,8 +137,9 @@ void MainWindow::onModelEvent(const PboModelEvent* event) {
     } else if (const auto* eNodeRemoved = dynamic_cast<const PboNodeRemovedEvent*>(event)) {
         ui_->treeWidget->removeNode(*eNodeRemoved->nodePath);
         setHasChanges(true);
-    } else if (dynamic_cast<const PboNodeRenamedEvent*>(event)) {
+    } else if (const auto* eNodeRenamed = dynamic_cast<const PboNodeRenamedEvent*>(event)) {
         setHasChanges(true);
+        ui_->treeWidget->renameNode(*eNodeRenamed->nodePath, eNodeRenamed->newNodeTitle);
     }
 }
 
@@ -213,7 +229,7 @@ void MainWindow::treeSelectionChanged() const {
 
     const QList<QTreeWidgetItem*> items = ui_->treeWidget->selectedItems();
     const bool isSelectionValid = ui_->treeWidget->isSelectionValid();
-    ui_->actionSelectionRename->setDisabled(!isSelectionValid || items.length() > 1);
+    ui_->actionSelectionRename->setDisabled(!isSelectionValid);
     ui_->actionSelectionCopy->setDisabled(!isSelectionValid);
     ui_->actionSelectionCut->setDisabled(!isSelectionValid);
     ui_->actionSelectionDelete->setDisabled(!isSelectionValid);

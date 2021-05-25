@@ -43,6 +43,8 @@ set(PROJECT_SOURCES
         ui/insertdialog.cpp
         ui/insertdialog.ui
         ui/insertdialogbuttons.cpp
+        ui/renamedialog.cpp
+        ui/renamedialog.ui
         ui/treewidget.cpp
         ui/treewidgetitem.cpp
         ui/mainwindow.cpp

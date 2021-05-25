@@ -38,6 +38,8 @@ public slots:
 
     void onSelectionCutClick();
 
+    void onSelectionRenameClick();
+
     QList<PboPath> onSelectionCopyClick();
 
     void onSelectionDeleteClick() const;

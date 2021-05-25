@@ -26,7 +26,11 @@ namespace pboman3 {
             size_t entryDataOffset = file_->pos();
             for (const QSharedPointer<PboEntry>& entry : header.entries) {
                 PboNode* node = root_->addEntry(entry->makePath());
-                PboDataInfo dataInfo{entry->originalSize(), entry->dataSize(), entryDataOffset};
+                PboDataInfo dataInfo(
+                    entry->originalSize(),
+                    entry->dataSize(),
+                    entryDataOffset,
+                    entry->packingMethod() == PboPackingMethod::Packed);
                 entryDataOffset += dataInfo.dataSize;
                 node->binarySource = QSharedPointer<PboBinarySource>(
                     new PboBinarySource(path, dataInfo));

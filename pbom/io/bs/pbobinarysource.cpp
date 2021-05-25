@@ -3,17 +3,18 @@
 #include "io/lzh/lzhdecompressionexception.h"
 
 namespace pboman3 {
-    PboDataInfo::PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset)
+    PboDataInfo::PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset, bool pCompressed)
         : originalSize(pOriginalSize),
-        dataSize(pDataSize),
-        dataOffset(pDataOffset) {
+          dataSize(pDataSize),
+          dataOffset(pDataOffset),
+          compressed(pCompressed) {
     }
 
 
     PboBinarySource::PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize)
         : BinarySource(path),
-        dataInfo_(dataInfo),
-        bufferSize_(bufferSize) {
+          dataInfo_(dataInfo),
+          bufferSize_(bufferSize) {
     }
 
     void PboBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {
@@ -24,8 +25,7 @@ namespace pboman3 {
         if (isCompressed()) {
             if (!tryWriteDecompressed(targetFile, cancel))
                 writeRaw(targetFile, cancel);
-        }
-        else {
+        } else {
             writeRaw(targetFile, cancel);
         }
     }
@@ -50,8 +50,7 @@ namespace pboman3 {
             file_->seek(dataInfo_.dataOffset);
             Lzh::decompress(file_, targetFile, dataInfo_.originalSize, cancel);
             return true;
-        }
-        catch (LzhDecompressionException&) {
+        } catch (LzhDecompressionException&) {
             targetFile->resize(0);
             return false;
         }
@@ -70,6 +69,6 @@ namespace pboman3 {
     }
 
     bool PboBinarySource::isCompressed() const {
-        return dataInfo_.originalSize > dataInfo_.dataSize;
+        return dataInfo_.compressed;
     }
 }

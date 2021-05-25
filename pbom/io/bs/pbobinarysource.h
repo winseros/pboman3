@@ -7,8 +7,9 @@ namespace pboman3 {
         const int originalSize;
         const int dataSize;
         const size_t dataOffset;
+        const bool compressed;
 
-        PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset);
+        PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset, bool pCompressed);
     };
 
     class PboBinarySource : public BinarySource {

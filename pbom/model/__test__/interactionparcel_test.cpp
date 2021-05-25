@@ -5,7 +5,6 @@
 #include "io/bs/pbobinarysource.h"
 #include "model/pbonode.h"
 #include "model/pbopath.h"
-#include "util/appexception.h"
 
 namespace pboman3::test {
     TEST(NodeDescriptorTest, Ctor_Initializes_Fields) {
@@ -59,7 +58,7 @@ namespace pboman3::test {
         root.child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
         root.child(1)->child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
         root.child(1)->child(1)->binarySource = QSharedPointer<BinarySource>(
-            new PboBinarySource(t.fileName(), PboDataInfo(10, 20, 30)));
+            new PboBinarySource(t.fileName(), PboDataInfo(10, 20, 30, true)));
         root.child(2)->child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
 
         //test the method
@@ -94,7 +93,7 @@ namespace pboman3::test {
         t3.close();
 
         const auto bs1 = QSharedPointer<PboBinarySource
-        >(new PboBinarySource(t1.fileName(), PboDataInfo(100, 200, 300)));
+        >(new PboBinarySource(t1.fileName(), PboDataInfo(100, 200, 300, true)));
         const auto bs2 = QSharedPointer<FsRawBinarySource>(new FsRawBinarySource(t2.fileName()));
         const auto bs3 = QSharedPointer<FsLzhBinarySource>(new FsLzhBinarySource(t3.fileName()));
 
@@ -114,6 +113,7 @@ namespace pboman3::test {
         ASSERT_EQ(cs1->getInfo().dataOffset, bs1->getInfo().dataOffset);
         ASSERT_EQ(cs1->getInfo().dataSize, bs1->getInfo().dataSize);
         ASSERT_EQ(cs1->getInfo().originalSize, bs1->getInfo().originalSize);
+        ASSERT_EQ(cs1->getInfo().compressed, bs1->getInfo().compressed);
 
         ASSERT_EQ(copy.at(1).path(), source.at(1).path());
         const auto* cs2 = dynamic_cast<FsRawBinarySource*>(copy.at(1).binarySource().get());

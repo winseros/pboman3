@@ -44,41 +44,41 @@ namespace pboman3::test {
 
     TEST(NodeDescriptorsTest, PackTree_Creates_Descriptors) {
         //the pbo nodes tree
-        PboNode root("file-name", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(PboPath("e1"));
-        root.addEntry(PboPath("f2/e2"));
-        root.addEntry(PboPath("f2/e3"));
-        root.addEntry(PboPath("f3/e1"));
+        PboNode root("file-name", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("e1"));
+        PboNode* e2 = root.createHierarchy(PboPath("f2/e2"));
+        PboNode* e3 = root.createHierarchy(PboPath("f2/e3"));
+        PboNode* e4 = root.createHierarchy(PboPath("f3/e1"));
 
         //set binary sources to nodes
         QTemporaryFile t;
         t.open();
         t.close();
 
-        root.child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
-        root.child(1)->child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
-        root.child(1)->child(1)->binarySource = QSharedPointer<BinarySource>(
+        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
+        e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
+        e3->binarySource = QSharedPointer<BinarySource>(
             new PboBinarySource(t.fileName(), PboDataInfo(10, 20, 30, true)));
-        root.child(2)->child(0)->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
+        e4->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
 
         //test the method
-        const QList paths{PboPath("e1"), PboPath("f2/e2"), PboPath("f2"), PboPath("f3/e1")};
-        const NodeDescriptors descriptors = NodeDescriptors::packTree(&root, paths);
+        const QList paths{e1, e2, root.get(PboPath("f2")), e4};
+        const NodeDescriptors descriptors = NodeDescriptors::packNodes(paths);
 
         //verify the results
         ASSERT_EQ(descriptors.length(), 4);
 
         ASSERT_EQ(descriptors.at(0).path(), PboPath("f2/e2"));
-        ASSERT_EQ(descriptors.at(0).binarySource(), root.child(1)->child(0)->binarySource);
+        ASSERT_EQ(descriptors.at(0).binarySource(), e2->binarySource);
 
         ASSERT_EQ(descriptors.at(1).path(), PboPath("f2/e3"));
-        ASSERT_EQ(descriptors.at(1).binarySource(), root.child(1)->child(1)->binarySource);
+        ASSERT_EQ(descriptors.at(1).binarySource(), e3->binarySource);
 
         ASSERT_EQ(descriptors.at(2).path(), PboPath("e1"));
-        ASSERT_EQ(descriptors.at(2).binarySource(), root.child(0)->binarySource);
+        ASSERT_EQ(descriptors.at(2).binarySource(), e1->binarySource);
 
         ASSERT_EQ(descriptors.at(3).path(), PboPath("e1"));
-        ASSERT_EQ(descriptors.at(3).binarySource(), root.child(2)->child(0)->binarySource);
+        ASSERT_EQ(descriptors.at(3).binarySource(), e4->binarySource);
     }
 
     TEST(NodeDescriptorsTest, Serialization_And_Deserialization_Work) {

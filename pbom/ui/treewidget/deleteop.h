@@ -1,20 +1,17 @@
 #pragma once
+
 #include "model/pbomodel2.h"
-#include "model/pbopath.h"
 
 namespace pboman3 {
     class DeleteOp {
     public:
-        DeleteOp(PboModel2* model);
-
-        void schedule(QList<PboPath> paths);
+        void schedule(QList<PboNode*> nodes);
 
         void commit();
 
         void reset();
 
     private:
-        PboModel2* model_;
-        QList<PboPath> paths_;
+        QList<PboNode*> nodes_;
     };
 }

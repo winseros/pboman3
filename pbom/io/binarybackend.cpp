@@ -5,7 +5,7 @@
 
 namespace pboman3 {
     BinaryBackend::BinaryBackend() {
-        tree_ = "pboman3/" +  QUuid::createUuid().toString(QUuid::WithoutBraces) + "/tree_";
+        tree_ = "pboman3/" + QUuid::createUuid().toString(QUuid::WithoutBraces) + "/tree_";
         if (!QDir::temp().mkpath(tree_)) {
             throw PboIoException("Could not initialize the temporary folder");
         }
@@ -58,14 +58,13 @@ namespace pboman3 {
     }
 
     void BinaryBackend::syncPboDir(const PboNode* node, const Cancel& cancel) const {
-        auto it = node->begin();
-        while (it != node->end()) {
-            if ((*it)->nodeType() == PboNodeType::File)
-                syncPboFileNode(*it, cancel);
+        for (const QSharedPointer<PboNode>& child : *node) {
+            if (child->nodeType() == PboNodeType::File)
+                syncPboFileNode(child.get(), cancel);
             else
-                syncPboDir(*it, cancel);
-            ++it;
+                syncPboDir(child.get(), cancel);
         }
+
     }
 
     QString BinaryBackend::makeFsPath(const PboPath& pboPath) const {

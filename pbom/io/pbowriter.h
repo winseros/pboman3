@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pbofile.h"
+#include "model/pboentry.h"
 #include "model/pboheader.h"
 #include "model/pbonode.h"
 

@@ -144,15 +144,15 @@ namespace pboman3 {
         return QSharedPointer<BinarySource>(new FsRawBinarySource(fsPath));
     }
 
-    NodeDescriptors NodeDescriptors::packTree(PboNode* root, const QList<PboPath>& paths) {
+    NodeDescriptors NodeDescriptors::packNodes(const QList<PboNode*>& nodes) {
         NodeDescriptors descriptors;
-        descriptors.reserve(paths.length() * 2);
+        descriptors.reserve(nodes.length() * 2);
 
         QList<PboNode*> files;
-        files.reserve(paths.length());
+        files.reserve(nodes.length());
 
         QSet<PboNode*> dedupe;
-        dedupe.reserve(paths.length() * 2);
+        dedupe.reserve(nodes.length());
 
         //the input list of paths may contain something like:
         //[folder1\file1.txt, folder1\]
@@ -163,13 +163,12 @@ namespace pboman3 {
         //2) handle standalone files after
         //that allows to avoid duplicates in the parcel
 
-        QList<PboPath> sortedPaths(paths);
-        std::sort(sortedPaths.begin(), sortedPaths.end(), [](const PboPath& a, const PboPath& b) {
-            return a.length() < b.length();
+        QList<PboNode*> sortedNodes(nodes);
+        std::sort(sortedNodes.begin(), sortedNodes.end(), [](PboNode* a, PboNode* b) {
+            return a->depth() < b->depth();
         });
 
-        for (const PboPath& path : paths) {
-            PboNode* node = root->get(path);
+        for (PboNode* node : sortedNodes) {
             if (node->nodeType() == PboNodeType::File) {
                 files.append(node);
             } else {
@@ -194,10 +193,8 @@ namespace pboman3 {
             }
         } else {
             const PboPath nodePath = parentPath.makeChild(node->title());
-            auto it = node->begin();
-            while (it != node->end()) {
-                addNodeToParcel(descriptors, *it, nodePath, dedupe);
-                ++it;
+            for (const QSharedPointer<PboNode>& child : *node) {
+                addNodeToParcel(descriptors, child.get(), nodePath, dedupe);
             }
         }
     }

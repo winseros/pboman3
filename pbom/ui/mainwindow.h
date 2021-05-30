@@ -2,12 +2,10 @@
 
 #include <QAction>
 #include <QDropEvent>
-#include <QFutureWatcher>
 #include <QMainWindow>
 #include "busybar.h"
-#include "deleteop.h"
 #include "model/pbomodel2.h"
-#include "model/pbomodelevents.h"
+#include "treewidget/treewidget.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -27,51 +25,24 @@ public:
 
     ~MainWindow();
 
-public slots:
+    void setupConnections();
+
     void onFileOpenClick();
 
     void onFileSaveClick();
 
     void onFileCloseClick();
 
-    void onSelectionPasteClick();
-
-    void onSelectionCutClick();
-
-    void onSelectionRenameClick();
-
-    QList<PboPath> onSelectionCopyClick();
-
-    void onSelectionDeleteClick() const;
-
-    void onModelEvent(const PboModelEvent* event);
-
     void treeContextMenuRequested(const QPoint& point) const;
 
-    void treeDragStartRequested(const QList<PboPath>& paths);
-
-    void treeDragDropped(const PboPath& target, const QMimeData* mimeData);
-
-    void addFilesFromPbo(const PboPath& target, const QMimeData* mimeData);
-
-    void addFilesFromFilesystem(const QList<QUrl>& urls);
-
-    void treeSelectionChanged() const;
+    void treeActionStateChanged(const TreeWidget::ActionState& state) const;
 
 private:
     Ui::MainWindow* ui_;
     PboModel2* model_;
-    QFutureWatcher<InteractionParcel> dragDropWatcher_;
-    QFutureWatcher<InteractionParcel> cutCopyWatcher_;
     QFutureWatcher<void> saveWatcher_;
-    QSharedPointer<DeleteOp> delete_;    
     BusyBar* busy_;
     bool hasChanges_;
-
-private slots:
-    void dragStartExecute() const;
-
-    void copyOrCutExecute() const;
 
     void saveComplete();
 

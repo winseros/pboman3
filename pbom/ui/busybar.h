@@ -1,11 +1,12 @@
 #pragma once
+
 #include <QProgressBar>
 #include <QStatusBar>
 
 namespace pboman3 {
-    class BusyBar : QProgressBar {
+    class BusyBar : public QProgressBar {
     public:
-        BusyBar(QStatusBar* host, QWidget* tree);
+        BusyBar(QWidget* tree);
 
         void start();
 

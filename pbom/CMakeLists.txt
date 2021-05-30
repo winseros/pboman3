@@ -30,23 +30,23 @@ set(PROJECT_SOURCES
         model/pboentry.cpp
         model/pboheader.cpp
         model/pbomodel2.cpp
-        model/pbomodelevents.cpp
         model/pbonode.cpp
         model/pbonodeevents.cpp
         model/pbopath.cpp
         model/pbotreeexception.cpp
+        ui/treewidget/deleteop.cpp
+        ui/treewidget/treewidget.cpp
+        ui/treewidget/treewidgetbase.cpp
+        ui/treewidget/treewidgetitem.cpp
         ui/busybar.cpp
         ui/compresslist.cpp
         ui/conflictslist.cpp
-        ui/deleteop.cpp
         ui/fscollector.cpp
         ui/insertdialog.cpp
         ui/insertdialog.ui
         ui/insertdialogbuttons.cpp
         ui/renamedialog.cpp
         ui/renamedialog.ui
-        ui/treewidget.cpp
-        ui/treewidgetitem.cpp
         ui/mainwindow.cpp
         ui/mainwindow.ui
         util/appexception.cpp
@@ -74,7 +74,6 @@ set(TEST_SOURCES
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbonode_test.cpp"
-    "model/__test__/pbonode_events_tets.cpp"
     "model/__test__/pbopath_test.cpp"
     "ui/__test__/fscollector__test.cpp"
     

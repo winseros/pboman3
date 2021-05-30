@@ -3,7 +3,6 @@
 #include "pbofile.h"
 #include "model/pboentry.h"
 #include "model/pboheader.h"
-#include "model/pbonode.h"
 
 namespace pboman3 {
     struct PboFileHeader {

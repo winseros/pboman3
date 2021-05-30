@@ -39,7 +39,7 @@ namespace pboman3 {
 
         static NodeDescriptors deserialize(const QByteArray& data);
 
-        static NodeDescriptors packTree(PboNode* root, const QList<PboPath>& paths);
+        static NodeDescriptors packNodes(const QList<PboNode*>& nodes);
 
     private:
         static void writeNodeInfo(QDataStream& stream, const NodeDescriptor& nodeInfo);

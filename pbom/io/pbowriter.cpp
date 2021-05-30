@@ -59,7 +59,7 @@ namespace pboman3 {
     }
 
     void PboWriter::writeNode(QFileDevice* file, PboNode* node, QList<PboEntry>& entries, const Cancel& cancel) {
-        for (PboNode* child : *node) {
+        for (const QSharedPointer<PboNode>& child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 const qint64 before = file->pos();
                 child->binarySource->writeToPbo(file, cancel);
@@ -74,7 +74,7 @@ namespace pboman3 {
                     after - before);
                 entries.append(entry);
             } else {
-                writeNode(file, child, entries, cancel);
+                writeNode(file, child.get(), entries, cancel);
             }
         }
     }

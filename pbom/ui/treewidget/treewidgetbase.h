@@ -1,0 +1,50 @@
+#pragma once
+
+#include <QTreeWidget>
+#include "treewidgetitem.h"
+#include "model/pbonode.h"
+
+namespace pboman3 {
+    class TreeWidgetBase : public QTreeWidget {
+    Q_OBJECT
+    public:
+        void setRoot(PboNode* rootNode);
+
+        void resetRoot();
+
+    protected:
+        explicit TreeWidgetBase(QWidget* parent = nullptr);
+
+        QList<PboNode*> getSelectedHierarchies() const;
+
+        PboNode* getCurrentFolder() const;
+
+        PboNode* getCurrentFile() const;
+
+        virtual void dragStarted(const QList<PboNode*>& items) = 0;
+
+        virtual void dragDropped(PboNode* target, const QMimeData* mimeData) = 0;
+
+        void startDrag(Qt::DropActions supportedActions) override;
+
+        void dragEnterEvent(QDragEnterEvent* event) override;
+
+        void dragLeaveEvent(QDragLeaveEvent* event) override;
+
+        void dragMoveEvent(QDragMoveEvent* event) override;
+
+        void dropEvent(QDropEvent* event) override;
+
+    private:
+        TreeWidgetItem* root_;
+        TreeWidgetItem* dragOverItem_;
+
+        void onItemExpanded(QTreeWidgetItem* item);
+
+        void onItemCollapsed(QTreeWidgetItem* item);
+
+        bool tryAcceptEvent(const QMimeData* mimeData, const QPoint& pos);
+
+        void setDragOverItem(TreeWidgetItem* dragOverItem);
+    };
+}

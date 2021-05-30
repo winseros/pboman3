@@ -1,11 +1,10 @@
 #pragma once
 
-#include "pbomodelevents.h"
 #include "pbonodetype.h"
 #include "pbopath.h"
 
 namespace pboman3 {
-    class PboNodeEvent: public PboModelEvent{
+    class PboNodeEvent {
     };
 
     class PboNodeCreatedEvent final : public PboNodeEvent {

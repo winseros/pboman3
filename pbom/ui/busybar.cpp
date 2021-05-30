@@ -1,7 +1,7 @@
 #include "busybar.h"
 
 namespace pboman3 {
-    BusyBar::BusyBar(QStatusBar* host, QWidget* tree)
+    BusyBar::BusyBar(QWidget* tree)
         : QProgressBar(),
           count_(0),
           tree_(tree) {
@@ -9,7 +9,6 @@ namespace pboman3 {
         setMinimum(0);
         setMaximum(0);
         setFixedHeight(15);
-        host->addWidget(this, 1);
         hide();
     }
 

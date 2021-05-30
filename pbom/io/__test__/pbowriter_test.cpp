@@ -27,10 +27,10 @@ namespace pboman3::test {
         placeholder.close();
 
         //pbo content structure
-        PboNode root("file.pbo", PboNodeType::Container, nullptr, nullptr);
-        root.addEntry(PboPath("e1.txt"))->binarySource = QSharedPointer<BinarySource>(
+        PboNode root("file.pbo", PboNodeType::Container, nullptr);
+        root.createHierarchy(PboPath("e1.txt"))->binarySource = QSharedPointer<BinarySource>(
             new FsRawBinarySource(e1.fileName()));
-        root.addEntry(PboPath("f2/e2.txt"))->binarySource = QSharedPointer<BinarySource>(
+        root.createHierarchy(PboPath("f2/e2.txt"))->binarySource = QSharedPointer<BinarySource>(
             new FsRawBinarySource(e2.fileName()));
 
         //pbo headers
@@ -59,18 +59,18 @@ namespace pboman3::test {
         ASSERT_EQ(header.headers.at(1)->value, "v2");
 
         ASSERT_EQ(header.entries.count(), 2);
-        ASSERT_EQ(header.entries.at(0)->fileName(), "e1.txt");
-        ASSERT_EQ(header.entries.at(1)->fileName(), "f2/e2.txt");
+        ASSERT_EQ(header.entries.at(0)->fileName(), "f2/e2.txt");
+        ASSERT_EQ(header.entries.at(1)->fileName(), "e1.txt");
 
         //pbo contents
         QByteArray contents;
         contents.resize(mockContent1.size());
         pbo.read(contents.data(), contents.size());
-        ASSERT_EQ(contents, mockContent1);
+        ASSERT_EQ(contents, mockContent2);
 
         contents.resize(mockContent2.size());
         pbo.read(contents.data(), contents.size());
-        ASSERT_EQ(contents, mockContent2);
+        ASSERT_EQ(contents, mockContent1);
 
         //file has ended
         ASSERT_TRUE(pbo.atEnd());

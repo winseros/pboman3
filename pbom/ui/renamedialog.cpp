@@ -4,18 +4,18 @@
 
 namespace pboman3 {
     RenameDialog::RenameDialog(QWidget* parent,
-                               const TreeWidgetItem* item,
-                               std::function<QString(const PboPath&)> validate)
+                               QString title,
+                               std::function<QString(const QString&)> validate)
         : QDialog(parent),
           ui_(new Ui::RenameDialog),
-          item_(item),
+          title_(std::move(title)),
           validate_(std::move(validate)),
           isDirty_(false) {
         ui_->setupUi(this);
-        setErrorText();
 
-        initialText_ = item->makePath().last();
-        ui_->input->setText(initialText_);
+        disableAccept(setErrorState(""));
+
+        ui_->input->setText(title_);
         ui_->input->selectAll();
     }
 
@@ -23,58 +23,44 @@ namespace pboman3 {
         delete ui_;
     }
 
-    QString RenameDialog::getTitle() const {
-        return ui_->input->text().trimmed();
+    QString RenameDialog::title() const {
+        return ui_->input->text();
     }
 
-    void RenameDialog::onTextEdited(const QString& _) {
-        const QString title = getTitle();
-        if (title == initialText_) {
-            enableAcceptButton(true);
+    void RenameDialog::onTextEdited(const QString& title) const {
+        if (title == title_) {
+            disableAccept(setErrorState(""));
         } else {
             if (isDirty_) {
-                const bool noErr = validateTitle(title);
-                ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(noErr);
-                enableAcceptButton(noErr);
+                disableAccept(setErrorState(validate_(title)));
             }
         }
     }
 
     void RenameDialog::onAcceptClick() {
-        const QString title = getTitle();
-        if (title == initialText_) {
+        const QString title = ui_->input->text();
+        if (title == title_) {
             reject();
         } else {
             if (isDirty_) {
                 accept();
             } else {
                 isDirty_ = true;
-                if (validateTitle(title)) {
-                    accept();
+                if (setErrorState(validate_(title))) {
+                    disableAccept(true);
                 } else {
-                    enableAcceptButton(false);
+                    accept();
                 }
             }
         }
     }
 
-    bool RenameDialog::validateTitle(const QString& text) {
-        if (text.isEmpty()) {
-            setErrorText("The value can not be empty");
-            return false;
-        }
-
-        const PboPath newName = item_->makePath().makeSibling(text);
-        const QString error = validate_(newName);
-        setErrorText(error);
-        return error.isEmpty();
+    bool RenameDialog::setErrorState(const TitleError& err) const {
+        ui_->error->setText(err);
+        return !err.isEmpty();
     }
 
-    void RenameDialog::enableAcceptButton(bool enable) const {
-        ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
-    }
-
-    void RenameDialog::setErrorText(const QString& error) const {
-        ui_->error->setText(error);
+    void RenameDialog::disableAccept(bool disable) const {
+        ui_->buttonBox->button(QDialogButtonBox::Ok)->setDisabled(disable);
     }
 }

@@ -1,73 +1,88 @@
 #pragma once
 
 #include <QObject>
-#include "pbonodeevents.h"
+#include <QSharedPointer>
 #include "pbonodetype.h"
 #include "pbopath.h"
 #include "conflictresolution.h"
 #include "io/bs/binarysource.h"
 
 namespace pboman3 {
+    typedef QString TitleError;
+
     class PboNode final : public QObject {
     Q_OBJECT
 
     public:
         QSharedPointer<BinarySource> binarySource;
 
-        PboNode(QString title, PboNodeType nodeType, PboNode* par, PboNode* root);
+        PboNode(QString title, PboNodeType nodeType, PboNode* parentNode);
 
-        ~PboNode() override;
+        PboNode* createHierarchy(const PboPath& entryPath);
 
-        PboNode* addEntry(const PboPath& entryPath);
+        PboNode* createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict);
 
-        PboNode* addEntry(const PboPath& entryPath, const ConflictResolution& onConflict);
-
-        PboPath makePath() const;
-
-        PboNodeType nodeType() const;
+        void removeFromHierarchy();
 
         const QString& title() const;
 
-        PboNode* par() const;
+        void setTitle(QString title);
 
-        PboNode* root() const;
+        TitleError verifyTitle(const QString& title) const;
 
-        bool fileExists(const PboPath& path);
+        PboNodeType nodeType() const;
+
+        PboNode* parentNode() const;
 
         PboNode* get(const PboPath& path);
 
-        PboNode* child(int index) const;
+        PboNode* at(qsizetype index) const;
 
-        int childCount() const;
+        int depth() const;
 
-        QList<PboNode*>::iterator begin();
+        int count() const;
 
-        QList<PboNode*>::iterator end();
+        PboPath makePath() const;
 
-        QList<PboNode*>::const_iterator begin() const;
+        QList<QSharedPointer<PboNode>>::iterator begin();
 
-        QList<PboNode*>::const_iterator end() const;
+        QList<QSharedPointer<PboNode>>::iterator end();
 
-        void renameNode(const PboPath& node, const QString& title, const ConflictResolution& onConflict);
+        QList<QSharedPointer<PboNode>>::const_iterator begin() const;
 
-        void removeNode(const PboPath& node);
+        QList<QSharedPointer<PboNode>>::const_iterator end() const;
+
+        bool operator <(const PboNode& node) const;
 
     signals:
-        void onEvent(const PboNodeEvent* evt) const;
+        void titleChanged(const QString& title);
+
+        void childCreated(PboNode* child, qsizetype index);
+
+        void childMoved(qsizetype prevIndex, qsizetype newIndex);
+
+        void childRemoved(qsizetype index);
+
+        void hierarchyChanged();
 
     private:
         PboNodeType nodeType_;
         QString title_;
-        PboNode* par_;
-        PboNode* root_;
-        QList<PboNode*> children_;
+        PboNode* parentNode_;
+        QList<QSharedPointer<PboNode>> children_;
 
-        PboNode* createFolderHierarchy(const PboPath& path);
+        PboNode* createHierarchyFolders(const PboPath& path);
 
-        PboNode* createFileNode(const QString& title, PboNode* parent) const;
+        PboNode* findChild(const QString& title, PboNodeType nodeType) const;
 
         PboNode* findChild(const QString& title) const;
 
+        PboNode* createChild(const QString& title, PboNodeType nodeType);
+
         QString resolveNameConflict(const PboNode* parent, const PboNode* node) const;
+
+        qsizetype getChildListIndex(const PboNode* node) const;
+
+        void emitHierarchyChanged();
     };
 }

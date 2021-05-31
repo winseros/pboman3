@@ -25,6 +25,9 @@ MainWindow::MainWindow(QWidget* parent, PboModel* model)
     ui_->statusBar->addWidget(busy_, 1);
 
     setupConnections();
+
+    if (model_->rootEntry())
+        setLoaded(true);
 }
 
 MainWindow::~MainWindow() {
@@ -48,6 +51,8 @@ void MainWindow::setupConnections() {
     connect(ui_->actionSelectionCut, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCut);
     connect(ui_->actionSelectionRename, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRename);
     connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
+
+    connect(model_, &PboModel::modelChanged, this, [this]() {setHasChanges(true); });
 }
 
 void MainWindow::onFileOpenClick() {
@@ -55,12 +60,7 @@ void MainWindow::onFileOpenClick() {
                                                           "PBO Files (*.pbo);;All Files (*.*)");
     if (!fileName.isEmpty()) {
         model_->loadFile(fileName);
-        connect(model_, &PboModel::modelChanged, this, [this](){setHasChanges(true);});
-
-        ui_->treeWidget->setRoot(model_->rootEntry());
-        ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
-        ui_->actionFileSaveAs->setEnabled(true);
-        ui_->actionFileClose->setEnabled(true);
+        setLoaded(true);        
     }
 }
 
@@ -75,12 +75,8 @@ void MainWindow::onFileSaveClick() {
 }
 
 void MainWindow::onFileCloseClick() {
-    ui_->treeWidget->resetRoot();
-    ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
-    ui_->actionFileSaveAs->setEnabled(false);
-    ui_->actionFileClose->setEnabled(false);
     setHasChanges(false);
-
+    setLoaded(false);
     model_->unloadFile();
 }
 
@@ -131,4 +127,18 @@ void MainWindow::saveComplete() {
 void MainWindow::setHasChanges(bool hasChanges) {
     ui_->actionFileSave->setEnabled(hasChanges);
     hasChanges_ = hasChanges;
+}
+
+void MainWindow::setLoaded(bool loaded) const {
+    if (loaded) {
+        ui_->treeWidget->setRoot(model_->rootEntry());
+        ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
+        ui_->actionFileSaveAs->setEnabled(true);
+        ui_->actionFileClose->setEnabled(true);
+    } else {
+        ui_->treeWidget->resetRoot();
+        ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
+        ui_->actionFileSaveAs->setEnabled(false);
+        ui_->actionFileClose->setEnabled(false);
+    }
 }

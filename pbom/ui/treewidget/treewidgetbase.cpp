@@ -2,12 +2,11 @@
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QMimeData>
-#include "util/appexception.h"
 
 namespace pboman3 {
     void TreeWidgetBase::setRoot(PboNode* rootNode) {
         if (root_)
-            throw AppException("Please reset the existing root before");
+            resetRoot();
 
         root_ = new TreeWidgetItem(rootNode);
         addTopLevelItem(root_);

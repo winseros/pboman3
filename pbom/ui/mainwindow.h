@@ -47,4 +47,6 @@ private:
     void saveComplete();
 
     void setHasChanges(bool hasChanges);
+
+    void setLoaded(bool loaded) const;
 };

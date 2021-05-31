@@ -6,7 +6,7 @@
 namespace pboman3 {
     class BinaryBackend {
     public:
-        BinaryBackend();
+        BinaryBackend(const QString& name);
 
         ~BinaryBackend();
 

@@ -1,18 +1,20 @@
 #include "binarybackend.h"
 #include <QDir>
-#include <QUuid>
 #include "pboioexception.h"
 
 namespace pboman3 {
-    BinaryBackend::BinaryBackend() {
-        tree_ = "pboman3/" + QUuid::createUuid().toString(QUuid::WithoutBraces) + "/tree_";
+    BinaryBackend::BinaryBackend(const QString& name) {
+        tree_ = "pboman3/" + name + "/tree_";
         if (!QDir::temp().mkpath(tree_)) {
             throw PboIoException("Could not initialize the temporary folder");
         }
     }
 
     BinaryBackend::~BinaryBackend() {
-        assert(QDir::temp().rmdir(tree_) && "Normally the folder should have been removed");
+        QDir temp = QDir::temp();
+        temp.cd(tree_);
+        temp.cdUp();
+        assert(temp.removeRecursively() && "Normally the folder should have been removed");
     }
 
     QList<QUrl> BinaryBackend::hddSync(const QList<PboNode*>& nodes, const Cancel& cancel) const {

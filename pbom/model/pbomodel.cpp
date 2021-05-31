@@ -1,6 +1,7 @@
 #include "pbomodel.h"
 #include <QDir>
 #include <QUrl>
+#include <QUuid>
 #include "pbotreeexception.h"
 #include "io/pboheaderreader.h"
 #include "io/pbowriter.h"
@@ -33,7 +34,8 @@ namespace pboman3 {
                 new PboBinarySource(path, dataInfo));
         }
 
-        binaryBackend_ = QSharedPointer<BinaryBackend>(new BinaryBackend);
+        binaryBackend_ = QSharedPointer<BinaryBackend>(
+            new BinaryBackend(QUuid::createUuid().toString(QUuid::WithoutBraces)));
         headers_ = header.headers;
     }
 
@@ -56,13 +58,14 @@ namespace pboman3 {
         file_->close();
         file_.clear();
         rootEntry_.clear();
+        binaryBackend_.clear();
     }
 
     void PboModel::createNodeSet(PboNode* parent, const QList<NodeDescriptor>& descriptors,
-                                  const ConflictsParcel& conflicts) const {
+                                 const ConflictsParcel& conflicts) const {
         if (!rootEntry_)
             throw PboTreeException("The model is not initialized");
-        
+
 
         for (const NodeDescriptor& descriptor : descriptors) {
             const ConflictResolution resolution = conflicts.getResolution(descriptor);

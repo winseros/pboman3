@@ -1,4 +1,4 @@
-#include "pbomodel2.h"
+#include "pbomodel.h"
 #include <QDir>
 #include <QUrl>
 #include "pbotreeexception.h"
@@ -7,7 +7,7 @@
 #include "io/bs/pbobinarysource.h"
 
 namespace pboman3 {
-    void PboModel2::loadFile(const QString& path) {
+    void PboModel::loadFile(const QString& path) {
         if (file_)
             unloadFile();
 
@@ -16,7 +16,7 @@ namespace pboman3 {
 
         QString title = QFileInfo(path).fileName();
         rootEntry_ = QSharedPointer<PboNode>(new PboNode(std::move(title), PboNodeType::Container, nullptr));
-        connect(rootEntry_.get(), &PboNode::hierarchyChanged, this, &PboModel2::modelChanged);
+        connect(rootEntry_.get(), &PboNode::hierarchyChanged, this, &PboModel::modelChanged);
 
         PboFileHeader header = PboHeaderReader::readFileHeader(file_.get());
 
@@ -37,7 +37,7 @@ namespace pboman3 {
         headers_ = header.headers;
     }
 
-    void PboModel2::saveFile(const Cancel& cancel) {
+    void PboModel::saveFile(const Cancel& cancel) {
         PboWriter writer;
         writer.usePath(file_->fileName() + ".t")
               .useRoot(rootEntry_.get());
@@ -49,7 +49,7 @@ namespace pboman3 {
         writer.write(cancel);
     }
 
-    void PboModel2::unloadFile() {
+    void PboModel::unloadFile() {
         if (!rootEntry_)
             throw PboTreeException("The model is not initialized");
 
@@ -58,7 +58,7 @@ namespace pboman3 {
         rootEntry_.clear();
     }
 
-    void PboModel2::createNodeSet(PboNode* parent, const QList<NodeDescriptor>& descriptors,
+    void PboModel::createNodeSet(PboNode* parent, const QList<NodeDescriptor>& descriptors,
                                   const ConflictsParcel& conflicts) const {
         if (!rootEntry_)
             throw PboTreeException("The model is not initialized");
@@ -73,13 +73,13 @@ namespace pboman3 {
         }
     }
 
-    InteractionParcel PboModel2::interactionPrepare(const QList<PboNode*>& nodes, const Cancel& cancel) const {
+    InteractionParcel PboModel::interactionPrepare(const QList<PboNode*>& nodes, const Cancel& cancel) const {
         QList<QUrl> files = binaryBackend_->hddSync(nodes, cancel);
         NodeDescriptors descriptors = NodeDescriptors::packNodes(nodes);
         return InteractionParcel(std::move(files), std::move(descriptors));
     }
 
-    ConflictsParcel PboModel2::checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const {
+    ConflictsParcel PboModel::checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const {
         if (!rootEntry_)
             throw PboTreeException("The model is not initialized");
 
@@ -92,7 +92,7 @@ namespace pboman3 {
         return conflicts;
     }
 
-    PboNode* PboModel2::rootEntry() const {
+    PboNode* PboModel::rootEntry() const {
         return rootEntry_.get();
     }
 }

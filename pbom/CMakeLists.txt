@@ -29,7 +29,7 @@ set(PROJECT_SOURCES
         model/interactionparcel.cpp
         model/pboentry.cpp
         model/pboheader.cpp
-        model/pbomodel2.cpp
+        model/pbomodel.cpp
         model/pbonode.cpp
         model/pbonodeevents.cpp
         model/pbopath.cpp

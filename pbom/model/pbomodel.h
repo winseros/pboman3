@@ -10,7 +10,7 @@
 #include "io/pboheaderio.h"
 
 namespace pboman3 {
-    class PboModel2 : public QObject {
+    class PboModel : public QObject {
     Q_OBJECT
     public:
         void loadFile(const QString& path);

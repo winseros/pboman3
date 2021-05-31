@@ -4,7 +4,7 @@
 #include <QDropEvent>
 #include <QMainWindow>
 #include "busybar.h"
-#include "model/pbomodel2.h"
+#include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent, PboModel2* model);
+    explicit MainWindow(QWidget* parent, PboModel* model);
 
     ~MainWindow();
 
@@ -39,7 +39,7 @@ public:
 
 private:
     Ui::MainWindow* ui_;
-    PboModel2* model_;
+    PboModel* model_;
     QFutureWatcher<void> saveWatcher_;
     BusyBar* busy_;
     bool hasChanges_;

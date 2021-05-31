@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/pbomodel2.h"
+#include "model/pbomodel.h"
 
 namespace pboman3 {
     class DeleteOp {

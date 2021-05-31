@@ -68,7 +68,7 @@ namespace pboman3 {
         selected->rename();
     }
 
-    void TreeWidget::setModel(PboModel2* model) {
+    void TreeWidget::setModel(PboModel* model) {
         model_ = model;
     }
 

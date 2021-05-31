@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    auto model = QSharedPointer<PboModel2>(new PboModel2());
+    auto model = QSharedPointer<PboModel>(new PboModel());
     QApplication a(argc, argv);
     MainWindow w(nullptr, model.get());
     w.show();

@@ -2,7 +2,7 @@
 
 #include "deleteop.h"
 #include "treewidgetbase.h"
-#include "model/pbomodel2.h"
+#include "model/pbomodel.h"
 #include <QFutureWatcher>
 
 namespace pboman3 {
@@ -30,7 +30,7 @@ namespace pboman3 {
 
         void selectionRename() const;
 
-        void setModel(PboModel2* model);
+        void setModel(PboModel* model);
 
     signals:
         void backgroundOpStarted();
@@ -45,7 +45,7 @@ namespace pboman3 {
         void dragDropped(PboNode* target, const QMimeData* mimeData) override;
 
     private:
-        PboModel2* model_;
+        PboModel* model_;
         DeleteOp delete_;
         QFutureWatcher<InteractionParcel> dragDropWatcher_;
         QFutureWatcher<InteractionParcel> cutCopyWatcher_;

@@ -11,7 +11,7 @@
 
 using namespace pboman3;
 
-MainWindow::MainWindow(QWidget* parent, PboModel2* model)
+MainWindow::MainWindow(QWidget* parent, PboModel* model)
     : QMainWindow(parent),
       ui_(new Ui::MainWindow),
       model_(model),
@@ -55,7 +55,7 @@ void MainWindow::onFileOpenClick() {
                                                           "PBO Files (*.pbo);;All Files (*.*)");
     if (!fileName.isEmpty()) {
         model_->loadFile(fileName);
-        connect(model_, &PboModel2::modelChanged, this, [this](){setHasChanges(true);});
+        connect(model_, &PboModel::modelChanged, this, [this](){setHasChanges(true);});
 
         ui_->treeWidget->setRoot(model_->rootEntry());
         ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);

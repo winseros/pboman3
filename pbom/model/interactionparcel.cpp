@@ -61,6 +61,7 @@ namespace pboman3 {
         stream << info.originalSize;
         stream << info.dataSize;
         stream << info.dataOffset;
+        stream << info.timestamp;
         stream << info.compressed;
     }
 
@@ -119,17 +120,15 @@ namespace pboman3 {
     QSharedPointer<BinarySource> NodeDescriptors::readPboBinarySource(QDataStream& stream) {
         QString fsPath;
         stream >> fsPath;
-        int originalSize;
-        stream >> originalSize;
-        int dataSize;
-        stream >> dataSize;
-        size_t dataOffset;
-        stream >> dataOffset;
-        bool compressed;
-        stream >> compressed;
 
-        const PboDataInfo info(originalSize, dataSize, dataOffset, compressed);
-        return QSharedPointer<BinarySource>(new PboBinarySource(fsPath, info));
+        PboDataInfo di;
+        stream >> di.originalSize;
+        stream >> di.dataSize;
+        stream >> di.dataOffset;
+        stream >> di.timestamp;
+        stream >> di.compressed;
+
+        return QSharedPointer<BinarySource>(new PboBinarySource(fsPath, di));
     }
 
     QSharedPointer<BinarySource> NodeDescriptors::readFsLzhBinarySource(QDataStream& stream) {

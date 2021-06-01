@@ -26,12 +26,16 @@ MainWindow::MainWindow(QWidget* parent, PboModel* model)
 
     setupConnections();
 
-    if (model_->rootEntry())
-        setLoaded(true);
+    updateWindowTitle();
 }
 
 MainWindow::~MainWindow() {
     delete ui_;
+}
+
+void MainWindow::loadFile(const QString& fileName) const {
+    model_->loadFile(fileName);
+    setLoaded(true);
 }
 
 void MainWindow::setupConnections() {
@@ -44,7 +48,7 @@ void MainWindow::setupConnections() {
 
     connect(ui_->actionFileOpen, &QAction::triggered, this, &MainWindow::onFileOpenClick);
     connect(ui_->actionFileSave, &QAction::triggered, this, &MainWindow::onFileSaveClick);
-    //connect(ui_->actionFileSaveAs, &QAction::triggered, this, &MainWindow::onFileSaveClick);
+    connect(ui_->actionFileSaveAs, &QAction::triggered, this, &MainWindow::onFileSaveAsClick);
     connect(ui_->actionFileClose, &QAction::triggered, this, &MainWindow::onFileCloseClick);
     connect(ui_->actionSelectionPaste, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionPaste);
     connect(ui_->actionSelectionCopy, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCopy);
@@ -52,26 +56,28 @@ void MainWindow::setupConnections() {
     connect(ui_->actionSelectionRename, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRename);
     connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
 
-    connect(model_, &PboModel::modelChanged, this, [this]() {setHasChanges(true); });
+    connect(model_, &PboModel::modelChanged, this, [this]() { setHasChanges(true); });
+    connect(model_, &PboModel::loadedPathChanged, this, &MainWindow::updateWindowTitle);
 }
 
 void MainWindow::onFileOpenClick() {
     const QString fileName = QFileDialog::getOpenFileName(this, "Select a PBO", "",
                                                           "PBO Files (*.pbo);;All Files (*.*)");
     if (!fileName.isEmpty()) {
-        model_->loadFile(fileName);
-        setLoaded(true);        
+        loadFile(fileName);
     }
 }
 
 void MainWindow::onFileSaveClick() {
-    busy_->start();
+    saveFile(nullptr);
+}
 
-    const QFuture<void> future = QtConcurrent::run([this](QPromise<void>& promise) {
-        model_->saveFile([&promise]() { return promise.isCanceled(); });
-    });
-
-    saveWatcher_.setFuture(future);
+void MainWindow::onFileSaveAsClick() {
+    const QString fileName = QFileDialog::getSaveFileName(this, "Select a PBO", "",
+                                                          "PBO Files (*.pbo);;All Files (*.*)");
+    if (!fileName.isEmpty()) {
+        saveFile(fileName);
+    }
 }
 
 void MainWindow::onFileCloseClick() {
@@ -119,6 +125,16 @@ void MainWindow::treeActionStateChanged(const TreeWidget::ActionState& state) co
     ui_->actionSelectionDelete->setEnabled(state.canRemove);
 }
 
+void MainWindow::saveFile(const QString& fileName) {
+    busy_->start();
+
+    const QFuture<void> future = QtConcurrent::run([this, fileName](QPromise<void>& promise) {
+        model_->saveFile([&promise]() { return promise.isCanceled(); }, fileName);
+    });
+
+    saveWatcher_.setFuture(future);
+}
+
 void MainWindow::saveComplete() {
     setHasChanges(false);
     busy_->stop();
@@ -127,6 +143,7 @@ void MainWindow::saveComplete() {
 void MainWindow::setHasChanges(bool hasChanges) {
     ui_->actionFileSave->setEnabled(hasChanges);
     hasChanges_ = hasChanges;
+    updateWindowTitle();
 }
 
 void MainWindow::setLoaded(bool loaded) const {
@@ -140,5 +157,17 @@ void MainWindow::setLoaded(bool loaded) const {
         ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
         ui_->actionFileSaveAs->setEnabled(false);
         ui_->actionFileClose->setEnabled(false);
+    }
+}
+
+void MainWindow::updateWindowTitle() {
+#define TITLE "PBO Manager 3.0"
+    if (model_->loadedPath().isNull()) {
+        setWindowTitle(TITLE);
+    } else {
+        const QFileInfo fi(model_->loadedPath());
+        setWindowTitle(hasChanges_
+                           ? "*" + fi.fileName() + " - " + TITLE
+                           : fi.fileName() + " - " + TITLE);
     }
 }

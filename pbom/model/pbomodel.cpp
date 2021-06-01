@@ -9,26 +9,30 @@
 
 namespace pboman3 {
     void PboModel::loadFile(const QString& path) {
-        if (file_)
+        if (!loadedPath_.isNull())
             unloadFile();
 
-        file_ = QSharedPointer<PboFile>(new PboFile(path));
-        file_->open(QIODeviceBase::OpenModeFlag::ReadWrite);
+        setLoadedPath(path);
+
+        PboFile file(loadedPath_);
+        file.open(QIODeviceBase::OpenModeFlag::ReadWrite);
 
         QString title = QFileInfo(path).fileName();
         rootEntry_ = QSharedPointer<PboNode>(new PboNode(std::move(title), PboNodeType::Container, nullptr));
         connect(rootEntry_.get(), &PboNode::hierarchyChanged, this, &PboModel::modelChanged);
+        connect(rootEntry_.get(), &PboNode::titleChanged, this, &PboModel::rootTitleChanged);
 
-        PboFileHeader header = PboHeaderReader::readFileHeader(file_.get());
+        PboFileHeader header = PboHeaderReader::readFileHeader(&file);
 
-        size_t entryDataOffset = file_->pos();
+        size_t entryDataOffset = file.pos();
         for (const QSharedPointer<PboEntry>& entry : header.entries) {
             PboNode* node = rootEntry_->createHierarchy(entry->makePath());
-            PboDataInfo dataInfo(
-                entry->originalSize(),
-                entry->dataSize(),
-                entryDataOffset,
-                entry->packingMethod() == PboPackingMethod::Packed);
+            PboDataInfo dataInfo{0, 0, 0, 0, 0};
+            dataInfo.originalSize = entry->originalSize();
+            dataInfo.dataSize = entry->dataSize();
+            dataInfo.dataOffset = entryDataOffset;
+            dataInfo.timestamp = entry->timestamp();
+            dataInfo.compressed = entry->packingMethod() == PboPackingMethod::Packed;
             entryDataOffset += dataInfo.dataSize;
             node->binarySource = QSharedPointer<PboBinarySource>(
                 new PboBinarySource(path, dataInfo));
@@ -39,24 +43,39 @@ namespace pboman3 {
         headers_ = header.headers;
     }
 
-    void PboModel::saveFile(const Cancel& cancel) {
+    void PboModel::saveFile(const Cancel& cancel, const QString& filePath) {
+        const QString savePath = filePath.isNull() ? loadedPath_ : filePath;
+        const QString tempPath(savePath + ".t");
+
         PboWriter writer;
-        writer.usePath(file_->fileName() + ".t")
+        writer.usePath(savePath == loadedPath_ ? tempPath : savePath)
+              .useHeaders(&headers_)
               .useRoot(rootEntry_.get());
 
-        for (const QSharedPointer<PboHeader>& header : headers_) {
-            writer.addHeader(header.get());
+        writer.write(cancel);
+
+        if (cancel())
+            return;
+
+        writer.cleanBinarySources();
+
+        if (savePath == loadedPath_) {
+            QFile::remove(loadedPath_ + ".bak");
+            QFile::rename(loadedPath_, loadedPath_ + ".bak");
+            QFile::rename(tempPath, loadedPath_);
         }
 
-        writer.write(cancel);
+        writer.reassignBinarySources(savePath);
+        setLoadedPath(savePath);
     }
 
     void PboModel::unloadFile() {
         if (!rootEntry_)
             throw PboTreeException("The model is not initialized");
 
-        file_->close();
-        file_.clear();
+        setLoadedPath(nullptr);
+
+        headers_.clear();
         rootEntry_.clear();
         binaryBackend_.clear();
     }
@@ -97,5 +116,22 @@ namespace pboman3 {
 
     PboNode* PboModel::rootEntry() const {
         return rootEntry_.get();
+    }
+
+    const QString& PboModel::loadedPath() const {
+        return loadedPath_;
+    }
+
+    void PboModel::setLoadedPath(const QString& loadedFile) {
+        if (loadedPath_ != loadedFile) {
+            loadedPath_ = loadedFile;
+            emit loadedPathChanged();
+        }
+    }
+
+    void PboModel::rootTitleChanged() {
+        QFileInfo fi(loadedPath_);
+        fi.setFile(fi.dir(), rootEntry_->title());
+        setLoadedPath(fi.absoluteFilePath());
     }
 }

@@ -3,10 +3,12 @@
 #include "pbofile.h"
 #include "pboheaderio.h"
 #include "pboioexception.h"
+#include "bs/pbobinarysource.h"
 
 namespace pboman3 {
     PboWriter::PboWriter()
-        : root_(nullptr) {
+        : root_(nullptr),
+          headers_(nullptr) {
     }
 
     PboWriter& PboWriter::usePath(QString path) {
@@ -14,8 +16,8 @@ namespace pboman3 {
         return *this;
     }
 
-    PboWriter& PboWriter::addHeader(PboHeader* header) {
-        headers_.append(header);
+    PboWriter& PboWriter::useHeaders(QList<QSharedPointer<PboHeader>>* headers) {
+        headers_ = headers;
         return *this;
     }
 
@@ -27,7 +29,7 @@ namespace pboman3 {
     void PboWriter::write(const Cancel& cancel) {
         assert(!path_.isEmpty() && "Path must not be empty");
         assert(root_ && "Root must not be null");
-        
+
         QTemporaryFile body;
         body.setFileName(path_ + ".b");
         if (!body.open())
@@ -58,6 +60,14 @@ namespace pboman3 {
         pbo.close();
     }
 
+    void PboWriter::cleanBinarySources() const {
+        cleanBinarySources(root_);
+    }
+
+    void PboWriter::reassignBinarySources(const QString& path) {
+        reassignBinarySources(root_, path);
+    }
+
     void PboWriter::writeNode(QFileDevice* file, PboNode* node, QList<PboEntry>& entries, const Cancel& cancel) {
         for (const QSharedPointer<PboNode>& child : *node) {
             if (child->nodeType() == PboNodeType::File) {
@@ -65,14 +75,27 @@ namespace pboman3 {
                 child->binarySource->writeToPbo(file, cancel);
                 const qint64 after = file->pos();
 
+                const qint32 originalSize = child->binarySource->readOriginalSize();
+                const qint32 dataSize = after - before;
+
                 PboEntry entry(
                     child->makePath().toString(),
                     child->binarySource->isCompressed() ? PboPackingMethod::Packed : PboPackingMethod::Uncompressed,
                     child->binarySource->readOriginalSize(),
                     0,
                     child->binarySource->readTimestamp(),
-                    after - before);
+                    dataSize);
                 entries.append(entry);
+
+                PboDataInfo data{0, 0, 0, 0, 0};
+                data.originalSize = originalSize;
+                data.dataSize = dataSize;
+                data.dataOffset = before;
+                data.timestamp = child->binarySource->readTimestamp();
+                data.compressed = child->binarySource->isCompressed();
+
+                binarySources_.insert(child.get(), data);
+
             } else {
                 writeNode(file, child.get(), entries, cancel);
             }
@@ -83,7 +106,7 @@ namespace pboman3 {
         const PboHeaderIO io(file);
         io.writeEntry(PboEntry::makeSignature());
 
-        for (const PboHeader* header : headers_) {
+        for (const QSharedPointer<PboHeader>& header : *headers_) {
             if (cancel()) {
                 break;
             }
@@ -108,6 +131,11 @@ namespace pboman3 {
         }
 
         io.writeEntry(PboEntry::makeBoundary());
+
+        for (PboNode* key : binarySources_.keys()) {
+            PboDataInfo& existing = binarySources_[key];
+            existing.dataOffset += file->pos();
+        }
     }
 
     void PboWriter::copyBody(QFileDevice* pbo, QFileDevice* body, const Cancel& cancel) {
@@ -116,11 +144,31 @@ namespace pboman3 {
 
         qint64 read = body->read(data.data(), data.size());
         while (read > 0) {
-            qDebug() << body->pos() << " || " << read;
             pbo->write(data.data(), read);
             if (cancel())
                 return;
             read = body->read(data.data(), data.size());
+        }
+    }
+
+    void PboWriter::cleanBinarySources(PboNode* node) const {
+        for (const QSharedPointer<PboNode>& child : *node) {
+            if (child->nodeType() == PboNodeType::File) {
+                child->binarySource.clear();
+            } else {
+                cleanBinarySources(child.get());
+            }
+        }
+    }
+
+    void PboWriter::reassignBinarySources(PboNode* node, const QString& path) {
+        for (const QSharedPointer<PboNode>& child : *node) {
+            if (child->nodeType() == PboNodeType::File) {
+                const PboDataInfo& existing = binarySources_.take(child.get());
+                child->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(path, existing));
+            } else {
+                reassignBinarySources(child.get(), path);
+            }
         }
     }
 }

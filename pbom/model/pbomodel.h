@@ -6,7 +6,6 @@
 #include "interactionparcel.h"
 #include "pbonode.h"
 #include "io/binarybackend.h"
-#include "io/pbofile.h"
 #include "io/pboheaderio.h"
 
 namespace pboman3 {
@@ -15,7 +14,7 @@ namespace pboman3 {
     public:
         void loadFile(const QString& path);
 
-        void saveFile(const Cancel& cancel);
+        void saveFile(const Cancel& cancel, const QString& filePath = nullptr);
 
         void unloadFile();
 
@@ -27,13 +26,21 @@ namespace pboman3 {
 
         PboNode* rootEntry() const;
 
+        const QString& loadedPath() const;
+
     signals:
         void modelChanged();
 
+        void loadedPathChanged();
+
     private:
-        QSharedPointer<PboFile> file_;
+        QString loadedPath_;
         QSharedPointer<PboNode> rootEntry_;
         QSharedPointer<BinaryBackend> binaryBackend_;
         QList<QSharedPointer<PboHeader>> headers_;
+
+        void setLoadedPath(const QString& loadedFile);
+
+        void rootTitleChanged();
     };
 }

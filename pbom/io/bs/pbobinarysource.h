@@ -4,12 +4,11 @@
 
 namespace pboman3 {
     struct PboDataInfo {
-        const int originalSize;
-        const int dataSize;
-        const size_t dataOffset;
-        const bool compressed;
-
-        PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset, bool pCompressed);
+        quint32 originalSize;
+        quint32 dataSize;
+        size_t dataOffset;
+        quint32 timestamp;
+        quint32 compressed;
     };
 
     class PboBinarySource : public BinarySource {

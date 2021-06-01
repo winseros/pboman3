@@ -58,7 +58,7 @@ namespace pboman3::test {
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
         e3->binarySource = QSharedPointer<BinarySource>(
-            new PboBinarySource(t.fileName(), PboDataInfo(10, 20, 30, true)));
+            new PboBinarySource(t.fileName(), PboDataInfo{10, 20, 30, 0, true}));
         e4->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
 
         //test the method
@@ -93,7 +93,7 @@ namespace pboman3::test {
         t3.close();
 
         const auto bs1 = QSharedPointer<PboBinarySource
-        >(new PboBinarySource(t1.fileName(), PboDataInfo(100, 200, 300, true)));
+        >(new PboBinarySource(t1.fileName(), PboDataInfo{100, 200, 300, 0, true}));
         const auto bs2 = QSharedPointer<FsRawBinarySource>(new FsRawBinarySource(t2.fileName()));
         const auto bs3 = QSharedPointer<FsLzhBinarySource>(new FsLzhBinarySource(t3.fileName()));
 

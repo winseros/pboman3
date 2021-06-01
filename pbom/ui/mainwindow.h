@@ -25,17 +25,7 @@ public:
 
     ~MainWindow();
 
-    void setupConnections();
-
-    void onFileOpenClick();
-
-    void onFileSaveClick();
-
-    void onFileCloseClick();
-
-    void treeContextMenuRequested(const QPoint& point) const;
-
-    void treeActionStateChanged(const TreeWidget::ActionState& state) const;
+    void loadFile(const QString& fileName) const;
 
 private:
     Ui::MainWindow* ui_;
@@ -44,9 +34,27 @@ private:
     BusyBar* busy_;
     bool hasChanges_;
 
+    void setupConnections();
+
+    void onFileOpenClick();
+
+    void onFileSaveClick();
+
+    void onFileSaveAsClick();
+
+    void onFileCloseClick();
+
+    void treeContextMenuRequested(const QPoint& point) const;
+
+    void treeActionStateChanged(const TreeWidget::ActionState& state) const;
+
+    void saveFile(const QString& fileName);
+
     void saveComplete();
 
     void setHasChanges(bool hasChanges);
 
     void setLoaded(bool loaded) const;
+
+    void updateWindowTitle();
 };

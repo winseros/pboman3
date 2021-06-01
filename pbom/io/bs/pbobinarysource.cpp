@@ -3,14 +3,6 @@
 #include "io/lzh/lzhdecompressionexception.h"
 
 namespace pboman3 {
-    PboDataInfo::PboDataInfo(int pOriginalSize, int pDataSize, size_t pDataOffset, bool pCompressed)
-        : originalSize(pOriginalSize),
-          dataSize(pDataSize),
-          dataOffset(pDataOffset),
-          compressed(pCompressed) {
-    }
-
-
     PboBinarySource::PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize)
         : BinarySource(path),
           dataInfo_(dataInfo),
@@ -65,7 +57,7 @@ namespace pboman3 {
     }
 
     quint32 PboBinarySource::readTimestamp() const {
-        return 0;
+        return dataInfo_.timestamp;
     }
 
     bool PboBinarySource::isCompressed() const {

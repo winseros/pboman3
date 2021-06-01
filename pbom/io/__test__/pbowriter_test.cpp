@@ -34,15 +34,16 @@ namespace pboman3::test {
             new FsRawBinarySource(e2.fileName()));
 
         //pbo headers
-        PboHeader h1("h1", "v1");
-        PboHeader h2("h2", "v2");
+        QList headers({
+            QSharedPointer<PboHeader>(new PboHeader("h1", "v1")),
+            QSharedPointer<PboHeader>(new PboHeader("h2", "v2"))
+        });
 
         //write the file
         PboWriter writer;
         writer.usePath(placeholder.fileName())
               .useRoot(&root)
-              .addHeader(&h1)
-              .addHeader(&h2);
+              .useHeaders(&headers);
 
         writer.write([]() { return false; });
 

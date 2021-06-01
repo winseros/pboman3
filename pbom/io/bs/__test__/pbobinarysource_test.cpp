@@ -14,7 +14,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(8, 8, 1, false); //not compressed
+        const PboDataInfo dataInfo{ 8, 8, 1, 0, false }; //not compressed
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 5);
@@ -40,7 +40,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(8, 8, 1, false);
+        const PboDataInfo dataInfo{ 8, 8, 1, 0, false };
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
@@ -64,7 +64,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(17, 17, 0, false); //the file is marked as compressed
+        const PboDataInfo dataInfo{ 17, 17, 0, 0, false }; //the file is marked as compressed
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
@@ -88,7 +88,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(15, 9, 0, true); //the file is marked as compressed
+        const PboDataInfo dataInfo{ 15, 9, 0, 0, true }; //the file is marked as compressed
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
@@ -112,7 +112,7 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(30, 25, 0, true); //the file is marked as compressed
+        const PboDataInfo dataInfo{ 30, 25, 0, 0, true }; //the file is marked as compressed
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
@@ -135,12 +135,27 @@ namespace pboman3::test {
         sourceFile.close();
 
         //call the service
-        const PboDataInfo dataInfo(30, 25, 0, true); //the file is marked as compressed
+        const PboDataInfo dataInfo{ 30, 25, 0, 0, true }; //the file is marked as compressed
         QTemporaryFile targetFile;
         const PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
 
         //assert the file
         ASSERT_EQ(bs.readOriginalSize(), 30);
+    }
+
+    TEST(PboBinarySource, ReadTimeStamp_Returns_Timestamp) {
+        //create a binary source
+        QTemporaryFile sourceFile;
+        sourceFile.open();
+        sourceFile.close();
+
+        //call the service
+        const PboDataInfo dataInfo{ 30, 25, 0, 12345, true }; //the file is marked as compressed
+        QTemporaryFile targetFile;
+        const PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+
+        //assert the file
+        ASSERT_EQ(bs.readTimestamp(), 12345);
     }
 
     struct IsCompressedParam {

@@ -39,6 +39,8 @@ set(PROJECT_SOURCES
         ui/treewidget/treewidgetbase.cpp
         ui/treewidget/treewidgetitem.cpp
         ui/busybar.cpp
+        ui/closedialog.cpp
+        ui/closedialog.ui
         ui/compresslist.cpp
         ui/conflictslist.cpp
         ui/fscollector.cpp

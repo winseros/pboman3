@@ -2,7 +2,9 @@
 #include "ui/mainwindow.h"
 
 int main(int argc, char* argv[]) {
-    auto model = QSharedPointer<PboModel>(new PboModel());
+    using namespace pboman3;
+
+    const auto model = QSharedPointer<PboModel>(new PboModel());
     QApplication a(argc, argv);
 
     MainWindow w(nullptr, model.get());

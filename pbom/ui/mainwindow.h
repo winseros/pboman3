@@ -15,46 +15,46 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-using namespace pboman3;
+namespace pboman3 {
+    class MainWindow : public QMainWindow {
+    Q_OBJECT
 
-class MainWindow : public QMainWindow {
-Q_OBJECT
+    public:
+        explicit MainWindow(QWidget* parent, PboModel* model);
 
-public:
-    explicit MainWindow(QWidget* parent, PboModel* model);
+        ~MainWindow();
 
-    ~MainWindow();
+        void loadFile(const QString& fileName) const;
 
-    void loadFile(const QString& fileName) const;
+    private:
+        Ui::MainWindow* ui_;
+        PboModel* model_;
+        QFutureWatcher<void> saveWatcher_;
+        BusyBar* busy_;
+        bool hasChanges_;
 
-private:
-    Ui::MainWindow* ui_;
-    PboModel* model_;
-    QFutureWatcher<void> saveWatcher_;
-    BusyBar* busy_;
-    bool hasChanges_;
+        void setupConnections();
 
-    void setupConnections();
+        void onFileOpenClick();
 
-    void onFileOpenClick();
+        void onFileSaveClick();
 
-    void onFileSaveClick();
+        void onFileSaveAsClick();
 
-    void onFileSaveAsClick();
+        void onFileCloseClick();
 
-    void onFileCloseClick();
+        void treeContextMenuRequested(const QPoint& point) const;
 
-    void treeContextMenuRequested(const QPoint& point) const;
+        void treeActionStateChanged(const TreeWidget::ActionState& state) const;
 
-    void treeActionStateChanged(const TreeWidget::ActionState& state) const;
+        void saveFile(const QString& fileName);
 
-    void saveFile(const QString& fileName);
+        void saveComplete();
 
-    void saveComplete();
+        void setHasChanges(bool hasChanges);
 
-    void setHasChanges(bool hasChanges);
+        void setLoaded(bool loaded) const;
 
-    void setLoaded(bool loaded) const;
-
-    void updateWindowTitle();
-};
+        void updateWindowTitle();
+    };
+}

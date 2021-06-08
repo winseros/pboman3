@@ -3,10 +3,10 @@
 #include <QFuture>
 #include <QObject>
 #include "conflictsparcel.h"
+#include "headersmodel.h"
 #include "interactionparcel.h"
 #include "pbonode.h"
 #include "io/binarybackend.h"
-#include "io/pboheaderio.h"
 
 namespace pboman3 {
     class PboModel : public QObject {
@@ -26,6 +26,8 @@ namespace pboman3 {
 
         PboNode* rootEntry() const;
 
+        HeadersModel* headers() const;
+
         const QString& loadedPath() const;
 
     signals:
@@ -36,8 +38,8 @@ namespace pboman3 {
     private:
         QString loadedPath_;
         QSharedPointer<PboNode> rootEntry_;
+        QSharedPointer<HeadersModel> headers_;
         QSharedPointer<BinaryBackend> binaryBackend_;
-        QList<QSharedPointer<PboHeader>> headers_;
 
         void setLoadedPath(const QString& loadedFile);
 

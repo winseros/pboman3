@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QObject>
-#include <QSharedPointer>
 #include "pbonodetype.h"
 #include "pbopath.h"
 #include "conflictresolution.h"
 #include "io/bs/binarysource.h"
+#include "util/qpointerlistiterator.h"
 
 namespace pboman3 {
     typedef QString TitleError;
@@ -44,13 +44,13 @@ namespace pboman3 {
 
         PboPath makePath() const;
 
-        QList<QSharedPointer<PboNode>>::iterator begin();
+        QPointerListIterator<PboNode> begin();
 
-        QList<QSharedPointer<PboNode>>::iterator end();
+        QPointerListIterator<PboNode> end();
 
-        QList<QSharedPointer<PboNode>>::const_iterator begin() const;
+        QPointerListConstIterator<PboNode> begin() const;
 
-        QList<QSharedPointer<PboNode>>::const_iterator end() const;
+        QPointerListConstIterator<PboNode> end() const;
 
         bool operator <(const PboNode& node) const;
 

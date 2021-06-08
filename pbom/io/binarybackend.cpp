@@ -60,11 +60,11 @@ namespace pboman3 {
     }
 
     void BinaryBackend::syncPboDir(const PboNode* node, const Cancel& cancel) const {
-        for (const QSharedPointer<PboNode>& child : *node) {
+        for (const PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File)
-                syncPboFileNode(child.get(), cancel);
+                syncPboFileNode(child, cancel);
             else
-                syncPboDir(child.get(), cancel);
+                syncPboDir(child, cancel);
         }
 
     }

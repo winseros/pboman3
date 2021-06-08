@@ -3,8 +3,8 @@
 #include <QHash>
 #include "pbofile.h"
 #include "bs/pbobinarysource.h"
+#include "model/headersmodel.h"
 #include "model/pboentry.h"
-#include "model/pboheader.h"
 #include "model/pbonode.h"
 
 namespace pboman3 {
@@ -14,7 +14,7 @@ namespace pboman3 {
 
         PboWriter& usePath(QString path);
 
-        PboWriter& useHeaders(QList<QSharedPointer<PboHeader>>* headers);
+        PboWriter& useHeaders(HeadersModel* headers);
 
         PboWriter& useRoot(PboNode* root);
 
@@ -27,7 +27,7 @@ namespace pboman3 {
     private:
         QString path_;
         PboNode* root_;
-        QList<QSharedPointer<PboHeader>>* headers_;
+        HeadersModel* headers_;
         QHash<PboNode*, PboDataInfo> binarySources_;
 
         void writeNode(QFileDevice* file, PboNode* node, QList<PboEntry>& entries, const Cancel& cancel);

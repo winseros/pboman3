@@ -33,8 +33,8 @@ namespace pboman3 {
 
     void TreeWidgetItem::initCreateChildren() {
         qsizetype i = 0;
-        for (const QSharedPointer<PboNode>& child : *node_) {
-            onNodeChildCreated(child.get(), i);
+        for (PboNode* child : *node_) {
+            onNodeChildCreated(child, i);
             i++;
         }
     }

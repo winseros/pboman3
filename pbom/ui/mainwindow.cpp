@@ -7,6 +7,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "closedialog.h"
+#include "headersdialog.h"
 #include "insertdialog.h"
 #include "ui_mainwindow.h"
 #include "treewidget/treewidget.h"
@@ -51,7 +52,7 @@ namespace pboman3 {
         connect(ui_->actionFileSave, &QAction::triggered, this, &MainWindow::onFileSaveClick);
         connect(ui_->actionFileSaveAs, &QAction::triggered, this, &MainWindow::onFileSaveAsClick);
         connect(ui_->actionFileClose, &QAction::triggered, this, &MainWindow::onFileCloseClick);
-        // connect(ui_->actionViewHeaders, &QAction::triggered, this, &MainWindow::onViewHeadersClick);
+        connect(ui_->actionViewHeaders, &QAction::triggered, this, &MainWindow::onViewHeadersClick);
         // connect(ui_->actionViewSignature, &QAction::triggered, this, &MainWindow::onViewSignatureClick);
         connect(ui_->actionSelectionPaste, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionPaste);
         connect(ui_->actionSelectionCopy, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCopy);
@@ -102,6 +103,10 @@ namespace pboman3 {
             setLoaded(false);
             model_->unloadFile();
         }
+    }
+
+    void MainWindow::onViewHeadersClick() {
+        HeadersDialog(model_->headers(), this).exec();
     }
 
     void MainWindow::treeContextMenuRequested(const QPoint& point) const {

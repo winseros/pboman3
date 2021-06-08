@@ -16,7 +16,7 @@ namespace pboman3 {
         return *this;
     }
 
-    PboWriter& PboWriter::useHeaders(QList<QSharedPointer<PboHeader>>* headers) {
+    PboWriter& PboWriter::useHeaders(HeadersModel* headers) {
         headers_ = headers;
         return *this;
     }
@@ -69,7 +69,7 @@ namespace pboman3 {
     }
 
     void PboWriter::writeNode(QFileDevice* file, PboNode* node, QList<PboEntry>& entries, const Cancel& cancel) {
-        for (const QSharedPointer<PboNode>& child : *node) {
+        for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 const qint64 before = file->pos();
                 child->binarySource->writeToPbo(file, cancel);
@@ -94,10 +94,10 @@ namespace pboman3 {
                 data.timestamp = child->binarySource->readTimestamp();
                 data.compressed = child->binarySource->isCompressed();
 
-                binarySources_.insert(child.get(), data);
+                binarySources_.insert(child, data);
 
             } else {
-                writeNode(file, child.get(), entries, cancel);
+                writeNode(file, child, entries, cancel);
             }
         }
     }
@@ -152,22 +152,22 @@ namespace pboman3 {
     }
 
     void PboWriter::cleanBinarySources(PboNode* node) const {
-        for (const QSharedPointer<PboNode>& child : *node) {
+        for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 child->binarySource.clear();
             } else {
-                cleanBinarySources(child.get());
+                cleanBinarySources(child);
             }
         }
     }
 
     void PboWriter::reassignBinarySources(PboNode* node, const QString& path) {
-        for (const QSharedPointer<PboNode>& child : *node) {
+        for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
-                const PboDataInfo& existing = binarySources_.take(child.get());
+                const PboDataInfo& existing = binarySources_.take(child);
                 child->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(path, existing));
             } else {
-                reassignBinarySources(child.get(), path);
+                reassignBinarySources(child, path);
             }
         }
     }

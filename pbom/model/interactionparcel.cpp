@@ -192,8 +192,8 @@ namespace pboman3 {
             }
         } else {
             const PboPath nodePath = parentPath.makeChild(node->title());
-            for (const QSharedPointer<PboNode>& child : *node) {
-                addNodeToParcel(descriptors, child.get(), nodePath, dedupe);
+            for (PboNode* child : *node) {
+                addNodeToParcel(descriptors, child, nodePath, dedupe);
             }
         }
     }

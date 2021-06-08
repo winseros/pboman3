@@ -24,6 +24,10 @@ namespace pboman3 {
 
         PboFileHeader header = PboHeaderReader::readFileHeader(&file);
 
+        headers_ = QSharedPointer<HeadersModel>(new HeadersModel);
+        headers_->setData(std::move(header.headers));
+        connect(headers_.get(), &HeadersModel::changed, this, &PboModel::modelChanged);
+
         size_t entryDataOffset = file.pos();
         for (const QSharedPointer<PboEntry>& entry : header.entries) {
             PboNode* node = rootEntry_->createHierarchy(entry->makePath());
@@ -40,7 +44,6 @@ namespace pboman3 {
 
         binaryBackend_ = QSharedPointer<BinaryBackend>(
             new BinaryBackend(QUuid::createUuid().toString(QUuid::WithoutBraces)));
-        headers_ = header.headers;
     }
 
     void PboModel::saveFile(const Cancel& cancel, const QString& filePath) {
@@ -49,7 +52,7 @@ namespace pboman3 {
 
         PboWriter writer;
         writer.usePath(savePath == loadedPath_ ? tempPath : savePath)
-              .useHeaders(&headers_)
+              .useHeaders(headers_.get())
               .useRoot(rootEntry_.get());
 
         writer.write(cancel);
@@ -116,6 +119,10 @@ namespace pboman3 {
 
     PboNode* PboModel::rootEntry() const {
         return rootEntry_.get();
+    }
+
+    HeadersModel* PboModel::headers() const {
+        return headers_.get(); 
     }
 
     const QString& PboModel::loadedPath() const {

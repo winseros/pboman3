@@ -151,20 +151,20 @@ namespace pboman3 {
         return path;
     }
 
-    QList<QSharedPointer<PboNode>>::iterator PboNode::begin() {
-        return children_.begin();
+    QPointerListIterator<PboNode> PboNode::begin() {
+        return QPointerListIterator(children_.data());
     }
 
-    QList<QSharedPointer<PboNode>>::iterator PboNode::end() {
-        return children_.end();
+    QPointerListIterator<PboNode> PboNode::end() {
+        return QPointerListIterator(children_.data() + children_.count());
     }
 
-    QList<QSharedPointer<PboNode>>::const_iterator PboNode::begin() const {
-        return children_.begin();
+    QPointerListConstIterator<PboNode> PboNode::begin() const {
+        return QPointerListConstIterator(children_.data());
     }
 
-    QList<QSharedPointer<PboNode>>::const_iterator PboNode::end() const {
-        return children_.end();
+    QPointerListConstIterator<PboNode> PboNode::end() const {
+        return QPointerListConstIterator(children_.data() + count());
     }
 
     bool PboNode::operator<(const PboNode& node) const {

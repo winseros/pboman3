@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
         io/pboioexception.cpp
         io/pbowriter.cpp
         model/conflictsparcel.cpp
+        model/headersmodel.cpp
         model/interactionparcel.cpp
         model/pboentry.cpp
         model/pboheader.cpp
@@ -44,6 +45,8 @@ set(PROJECT_SOURCES
         ui/compresslist.cpp
         ui/conflictslist.cpp
         ui/fscollector.cpp
+        ui/headersdialog.cpp
+        ui/headersdialog.ui
         ui/insertdialog.cpp
         ui/insertdialog.ui
         ui/insertdialogbuttons.cpp
@@ -72,13 +75,14 @@ set(TEST_SOURCES
     "io/__test__/pboheaderreader_test.cpp"
     "io/__test__/pbowriter_test.cpp"
     "model/__test__/conflictsparcel_test.cpp"
+    "model/__test__/headersmodel_test.cpp"
     "model/__test__/interactionparcel_test.cpp"
     "model/__test__/pboentry_test.cpp"
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbonode_test.cpp"
     "model/__test__/pbopath_test.cpp"
     "ui/__test__/fscollector__test.cpp"
-    
+    "util/__test__/qpointerlistiterator_test.cpp"
  )
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)

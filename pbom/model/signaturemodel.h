@@ -10,6 +10,6 @@ namespace pboman3 {
         const QString& signatureString() const;
 
     private:
-        QString signatureString_ = "";
+        QString signatureString_;
     };
 }

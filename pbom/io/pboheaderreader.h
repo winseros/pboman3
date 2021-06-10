@@ -8,6 +8,8 @@ namespace pboman3 {
     struct PboFileHeader {
         QList<QSharedPointer<PboHeader>> headers;
         QList<QSharedPointer<PboEntry>> entries;
+        qsizetype dataBlockStart;
+        QByteArray signature;
     };
 
     class PboHeaderReader {

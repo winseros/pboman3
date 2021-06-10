@@ -6,6 +6,7 @@
 #include "headersmodel.h"
 #include "interactionparcel.h"
 #include "pbonode.h"
+#include "signaturemodel.h"
 #include "io/binarybackend.h"
 
 namespace pboman3 {
@@ -28,6 +29,8 @@ namespace pboman3 {
 
         HeadersModel* headers() const;
 
+        SignatureModel* signature() const;
+
         const QString& loadedPath() const;
 
     signals:
@@ -39,6 +42,7 @@ namespace pboman3 {
         QString loadedPath_;
         QSharedPointer<PboNode> rootEntry_;
         QSharedPointer<HeadersModel> headers_;
+        QSharedPointer<SignatureModel> signature_;
         QSharedPointer<BinaryBackend> binaryBackend_;
 
         void setLoadedPath(const QString& loadedFile);

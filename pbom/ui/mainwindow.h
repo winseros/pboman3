@@ -45,6 +45,8 @@ namespace pboman3 {
 
         void onViewHeadersClick();
 
+        void onViewSignatureClick();
+
         void treeContextMenuRequested(const QPoint& point) const;
 
         void treeActionStateChanged(const TreeWidget::ActionState& state) const;

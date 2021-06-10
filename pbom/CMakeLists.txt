@@ -35,6 +35,7 @@ set(PROJECT_SOURCES
         model/pbonodeevents.cpp
         model/pbopath.cpp
         model/pbotreeexception.cpp
+        model/signaturemodel.cpp
         ui/treewidget/deleteop.cpp
         ui/treewidget/treewidget.cpp
         ui/treewidget/treewidgetbase.cpp
@@ -54,6 +55,8 @@ set(PROJECT_SOURCES
         ui/renamedialog.ui
         ui/mainwindow.cpp
         ui/mainwindow.ui
+        ui/signaturedialog.cpp
+        ui/signaturedialog.ui
         util/appexception.cpp
 )
 
@@ -81,6 +84,7 @@ set(TEST_SOURCES
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbonode_test.cpp"
     "model/__test__/pbopath_test.cpp"
+    "model/__test__/signaturemodel_test.cpp"
     "ui/__test__/fscollector__test.cpp"
     "util/__test__/qpointerlistiterator_test.cpp"
  )

@@ -3,13 +3,12 @@
 #include <gtest/gtest.h>
 #include "io/bs/fsrawbinarysource.h"
 #include <QDebug>
-
 #include "io/pboheaderreader.h"
 
 namespace pboman3::test {
     TEST(PboWriterTest, Write_Writes_File_With_Headers) {
         //mock files contents
-        const QByteArray mockContent1(10, 1);
+        const QByteArray mockContent1(15, 1);
         QTemporaryFile e1;
         e1.open();
         e1.write(mockContent1);
@@ -40,11 +39,14 @@ namespace pboman3::test {
             QSharedPointer<PboHeader>(new PboHeader("h2", "v2"))
         }));
 
+        QByteArray signature;
+
         //write the file
         PboWriter writer;
         writer.usePath(placeholder.fileName())
               .useRoot(&root)
-              .useHeaders(&headers);
+              .useHeaders(&headers)
+              .copySignatureTo(&signature);
 
         writer.write([]() { return false; });
 
@@ -52,7 +54,7 @@ namespace pboman3::test {
         PboFile pbo(placeholder.fileName());
         pbo.open(QIODeviceBase::ReadOnly);
         const PboFileHeader header = PboHeaderReader::readFileHeader(&pbo);
-
+        
         //pbo header
         ASSERT_EQ(header.headers.count(), 2);
         ASSERT_EQ(header.headers.at(0)->name, "h1");
@@ -65,16 +67,60 @@ namespace pboman3::test {
         ASSERT_EQ(header.entries.at(1)->fileName(), "e1.txt");
 
         //pbo contents
+        pbo.seek(header.dataBlockStart);
+
         QByteArray contents;
-        contents.resize(mockContent1.size());
+        contents.resize(mockContent2.size());
         pbo.read(contents.data(), contents.size());
         ASSERT_EQ(contents, mockContent2);
 
-        contents.resize(mockContent2.size());
+        contents.resize(mockContent1.size());
         pbo.read(contents.data(), contents.size());
         ASSERT_EQ(contents, mockContent1);
 
+        //zero byte
+        QByteArray zero;
+        zero.resize(1);
+        pbo.read(zero.data(), zero.size());
+        ASSERT_EQ(zero.at(0), 0);
+
+        //signature
+        ASSERT_EQ(signature.size(), 20);//sha1 is 20 bytes
+        contents.resize(signature.size());
+        pbo.read(contents.data(), contents.size());
+        ASSERT_EQ(contents.size(), signature.size());
+
         //file has ended
         ASSERT_TRUE(pbo.atEnd());
+    }
+
+    TEST(PboWriterTest, Write_Does_Not_Throw_If_No_Signature_Copy_Target_Set) {
+        //mock files contents
+        const QByteArray mockContent1(15, 1);
+        QTemporaryFile e1;
+        e1.open();
+        e1.write(mockContent1);
+        e1.close();
+
+        //pbo file
+        QTemporaryFile placeholder;
+        placeholder.open();
+        placeholder.close();
+
+        //pbo content structure
+        PboNode root("file.pbo", PboNodeType::Container, nullptr);
+        root.createHierarchy(PboPath("e1.txt"))->binarySource = QSharedPointer<BinarySource>(
+            new FsRawBinarySource(e1.fileName()));
+
+        //pbo headers
+        HeadersModel headers;
+
+        //write the file
+        PboWriter writer;
+        writer.usePath(placeholder.fileName())
+              .useRoot(&root)
+              .useHeaders(&headers);//don't specify signature target
+
+        ASSERT_NO_THROW(writer.write([]() { return false; }));
     }
 }

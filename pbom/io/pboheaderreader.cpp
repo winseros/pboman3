@@ -15,6 +15,7 @@ namespace pboman3 {
             throw PboIoException("The file is not a valid PBO");
         }
 
+        qsizetype dataBlockEnd = 0;
         if (entry->isSignature()) {
             QSharedPointer<PboHeader> header = reader.readNextHeader();
             while (header && !header->isBoundary()) {
@@ -26,6 +27,7 @@ namespace pboman3 {
             }
         } else if (entry->isContent()) {
             entries.append(entry);
+            dataBlockEnd += entry->dataSize();
         } else {
             throw PboIoException("The file first entry is corrupted");
         }
@@ -33,12 +35,27 @@ namespace pboman3 {
         entry = reader.readNextEntry();
         while (entry && !entry->isBoundary()) {
             entries.append(entry);
+            dataBlockEnd += entry->dataSize();
             entry = reader.readNextEntry();
         }
         if (!entry || !entry->isBoundary()) {
             throw PboIoException("The file entries list is corrupted");
         }
 
-        return PboFileHeader{headers, entries};
+
+        const qsizetype dataBlockStart = file->pos();
+        dataBlockEnd += dataBlockStart;
+
+        QByteArray signature;
+        file->seek(dataBlockEnd + 1); //don`t forget a single 0-byte between the data end and sig start
+        if (!file->atEnd()) {
+            constexpr int sha1Size = 20;
+            signature.resize(sha1Size);
+            const qint64 read = file->read(signature.data(), signature.size());
+            if (read != signature.size())
+                signature.truncate(0);
+        }
+
+        return PboFileHeader{headers, entries, dataBlockStart, signature};
     }
 }

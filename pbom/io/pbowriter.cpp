@@ -1,5 +1,6 @@
 #include "pbowriter.h"
 #include <QTemporaryFile>
+#include <QCryptographicHash>
 #include "pbofile.h"
 #include "pboheaderio.h"
 #include "pboioexception.h"
@@ -8,7 +9,8 @@
 namespace pboman3 {
     PboWriter::PboWriter()
         : root_(nullptr),
-          headers_(nullptr) {
+          headers_(nullptr),
+          signature_(nullptr) {
     }
 
     PboWriter& PboWriter::usePath(QString path) {
@@ -23,6 +25,11 @@ namespace pboman3 {
 
     PboWriter& PboWriter::useRoot(PboNode* root) {
         root_ = root;
+        return *this;
+    }
+
+    PboWriter& PboWriter::copySignatureTo(QByteArray* signature) {
+        signature_ = signature;
         return *this;
     }
 
@@ -43,7 +50,7 @@ namespace pboman3 {
         }
 
         PboFile pbo(path_);
-        if (!pbo.open(QIODeviceBase::WriteOnly))
+        if (!pbo.open(QIODeviceBase::ReadWrite))
             throw PboIoException("Could not create the file: " + path_);
 
         writeHeader(&pbo, entries, cancel);
@@ -57,6 +64,9 @@ namespace pboman3 {
         body.seek(0);
         copyBody(&pbo, &body, cancel);
 
+        writeSignature(&pbo);
+
+        body.close();
         pbo.close();
     }
 
@@ -76,7 +86,7 @@ namespace pboman3 {
                 const qint64 after = file->pos();
 
                 const qint32 originalSize = child->binarySource->readOriginalSize();
-                const qint32 dataSize = after - before;
+                const qint32 dataSize = static_cast<qint32>(after - before);
 
                 PboEntry entry(
                     child->makePath().toString(),
@@ -148,6 +158,21 @@ namespace pboman3 {
             if (cancel())
                 return;
             read = body->read(data.data(), data.size());
+        }
+    }
+
+    void PboWriter::writeSignature(QFileDevice* pbo) const {
+        pbo->seek(0);
+        QCryptographicHash sha1(QCryptographicHash::Sha1);
+        assert(sha1.addData(pbo));
+
+        const QByteArray sha1Bytes = sha1.result();
+
+        pbo->write(QByteArray(1, 0));
+        pbo->write(sha1Bytes, sha1Bytes.count());
+
+        if (signature_) {
+            signature_->append(sha1Bytes);
         }
     }
 

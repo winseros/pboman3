@@ -6,32 +6,25 @@
 #include "io/pboioexception.h"
 
 namespace pboman3::test {
-    struct PboModelTest {
-        static void writeEntry(QTemporaryFile& t) {
-            t.open();
-
-            PboFile p(t.fileName());
-            p.open(QIODeviceBase::WriteOnly);
-            const PboHeaderIO io(&p);
-
-            const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
-                                                           0x03030303, 0x04040404);
-            const PboEntry e2 = PboEntry::makeBoundary();
-
-            io.writeEntry(e1);
-            io.writeEntry(e2);
-            p.close();
-            t.close();
-        }
-    };
-
-    TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_Without_Headers) {
+    TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_Without_Headers_Without_Signature) {
         //build a mock pbo file
         QTemporaryFile t;
-        PboModelTest::writeEntry(t);
+        t.open();
+
+        PboFile p(t.fileName());
+        p.open(QIODeviceBase::WriteOnly);
+        const PboHeaderIO io(&p);
+        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+                          0x03030303, 0x04040404);
+        const PboEntry e2 = PboEntry::makeBoundary();
+
+        io.writeEntry(e1);
+        io.writeEntry(e2);
+
+        p.close();
+        t.close();
 
         //call the method
-        PboFile p(t.fileName());
         p.open(QIODeviceBase::ReadOnly);
         const PboFileHeader header = PboHeaderReader::readFileHeader(&p);
         p.close();
@@ -46,9 +39,56 @@ namespace pboman3::test {
         ASSERT_EQ(header.entries.at(0)->reserved(), 0x02020202);
         ASSERT_EQ(header.entries.at(0)->timestamp(), 0x03030303);
         ASSERT_EQ(header.entries.at(0)->dataSize(), 0x04040404);
+
+        ASSERT_EQ(header.dataBlockStart, 44);
+
+        ASSERT_EQ(header.signature.size(), 0);
     }
 
-    TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_With_Headers) {
+    TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_Without_Headers_With_Signature) {
+        //build a mock pbo file
+        QTemporaryFile t;
+        t.open();
+
+        PboFile p(t.fileName());
+        p.open(QIODeviceBase::WriteOnly);
+        const PboHeaderIO io(&p);
+        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+                          0x03030303, 10);
+        const PboEntry e2 = PboEntry::makeBoundary();
+        const QByteArray signature(20, 5);
+
+        io.writeEntry(e1);
+        io.writeEntry(e2);
+        p.write(QByteArray(e1.dataSize(), 1));
+        p.write(QByteArray(1, 0)); //zero byte between data and signature
+        p.write(signature);
+
+        p.close();
+        t.close();
+
+        //call the method
+        p.open(QIODeviceBase::ReadOnly);
+        const PboFileHeader header = PboHeaderReader::readFileHeader(&p);
+        p.close();
+
+        //verify the results
+        ASSERT_EQ(0, header.headers.count());
+        ASSERT_EQ(1, header.entries.count());
+
+        ASSERT_EQ(header.entries.at(0)->fileName(), "f1");
+        ASSERT_EQ(header.entries.at(0)->packingMethod(), PboPackingMethod::Packed);
+        ASSERT_EQ(header.entries.at(0)->originalSize(), 0x01010101);
+        ASSERT_EQ(header.entries.at(0)->reserved(), 0x02020202);
+        ASSERT_EQ(header.entries.at(0)->timestamp(), 0x03030303);
+        ASSERT_EQ(header.entries.at(0)->dataSize(), 10);
+
+        ASSERT_EQ(header.dataBlockStart, 44);
+
+        ASSERT_EQ(header.signature, signature);
+    }
+
+    TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_With_Headers_With_Signature) {
         //build a mock pbo file
         QTemporaryFile t;
         t.open();
@@ -59,14 +99,16 @@ namespace pboman3::test {
 
         const PboEntry e0 = PboEntry::makeSignature();
         const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
-                          0x03030303, 0x04040404);
+                          0x03030303, 5);
         const PboEntry e2("f2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606,
-                          0x07070707, 0x08080808);
+                          0x07070707, 10);
         const PboEntry e3 = PboEntry::makeBoundary();
 
         const PboHeader h1("p1", "v1");
         const PboHeader h2("p2", "v2");
         const PboHeader h3 = PboHeader::makeBoundary();
+
+        const QByteArray signature(20, 5);
 
         io.writeEntry(e0);
         io.writeHeader(h1);
@@ -75,6 +117,11 @@ namespace pboman3::test {
         io.writeEntry(e1);
         io.writeEntry(e2);
         io.writeEntry(e3);
+        p.write(QByteArray(e1.dataSize(), 1));
+        p.write(QByteArray(e2.dataSize(), 2));
+        p.write(QByteArray(1, 0)); //zero byte between data and signature
+        p.write(signature);
+
         p.close();
         t.close();
 
@@ -97,13 +144,52 @@ namespace pboman3::test {
         ASSERT_EQ(header.entries.at(0)->originalSize(), 0x01010101);
         ASSERT_EQ(header.entries.at(0)->reserved(), 0x02020202);
         ASSERT_EQ(header.entries.at(0)->timestamp(), 0x03030303);
-        ASSERT_EQ(header.entries.at(0)->dataSize(), 0x04040404);
+        ASSERT_EQ(header.entries.at(0)->dataSize(), 5);
         ASSERT_EQ(header.entries.at(1)->fileName(), "f2");
         ASSERT_EQ(header.entries.at(1)->packingMethod(), PboPackingMethod::Uncompressed);
         ASSERT_EQ(header.entries.at(1)->originalSize(), 0x05050505);
         ASSERT_EQ(header.entries.at(1)->reserved(), 0x06060606);
         ASSERT_EQ(header.entries.at(1)->timestamp(), 0x07070707);
-        ASSERT_EQ(header.entries.at(1)->dataSize(), 0x08080808);
+        ASSERT_EQ(header.entries.at(1)->dataSize(), 10);
+
+        ASSERT_EQ(header.dataBlockStart, 101);
+
+        ASSERT_EQ(header.signature, signature);
+    }
+
+    TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_With_Broken_Signature) {
+        //build a mock pbo file
+        QTemporaryFile t;
+        t.open();
+
+        PboFile p(t.fileName());
+        p.open(QIODeviceBase::WriteOnly);
+        const PboHeaderIO io(&p);
+        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+                          0x03030303, 10);
+        const PboEntry e2 = PboEntry::makeBoundary();
+
+        io.writeEntry(e1);
+        io.writeEntry(e2);
+        p.write(QByteArray(e1.dataSize(), 1));
+        p.write(QByteArray(1, 0)); //zero byte between data and signature
+        p.write(QByteArray(15, 5)); //some junk to small to be a signature
+
+        p.close();
+        t.close();
+
+        //call the method
+        p.open(QIODeviceBase::ReadOnly);
+        const PboFileHeader header = PboHeaderReader::readFileHeader(&p);
+        p.close();
+
+        //verify the results
+        ASSERT_EQ(0, header.headers.count());
+        ASSERT_EQ(1, header.entries.count());
+
+        ASSERT_EQ(header.dataBlockStart, 44);
+
+        ASSERT_EQ(header.signature.size(), 0);
     }
 
     TEST(PboHeaderReaderTest, ReadFileHeader_Throws_If_File_Is_Zero_Bytes) {

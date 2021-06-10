@@ -28,7 +28,10 @@ namespace pboman3 {
         headers_->setData(std::move(header.headers));
         connect(headers_.get(), &HeadersModel::changed, this, &PboModel::modelChanged);
 
-        size_t entryDataOffset = file.pos();
+        signature_ = QSharedPointer<SignatureModel>(new SignatureModel);
+        signature_->setSignatureBytes(header.signature);
+
+        size_t entryDataOffset = header.dataBlockStart;
         for (const QSharedPointer<PboEntry>& entry : header.entries) {
             PboNode* node = rootEntry_->createHierarchy(entry->makePath());
             PboDataInfo dataInfo{0, 0, 0, 0, 0};
@@ -50,10 +53,13 @@ namespace pboman3 {
         const QString savePath = filePath.isNull() ? loadedPath_ : filePath;
         const QString tempPath(savePath + ".t");
 
+        QByteArray signature;
+
         PboWriter writer;
         writer.usePath(savePath == loadedPath_ ? tempPath : savePath)
               .useHeaders(headers_.get())
-              .useRoot(rootEntry_.get());
+              .useRoot(rootEntry_.get())
+              .copySignatureTo(&signature);
 
         writer.write(cancel);
 
@@ -61,6 +67,7 @@ namespace pboman3 {
             return;
 
         writer.cleanBinarySources();
+        signature_->setSignatureBytes(signature);
 
         if (savePath == loadedPath_) {
             QFile::remove(loadedPath_ + ".bak");
@@ -78,6 +85,7 @@ namespace pboman3 {
 
         setLoadedPath(nullptr);
 
+        signature_.clear();
         headers_.clear();
         rootEntry_.clear();
         binaryBackend_.clear();
@@ -122,7 +130,11 @@ namespace pboman3 {
     }
 
     HeadersModel* PboModel::headers() const {
-        return headers_.get(); 
+        return headers_.get();
+    }
+
+    SignatureModel* PboModel::signature() const {
+        return signature_.get();
     }
 
     const QString& PboModel::loadedPath() const {

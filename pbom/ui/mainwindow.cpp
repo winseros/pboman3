@@ -5,7 +5,6 @@
 #include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
-
 #include "closedialog.h"
 #include "headersdialog.h"
 #include "insertdialog.h"
@@ -41,6 +40,12 @@ namespace pboman3 {
         setLoaded(true);
     }
 
+    void MainWindow::closeEvent(QCloseEvent* event) {
+        if (!queryCloseUnsaved()) {
+            event->ignore();
+        }
+    }
+
     void MainWindow::setupConnections() {
         connect(&saveWatcher_, &QFutureWatcher<void>::finished, this, &MainWindow::saveComplete);
 
@@ -53,6 +58,7 @@ namespace pboman3 {
         connect(ui_->actionFileSave, &QAction::triggered, this, &MainWindow::onFileSaveClick);
         connect(ui_->actionFileSaveAs, &QAction::triggered, this, &MainWindow::onFileSaveAsClick);
         connect(ui_->actionFileClose, &QAction::triggered, this, &MainWindow::onFileCloseClick);
+        connect(ui_->actionFileExit, &QAction::triggered, this, &MainWindow::close);
         connect(ui_->actionViewHeaders, &QAction::triggered, this, &MainWindow::onViewHeadersClick);
         connect(ui_->actionViewSignature, &QAction::triggered, this, &MainWindow::onViewSignatureClick);
         connect(ui_->actionSelectionPaste, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionPaste);
@@ -69,12 +75,7 @@ namespace pboman3 {
         const QString fileName = QFileDialog::getOpenFileName(this, "Select a PBO", "",
                                                               "PBO Files (*.pbo);;All Files (*.*)");
         if (!fileName.isEmpty()) {
-            bool proceed = true;
-            if (hasChanges_) {
-                const QFileInfo fi(model_->loadedPath());
-                proceed = CloseDialog(fi, this).exec() == QDialog::DialogCode::Accepted;
-            }
-            if (proceed) {
+            if (queryCloseUnsaved()) {
                 loadFile(fileName);
                 setHasChanges(false);
             }
@@ -94,12 +95,7 @@ namespace pboman3 {
     }
 
     void MainWindow::onFileCloseClick() {
-        bool proceed = true;
-        if (hasChanges_) {
-            const QFileInfo fi(model_->loadedPath());
-            proceed = CloseDialog(fi, this).exec() == QDialog::DialogCode::Accepted;
-        }
-        if (proceed) {
+        if (queryCloseUnsaved()) {
             setHasChanges(false);
             setLoaded(false);
             model_->unloadFile();
@@ -112,6 +108,15 @@ namespace pboman3 {
 
     void MainWindow::onViewSignatureClick() {
         SignatureDialog(model_->signature(), this).exec();
+    }
+
+    bool MainWindow::queryCloseUnsaved() {
+        bool proceed = true;
+        if (hasChanges_) {
+            const QFileInfo fi(model_->loadedPath());
+            proceed = CloseDialog(fi, this).exec() == QDialog::DialogCode::Accepted;
+        }
+        return proceed;
     }
 
     void MainWindow::treeContextMenuRequested(const QPoint& point) const {

@@ -26,6 +26,9 @@ namespace pboman3 {
 
         void loadFile(const QString& fileName) const;
 
+    protected:
+        void closeEvent(QCloseEvent* event) override;
+
     private:
         Ui::MainWindow* ui_;
         PboModel* model_;
@@ -46,6 +49,8 @@ namespace pboman3 {
         void onViewHeadersClick();
 
         void onViewSignatureClick();
+
+        bool queryCloseUnsaved();
 
         void treeContextMenuRequested(const QPoint& point) const;
 

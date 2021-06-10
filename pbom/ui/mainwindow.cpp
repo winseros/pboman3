@@ -178,14 +178,22 @@ namespace pboman3 {
         if (loaded) {
             ui_->treeWidget->setRoot(model_->rootEntry());
             ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
-            ui_->actionFileSaveAs->setEnabled(true);
-            ui_->actionFileClose->setEnabled(true);
         } else {
             ui_->treeWidget->resetRoot();
             ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
-            ui_->actionFileSaveAs->setEnabled(false);
-            ui_->actionFileClose->setEnabled(false);
+
+            ui_->actionSelectionOpen->setEnabled(false);
+            ui_->actionSelectionCopy->setEnabled(false);
+            ui_->actionSelectionCut->setEnabled(false);
+            ui_->actionSelectionPaste->setEnabled(false);
+            ui_->actionSelectionDelete->setEnabled(false);
+            ui_->actionSelectionRename->setEnabled(false);
         }
+
+        ui_->actionFileSaveAs->setEnabled(loaded);
+        ui_->actionFileClose->setEnabled(loaded);
+        ui_->actionViewHeaders->setEnabled(loaded);
+        ui_->actionViewSignature->setEnabled(loaded);
     }
 
     void MainWindow::updateWindowTitle() {

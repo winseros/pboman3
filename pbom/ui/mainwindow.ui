@@ -263,11 +263,17 @@
    </property>
   </action>
   <action name="actionViewHeaders">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Headers</string>
    </property>
   </action>
   <action name="actionViewSignature">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Signatrue</string>
    </property>

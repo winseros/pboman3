@@ -12,21 +12,18 @@ namespace pboman3 {
     Q_OBJECT
 
     public:
-        RenameDialog(QWidget* parent, QString title, std::function<TitleError(const QString&)> validate);
+        RenameDialog(QWidget* parent, PboNode* node);
 
         ~RenameDialog();
-
-        QString title() const;
-
+       
     public slots:
-        void onTextEdited(const QString& _) const;
+        void onTextEdited(const QString& title) const;
 
-        void onAcceptClick();
+        void accept() override;
 
     private:
         Ui::RenameDialog* ui_;
-        QString title_;
-        const std::function<QString(const QString&)> validate_;
+        PboNode* node_;
         bool isDirty_;
 
         bool setErrorState(const TitleError& err) const;

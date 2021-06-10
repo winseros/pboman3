@@ -61,7 +61,7 @@
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>RenameDialog</receiver>
-   <slot>onAcceptClick()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>199</x>

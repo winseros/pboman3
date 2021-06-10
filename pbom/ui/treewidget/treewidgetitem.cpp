@@ -21,14 +21,7 @@ namespace pboman3 {
     }
 
     void TreeWidgetItem::rename() const {
-        auto validate = [this](const QString& title) {
-            return node_->verifyTitle(title);
-        };
-
-        RenameDialog rename(treeWidget(), node_->title(), validate);
-        if (rename.exec() == QDialog::DialogCode::Accepted) {
-            node_->setTitle(rename.title());
-        }
+        RenameDialog(treeWidget(), node_).exec();
     }
 
     void TreeWidgetItem::initCreateChildren() {

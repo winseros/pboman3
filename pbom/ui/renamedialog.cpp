@@ -4,18 +4,16 @@
 
 namespace pboman3 {
     RenameDialog::RenameDialog(QWidget* parent,
-                               QString title,
-                               std::function<QString(const QString&)> validate)
+                               PboNode* node)
         : QDialog(parent),
           ui_(new Ui::RenameDialog),
-          title_(std::move(title)),
-          validate_(std::move(validate)),
+          node_(node),
           isDirty_(false) {
         ui_->setupUi(this);
 
         disableAccept(setErrorState(""));
 
-        ui_->input->setText(title_);
+        ui_->input->setText(node->title());
         ui_->input->selectAll();
     }
 
@@ -23,33 +21,31 @@ namespace pboman3 {
         delete ui_;
     }
 
-    QString RenameDialog::title() const {
-        return ui_->input->text();
-    }
-
     void RenameDialog::onTextEdited(const QString& title) const {
-        if (title == title_) {
+        if (title == node_->title()) {
             disableAccept(setErrorState(""));
         } else {
             if (isDirty_) {
-                disableAccept(setErrorState(validate_(title)));
+                disableAccept(setErrorState(node_->verifyTitle(title)));
             }
         }
     }
 
-    void RenameDialog::onAcceptClick() {
+    void RenameDialog::accept() {
         const QString title = ui_->input->text();
-        if (title == title_) {
-            reject();
+        if (title == node_->title()) {
+            QDialog::reject();
         } else {
             if (isDirty_) {
-                accept();
+                node_->setTitle(title);
+                QDialog::accept();
             } else {
                 isDirty_ = true;
-                if (setErrorState(validate_(title))) {
+                if (setErrorState(node_->verifyTitle(title))) {
                     disableAccept(true);
                 } else {
-                    accept();
+                    node_->setTitle(title);
+                    QDialog::accept();
                 }
             }
         }

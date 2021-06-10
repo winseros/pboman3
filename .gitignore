@@ -75,6 +75,7 @@ Thumbs.db
 .vs/
 out/
 *.user
+CMakeSettings.json
 
 # CLion
 .idea/

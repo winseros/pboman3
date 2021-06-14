@@ -4,6 +4,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+set(WIN32_VER 0x0A00) #https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160
+
 set(CMAKE_FIND_DEBUG_MODE FALSE)
 find_package(QT NAMES Qt6 COMPONENTS Widgets Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Test REQUIRED)
@@ -40,6 +42,7 @@ set(PROJECT_SOURCES
         ui/treewidget/treewidget.cpp
         ui/treewidget/treewidgetbase.cpp
         ui/treewidget/treewidgetitem.cpp
+        ui/win32/win32iconmgr.cpp
         ui/busybar.cpp
         ui/closedialog.cpp
         ui/closedialog.ui
@@ -58,12 +61,14 @@ set(PROJECT_SOURCES
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
         util/appexception.cpp
+        util/util.cpp
 )
 
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
 qt_add_executable(pbom ${PROJECT_SOURCES} main.cpp)
 target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(pbom PRIVATE WINVER=${WIN32_VER})
 
 set(TEST_SOURCES
     "io/bs/__test__/fslzhbinarysource_test.cpp"
@@ -87,6 +92,7 @@ set(TEST_SOURCES
     "model/__test__/signaturemodel_test.cpp"
     "ui/__test__/fscollector__test.cpp"
     "util/__test__/qpointerlistiterator_test.cpp"
+    "util/__test__/util_test.cpp"
  )
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
@@ -94,4 +100,6 @@ add_test(NAME pbom_test COMMAND pbom_test)
 target_link_libraries(pbom_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets gtest gmock)
 target_include_directories(pbom_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_definitions(pbom_test PRIVATE SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(pbom_test PRIVATE 
+    SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    WINVER=${WIN32_VER})

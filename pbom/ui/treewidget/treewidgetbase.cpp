@@ -22,8 +22,8 @@ namespace pboman3 {
         : QTreeWidget(parent),
           root_(nullptr),
           dragOverItem_(nullptr) {
-        connect(this, &QTreeWidget::itemExpanded, this, &TreeWidgetBase::onItemExpanded);
-        connect(this, &QTreeWidget::itemCollapsed, this, &TreeWidgetBase::onItemCollapsed);
+        connect(this, &QTreeWidget::itemExpanded, this, &TreeWidgetBase::itemSyncIcon);
+        connect(this, &QTreeWidget::itemCollapsed, this, &TreeWidgetBase::itemSyncIcon);
     }
 
     QList<PboNode*> TreeWidgetBase::getSelectedHierarchies() const {
@@ -77,12 +77,10 @@ namespace pboman3 {
         return result;
     }
 
-    void TreeWidgetBase::onItemExpanded(QTreeWidgetItem* item) {
-        item->setIcon(0, QIcon(":ifolderopened.png"));
-    }
-
-    void TreeWidgetBase::onItemCollapsed(QTreeWidgetItem* item) {
-        item->setIcon(0, QIcon(":ifolderclosed.png"));
+    void TreeWidgetBase::itemSyncIcon(QTreeWidgetItem* item) {
+        auto* treeWidgetItem = dynamic_cast<TreeWidgetItem*>(item);
+        assert(treeWidgetItem);
+        treeWidgetItem->folderSyncIcon();
     }
 
     void TreeWidgetBase::startDrag(Qt::DropActions supportedActions) {

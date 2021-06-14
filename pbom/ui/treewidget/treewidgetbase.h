@@ -39,9 +39,7 @@ namespace pboman3 {
         TreeWidgetItem* root_;
         TreeWidgetItem* dragOverItem_;
 
-        void onItemExpanded(QTreeWidgetItem* item);
-
-        void onItemCollapsed(QTreeWidgetItem* item);
+        void itemSyncIcon(QTreeWidgetItem* item);
 
         bool tryAcceptEvent(const QMimeData* mimeData, const QPoint& pos);
 

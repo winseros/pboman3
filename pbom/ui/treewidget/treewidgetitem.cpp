@@ -1,12 +1,22 @@
 #include "treewidgetitem.h"
+#include <QFileInfo>
 #include "ui/renamedialog.h"
+#include "ui/win32/win32iconmgr.h"
 
 namespace pboman3 {
     TreeWidgetItem::TreeWidgetItem(PboNode* node)
-        : QTreeWidgetItem(), QObject(), node_(node) {
+        : TreeWidgetItem(node, QSharedPointer<IconMgr>(new Win32IconMgr)) {
+    }
 
+    TreeWidgetItem::TreeWidgetItem(PboNode* node, const QSharedPointer<IconMgr>& icons)
+        : QTreeWidgetItem(),
+          QObject(),
+          node_(node),
+          icons_(icons) {
         setText(0, node_->title());
-        setIcon(0, QIcon(node->nodeType() == PboNodeType::File ? ":ifile.png" : ":ifolderclosed.png"));
+        setIcon(0, node->nodeType() == PboNodeType::File
+                       ? icons_->getIconForExtension(GetFileExtension(node_->title()))
+                       : icons_->getFolderClosedIcon());
 
         initCreateChildren();
 
@@ -24,6 +34,14 @@ namespace pboman3 {
         RenameDialog(treeWidget(), node_).exec();
     }
 
+    void TreeWidgetItem::folderSyncIcon() {
+        if (node_->nodeType() != PboNodeType::File) {
+            setIcon(0, isExpanded()
+                           ? icons_->getFolderOpenedIcon()
+                           : icons_->getFolderClosedIcon());
+        }
+    }
+
     void TreeWidgetItem::initCreateChildren() {
         qsizetype i = 0;
         for (PboNode* child : *node_) {
@@ -34,10 +52,13 @@ namespace pboman3 {
 
     void TreeWidgetItem::onNodeTitleChanged(const QString& title) {
         setText(0, title);
+        if (node_->nodeType() == PboNodeType::File) {
+            setIcon(0, icons_->getIconForExtension(GetFileExtension(node_->title())));
+        }
     }
 
     void TreeWidgetItem::onNodeChildCreated(PboNode* node, qsizetype index) {
-        auto* item = new TreeWidgetItem(node);
+        auto* item = new TreeWidgetItem(node, icons_);
         insertChild(static_cast<int>(index), item);
     }
 

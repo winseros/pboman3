@@ -6,6 +6,8 @@
 #include "ui/fscollector.h"
 #include "ui/insertdialog.h"
 #include "util/appexception.h"
+#include <QDesktopServices>
+#include "ui/win32/win32fileviewer.h"
 
 namespace pboman3 {
 #define MIME_TYPE_PBOMAN "application/pboman3"
@@ -17,7 +19,26 @@ namespace pboman3 {
 
         connect(&dragDropWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::dragStartExecute);
         connect(&cutCopyWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::copyOrCutExecute);
+        connect(&openWatcher_, &QFutureWatcher<QString>::finished, this, &TreeWidget::openExecute);
         connect(this, &TreeWidget::itemSelectionChanged, this, &TreeWidget::onSelectionChanged);
+        connect(this, &TreeWidget::doubleClicked, this, &TreeWidget::onDoubleClicked);
+    }
+
+    void TreeWidget::selectionOpen() {
+        if (!actionState_.canOpen)
+            throw AppException("Open action is not available");
+
+        emit backgroundOpStarted();
+
+        const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
+
+        const QFuture<QString> future = QtConcurrent::run(
+            [this](QPromise<QString>& promise, const PboNode* node) {
+                QString filePath = model_->execPrepare(node, [&promise]() { return promise.isCanceled(); });
+                promise.addResult(filePath);
+            }, selected->node());
+
+        openWatcher_.setFuture(future);
     }
 
     void TreeWidget::selectionCopy() {
@@ -94,6 +115,15 @@ namespace pboman3 {
         }
     }
 
+    void TreeWidget::onDoubleClicked() {
+        auto* current = dynamic_cast<TreeWidgetItem*>(currentItem());
+        if (current->node()->nodeType() == PboNodeType::File) {
+            selectionOpen();
+        } else {
+            current->setExpanded(!current->isExpanded());
+        }
+    }
+
     void TreeWidget::onSelectionChanged() {
         actionState_.canOpen = getCurrentFile();
         actionState_.canRename = !!currentItem();
@@ -104,7 +134,7 @@ namespace pboman3 {
                 return false;
             const bool rootSelected = !std::any_of(nodes.begin(), nodes.end(), [](PboNode* n) {
                 return !n->parentNode();
-                });
+            });
             return rootSelected;
         };
 
@@ -133,6 +163,11 @@ namespace pboman3 {
         cutCopyWatcher_.setFuture(future);
 
         return nodes;
+    }
+
+    void TreeWidget::openExecute() {
+        emit backgroundOpStopped();
+        Win32FileViewer().previewFile(openWatcher_.future().takeResult());
     }
 
     void TreeWidget::dragStartExecute() {

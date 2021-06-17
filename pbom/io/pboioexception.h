@@ -13,7 +13,5 @@ namespace pboman3 {
         void raise() const override;
 
         QException* clone() const override;
-    private:
-        QString message_;
     };
 }

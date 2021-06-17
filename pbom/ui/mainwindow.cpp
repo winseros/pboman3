@@ -61,6 +61,11 @@ namespace pboman3 {
         connect(ui_->actionFileExit, &QAction::triggered, this, &MainWindow::close);
         connect(ui_->actionViewHeaders, &QAction::triggered, this, &MainWindow::onViewHeadersClick);
         connect(ui_->actionViewSignature, &QAction::triggered, this, &MainWindow::onViewSignatureClick);
+        connect(ui_->actionSelectionOpen, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionOpen);
+        ui_->actionSelectionOpen->setShortcuts(QList<QKeySequence>({ 
+            QKeySequence(Qt::Key_Enter),
+            QKeySequence(Qt::Key_Return)
+        }));
         connect(ui_->actionSelectionPaste, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionPaste);
         connect(ui_->actionSelectionCopy, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCopy);
         connect(ui_->actionSelectionCut, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCut);

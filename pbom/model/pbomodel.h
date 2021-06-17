@@ -23,6 +23,8 @@ namespace pboman3 {
 
         InteractionParcel interactionPrepare(const QList<PboNode*>& nodes, const Cancel& cancel) const;
 
+        QString execPrepare(const PboNode* node, const Cancel& cancel) const;
+
         ConflictsParcel checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const;
 
         PboNode* rootEntry() const;

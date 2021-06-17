@@ -20,6 +20,8 @@ namespace pboman3 {
 
         explicit TreeWidget(QWidget* parent = nullptr);
 
+        void selectionOpen();
+
         void selectionCopy();
 
         void selectionCut();
@@ -49,11 +51,16 @@ namespace pboman3 {
         DeleteOp delete_;
         QFutureWatcher<InteractionParcel> dragDropWatcher_;
         QFutureWatcher<InteractionParcel> cutCopyWatcher_;
+        QFutureWatcher<QString> openWatcher_;
         ActionState actionState_;
+
+        void onDoubleClicked();
 
         void onSelectionChanged();
 
         QList<PboNode*> selectionCopyImpl();
+
+        void openExecute();
 
         void dragStartExecute();
 

@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
         io/lzh/lzh.cpp
         io/lzh/lzhdecompressionexception.cpp
         io/binarybackend.cpp
+        io/execstore.cpp
         io/pbodatastream.cpp
         io/pbofile.cpp
         io/pboheaderio.cpp
@@ -43,6 +44,7 @@ set(PROJECT_SOURCES
         ui/treewidget/treewidgetbase.cpp
         ui/treewidget/treewidgetitem.cpp
         ui/win32/win32iconmgr.cpp
+        ui/win32/win32fileviewer.cpp
         ui/busybar.cpp
         ui/closedialog.cpp
         ui/closedialog.ui
@@ -78,6 +80,7 @@ set(TEST_SOURCES
     "io/lzh/__test__/compressionchunk_test.cpp"
     "io/lzh/__test__/lzh_test.cpp"
     "io/__test__/binarybackend_test.cpp"
+    "io/__test__/execstore_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "io/__test__/pboheaderreader_test.cpp"

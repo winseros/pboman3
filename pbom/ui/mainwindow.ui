@@ -190,10 +190,13 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>View</string>
+   </property>
+   <property name="toolTip">
+    <string>View</string>
    </property>
    <property name="shortcut">
-    <string>Return, Enter</string>
+    <string>Enter</string>
    </property>
   </action>
   <action name="actionSelectionCopy">

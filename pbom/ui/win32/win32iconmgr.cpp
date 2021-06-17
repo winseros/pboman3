@@ -7,9 +7,6 @@
 
 namespace pboman3 {
     Win32IconMgr::Win32IconMgr() {
-        const HRESULT hr = CoInitialize(nullptr);
-        assert(SUCCEEDED(hr));
-
         cache_[""] = QIcon(":ifile.png");
         cache_[":folder-closed:"] = QIcon(":ifolderclosed.png");
         cache_[":folder-opened:"] = QIcon(":ifolderopened.png");

@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "io/binarybackend.h"
 #include <QUuid>
-
+#include "io/pboioexception.h"
 #include "io/bs/fsrawbinarysource.h"
 
 namespace pboman3::test {
@@ -53,6 +53,38 @@ namespace pboman3::test {
         c2.close();
     }
 
+    TEST(BinaryBackendTest, ExecSync_Creates_File_On_Disk) {
+        //dummy files
+        QTemporaryFile f1;
+        f1.open();
+        f1.write(QByteArray("some text data 1"));
+        f1.close();
+
+        //nodes to sync
+        PboNode root("root", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
+
+        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+
+        //the object tested
+        const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
+        BinaryBackend be(name);
+        const QString sync = be.execSync(e1, []() { return false; });
+
+        //check the result
+        const QString expectedPath = QDir::tempPath() + "/pboman3/" + name + "/exec_/";
+
+        //c:\users\%username%\temp\pboman3\exec_\<guid>\e1\file1.txt
+        ASSERT_TRUE(sync.startsWith(expectedPath));
+        ASSERT_TRUE(sync.endsWith("e1/file1.txt"));
+
+        //ensure the files have their content
+        QFile c1(sync);
+        c1.open(QIODeviceBase::ReadOnly);
+        ASSERT_EQ(c1.readAll(), "some text data 1");
+        c1.close();
+    }
+
     TEST(BinaryBackendTest, Dtor_Cleans_Disk_After_Itself) {
         //dummy files
         QTemporaryFile f1;
@@ -76,10 +108,13 @@ namespace pboman3::test {
         //the object tested
         const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
         const auto be = new BinaryBackend(name);
-        const QList<QUrl> sync = be->hddSync(QList({ e1, e2, root.at(0) }), []() { return false; });
+        be->hddSync(QList({e1, e2, root.at(0)}), []() { return false; });
+        be->execSync(e1, []() { return false; });
+
         //must clean up
         delete be;
 
         ASSERT_FALSE(QDir(QDir::tempPath() + "/pboman3/" + name + "/tree_").exists());
+        ASSERT_FALSE(QDir(QDir::tempPath() + "/pboman3/" + name + "/exec_").exists());
     }
 }

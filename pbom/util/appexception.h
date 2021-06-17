@@ -9,6 +9,12 @@ namespace pboman3 {
 
         const QString& message() const;
 
+        friend QDebug operator<<(QDebug debug, const AppException& ex);
+
+        void raise() const override;
+
+        QException* clone() const override;
+
     private:
         const QString message_;
     };

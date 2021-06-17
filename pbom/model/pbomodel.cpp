@@ -112,6 +112,11 @@ namespace pboman3 {
         return InteractionParcel(std::move(files), std::move(descriptors));
     }
 
+    QString PboModel::execPrepare(const PboNode* node, const Cancel& cancel) const {
+        QString file = binaryBackend_->execSync(node, cancel);
+        return file;
+    }
+
     ConflictsParcel PboModel::checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const {
         if (!rootEntry_)
             throw PboTreeException("The model is not initialized");

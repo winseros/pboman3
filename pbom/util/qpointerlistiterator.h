@@ -58,7 +58,7 @@ namespace pboman3 {
         QPointerListIterator<T> operator-(qsizetype j) const { return QPointerListIterator<T>(ptr_ - j); }
         friend QPointerListIterator<T> operator+(qsizetype j, QPointerListIterator<T> k) { return k + j; }
         qsizetype operator-(QPointerListIterator<T> j) const { return ptr_->get() - j.ptr_->get(); }
-        operator QPointerListIterator<T>*() const { return ptr_->get(); }
+        operator T*() const { return ptr_->get(); }
 
     private:
         QSharedPointer<T>* ptr_;
@@ -119,7 +119,7 @@ namespace pboman3 {
         QPointerListConstIterator<T> operator-(qsizetype j) const { return QPointerListConstIterator<T>(ptr_ - j); }
         friend QPointerListConstIterator<T> operator+(qsizetype j, QPointerListConstIterator<T> k) { return k + j; }
         qsizetype operator-(QPointerListConstIterator<T> j) const { return ptr_->get() - j.ptr_->get(); }
-        operator QPointerListConstIterator<T>*() const { return ptr_->get(); }
+        operator const T*() const { return ptr_->get(); }
 
     private:
         const QSharedPointer<T>* ptr_;

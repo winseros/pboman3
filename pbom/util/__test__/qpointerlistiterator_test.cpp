@@ -76,6 +76,8 @@ namespace pboman3::test {
         ASSERT_EQ(it22, h2.get());
         ASSERT_EQ(it11, it22);
         ASSERT_EQ(it1, it2);
+
+        ASSERT_EQ(static_cast<PboHeader*>(it1), static_cast<PboHeader*>(it2));
     }
 
     TEST(QPointerListConstIteratorTest, Ietrator_Works) {
@@ -151,5 +153,7 @@ namespace pboman3::test {
         ASSERT_EQ(it22, h2.get());
         ASSERT_EQ(it11, it22);
         ASSERT_EQ(it1, it2);
+
+        ASSERT_EQ(static_cast<const PboHeader*>(it1), static_cast<const PboHeader*>(it2));
     }
 }

@@ -6,6 +6,7 @@
 #include "io/bs/fslzhbinarysource.h"
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
+#include <QDebug>
 
 namespace pboman3 {
     enum class BinarySourceType {
@@ -17,7 +18,7 @@ namespace pboman3 {
     class NodeDescriptor {
     public:
         NodeDescriptor(const QSharedPointer<BinarySource>& binarySource,
-                    PboPath path)
+                       PboPath path)
             : binarySource_(binarySource),
               path_(std::move(path)) {
         }
@@ -28,10 +29,16 @@ namespace pboman3 {
 
         void setCompressed(bool compressed);
 
+        friend QDebug operator <<(QDebug debug, const NodeDescriptor& descriptor) {
+            return debug << "NodeDescriptor(PboPath=" << descriptor.path() << ", BinarySource=" << *descriptor.
+                binarySource() << ")";
+        }
+
     private:
         QSharedPointer<BinarySource> binarySource_;
         PboPath path_;
     };
+
 
     class NodeDescriptors : public QList<NodeDescriptor> {
     public:

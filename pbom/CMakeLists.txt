@@ -4,6 +4,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+if (MSVC)
+    add_compile_options(/Zc:preprocessor)
+endif()
+
 set(WIN32_VER 0x0A00) #https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160
 
 set(CMAKE_FIND_DEBUG_MODE FALSE)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QDebug>
 #include <QFileDevice>
 #include "util/util.h"
 
@@ -22,12 +23,14 @@ namespace pboman3 {
 
         virtual bool isCompressed() const = 0;
 
+        friend QDebug operator <<(QDebug debug, const BinarySource& bs) {
+            return debug << "BinarySource(Compressed=" << bs.isCompressed() << ", Path=" << bs.path_ << ")";
+        }
+
     protected:
         QFileDevice* file_;
 
     private:
         QString path_;
     };
-
-    
 }

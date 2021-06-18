@@ -2,6 +2,9 @@
 #include <QVariant>
 #include <Windows.h>
 #include <shellapi.h>
+#include "util/log.h"
+
+#define LOG(...) LOGGER("ui/win32/Win32FileViewer", __VA_ARGS__)
 
 namespace pboman3 {
     Win32FileViewerException::Win32FileViewerException(QString message)
@@ -21,6 +24,8 @@ namespace pboman3 {
     }
 
     void Win32FileViewer::previewFile(const QString& path) {
+        LOG(info, "Launching preview for:", path)
+
         const QByteArray pathData = path.toUtf8();
 
         SHELLEXECUTEINFOA info;
@@ -33,6 +38,7 @@ namespace pboman3 {
         info.cbSize = sizeof info;
         if (!ShellExecuteExA(&info)) {
             const DWORD err = GetLastError();
+            LOG(info, "Preview failed with error:", err)
             throw Win32FileViewerException(
                 "The underlying operating system returned error trying to open the file. Error code: " + QString::number(err));
         }

@@ -255,4 +255,8 @@ namespace pboman3 {
         }
         emit parent->hierarchyChanged();
     }
+
+    QDebug operator<<(QDebug debug, const PboNode& node) {
+        return debug << "PboNode(" << node.makePath() << ")";
+    }
 }

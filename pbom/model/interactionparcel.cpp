@@ -197,4 +197,9 @@ namespace pboman3 {
             }
         }
     }
+
+    QDebug operator<<(QDebug debug, const InteractionParcel& parcel) {
+        return debug << "InteractionParcel(Files=" << parcel.files_.count()
+            << ", Nodes=" << parcel.nodes_.count() << ")";
+    }
 }

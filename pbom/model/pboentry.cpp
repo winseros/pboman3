@@ -12,12 +12,12 @@ namespace pboman3 {
     PboEntry::PboEntry(QString fileName, PboPackingMethod packingMethod,
                        qint32 originalSize, qint32 reserved,
                        qint32 timestamp, qint32 dataSize) :
-            fileName_(std::move(fileName)),
-            packingMethod_(packingMethod),
-            originalSize_(originalSize),
-            reserved_(reserved),
-            timestamp_(timestamp),
-            dataSize_(dataSize) {
+        fileName_(std::move(fileName)),
+        packingMethod_(packingMethod),
+        originalSize_(originalSize),
+        reserved_(reserved),
+        timestamp_(timestamp),
+        dataSize_(dataSize) {
     }
 
     bool PboEntry::isBoundary() const {
@@ -34,7 +34,7 @@ namespace pboman3 {
 
     bool PboEntry::isContent() const {
         return !isBoundary() && packingMethod_ == PboPackingMethod::Uncompressed ||
-               packingMethod_ == PboPackingMethod::Packed;
+            packingMethod_ == PboPackingMethod::Packed;
     }
 
     int PboEntry::size() const {
@@ -47,7 +47,6 @@ namespace pboman3 {
 
     //each header entry consists of 5x4 bytes of fields + filename.length + 1 byte zero string terminator
     const int PboEntry::sizeOfFields = 21;
-
 
     const QString& PboEntry::fileName() const {
         return fileName_;
@@ -71,5 +70,11 @@ namespace pboman3 {
 
     qint32 PboEntry::dataSize() const {
         return dataSize_;
+    }
+
+    QDebug operator<<(QDebug debug, const PboEntry entry) {
+        return debug << "PboEntry(FileName=" << entry.fileName_ << ", PackingMethod=" <<
+            static_cast<qint32>(entry.packingMethod_) << ", OriginalSize=" << entry.originalSize_ << ", TimeStamp=" <<
+            entry.timestamp_ << ", DataSize=" << entry.dataSize_ << ")";
     }
 }

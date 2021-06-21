@@ -12,6 +12,9 @@ namespace pboman3 {
         void setResolution(const NodeDescriptor& descriptor, ConflictResolution resolution);
 
         bool hasConflicts() const;
+
+        friend QDebug operator<<(QDebug debug, const ConflictsParcel parcel);
+
     private:
         QHash<PboPath, ConflictResolution> conflicts_;
     };

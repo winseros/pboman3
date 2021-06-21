@@ -84,6 +84,8 @@ namespace pboman3 {
             return nodes_;
         }
 
+        friend QDebug operator<<(QDebug debug, const InteractionParcel& parcel);
+
     private:
         QList<QUrl> files_;
         NodeDescriptors nodes_;

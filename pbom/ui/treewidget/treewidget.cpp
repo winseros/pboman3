@@ -8,6 +8,9 @@
 #include "util/appexception.h"
 #include <QDesktopServices>
 #include "ui/win32/win32fileviewer.h"
+#include "util/log.h"
+
+#define LOG(...) LOGGER("ui/treewidget/TreeWidget", __VA_ARGS__)
 
 namespace pboman3 {
 #define MIME_TYPE_PBOMAN "application/pboman3"
@@ -28,13 +31,17 @@ namespace pboman3 {
         if (!actionState_.canOpen)
             throw AppException("Open action is not available");
 
+        LOG(info, "Opening the selected item")
+
         emit backgroundOpStarted();
 
         const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
 
         const QFuture<QString> future = QtConcurrent::run(
             [this](QPromise<QString>& promise, const PboNode* node) {
+                LOG(info, "Extracting the node:", *node)
                 QString filePath = model_->execPrepare(node, [&promise]() { return promise.isCanceled(); });
+                LOG(info, "Extracted the node as:", filePath)
                 promise.addResult(filePath);
             }, selected->node());
 
@@ -45,12 +52,16 @@ namespace pboman3 {
         if (!actionState_.canCopy)
             throw AppException("Copy action is not available");
 
+        LOG(info, "Copy selected items")
+
         selectionCopyImpl();
     }
 
     void TreeWidget::selectionCut() {
         if (!actionState_.canCut)
             throw AppException("Cut action is not available");
+
+        LOG(info, "Cut selected items")
 
         QList<PboNode*> nodes = selectionCopyImpl();
         delete_.schedule(std::move(nodes));
@@ -60,12 +71,18 @@ namespace pboman3 {
         if (!actionState_.canPaste)
             throw AppException("Paste action is not available");
 
+        LOG(info, "Paste to the selected item")
+
         if (PboNode* item = getCurrentFolder()) {
+            LOG(info, "The selected item is:", *item)
+
             QClipboard* clipboard = QGuiApplication::clipboard();
             const QMimeData* mimeData = clipboard->mimeData();
             if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
+                LOG(info, "Clipboard contained data in internal format")
                 addFilesFromPbo(item, mimeData);
             } else if (mimeData->hasUrls()) {
+                LOG(info, "Clipboard contained URLs")
                 addFilesFromFilesystem(mimeData->urls());
             }
         }
@@ -75,8 +92,11 @@ namespace pboman3 {
         if (!actionState_.canRemove)
             throw AppException("Remove action is not available");
 
+        LOG(info, "Remove the selected items")
+
         const QList<PboNode*> selection = getSelectedHierarchies();
         for (PboNode* item : selection) {
+            LOG(debug, "Remove item:", *item)
             item->removeFromHierarchy();
         }
     }
@@ -85,21 +105,29 @@ namespace pboman3 {
         if (!actionState_.canRename)
             throw AppException("Rename action is not available");
 
+        LOG(info, "Rename the current item")
+
         const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
+
         selected->rename();
     }
 
     void TreeWidget::setModel(PboModel* model) {
+        LOG(info, "Using the new model")
         model_ = model;
     }
 
     void TreeWidget::dragStarted(const QList<PboNode*>& items) {
+        LOG(info, "Drag operation has started for", items.length(), "items")
+
         emit backgroundOpStarted();
 
         const QFuture<InteractionParcel> future = QtConcurrent::run(
             [this](QPromise<InteractionParcel>& promise, const QList<PboNode*>& selection) {
+                LOG(info, "Extracting the selected items to the drive")
                 InteractionParcel data = model_->interactionPrepare(
                     selection, [&promise]() { return promise.isCanceled(); });
+                LOG(info, "Extraction complete:", data)
                 promise.addResult(data);
             }, items);
 
@@ -108,23 +136,31 @@ namespace pboman3 {
     }
 
     void TreeWidget::dragDropped(PboNode* target, const QMimeData* mimeData) {
+        LOG(info, "Drag drop to the node:", *target)
         if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
+            LOG(info, "Clipboard contained data in internal format")
             addFilesFromPbo(target, mimeData);
         } else if (mimeData->hasUrls()) {
+            LOG(info, "Clipboard contained URLs")
             addFilesFromFilesystem(mimeData->urls());
         }
     }
 
     void TreeWidget::onDoubleClicked() {
+        LOG(info, "Double click at the item")
         auto* current = dynamic_cast<TreeWidgetItem*>(currentItem());
         if (current->node()->nodeType() == PboNodeType::File) {
+            LOG(info, "The selected node was a file - open it")
             selectionOpen();
         } else {
+            LOG(info, "The selected node was a folder - toggle it")
             current->setExpanded(!current->isExpanded());
         }
     }
 
     void TreeWidget::onSelectionChanged() {
+        LOG(debug, "Selection changed")
+
         actionState_.canOpen = getCurrentFile();
         actionState_.canRename = !!currentItem();
 
@@ -144,18 +180,25 @@ namespace pboman3 {
 
         actionState_.canPaste = getCurrentFolder();
 
+        LOG(debug, "Action state is:", actionState_)
+
         emit actionStateChanged(actionState_);
     }
 
     QList<PboNode*> TreeWidget::selectionCopyImpl() {
+        LOG(info, "Perform Cut/Copy operation")
+
         emit backgroundOpStarted();
 
         QList<PboNode*> nodes = getSelectedHierarchies();
+        LOG(info, nodes.count(), "hierarchy items selected")
 
         const QFuture<InteractionParcel> future = QtConcurrent::run(
             [this](QPromise<InteractionParcel>& promise, const QList<PboNode*>& selection) {
+                LOG(info, "Extracting the selected items to the drive")
                 InteractionParcel data = model_->interactionPrepare(
                     selection, [&promise]() { return promise.isCanceled(); });
+                LOG(info, "Extraction complete:", data)
                 promise.addResult(data);
             }, nodes);
 
@@ -166,12 +209,17 @@ namespace pboman3 {
     }
 
     void TreeWidget::openExecute() {
+        LOG(info, "Executing the open operation")
         emit backgroundOpStopped();
         Win32FileViewer().previewFile(openWatcher_.future().takeResult());
     }
 
     void TreeWidget::dragStartExecute() {
+        LOG(info, "Executing the dragStart operation")
+
         const InteractionParcel data = dragDropWatcher_.future().takeResult();
+        LOG(info, "The interaction parsel is:", data)
+
         auto* mimeData = new QMimeData;
         mimeData->setUrls(data.files());
         mimeData->setData(MIME_TYPE_PBOMAN, NodeDescriptors::serialize(data.nodes()));
@@ -181,14 +229,21 @@ namespace pboman3 {
 
         emit backgroundOpStopped();
 
+        LOG(info, "Begin the system drag-drop operation")
         const Qt::DropAction result = drag.exec(Qt::DropAction::CopyAction | Qt::DropAction::MoveAction);
+
+        LOG(info, "The operation finished with the result:", result)
         if (result == Qt::DropAction::MoveAction) {
             delete_.commit();
         }
     }
 
     void TreeWidget::copyOrCutExecute() {
+        LOG(info, "Executing the Cut/Copy operation")
+
         const InteractionParcel data = cutCopyWatcher_.future().takeResult();
+        LOG(info, "The interaction parsel is:", data)
+
         auto* mimeData = new QMimeData;
         mimeData->setUrls(data.files());
         mimeData->setData(MIME_TYPE_PBOMAN, NodeDescriptors::serialize(data.nodes()));
@@ -200,27 +255,45 @@ namespace pboman3 {
     }
 
     void TreeWidget::addFilesFromPbo(PboNode* target, const QMimeData* mimeData) {
+        LOG(info, "Add files that are already a part of the PBO")
         const QByteArray data = mimeData->data(MIME_TYPE_PBOMAN);
+
         NodeDescriptors descriptors = NodeDescriptors::deserialize(data);
+        LOG(debug, "Deserialized descriptors:", descriptors)
+
         ConflictsParcel conflicts = model_->checkConflicts(target, descriptors);
+        LOG(debug, "The result of conflicts check:", conflicts)
+
         if (conflicts.hasConflicts()) {
+            LOG(info, "There were conflicts - running the resolution dialog")
             InsertDialog dialog(this, InsertDialog::Mode::InternalFiles, &descriptors, &conflicts);
             if (dialog.exec() == QDialog::DialogCode::Accepted) {
+                LOG(info, "The user accepted the conflicts dialog")
                 model_->createNodeSet(target, descriptors, conflicts);
                 delete_.commit();
             }
         } else {
+            LOG(info, "There were no conflicts - adding the nodes as is")
             model_->createNodeSet(target, descriptors, conflicts);
             delete_.commit();
         }
     }
 
     void TreeWidget::addFilesFromFilesystem(const QList<QUrl>& urls) {
+        LOG(info, "Add files from the file system:", urls)
+
         NodeDescriptors files = FsCollector::collectFiles(urls);
+        LOG(debug, "Collected descriptors:", files)
+
         PboNode* item = getCurrentFolder();
+        LOG(info, "Selected node is:", *item)
+
         ConflictsParcel conflicts = model_->checkConflicts(item, files);
+        LOG(debug, "The result of conflicts check:", conflicts)
+
         InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, &files, &conflicts);
         if (dialog.exec() == QDialog::DialogCode::Accepted) {
+            LOG(info, "The user accepted the file insert dialog")
             model_->createNodeSet(item, files, conflicts);
         }
     }

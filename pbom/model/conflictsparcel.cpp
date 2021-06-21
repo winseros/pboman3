@@ -12,4 +12,8 @@ namespace pboman3 {
     bool ConflictsParcel::hasConflicts() const {
         return conflicts_.count() > 0;
     }
+
+    QDebug operator<<(QDebug debug, const ConflictsParcel parcel) {
+        return debug << "ConflictsParcel(" << parcel.conflicts_.count() << "items)";
+    }
 }

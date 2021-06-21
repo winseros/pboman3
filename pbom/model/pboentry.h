@@ -49,6 +49,8 @@ namespace pboman3 {
 
         qint32 dataSize() const;
 
+        friend QDebug operator <<(QDebug debug, const PboEntry entry);
+
     private:
         static const int sizeOfFields;
 

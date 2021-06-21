@@ -2,11 +2,24 @@
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include "util/log.h"
+
+#define LOG(...) LOGGER("ui/treewidget/TreeWidgetBase", __VA_ARGS__)
 
 namespace pboman3 {
+    TreeWidgetBase::TreeWidgetBase(QWidget* parent)
+        : QTreeWidget(parent),
+          root_(nullptr),
+          dragOverItem_(nullptr) {
+        connect(this, &QTreeWidget::itemExpanded, this, &TreeWidgetBase::itemSyncIcon);
+        connect(this, &QTreeWidget::itemCollapsed, this, &TreeWidgetBase::itemSyncIcon);
+    }
+
     void TreeWidgetBase::setRoot(PboNode* rootNode) {
         if (root_)
             resetRoot();
+
+        LOG(info, "Set new root node:", *rootNode)
 
         root_ = new TreeWidgetItem(rootNode);
         addTopLevelItem(root_);
@@ -14,16 +27,9 @@ namespace pboman3 {
     }
 
     void TreeWidgetBase::resetRoot() {
+        LOG(info, "Reset the root node")
         clear();
         root_ = nullptr;
-    }
-
-    TreeWidgetBase::TreeWidgetBase(QWidget* parent)
-        : QTreeWidget(parent),
-          root_(nullptr),
-          dragOverItem_(nullptr) {
-        connect(this, &QTreeWidget::itemExpanded, this, &TreeWidgetBase::itemSyncIcon);
-        connect(this, &QTreeWidget::itemCollapsed, this, &TreeWidgetBase::itemSyncIcon);
     }
 
     QList<PboNode*> TreeWidgetBase::getSelectedHierarchies() const {

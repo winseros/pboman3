@@ -10,6 +10,11 @@ namespace pboman3 {
         QList<QSharedPointer<PboEntry>> entries;
         qsizetype dataBlockStart;
         QByteArray signature;
+
+        friend QDebug operator<<(QDebug debug, const PboFileHeader& header) {
+            return debug << "PboFileHeader(Headers=" << header.headers.length() << ", Entries=" << header.entries.
+                length() << ", DataBlockStart=" << header.dataBlockStart << ", Signature=" << header.signature.length() << ")";
+        }
     };
 
     class PboHeaderReader {

@@ -16,6 +16,13 @@ namespace pboman3 {
             bool canPaste;
             bool canRemove;
             bool canRename;
+
+            friend QDebug operator<<(QDebug debug, const ActionState& state) {
+                return debug << "TreeWidget.ActionState(CanOpen=" << state.canOpen
+                    << ", CanCopy=" << state.canCopy << ", CanCut=" << state.canCut
+                    << ", CanPaste=" << state.canPaste << ", CanRemove=" << state.canRemove
+                    << ", CanRename=" << state.canRename << ")";
+            }
         };
 
         explicit TreeWidget(QWidget* parent = nullptr);

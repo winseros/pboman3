@@ -54,6 +54,8 @@ namespace pboman3 {
 
         bool operator <(const PboNode& node) const;
 
+        friend QDebug operator <<(QDebug debug, const PboNode& node);
+
     signals:
         void titleChanged(const QString& title);
 

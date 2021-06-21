@@ -8,6 +8,8 @@
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
 
 int main(int argc, char* argv[]) {
+    qSetMessagePattern("%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
+
     using namespace pboman3;
 
     LOG(info, "Starting the app")

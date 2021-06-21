@@ -2,6 +2,9 @@
 #include <QTreeWidgetItem>
 #include <QAction>
 #include <QMenu>
+#include "util/log.h"
+
+#define LOG(...) LOGGER("ui/HeadersDialog", __VA_ARGS__)
 
 namespace pboman3 {
     constexpr int colName = 0;
@@ -23,7 +26,7 @@ namespace pboman3 {
     }
 
     void HeadersDialog::accept() {
-        QDialog::accept();
+        LOG(info, "User clicked the Accept button");
 
         QList<QSharedPointer<PboHeader>> headers;
         headers.reserve(ui_->treeWidget->topLevelItemCount());
@@ -32,11 +35,15 @@ namespace pboman3 {
             QTreeWidgetItem* item = ui_->treeWidget->topLevelItem(i);
 
             if (isValidHeader(item->text(colName), item->text(colValue))) {
+                LOG(debug, "Append header, name=", item->text(colName), "value=", item->text(colValue))
                 headers.append(QSharedPointer<PboHeader>(new PboHeader(item->text(colName), item->text(colValue))));
             }
         }
 
         model_->setData(std::move(headers));
+
+        LOG(info, "Accepting the dialog");
+        QDialog::accept();
     }
 
     void HeadersDialog::showEvent(QShowEvent*) {
@@ -45,14 +52,19 @@ namespace pboman3 {
     }
 
     void HeadersDialog::renderHeaderItems() const {
+        LOG(info, "Rendering headers")
+
         ui_->treeWidget->setHeaderLabels(QList<QString>({"Name", "Value"}));
         for (const QSharedPointer<PboHeader>& header : *model_) {
+            LOG(debug, "Render header, name=", header->name, "value=", header->value)
+
             auto item = new QTreeWidgetItem();
             item->setText(colName, header->name);
             item->setText(colValue, header->value);
             item->setFlags(itemFlags);
             ui_->treeWidget->addTopLevelItem(item);
         }
+        LOG(info, "Rendered", ui_->treeWidget->topLevelItemCount(), "items")
     }
 
     void HeadersDialog::setupConnections() const {
@@ -69,8 +81,8 @@ namespace pboman3 {
 
     void HeadersDialog::contextMenuRequested(const QPoint& pos) const {
         QMenu menu;
-
         if (ui_->treeWidget->currentIndex().isValid()) {
+            LOG(info, "Open the context menu - currentIndex is valid")
             menu.addAction(ui_->actionInsertAbove);
             menu.addAction(ui_->actionInsertBelow);
             menu.addSeparator();
@@ -79,6 +91,7 @@ namespace pboman3 {
             menu.addSeparator();
             menu.addAction(ui_->actionRemove);
         } else {
+            LOG(info, "Open the context menu - currentIndex is invalid")
             menu.addAction(ui_->actionInsert);
         }
 
@@ -90,13 +103,17 @@ namespace pboman3 {
     }
 
     void HeadersDialog::onInsertClick(int index) const {
+        LOG(info, "User clicked the Insert button")
+
         auto item = new QTreeWidgetItem();
         item->setFlags(itemFlags);
 
         const QModelIndex selected = ui_->treeWidget->currentIndex();
         if (selected.isValid()) {
+            LOG(info, "Inserting a new top level itemm currentIndex:", selected.row(), " index:", index)
             ui_->treeWidget->insertTopLevelItem(selected.row() + index, item);
         } else {
+            LOG(info, "Inserting an new top level item at the top")
             ui_->treeWidget->addTopLevelItem(item);
         }
 
@@ -104,11 +121,15 @@ namespace pboman3 {
     }
 
     void HeadersDialog::onMoveClick(int index) const {
+        LOG(info, "User clicked the Move button, index:", index)
+
         const QModelIndex selected = ui_->treeWidget->currentIndex();
         if (selected.isValid()) {
             index = selected.row() + index;
+            LOG(info, "Selection is valid, selectedRow:", selected.row(), ", index:", index)
             if (index >= 0 && index < ui_->treeWidget->topLevelItemCount()) {
                 QTreeWidgetItem* item = ui_->treeWidget->takeTopLevelItem(selected.row());
+                LOG(info, "Moving the item: name=", item->text(colName), "value=", item->text(colValue), " from the index: ", selected.row(), "to index:", index)
                 ui_->treeWidget->insertTopLevelItem(index, item);
                 ui_->treeWidget->setCurrentItem(item);
             }
@@ -117,6 +138,7 @@ namespace pboman3 {
 
     void HeadersDialog::onRemoveClick() const {
         QTreeWidgetItem* selected = ui_->treeWidget->currentItem();
+        LOG(info, "User clicked the Remove button, name=", selected->text(colName), "value=", selected->text(colValue), "index=", ui_->treeWidget->currentIndex())
         delete selected; //https://doc.qt.io/qt-6/qtreewidgetitem.html#dtor.QTreeWidgetItem
     }
 }

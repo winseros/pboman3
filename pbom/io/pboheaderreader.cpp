@@ -12,7 +12,7 @@ namespace pboman3 {
         QSharedPointer<PboEntry> entry = reader.readNextEntry();
 
         if (!entry) {
-            throw PboIoException("The file is not a valid PBO");
+            throw PboIoException("The file is not a valid PBO.", file->fileName());
         }
 
         qsizetype dataBlockEnd = 0;
@@ -23,13 +23,13 @@ namespace pboman3 {
                 header = reader.readNextHeader();
             }
             if (!header) {
-                throw PboIoException("The file headers are corrupted");
+                throw PboIoException("The file headers are corrupted.", file->fileName());
             }
         } else if (entry->isContent()) {
             entries.append(entry);
             dataBlockEnd += entry->dataSize();
         } else {
-            throw PboIoException("The file first entry is corrupted");
+            throw PboIoException("The file first entry is corrupted.", file->fileName());
         }
 
         entry = reader.readNextEntry();
@@ -39,7 +39,7 @@ namespace pboman3 {
             entry = reader.readNextEntry();
         }
         if (!entry || !entry->isBoundary()) {
-            throw PboIoException("The file entries list is corrupted");
+            throw PboIoException("The file entries list is corrupted.", file->fileName());
         }
 
 

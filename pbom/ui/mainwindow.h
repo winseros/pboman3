@@ -32,7 +32,7 @@ namespace pboman3 {
     private:
         Ui::MainWindow* ui_;
         PboModel* model_;
-        QFutureWatcher<void> saveWatcher_;
+        QFutureWatcher<int> saveWatcher_;
         BusyBar* busy_;
         bool hasChanges_;
 

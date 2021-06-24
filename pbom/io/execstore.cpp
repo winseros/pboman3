@@ -9,8 +9,7 @@ namespace pboman3 {
     }
 
     QString ExecStore::execSync(const PboNode* node, const Cancel& cancel) {
-        if (node->nodeType() != PboNodeType::File)
-            throw PboIoException("Can exec only file nodes");
+        assert(node->nodeType() == PboNodeType::File && "Can exec only file nodes");
 
         QString result;
 
@@ -84,13 +83,13 @@ namespace pboman3 {
         const QFileInfo fi(fileSystemPath_ + QDir::separator() + key + path);
         QString execPath = fi.absoluteFilePath();
 
-        const QString tempDirPath = QDir::temp().relativeFilePath(fi.dir().absolutePath());
-        if (!QDir::temp().mkpath(tempDirPath))
-            throw PboIoException("Could not create folder in temp: " + tempDirPath);
+        QString tempDirPath = fi.dir().absolutePath();
+        if (!QDir::temp().mkpath(QDir::temp().relativeFilePath(tempDirPath)))
+            throw PboIoException("Could not create the folder.", std::move(tempDirPath));
 
         QFile file(execPath);
         if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
-            throw PboIoException("Could not open file: " + execPath);
+            throw PboIoException("Could not open file. Check you have enough permissions and the file is not locked by another process.", execPath);
 
         node->binarySource->writeToFs(&file, cancel);
 

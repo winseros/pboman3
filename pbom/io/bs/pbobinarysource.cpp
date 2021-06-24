@@ -1,4 +1,5 @@
 #include "pbobinarysource.h"
+#include "io/pboioexception.h"
 #include "io/lzh/lzh.h"
 #include "io/lzh/lzhdecompressionexception.h"
 
@@ -31,7 +32,8 @@ namespace pboman3 {
         while (!cancel() && remaining > 0) {
             const qsizetype willRead = remaining > buf.size() ? buf.size() : remaining;
             const quint64 hasRead = file_->read(buf.data(), willRead);
-            assert(hasRead > 0 && "For some reason did not read from the file");
+            if (hasRead <= 0)
+                throw PboIoException("For some reason could not read from the file.", file_->fileName());
             targetFile->write(buf.data(), hasRead);
             remaining -= hasRead;
         }

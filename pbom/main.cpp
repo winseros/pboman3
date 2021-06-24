@@ -2,20 +2,41 @@
 #include <QFile>
 #include <QTimer>
 #include <Windows.h>
+#include "ui/errordialog.h"
 #include "ui/mainwindow.h"
+#include "util/appexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
 
+namespace pboman3 {
+    class PboApplication : public QApplication {
+    public:
+        PboApplication(int& argc, char** argv)
+            : QApplication(argc, argv) {
+        }
+
+        bool notify(QObject* o, QEvent* e) override {
+            try {
+                return QApplication::notify(o, e);
+            } catch (const AppException& ex) {
+                ErrorDialog(ex.message(), activeWindow()).exec();
+                return true;
+            }
+        }
+    };
+}
+
 int main(int argc, char* argv[]) {
-    qSetMessagePattern("%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
+    qSetMessagePattern(
+        "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
 
     using namespace pboman3;
 
     LOG(info, "Starting the app")
 
     const auto model = QSharedPointer<PboModel>(new PboModel());
-    QApplication a(argc, argv);
+    PboApplication a(argc, argv);
 
     auto* timer = new QTimer(new QTimer());
     timer->moveToThread(a.thread());

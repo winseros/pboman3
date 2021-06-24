@@ -7,20 +7,7 @@
 #include <Windows.h>
 #include <fileapi.h>
 
-#include "io/pboioexception.h"
-
 namespace pboman3::test {
-    TEST(ExecStoreTest, ExecSync_Throws_If_Called_Not_On_File) {
-        //nodes to sync
-        PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
-
-        //the object tested
-        ExecStore store(QDir::tempPath());
-        ASSERT_THROW(store.execSync(e1->parentNode(), []() { return false; }), PboIoException);//e1 - folder
-        ASSERT_THROW(store.execSync(&root, []() { return false; }), PboIoException);//root - container
-    }
-
     TEST(ExecStoreTest, ExecSync_Extracts_New_File) {
         //dummy files
         QTemporaryFile f1;

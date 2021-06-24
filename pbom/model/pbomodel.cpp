@@ -2,8 +2,11 @@
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
+#include "diskaccessexception.h"
+#include "pbofileformatexception.h"
 #include "pbotreeexception.h"
 #include "io/pboheaderreader.h"
+#include "io/pboioexception.h"
 #include "io/pbowriter.h"
 #include "io/bs/pbobinarysource.h"
 #include "util/log.h"
@@ -22,7 +25,8 @@ namespace pboman3 {
         setLoadedPath(path);
 
         PboFile file(loadedPath_);
-        file.open(QIODeviceBase::OpenModeFlag::ReadWrite);
+        if (!file.open(QIODeviceBase::OpenModeFlag::ReadWrite))
+            throw DiskAccessException("Can not access the file. Check if it is used by other processes.");
 
         QString title = QFileInfo(path).fileName();
         LOG(info, "The file title is:", title)
@@ -31,8 +35,14 @@ namespace pboman3 {
         connect(rootEntry_.get(), &PboNode::hierarchyChanged, this, &PboModel::modelChanged);
         connect(rootEntry_.get(), &PboNode::titleChanged, this, &PboModel::rootTitleChanged);
 
-        PboFileHeader header = PboHeaderReader::readFileHeader(&file);
-        LOG(info, "The file header:", header)
+        PboFileHeader header;
+        try {
+            header = PboHeaderReader::readFileHeader(&file);
+            LOG(info, "The file header:", header)
+        } catch (const PboIoException& ex) {
+            LOG(warning, "Got error while reading the file header:", ex)
+            throw PboFileFormatException("Can not open the file. It is not a valid PBO.");
+        }
 
         headers_ = QSharedPointer<HeadersModel>(new HeadersModel);
         headers_->setData(std::move(header.headers));
@@ -79,8 +89,13 @@ namespace pboman3 {
               .useRoot(rootEntry_.get())
               .copySignatureTo(&signature);
 
-        LOG(info, "Writing the file");
-        writer.write(cancel);
+        try {
+            LOG(info, "Writing the file")
+            writer.write(cancel);
+        } catch (const PboIoException& ex) {
+            LOG(warning, "Got error while writing:", ex)
+            throw DiskAccessException(ex.message());
+        }
 
         if (cancel()) {
             LOG(info, "The write process was canceled - exit")
@@ -143,8 +158,14 @@ namespace pboman3 {
     InteractionParcel PboModel::interactionPrepare(const QList<PboNode*>& nodes, const Cancel& cancel) const {
         LOG(info, "Preparing the interaction for", nodes.count(), "nodes")
 
-        QList<QUrl> files = binaryBackend_->hddSync(nodes, cancel);
-        LOG(info, "Got files:", files)
+        QList<QUrl> files;
+        try {
+            files = binaryBackend_->hddSync(nodes, cancel);
+            LOG(info, "Got files:", files)
+        } catch (const PboIoException& ex) {
+            LOG(warning, "Got error while syncing:", ex)
+            throw DiskAccessException(ex.message());
+        }
 
         NodeDescriptors descriptors = NodeDescriptors::packNodes(nodes);
         LOG(info, "Got descriptors:", descriptors)
@@ -155,8 +176,14 @@ namespace pboman3 {
     QString PboModel::execPrepare(const PboNode* node, const Cancel& cancel) const {
         LOG(info, "Preparing the execution of the node", *node)
 
-        QString file = binaryBackend_->execSync(node, cancel);
-        LOG(info, "The node contents was stored to:", file)
+        QString file;
+        try {
+            file = binaryBackend_->execSync(node, cancel);
+            LOG(info, "The node contents was stored to:", file)
+        } catch (const PboIoException& ex) {
+            LOG(warning, "Got error while syncing:", ex)
+            throw DiskAccessException(ex.message());
+        }
 
         return file;
     }

@@ -21,8 +21,7 @@ namespace pboman3 {
     }
 
     void Lzh::compress(QFileDevice* source, QFileDevice* target, const Cancel& cancel) {
-        if (source->pos() > 0)
-            throw PboIoException("File offset must be 0 for LZH compression");
+        assert(source->pos() == 0 && "File offset must be 0 for LZH compression");
 
         CompressionBuffer dict(CompressionBuffer::defaultSize);
 

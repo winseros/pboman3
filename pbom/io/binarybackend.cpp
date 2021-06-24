@@ -8,9 +8,10 @@ namespace pboman3 {
     BinaryBackend::BinaryBackend(const QString& name) {
         tree_ = TEMP_PBOMAN + static_cast<QString>(QDir::separator()) + name + QDir::separator() + "tree_";
         exec_ = TEMP_PBOMAN + static_cast<QString>(QDir::separator()) + name + QDir::separator() + "exec_";
-        if (!QDir::temp().mkpath(tree_) || !QDir::temp().mkpath(exec_)) {
-            throw PboIoException("Could not initialize the temporary folder");
-        }
+        if (!QDir::temp().mkpath(tree_))
+            throw PboIoException("Could not create the folder.", tree_);
+        if (!QDir::temp().mkpath(exec_))
+            throw PboIoException("Could not create the folder.", exec_);
     }
 
     BinaryBackend::~BinaryBackend() {
@@ -45,13 +46,13 @@ namespace pboman3 {
         const QFileInfo fi(fsPath);
         if (!fi.exists()) {
 
-            const QString fsRelative = QDir::temp().relativeFilePath(fi.dir().absolutePath());
-            if (!QDir::temp().mkpath(fsRelative))
-                throw PboIoException("Could not create folder in temp: " + fsRelative);
+            QString fsFolder = fi.dir().absolutePath();
+            if (!QDir::temp().mkpath(QDir::temp().relativeFilePath(fsFolder)))
+                throw PboIoException("Could not create folder.", std::move(fsFolder));
 
             QFile file(fsPath);
             if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
-                throw PboIoException("Could not open file: " + fsPath);
+                throw PboIoException("Could not open the file. Check you have enough permissions and the file is not locked by another process.", fsPath);
 
             node->binarySource->writeToFs(&file, cancel);
 

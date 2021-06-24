@@ -33,9 +33,11 @@ set(PROJECT_SOURCES
         io/pboioexception.cpp
         io/pbowriter.cpp
         model/conflictsparcel.cpp
+        model/diskaccessexception.cpp
         model/headersmodel.cpp
         model/interactionparcel.cpp
         model/pboentry.cpp
+        model/pbofileformatexception.cpp
         model/pboheader.cpp
         model/pbomodel.cpp
         model/pbonode.cpp
@@ -54,6 +56,8 @@ set(PROJECT_SOURCES
         ui/closedialog.ui
         ui/compresslist.cpp
         ui/conflictslist.cpp
+        ui/errordialog.ui
+        ui/errordialog.cpp
         ui/fscollector.cpp
         ui/headersdialog.cpp
         ui/headersdialog.ui

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "io/pboioexception.h"
+#include "util/appexception.h"
 
 namespace pboman3 {
-    class LzhDecompressionException : public PboIoException {
+    class LzhDecompressionException : public AppException {
     public:
         LzhDecompressionException(QString message);
 
-        friend QDebug operator<<(QDebug debug, const PboIoException& ex);
+        friend QDebug operator<<(QDebug debug, const LzhDecompressionException& ex);
 
         void raise() const override;
 

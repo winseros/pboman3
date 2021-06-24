@@ -38,7 +38,7 @@ namespace pboman3 {
         info.cbSize = sizeof info;
         if (!ShellExecuteExA(&info)) {
             const DWORD err = GetLastError();
-            LOG(info, "Preview failed with error:", err)
+            LOG(warning, "Preview failed with error:", err)
             throw Win32FileViewerException(
                 "The underlying operating system returned error trying to open the file. Error code: " + QString::number(err));
         }

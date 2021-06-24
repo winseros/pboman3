@@ -40,7 +40,7 @@ namespace pboman3 {
         QTemporaryFile body;
         body.setFileName(path_ + ".b");
         if (!body.open())
-            throw PboIoException("Could not create the file: " + body.fileName());
+            throw PboIoException("Could not create the file.", body.fileName());
 
         QList<PboEntry> entries;
         writeNode(&body, root_, entries, cancel);
@@ -51,7 +51,7 @@ namespace pboman3 {
 
         PboFile pbo(path_);
         if (!pbo.open(QIODeviceBase::ReadWrite))
-            throw PboIoException("Could not create the file: " + path_);
+            throw PboIoException("Could not create the file.", path_);
 
         writeHeader(&pbo, entries, cancel);
 

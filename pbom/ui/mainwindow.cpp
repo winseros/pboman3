@@ -6,10 +6,14 @@
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
 #include "closedialog.h"
+#include "errordialog.h"
 #include "headersdialog.h"
 #include "insertdialog.h"
 #include "signaturedialog.h"
 #include "ui_mainwindow.h"
+
+#include "model/diskaccessexception.h"
+#include "model/pbofileformatexception.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
 
@@ -39,9 +43,19 @@ namespace pboman3 {
     }
 
     void MainWindow::loadFile(const QString& fileName) const {
-        LOG(info, "Loading the file:", fileName);
-        model_->loadFile(fileName);
-        setLoaded(true);
+        LOG(info, "Loading the file:", fileName)
+        try {
+            model_->loadFile(fileName);
+            setLoaded(true);
+        } catch (const PboFileFormatException& ex) {
+            LOG(info, "Error when loading file - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+            model_->unloadFile();
+        } catch (const DiskAccessException& ex) {
+            LOG(info, "Error when loading file - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+            model_->unloadFile();
+        }
     }
 
     void MainWindow::closeEvent(QCloseEvent* event) {
@@ -53,7 +67,7 @@ namespace pboman3 {
     }
 
     void MainWindow::setupConnections() {
-        connect(&saveWatcher_, &QFutureWatcher<void>::finished, this, &MainWindow::saveComplete);
+        connect(&saveWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::saveComplete);
 
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this]() { busy_->start(); });
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() { busy_->stop(); });
@@ -193,21 +207,27 @@ namespace pboman3 {
     }
 
     void MainWindow::saveFile(const QString& fileName) {
-        LOG(info, "Saving the file");
+        LOG(info, "Saving the file")
 
         busy_->start();
 
-        const QFuture<void> future = QtConcurrent::run([this, fileName](QPromise<void>& promise) {
+        const QFuture<int> future = QtConcurrent::run([this, fileName](QPromise<int>& promise) {
             model_->saveFile([&promise]() { return promise.isCanceled(); }, fileName);
+            promise.addResult(0);
         });
 
         saveWatcher_.setFuture(future);
     }
 
     void MainWindow::saveComplete() {
-        LOG(info, "File saving is complete");
-
-        setHasChanges(false);
+        try {
+            saveWatcher_.future().takeResult<int>();//to get exceptions rethrown
+            LOG(info, "File saving is complete")
+            setHasChanges(false);
+        } catch (const DiskAccessException& ex) {
+            LOG(info, "Error when saving - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+        }
         busy_->stop();
     }
 

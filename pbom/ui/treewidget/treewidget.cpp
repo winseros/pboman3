@@ -7,6 +7,11 @@
 #include "ui/insertdialog.h"
 #include "util/appexception.h"
 #include <QDesktopServices>
+
+#include "io/pboioexception.h"
+
+#include "model/diskaccessexception.h"
+#include "ui/errordialog.h"
 #include "ui/win32/win32fileviewer.h"
 #include "util/log.h"
 
@@ -209,16 +214,32 @@ namespace pboman3 {
     }
 
     void TreeWidget::openExecute() {
-        LOG(info, "Executing the open operation")
+        try {
+            const QString path = openWatcher_.future().takeResult();
+            LOG(info, "Executing the open operation for:", path)
+            Win32FileViewer().previewFile(path);
+        } catch (const DiskAccessException& ex) {
+            LOG(info, "Error when running sync - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+        } catch (const Win32FileViewerException& ex) {
+            ErrorDialog(ex.message()).exec();
+        }
         emit backgroundOpStopped();
-        Win32FileViewer().previewFile(openWatcher_.future().takeResult());
     }
 
     void TreeWidget::dragStartExecute() {
         LOG(info, "Executing the dragStart operation")
 
-        const InteractionParcel data = dragDropWatcher_.future().takeResult();
-        LOG(info, "The interaction parsel is:", data)
+        InteractionParcel data;
+        try {
+            data = dragDropWatcher_.future().takeResult();
+            LOG(info, "The interaction parsel is:", data)
+        } catch (const DiskAccessException& ex) {
+            LOG(info, "Error when running sync - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+            emit backgroundOpStopped();
+            return;
+        }
 
         auto* mimeData = new QMimeData;
         mimeData->setUrls(data.files());
@@ -241,8 +262,16 @@ namespace pboman3 {
     void TreeWidget::copyOrCutExecute() {
         LOG(info, "Executing the Cut/Copy operation")
 
-        const InteractionParcel data = cutCopyWatcher_.future().takeResult();
-        LOG(info, "The interaction parsel is:", data)
+        InteractionParcel data;
+        try {
+            data = cutCopyWatcher_.future().takeResult();
+            LOG(info, "The interaction parsel is:", data)
+        } catch (const DiskAccessException& ex) {
+            LOG(info, "Error when running sync - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+            emit backgroundOpStopped();
+            return;
+        }
 
         auto* mimeData = new QMimeData;
         mimeData->setUrls(data.files());
@@ -282,8 +311,15 @@ namespace pboman3 {
     void TreeWidget::addFilesFromFilesystem(const QList<QUrl>& urls) {
         LOG(info, "Add files from the file system:", urls)
 
-        NodeDescriptors files = FsCollector::collectFiles(urls);
-        LOG(debug, "Collected descriptors:", files)
+        NodeDescriptors files;
+        try {
+            files = FsCollector::collectFiles(urls);
+            LOG(debug, "Collected descriptors:", files)
+        } catch (const PboIoException& ex) {
+            LOG(info, "Error when collecting - show error modal:", ex)
+            ErrorDialog(ex.message()).exec();
+            return;
+        }
 
         PboNode* item = getCurrentFolder();
         LOG(info, "Selected node is:", *item)

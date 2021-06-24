@@ -12,7 +12,7 @@ namespace pboman3 {
     }
 
     QDebug operator<<(QDebug debug, const AppException& ex) {
-        return debug << "AppException: " << ex.message();
+        return debug << "AppException(" << ex.message() << ")";
     }
 
     void AppException::raise() const {

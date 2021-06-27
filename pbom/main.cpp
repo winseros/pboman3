@@ -20,7 +20,7 @@ namespace pboman3 {
             try {
                 return QApplication::notify(o, e);
             } catch (const AppException& ex) {
-                ErrorDialog(ex.message(), activeWindow()).exec();
+                LOG(warning, "The developers forgot to handle the exception in place:", ex)
                 return true;
             }
         }

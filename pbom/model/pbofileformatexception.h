@@ -9,8 +9,6 @@ namespace pboman3 {
 
         friend QDebug operator<<(QDebug debug, const PboFileFormatException& ex);
 
-        void raise() const override;
-
         QException* clone() const override;
     };
 }

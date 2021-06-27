@@ -10,10 +10,6 @@ namespace pboman3 {
         return debug << "PboFileFormatException(" << ex.message_ << ")";
     }
 
-    void PboFileFormatException::raise() const {
-        throw *this;
-    }
-
     QException* PboFileFormatException::clone() const {
         return new PboFileFormatException(*this);
     }

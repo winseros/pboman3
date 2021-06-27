@@ -220,9 +220,9 @@ namespace pboman3 {
             Win32FileViewer().previewFile(path);
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
+            UI_HANDLE_ERROR(ex)
         } catch (const Win32FileViewerException& ex) {
-            ErrorDialog(ex.message()).exec();
+            UI_HANDLE_ERROR(ex)
         }
         emit backgroundOpStopped();
     }
@@ -236,9 +236,8 @@ namespace pboman3 {
             LOG(info, "The interaction parsel is:", data)
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
             emit backgroundOpStopped();
-            return;
+            UI_HANDLE_ERROR_RET(ex)
         }
 
         auto* mimeData = new QMimeData;
@@ -268,9 +267,8 @@ namespace pboman3 {
             LOG(info, "The interaction parsel is:", data)
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
             emit backgroundOpStopped();
-            return;
+            UI_HANDLE_ERROR_RET(ex)
         }
 
         auto* mimeData = new QMimeData;
@@ -317,8 +315,7 @@ namespace pboman3 {
             LOG(debug, "Collected descriptors:", files)
         } catch (const PboIoException& ex) {
             LOG(info, "Error when collecting - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
-            return;
+            UI_HANDLE_ERROR_RET(ex)
         }
 
         PboNode* item = getCurrentFolder();

@@ -42,20 +42,26 @@ namespace pboman3 {
         delete ui_;
     }
 
-    void MainWindow::loadFile(const QString& fileName) const {
+    void MainWindow::loadFile(const QString& fileName) {
         LOG(info, "Loading the file:", fileName)
         try {
             model_->loadFile(fileName);
             setLoaded(true);
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
-            model_->unloadFile();
+            UI_HANDLE_ERROR(ex)
+            unloadFile();
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
-            model_->unloadFile();
+            UI_HANDLE_ERROR(ex)
+            unloadFile();
         }
+    }
+
+    void MainWindow::unloadFile() {
+        setHasChanges(false);
+        setLoaded(false);
+        model_->unloadFile();
     }
 
     void MainWindow::closeEvent(QCloseEvent* event) {
@@ -131,9 +137,7 @@ namespace pboman3 {
         LOG(info, "User clicked the CloseFile button")
 
         if (queryCloseUnsaved()) {
-            setHasChanges(false);
-            setLoaded(false);
-            model_->unloadFile();
+            unloadFile();
         }
     }
 
@@ -221,12 +225,12 @@ namespace pboman3 {
 
     void MainWindow::saveComplete() {
         try {
-            saveWatcher_.future().takeResult<int>();//to get exceptions rethrown
+            saveWatcher_.future().result();//to get exceptions rethrown
             LOG(info, "File saving is complete")
             setHasChanges(false);
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when saving - show error modal:", ex)
-            ErrorDialog(ex.message()).exec();
+            UI_HANDLE_ERROR(ex)
         }
         busy_->stop();
     }

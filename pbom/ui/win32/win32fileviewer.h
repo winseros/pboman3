@@ -10,8 +10,6 @@ namespace pboman3 {
 
         friend QDebug operator<<(QDebug debug, const Win32FileViewerException& ex);
 
-        void raise() const override;
-
         QException* clone() const override;
     };
 

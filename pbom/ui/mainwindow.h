@@ -24,7 +24,7 @@ namespace pboman3 {
 
         ~MainWindow();
 
-        void loadFile(const QString& fileName) const;
+        void loadFile(const QString& fileName);
 
     protected:
         void closeEvent(QCloseEvent* event) override;
@@ -35,6 +35,8 @@ namespace pboman3 {
         QFutureWatcher<int> saveWatcher_;
         BusyBar* busy_;
         bool hasChanges_;
+
+        void unloadFile();
 
         void setupConnections();
 

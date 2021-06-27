@@ -15,10 +15,6 @@ namespace pboman3 {
         return debug << "Win32FileViewerException:" << ex.message();
     }
 
-    void Win32FileViewerException::raise() const {
-        throw*this;
-    }
-
     QException* Win32FileViewerException::clone() const {
         return new Win32FileViewerException(*this);
     }

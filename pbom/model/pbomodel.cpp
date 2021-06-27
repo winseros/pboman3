@@ -26,7 +26,7 @@ namespace pboman3 {
 
         PboFile file(loadedPath_);
         if (!file.open(QIODeviceBase::OpenModeFlag::ReadWrite))
-            throw DiskAccessException("Can not access the file. Check if it is used by other processes.");
+            throw DiskAccessException("Can not access the file. Check if it is used by other processes.", path);
 
         QString title = QFileInfo(path).fileName();
         LOG(info, "The file title is:", title)
@@ -94,7 +94,7 @@ namespace pboman3 {
             writer.write(cancel);
         } catch (const PboIoException& ex) {
             LOG(warning, "Got error while writing:", ex)
-            throw DiskAccessException(ex.message());
+            throw DiskAccessException(ex);
         }
 
         if (cancel()) {
@@ -109,10 +109,19 @@ namespace pboman3 {
         signature_->setSignatureBytes(signature);
 
         if (savePath == loadedPath_) {
+            const QString backupPath = loadedPath_ + ".bak";
             LOG(info, "Cleaning up the temporary files")
-            QFile::remove(loadedPath_ + ".bak");
-            QFile::rename(loadedPath_, loadedPath_ + ".bak");
-            QFile::rename(tempPath, loadedPath_);
+            if (QFile::exists(backupPath) && !QFile::remove(backupPath)) {
+                LOG(info, "Could not remove the prev backup file - throwing;", backupPath)
+                //TODO: Recover binary sources here
+                throw DiskAccessException("Could not remove the file. Check you have enough permissions and the file is not locked by another process.", backupPath);
+            }
+            if (!QFile::rename(loadedPath_, backupPath)) {
+                LOG(info, "Could not replace the prev PBO file with a write copy - throwing;", loadedPath_)
+                //TODO: Recover binary sources here
+                throw DiskAccessException("Could not write to the file. Check you have enough permissions and the file is not locked by another process.", loadedPath_);
+            }
+            assert(QFile::rename(tempPath, loadedPath_));
         }
 
         LOG(info, "Assign binary sources back")
@@ -164,7 +173,7 @@ namespace pboman3 {
             LOG(info, "Got files:", files)
         } catch (const PboIoException& ex) {
             LOG(warning, "Got error while syncing:", ex)
-            throw DiskAccessException(ex.message());
+            throw DiskAccessException(ex);
         }
 
         NodeDescriptors descriptors = NodeDescriptors::packNodes(nodes);
@@ -182,7 +191,7 @@ namespace pboman3 {
             LOG(info, "The node contents was stored to:", file)
         } catch (const PboIoException& ex) {
             LOG(warning, "Got error while syncing:", ex)
-            throw DiskAccessException(ex.message());
+            throw DiskAccessException(ex);
         }
 
         return file;

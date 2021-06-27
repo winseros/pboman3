@@ -1,16 +1,22 @@
 #pragma once
 
+#include "io/pboioexception.h"
 #include "util/appexception.h"
 
 namespace pboman3 {
     class DiskAccessException : public AppException {
     public:
-        explicit DiskAccessException(QString message);
+        DiskAccessException(QString message, QString file);
 
-        friend QDebug operator<<(QDebug debug, const DiskAccessException& ex);
+        explicit DiskAccessException(const PboIoException& ex);
 
         void raise() const override;
 
         QException* clone() const override;
+
+        const QString& file() const;
+
+    private:
+        QString file_;
     };
 }

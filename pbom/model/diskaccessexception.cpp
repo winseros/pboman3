@@ -2,12 +2,14 @@
 #include <QDebug>
 
 namespace pboman3 {
-    DiskAccessException::DiskAccessException(QString message)
-        : AppException(std::move(message)) {
+    DiskAccessException::DiskAccessException(QString message, QString file)
+        : AppException(std::move(message)),
+          file_(std::move(file)) {
     }
 
-    QDebug operator<<(QDebug debug, const DiskAccessException& ex) {
-        return debug << "DiskAccessException(" << ex.message_ << ")";
+    DiskAccessException::DiskAccessException(const PboIoException& ex):
+        AppException(ex.message()),
+        file_(ex.file()) {
     }
 
     void DiskAccessException::raise() const {
@@ -16,5 +18,9 @@ namespace pboman3 {
 
     QException* DiskAccessException::clone() const {
         return new DiskAccessException(*this);
+    }
+
+    const QString& DiskAccessException::file() const {
+        return file_;
     }
 }

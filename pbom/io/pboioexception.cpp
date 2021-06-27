@@ -7,7 +7,7 @@ namespace pboman3 {
     }
 
     QDebug operator<<(QDebug debug, const PboIoException& ex) {
-        return debug << "PboIoException: " << ex.message();
+        return debug << "PboIoException(Message=" << ex.message_ << "; File=" << ex.file_ << ")";
     }
 
     void PboIoException::raise() const {

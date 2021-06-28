@@ -20,6 +20,7 @@ namespace pboman3::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
 
         //the object tested
         const QString name = QDir::tempPath() + QDir::separator() + "test_"
@@ -51,6 +52,7 @@ namespace pboman3::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
 
         //the object tested
         const QString name = QDir::tempPath() + QDir::separator() + "test_"
@@ -75,6 +77,7 @@ namespace pboman3::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
 
         //the object tested
         const QString name = QDir::tempPath() + QDir::separator() + "test_"
@@ -106,6 +109,7 @@ namespace pboman3::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
 
         //the object tested
         const QString name = QDir::tempPath() + QDir::separator() + "test_"
@@ -178,6 +182,7 @@ namespace pboman3::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
 
         //the object tested
         const QString name = QDir::tempPath() + QDir::separator() + "test_"

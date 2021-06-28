@@ -113,6 +113,7 @@ namespace pboman3 {
                 break;
             }
         }
+        bs->open();
 
         return NodeDescriptor(bs, path);
     }

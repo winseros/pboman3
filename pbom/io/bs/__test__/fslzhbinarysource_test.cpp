@@ -15,6 +15,7 @@ namespace pboman3::test {
         QTemporaryFile targetFile;
         targetFile.open();
         FsLzhBinarySource bs(sourceFile.fileName(), 100);
+        bs.open();
         bs.writeToPbo(&targetFile, []() { return false; });
         targetFile.close();
 

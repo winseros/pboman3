@@ -70,12 +70,16 @@ namespace pboman3 {
         pbo.close();
     }
 
-    void PboWriter::cleanBinarySources() const {
-        cleanBinarySources(root_);
+    void PboWriter::suspendBinarySources() const {
+        suspendBinarySources(root_);
     }
 
-    void PboWriter::reassignBinarySources(const QString& path) {
-        reassignBinarySources(root_, path);
+    void PboWriter::resumeBinarySources() const {
+        resumeBinarySources(root_);
+    }
+
+    void PboWriter::assignBinarySources(const QString& path) {
+        assignBinarySources(root_, path);
     }
 
     void PboWriter::writeNode(QFileDevice* file, PboNode* node, QList<PboEntry>& entries, const Cancel& cancel) {
@@ -176,23 +180,34 @@ namespace pboman3 {
         }
     }
 
-    void PboWriter::cleanBinarySources(PboNode* node) const {
+    void PboWriter::suspendBinarySources(PboNode* node) const {
         for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
-                child->binarySource.clear();
+                child->binarySource->close();
             } else {
-                cleanBinarySources(child);
+                suspendBinarySources(child);
             }
         }
     }
 
-    void PboWriter::reassignBinarySources(PboNode* node, const QString& path) {
+    void PboWriter::resumeBinarySources(PboNode* node) const {
+        for (PboNode* child : *node) {
+            if (child->nodeType() == PboNodeType::File) {
+                child->binarySource->open();
+            } else {
+                resumeBinarySources(child);
+            }
+        }
+    }
+
+    void PboWriter::assignBinarySources(PboNode* node, const QString& path) {
         for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 const PboDataInfo& existing = binarySources_.take(child);
                 child->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(path, existing));
+                child->binarySource->open();
             } else {
-                reassignBinarySources(child, path);
+                assignBinarySources(child, path);
             }
         }
     }

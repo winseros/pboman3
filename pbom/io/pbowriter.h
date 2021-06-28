@@ -22,9 +22,11 @@ namespace pboman3 {
 
         void write(const Cancel& cancel);
 
-        void cleanBinarySources() const;
+        void suspendBinarySources() const;
 
-        void reassignBinarySources(const QString& path);
+        void resumeBinarySources() const;
+
+        void assignBinarySources(const QString& path);
 
     private:
         QString path_;
@@ -41,8 +43,10 @@ namespace pboman3 {
 
         void writeSignature(QFileDevice* pbo) const;
 
-        void cleanBinarySources(PboNode* node) const;
+        void suspendBinarySources(PboNode* node) const;
 
-        void reassignBinarySources(PboNode* node, const QString& path);
+        void resumeBinarySources(PboNode* node) const;
+
+        void assignBinarySources(PboNode* node, const QString& path);
     };
 }

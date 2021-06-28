@@ -11,10 +11,12 @@ namespace pboman3 {
     }
 
     void PboBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {
+        assert(file_->isOpen());
         writeRaw(targetFile, cancel);
     }
 
     void PboBinarySource::writeToFs(QFileDevice* targetFile, const Cancel& cancel) {
+        assert(file_->isOpen());
         if (isCompressed()) {
             if (!tryWriteDecompressed(targetFile, cancel))
                 writeRaw(targetFile, cancel);

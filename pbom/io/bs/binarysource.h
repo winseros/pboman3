@@ -15,6 +15,12 @@ namespace pboman3 {
 
         virtual void writeToFs(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
+        void open() const;
+
+        void close() const;
+
+        bool isOpen() const;
+
         const QString& path() const;
 
         virtual quint32 readOriginalSize() const = 0;

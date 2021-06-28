@@ -8,10 +8,12 @@ namespace pboman3 {
     }
 
     void FsRawBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {
+        assert(file_->isOpen());
         writeRaw(targetFile, cancel);
     }
 
     void FsRawBinarySource::writeToFs(QFileDevice* targetFile, const Cancel& cancel) {
+        assert(file_->isOpen());
         writeRaw(targetFile, cancel);
     }
 

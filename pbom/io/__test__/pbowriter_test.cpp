@@ -27,10 +27,12 @@ namespace pboman3::test {
 
         //pbo content structure
         PboNode root("file.pbo", PboNodeType::Container, nullptr);
-        root.createHierarchy(PboPath("e1.txt"))->binarySource = QSharedPointer<BinarySource>(
-            new FsRawBinarySource(e1.fileName()));
-        root.createHierarchy(PboPath("f2/e2.txt"))->binarySource = QSharedPointer<BinarySource>(
-            new FsRawBinarySource(e2.fileName()));
+        PboNode* n1 = root.createHierarchy(PboPath("e1.txt"));
+        n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
+        n1->binarySource->open();
+        PboNode* n2 = root.createHierarchy(PboPath("f2/e2.txt"));
+        n2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e2.fileName()));
+        n2->binarySource->open();
 
         //pbo headers
         HeadersModel headers;
@@ -109,8 +111,9 @@ namespace pboman3::test {
 
         //pbo content structure
         PboNode root("file.pbo", PboNodeType::Container, nullptr);
-        root.createHierarchy(PboPath("e1.txt"))->binarySource = QSharedPointer<BinarySource>(
-            new FsRawBinarySource(e1.fileName()));
+        PboNode* n1 = root.createHierarchy(PboPath("e1.txt"));
+        n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
+        n1->binarySource->open();
 
         //pbo headers
         HeadersModel headers;
@@ -124,7 +127,7 @@ namespace pboman3::test {
         ASSERT_NO_THROW(writer.write([]() { return false; }));
     }
 
-    TEST(PboWriterTest, CleanBinarySources_Cleans_And_Remembers_Binary_Sources) {
+    TEST(PboWriterTest, SuspendBinarySources_Closes_Binary_Sources_And_ResumeBinarySources_Opens_Them) {
         // mock files contents
         const QByteArray mockContent1(15, 1);
         QTemporaryFile e1;
@@ -146,19 +149,28 @@ namespace pboman3::test {
         //pbo content structure
         PboNode root("file.pbo", PboNodeType::Container, nullptr);
         PboNode* node1 = root.createHierarchy(PboPath("f1/e1.txt"));
-        node1->binarySource = QSharedPointer<BinarySource>(
-            new FsRawBinarySource(e1.fileName()));
+        node1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
+        node1->binarySource->open();
         PboNode* node2 = root.createHierarchy(PboPath("f1/e2.txt"));
-        node2->binarySource = QSharedPointer<BinarySource>(
-            new FsRawBinarySource(e2.fileName()));
+        node2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e2.fileName()));
+        node2->binarySource->open();
 
-        //Clean the sources
         PboWriter writer;
-        writer.useRoot(&root)
-            .cleanBinarySources();
 
-        //Ensure binary data reset
-        ASSERT_FALSE(node1->binarySource);
-        ASSERT_FALSE(node2->binarySource);
+        //Suspend the sources
+        writer.useRoot(&root)
+            .suspendBinarySources();
+
+        //Ensure sources closed
+        ASSERT_FALSE(node1->binarySource->isOpen());
+        ASSERT_FALSE(node2->binarySource->isOpen());
+
+        //Resume the sources
+        writer.useRoot(&root)
+            .resumeBinarySources();
+
+        //Ensure sources opened
+        ASSERT_TRUE(node1->binarySource->isOpen());
+        ASSERT_TRUE(node2->binarySource->isOpen());
     }
 }

@@ -65,6 +65,7 @@ namespace pboman3 {
             entryDataOffset += dataInfo.dataSize;
             node->binarySource = QSharedPointer<PboBinarySource>(
                 new PboBinarySource(path, dataInfo));
+            node->binarySource->open();
         }
 
         LOG(info, "Creating the binary backend")
@@ -103,7 +104,7 @@ namespace pboman3 {
         }
 
         LOG(info, "Clean up the previous binary sources")
-        writer.cleanBinarySources();
+        writer.suspendBinarySources();
 
         LOG(info, "Update the model signature")
         signature_->setSignatureBytes(signature);
@@ -113,19 +114,19 @@ namespace pboman3 {
             LOG(info, "Cleaning up the temporary files")
             if (QFile::exists(backupPath) && !QFile::remove(backupPath)) {
                 LOG(info, "Could not remove the prev backup file - throwing;", backupPath)
-                //TODO: Recover binary sources here
+                writer.resumeBinarySources();
                 throw DiskAccessException("Could not remove the file. Check you have enough permissions and the file is not locked by another process.", backupPath);
             }
             if (!QFile::rename(loadedPath_, backupPath)) {
                 LOG(info, "Could not replace the prev PBO file with a write copy - throwing;", loadedPath_)
-                //TODO: Recover binary sources here
+                writer.resumeBinarySources();
                 throw DiskAccessException("Could not write to the file. Check you have enough permissions and the file is not locked by another process.", loadedPath_);
             }
             assert(QFile::rename(tempPath, loadedPath_));
         }
 
         LOG(info, "Assign binary sources back")
-        writer.reassignBinarySources(savePath);
+        writer.assignBinarySources(savePath);
 
         setLoadedPath(savePath);
     }

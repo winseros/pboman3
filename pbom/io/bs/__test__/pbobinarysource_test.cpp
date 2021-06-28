@@ -18,6 +18,7 @@ namespace pboman3::test {
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 5);
+        bs.open();
         bs.writeToPbo(&targetFile, []() { return false; });
         targetFile.close();
 
@@ -44,6 +45,7 @@ namespace pboman3::test {
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+        bs.open();
         bs.writeToPbo(&targetFile, []() { return false; });
         targetFile.close();
 
@@ -68,6 +70,7 @@ namespace pboman3::test {
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+        bs.open();
         bs.writeToFs(&targetFile, []() { return false; });
         targetFile.close();
 
@@ -92,6 +95,7 @@ namespace pboman3::test {
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+        bs.open();
         bs.writeToFs(&targetFile, []() { return false; });
         targetFile.close();
 
@@ -116,6 +120,7 @@ namespace pboman3::test {
         QTemporaryFile targetFile;
         targetFile.open();
         PboBinarySource bs(sourceFile.fileName(), dataInfo, 100);
+        bs.open();
         bs.writeToFs(&targetFile, []() { return false; });
         targetFile.close();
 

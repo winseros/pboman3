@@ -123,4 +123,42 @@ namespace pboman3::test {
 
         ASSERT_NO_THROW(writer.write([]() { return false; }));
     }
+
+    TEST(PboWriterTest, CleanBinarySources_Cleans_And_Remembers_Binary_Sources) {
+        // mock files contents
+        const QByteArray mockContent1(15, 1);
+        QTemporaryFile e1;
+        e1.open();
+        e1.write(mockContent1);
+        e1.close();
+
+        const QByteArray mockContent2(10, 1);
+        QTemporaryFile e2;
+        e2.open();
+        e2.write(mockContent2);
+        e2.close();
+
+        //pbo file
+        QTemporaryFile placeholder;
+        placeholder.open();
+        placeholder.close();
+
+        //pbo content structure
+        PboNode root("file.pbo", PboNodeType::Container, nullptr);
+        PboNode* node1 = root.createHierarchy(PboPath("f1/e1.txt"));
+        node1->binarySource = QSharedPointer<BinarySource>(
+            new FsRawBinarySource(e1.fileName()));
+        PboNode* node2 = root.createHierarchy(PboPath("f1/e2.txt"));
+        node2->binarySource = QSharedPointer<BinarySource>(
+            new FsRawBinarySource(e2.fileName()));
+
+        //Clean the sources
+        PboWriter writer;
+        writer.useRoot(&root)
+            .cleanBinarySources();
+
+        //Ensure binary data reset
+        ASSERT_FALSE(node1->binarySource);
+        ASSERT_FALSE(node2->binarySource);
+    }
 }

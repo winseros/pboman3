@@ -28,3 +28,45 @@ USE THIS CODE FOR MACRO DEBUGGING
 #define DEBUG_STRING(x) __DEBUG_STRING2(x)
 #pragma message(DEBUG_STRING(LOGGER("Main", debug, "Hello!")))
 */
+
+#include <QScopedPointer>
+#include <QThread>
+
+#define ACTIVATE_ASYNC_LOG_SINK auto logging = QScopedPointer(new LoggingInfrastructure); logging->run();
+
+namespace pboman3 {
+    /*These two guys make standard QT logs be output on a non UI-thread*/
+    /*as UI-thread output has too big UI responsiveness penalty*/
+    class LogWorker : public QObject {
+    Q_OBJECT
+    public:
+        LogWorker(QtMessageHandler implementation);
+
+    public slots:
+        void handleMessage(QtMsgType type, const QString& file, const QString& message) const;
+
+    private:
+        QtMessageHandler implementation_;
+    };
+
+    class LoggingInfrastructure : public QObject {
+    Q_OBJECT
+    public:
+        LoggingInfrastructure();
+
+        ~LoggingInfrastructure() override;
+
+        void run();
+
+    signals:
+        void messageReceived(QtMsgType type, const QString& file, const QString& message);
+
+    private:
+        static LoggingInfrastructure* logging_;
+
+        static void handleMessage(QtMsgType type, const QMessageLogContext& context, const QString& message);
+
+        QThread thread_;
+        LogWorker* worker_;
+    };
+}

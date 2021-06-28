@@ -6,6 +6,8 @@
 #include "ui/mainwindow.h"
 #include "util/appexception.h"
 #include "util/log.h"
+#include <QScopedPointer>
+#include <QThread>
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
 
@@ -28,15 +30,12 @@ namespace pboman3 {
 }
 
 int main(int argc, char* argv[]) {
-    qSetMessagePattern(
-        "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
-
     using namespace pboman3;
 
-    LOG(info, "Starting the app")
-
-    const auto model = QSharedPointer<PboModel>(new PboModel());
     PboApplication a(argc, argv);
+    ACTIVATE_ASYNC_LOG_SINK
+
+    LOG(info, "Starting the app")
 
     auto* timer = new QTimer(new QTimer());
     timer->moveToThread(a.thread());
@@ -54,6 +53,7 @@ int main(int argc, char* argv[]) {
     timer->start();
 
     LOG(info, "Display the main window")
+    const auto model = QScopedPointer(new PboModel());
     MainWindow w(nullptr, model.get());
     w.show();
 

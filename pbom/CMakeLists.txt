@@ -71,6 +71,7 @@ set(PROJECT_SOURCES
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
         util/appexception.cpp
+        util/log.cpp
         util/util.cpp
 )
 

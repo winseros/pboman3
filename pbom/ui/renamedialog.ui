@@ -13,6 +13,13 @@
   <property name="windowTitle">
    <string>Enter new name</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:app.ico</normaloff>:app.ico</iconset>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>

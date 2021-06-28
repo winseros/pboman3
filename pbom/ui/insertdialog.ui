@@ -25,6 +25,9 @@
   <property name="modal">
    <bool>true</bool>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../res/res.qrc"><normaloff>:app.ico</normaloff>:app.ico</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QWidget" name="conflictsWidget" native="true">

@@ -6,12 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
+    <width>480</width>
     <height>160</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>480</width>
+    <height>160</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Error</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:app.ico</normaloff>:app.ico</iconset>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
   </property>
   <property name="modal">
    <bool>true</bool>

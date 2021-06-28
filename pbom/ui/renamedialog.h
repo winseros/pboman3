@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include "treewidget/treewidgetitem.h"
+#include "model/pbonode.h"
 
 namespace Ui {
     class RenameDialog;

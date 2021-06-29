@@ -51,7 +51,6 @@ set(PROJECT_SOURCES
         ui/treewidget/treewidgetitem.cpp
         ui/win32/win32iconmgr.cpp
         ui/win32/win32fileviewer.cpp
-        ui/busybar.cpp
         ui/closedialog.cpp
         ui/closedialog.ui
         ui/compresslist.cpp
@@ -70,6 +69,7 @@ set(PROJECT_SOURCES
         ui/mainwindow.ui
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
+        ui/statusbar.cpp
         util/appexception.cpp
         util/log.cpp
         util/util.cpp

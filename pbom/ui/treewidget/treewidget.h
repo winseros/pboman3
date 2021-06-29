@@ -42,7 +42,7 @@ namespace pboman3 {
         void setModel(PboModel* model);
 
     signals:
-        void backgroundOpStarted();
+        void backgroundOpStarted(QFuture<void> future);
 
         void backgroundOpStopped();
 

@@ -10,8 +10,6 @@
 #include "headersdialog.h"
 #include "insertdialog.h"
 #include "signaturedialog.h"
-#include "ui_mainwindow.h"
-
 #include "model/diskaccessexception.h"
 #include "model/pbofileformatexception.h"
 #include "treewidget/treewidget.h"
@@ -29,9 +27,6 @@ namespace pboman3 {
 
         ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
         ui_->treeWidget->setModel(model_);
-
-        busy_ = new BusyBar(ui_->treeWidget);
-        ui_->statusBar->addWidget(busy_, 1);
 
         setupConnections();
 
@@ -75,8 +70,8 @@ namespace pboman3 {
     void MainWindow::setupConnections() {
         connect(&saveWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::saveComplete);
 
-        connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this]() { busy_->start(); });
-        connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() { busy_->stop(); });
+        connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this](QFuture<void> f) { ui_->statusBar->progressShow(f); });
+        connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() { ui_->statusBar->progressHide(); });
         connect(ui_->treeWidget, &TreeWidget::actionStateChanged, this, &MainWindow::treeActionStateChanged);
         connect(ui_->treeWidget, &TreeWidget::customContextMenuRequested, this, &MainWindow::treeContextMenuRequested);
 
@@ -213,26 +208,34 @@ namespace pboman3 {
     void MainWindow::saveFile(const QString& fileName) {
         LOG(info, "Saving the file")
 
-        busy_->start();
-
         const QFuture<int> future = QtConcurrent::run([this, fileName](QPromise<int>& promise) {
             model_->saveFile([&promise]() { return promise.isCanceled(); }, fileName);
             promise.addResult(0);
         });
 
+        ui_->statusBar->progressShow(static_cast<QFuture<void>>(future));
+
         saveWatcher_.setFuture(future);
     }
 
     void MainWindow::saveComplete() {
+        ui_->statusBar->progressHide();
+
+        QFuture<int> future = saveWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "File saving was cancelled - exiting")
+            return;
+        }
+
         try {
-            saveWatcher_.future().result();//to get exceptions rethrown
+            future.takeResult();//to get exceptions rethrown
             LOG(info, "File saving is complete")
             setHasChanges(false);
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when saving - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
         }
-        busy_->stop();
     }
 
     void MainWindow::setHasChanges(bool hasChanges) {

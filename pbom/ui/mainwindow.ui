@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../res/res.qrc">
+   <iconset>
     <normaloff>:app.ico</normaloff>:app.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -148,7 +148,7 @@
    <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="pboman3::StatusBar" name="statusBar"/>
   <action name="actionFileOpen">
    <property name="text">
     <string>Open..</string>
@@ -291,6 +291,11 @@
    <class>pboman3::TreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>treewidget/treewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>pboman3::StatusBar</class>
+   <extends>QStatusBar</extends>
+   <header>statusbar.h</header>
   </customwidget>
  </customwidgets>
  <resources>

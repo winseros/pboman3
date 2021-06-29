@@ -2,8 +2,7 @@
 
 #include <QAction>
 #include <QDropEvent>
-#include <QMainWindow>
-#include "busybar.h"
+#include "ui_mainwindow.h"
 #include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 
@@ -33,7 +32,6 @@ namespace pboman3 {
         Ui::MainWindow* ui_;
         PboModel* model_;
         QFutureWatcher<int> saveWatcher_;
-        BusyBar* busy_;
         bool hasChanges_;
 
         void unloadFile();

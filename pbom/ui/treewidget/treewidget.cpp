@@ -7,9 +7,7 @@
 #include "ui/insertdialog.h"
 #include "util/appexception.h"
 #include <QDesktopServices>
-
 #include "io/pboioexception.h"
-
 #include "model/diskaccessexception.h"
 #include "ui/errordialog.h"
 #include "ui/win32/win32fileviewer.h"
@@ -38,8 +36,6 @@ namespace pboman3 {
 
         LOG(info, "Opening the selected item")
 
-        emit backgroundOpStarted();
-
         const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
 
         const QFuture<QString> future = QtConcurrent::run(
@@ -49,6 +45,8 @@ namespace pboman3 {
                 LOG(info, "Extracted the node as:", filePath)
                 promise.addResult(filePath);
             }, selected->node());
+
+        emit backgroundOpStarted(static_cast<QFuture<void>>(future));
 
         openWatcher_.setFuture(future);
     }
@@ -125,8 +123,6 @@ namespace pboman3 {
     void TreeWidget::dragStarted(const QList<PboNode*>& items) {
         LOG(info, "Drag operation has started for", items.length(), "items")
 
-        emit backgroundOpStarted();
-
         const QFuture<InteractionParcel> future = QtConcurrent::run(
             [this](QPromise<InteractionParcel>& promise, const QList<PboNode*>& selection) {
                 LOG(info, "Extracting the selected items to the drive")
@@ -135,6 +131,8 @@ namespace pboman3 {
                 LOG(info, "Extraction complete:", data)
                 promise.addResult(data);
             }, items);
+
+        emit backgroundOpStarted(static_cast<QFuture<void>>(future));
 
         delete_.schedule(items);
         dragDropWatcher_.setFuture(future);
@@ -193,8 +191,6 @@ namespace pboman3 {
     QList<PboNode*> TreeWidget::selectionCopyImpl() {
         LOG(info, "Perform Cut/Copy operation")
 
-        emit backgroundOpStarted();
-
         QList<PboNode*> nodes = getSelectedHierarchies();
         LOG(info, nodes.count(), "hierarchy items selected")
 
@@ -207,6 +203,8 @@ namespace pboman3 {
                 promise.addResult(data);
             }, nodes);
 
+        emit backgroundOpStarted(static_cast<QFuture<void>>(future));
+
         delete_.reset();
         cutCopyWatcher_.setFuture(future);
 
@@ -214,9 +212,20 @@ namespace pboman3 {
     }
 
     void TreeWidget::openExecute() {
+        emit backgroundOpStopped();
+
+        QFuture<QString> future = openWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "The Open operation was cancelled - exiting")
+            return;
+        }
+
+        LOG(info, "Executing the Open operation")
+
         try {
-            const QString path = openWatcher_.future().takeResult();
-            LOG(info, "Executing the open operation for:", path)
+            const QString path = future.takeResult();
+            LOG(info, "The open operation result is:", path)
             Win32FileViewer().previewFile(path);
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
@@ -224,19 +233,26 @@ namespace pboman3 {
         } catch (const Win32FileViewerException& ex) {
             UI_HANDLE_ERROR(ex)
         }
-        emit backgroundOpStopped();
     }
 
     void TreeWidget::dragStartExecute() {
+        emit backgroundOpStopped();
+
+        QFuture<InteractionParcel> future = dragDropWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "The dragStart operation was cancelled - exiting")
+            return;
+        }
+
         LOG(info, "Executing the dragStart operation")
 
         InteractionParcel data;
         try {
-            data = dragDropWatcher_.future().takeResult();
+            data = future.takeResult();
             LOG(info, "The interaction parsel is:", data)
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
-            emit backgroundOpStopped();
             UI_HANDLE_ERROR_RET(ex)
         }
 
@@ -246,8 +262,6 @@ namespace pboman3 {
 
         QDrag drag(this);
         drag.setMimeData(mimeData);
-
-        emit backgroundOpStopped();
 
         LOG(info, "Begin the system drag-drop operation")
         const Qt::DropAction result = drag.exec(Qt::DropAction::CopyAction | Qt::DropAction::MoveAction);
@@ -259,15 +273,23 @@ namespace pboman3 {
     }
 
     void TreeWidget::copyOrCutExecute() {
+        emit backgroundOpStopped();
+
+        QFuture<InteractionParcel> future = cutCopyWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "The Cut/Copy operation was cancelled - exiting")
+            return;
+        }
+
         LOG(info, "Executing the Cut/Copy operation")
 
         InteractionParcel data;
         try {
-            data = cutCopyWatcher_.future().takeResult();
+            data = future.takeResult();
             LOG(info, "The interaction parsel is:", data)
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
-            emit backgroundOpStopped();
             UI_HANDLE_ERROR_RET(ex)
         }
 
@@ -277,8 +299,6 @@ namespace pboman3 {
 
         QClipboard* clipboard = QGuiApplication::clipboard();
         clipboard->setMimeData(mimeData);
-
-        emit backgroundOpStopped();
     }
 
     void TreeWidget::addFilesFromPbo(PboNode* target, const QMimeData* mimeData) {

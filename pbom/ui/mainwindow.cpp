@@ -8,7 +8,6 @@
 #include "closedialog.h"
 #include "errordialog.h"
 #include "headersdialog.h"
-#include "insertdialog.h"
 #include "signaturedialog.h"
 #include "model/diskaccessexception.h"
 #include "model/pbofileformatexception.h"
@@ -101,7 +100,7 @@ namespace pboman3 {
         LOG(info, "User clicked the OpenFile button - showing dialog")
         const QString fileName = QFileDialog::getOpenFileName(this, "Select a PBO", "",
                                                               "PBO Files (*.pbo);;All Files (*.*)");
-        LOG(info, "The user chose to load the file:", fileName);
+        LOG(info, "The user chose to load the file:", fileName)
 
         if (!fileName.isEmpty()) {
             if (queryCloseUnsaved()) {
@@ -121,7 +120,7 @@ namespace pboman3 {
         const QString fileName = QFileDialog::getSaveFileName(this, "Select a PBO", "",
                                                               "PBO Files (*.pbo);;All Files (*.*)");
 
-        LOG(info, "The user chose to save the file as:", fileName);
+        LOG(info, "The user chose to save the file as:", fileName)
 
         if (!fileName.isEmpty()) {
             saveFile(fileName);
@@ -154,7 +153,7 @@ namespace pboman3 {
             const QFileInfo fi(model_->loadedPath());
             proceed = CloseDialog(fi, this).exec() == QDialog::DialogCode::Accepted;
         }
-        LOG(info, "The result is:", proceed);
+        LOG(info, "The result is:", proceed)
         return proceed;
     }
 

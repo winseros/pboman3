@@ -2,10 +2,7 @@
 
 #include <QDialog>
 #include "model/pbonode.h"
-
-namespace Ui {
-    class RenameDialog;
-}
+#include "ui_renamedialog.h"
 
 namespace pboman3 {
     class RenameDialog : public QDialog {
@@ -29,5 +26,7 @@ namespace pboman3 {
         bool setErrorState(const TitleError& err) const;
 
         void disableAccept(bool disable) const;
+
+        void setTextAndSelect() const;
     };
 }

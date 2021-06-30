@@ -1,6 +1,5 @@
 #include "renamedialog.h"
 #include <QPushButton>
-#include "ui_renamedialog.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/RenameDialog", __VA_ARGS__)
@@ -16,8 +15,7 @@ namespace pboman3 {
 
         disableAccept(setErrorState(""));
 
-        ui_->input->setText(node->title());
-        ui_->input->selectAll();
+        setTextAndSelect();
     }
 
     RenameDialog::~RenameDialog() {
@@ -71,5 +69,19 @@ namespace pboman3 {
     void RenameDialog::disableAccept(bool disable) const {
         LOG(debug, "Disable buttons:", disable)
         ui_->buttonBox->button(QDialogButtonBox::Ok)->setDisabled(disable);
+    }
+
+    void RenameDialog::setTextAndSelect() const {
+        const QString title = node_->title();
+        qsizetype index = title.lastIndexOf(".");
+        if (index < 1)
+            index = title.length();
+        ui_->input->setText(title);
+        ui_->input->setSelection(0, static_cast<int>(index));
+
+        //"file.txt"   ->  "file"
+        //"file.tar.gz ->  "file.tar"
+        //"file"       ->  ""
+        //".config"    ->  ""
     }
 }

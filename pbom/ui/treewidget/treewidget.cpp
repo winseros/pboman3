@@ -166,6 +166,7 @@ namespace pboman3 {
 
         actionState_.canOpen = getCurrentFile();
         actionState_.canRename = !!currentItem();
+        actionState_.canExtract = actionState_.canRename;
 
         auto canCopy = [this]() {
             QList<PboNode*> nodes = getSelectedHierarchies();

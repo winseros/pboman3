@@ -9,6 +9,7 @@
 #include "errordialog.h"
 #include "headersdialog.h"
 #include "signaturedialog.h"
+#include "ui_mainwindow.h"
 #include "model/diskaccessexception.h"
 #include "model/pbofileformatexception.h"
 #include "treewidget/treewidget.h"
@@ -69,7 +70,9 @@ namespace pboman3 {
     void MainWindow::setupConnections() {
         connect(&saveWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::saveComplete);
 
-        connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this](QFuture<void> f) { ui_->statusBar->progressShow(f); });
+        connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this](QFuture<void> f) {
+            ui_->statusBar->progressShow(f);
+        });
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() { ui_->statusBar->progressHide(); });
         connect(ui_->treeWidget, &TreeWidget::actionStateChanged, this, &MainWindow::treeActionStateChanged);
         connect(ui_->treeWidget, &TreeWidget::customContextMenuRequested, this, &MainWindow::treeContextMenuRequested);
@@ -168,6 +171,15 @@ namespace pboman3 {
             menu.addSeparator();
         }
 
+        if (ui_->actionSelectionExtractTo->isEnabled()) {
+            LOG(debug, "actionSelectionExtract - enabled")
+            menu.addAction(ui_->actionSelectionExtractTo);
+            if (ui_->actionSelectionExtractContainer->isEnabled())
+                menu.addAction(ui_->actionSelectionExtractFolder);
+            menu.addAction(ui_->actionSelectionExtractContainer);
+            menu.addSeparator();
+        }
+
         if (ui_->actionSelectionRename->isEnabled()) {
             LOG(debug, "actionSelectionRename - enabled")
             menu.addAction(ui_->actionSelectionRename);
@@ -202,6 +214,30 @@ namespace pboman3 {
         ui_->actionSelectionCut->setEnabled(state.canCut);
         ui_->actionSelectionPaste->setEnabled(state.canPaste);
         ui_->actionSelectionDelete->setEnabled(state.canRemove);
+
+        ui_->actionSelectionExtractTo->setEnabled(state.canExtract);
+
+
+        const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+        if (selectionRoot) {
+            ui_->actionSelectionExtractContainer->setVisible(true);
+            ui_->actionSelectionExtractContainer->setEnabled(state.canExtract);
+            if (selectionRoot->nodeType() == PboNodeType::Container) {
+                ui_->actionSelectionExtractFolder->setEnabled(false);
+                ui_->actionSelectionExtractFolder->setVisible(false);
+            } else {
+                ui_->actionSelectionExtractFolder->setEnabled(true);
+                ui_->actionSelectionExtractFolder->setVisible(true);
+                ui_->actionSelectionExtractFolder->setText(makeExtractToTitle(selectionRoot));
+            }
+        } else {
+            ui_->actionSelectionExtractFolder->setEnabled(false);
+            ui_->actionSelectionExtractFolder->setVisible(false);
+            ui_->actionSelectionExtractContainer->setEnabled(false);
+            ui_->actionSelectionExtractContainer->setVisible(false);
+        }
+
+
     }
 
     void MainWindow::saveFile(const QString& fileName) {
@@ -228,7 +264,7 @@ namespace pboman3 {
         }
 
         try {
-            future.takeResult();//to get exceptions rethrown
+            future.takeResult(); //to get exceptions rethrown
             LOG(info, "File saving is complete")
             setHasChanges(false);
         } catch (const DiskAccessException& ex) {
@@ -238,7 +274,7 @@ namespace pboman3 {
     }
 
     void MainWindow::setHasChanges(bool hasChanges) {
-        LOG(info, "The HasChanges status set to:", hasChanges);
+        LOG(info, "The HasChanges status set to:", hasChanges)
         ui_->actionFileSave->setEnabled(hasChanges);
         hasChanges_ = hasChanges;
         updateWindowTitle();
@@ -246,9 +282,11 @@ namespace pboman3 {
 
     void MainWindow::setLoaded(bool loaded) const {
         LOG(info, "The Loaded status set to:", loaded)
+
         if (loaded) {
             ui_->treeWidget->setRoot(model_->rootEntry());
             ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
+            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
         } else {
             ui_->treeWidget->resetRoot();
             ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
@@ -259,6 +297,7 @@ namespace pboman3 {
             ui_->actionSelectionPaste->setEnabled(false);
             ui_->actionSelectionDelete->setEnabled(false);
             ui_->actionSelectionRename->setEnabled(false);
+            ui_->actionSelectionExtractTo->setEnabled(false);
         }
 
         ui_->actionFileSaveAs->setEnabled(loaded);
@@ -281,5 +320,10 @@ namespace pboman3 {
 
             setWindowTitle(title);
         }
+    }
+
+    QString MainWindow::makeExtractToTitle(const PboNode* node) const {
+        return "Extract to ./" + node->title()
+            + (node->nodeType() == PboNodeType::File ? "" : "/");
     }
 }

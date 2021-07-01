@@ -12,10 +12,12 @@ namespace pboman3 {
 
         void resetRoot();
 
+        QList<PboNode*> getSelectedHierarchies() const;
+
+        PboNode* getSelectionRoot() const;
+
     protected:
         explicit TreeWidgetBase(QWidget* parent = nullptr);
-
-        QList<PboNode*> getSelectedHierarchies() const;
 
         PboNode* getCurrentFolder() const;
 

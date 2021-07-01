@@ -103,6 +103,7 @@ set(TEST_SOURCES
     "model/__test__/pbopath_test.cpp"
     "model/__test__/signaturemodel_test.cpp"
     "ui/__test__/fscollector__test.cpp"
+    "ui/treewidget/__test__/treewidgetbase__test.cpp"
     "util/__test__/qpointerlistiterator_test.cpp"
     "util/__test__/util_test.cpp"
  )

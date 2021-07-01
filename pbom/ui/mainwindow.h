@@ -2,17 +2,13 @@
 
 #include <QAction>
 #include <QDropEvent>
-#include "ui_mainwindow.h"
+#include <QMainWindow>
 #include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
-
-QT_BEGIN_NAMESPACE
 
 namespace Ui {
     class MainWindow;
 }
-
-QT_END_NAMESPACE
 
 namespace pboman3 {
     class MainWindow : public QMainWindow {
@@ -65,5 +61,7 @@ namespace pboman3 {
         void setLoaded(bool loaded) const;
 
         void updateWindowTitle();
+
+        QString makeExtractToTitle(const PboNode* node) const;
     };
 }

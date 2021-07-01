@@ -2,6 +2,8 @@
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QMimeData>
+
+#include "util/appexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/treewidget/TreeWidgetBase", __VA_ARGS__)
@@ -34,26 +36,66 @@ namespace pboman3 {
 
     QList<PboNode*> TreeWidgetBase::getSelectedHierarchies() const {
         QList<QTreeWidgetItem*> items = selectedItems();
-        QSet selected(items.begin(), items.end());
-
         QList<PboNode*> result;
         result.reserve(items.length());
 
-        for (QTreeWidgetItem* item : selected) {
-            QTreeWidgetItem* p = item->parent();
-            bool abortItem = false;
-            while (p && !abortItem) {
-                if (selected.contains(p)) {
-                    abortItem = true;
-                    continue;
+        if (items.count() > 1) {
+            for (QTreeWidgetItem* item : items) {
+                QTreeWidgetItem* p = item->parent();
+                bool abortItem = false;
+                while (p && !abortItem) {
+                    if (items.contains(p))
+                        abortItem = true;
+                    else
+                        p = p->parent();
                 }
-                p = p->parent();
+                if (!abortItem)
+                    result.append(dynamic_cast<TreeWidgetItem*>(item)->node());
             }
-            if (!abortItem)
+        } else {
+            for (QTreeWidgetItem* item : items) {
                 result.append(dynamic_cast<TreeWidgetItem*>(item)->node());
+            }
+        }
+        return result;
+    }
+
+    PboNode* TreeWidgetBase::getSelectionRoot() const {
+        QList<QTreeWidgetItem*> items = selectedItems();
+
+        //more than 1 item selected
+        if (items.count() > 1) {
+            PboNode* p;
+            QHash<PboNode*, int> counts;
+            auto last = items.end();
+            --last;
+            auto it = items.begin();
+            while (it != last) {
+                p = dynamic_cast<TreeWidgetItem*>(*it)->node();
+                while (p) {
+                    counts[p] = counts.contains(p) ? counts[p] + 1 : 1;
+                    p = p->parentNode();
+                }
+                ++it;
+            }
+            p = dynamic_cast<TreeWidgetItem*>(*last)->node();
+            while (p) {
+                counts[p] = counts.contains(p) ? counts[p] + 1 : 1;
+                if (counts[p] == items.count())
+                    return p; //this is the normal return point of the code
+                p = p->parentNode();
+            }
+            throw AppException("The code must have never reached this line");
         }
 
-        return result;
+        //1 item selected
+        if (items.count() > 0) {
+            auto* item = dynamic_cast<TreeWidgetItem*>(items.at(0));
+            return item->node();
+        }
+
+        //no items selected
+        return nullptr;
     }
 
     PboNode* TreeWidgetBase::getCurrentFolder() const {

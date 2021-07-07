@@ -4,7 +4,6 @@
 #include <QUuid>
 #include "diskaccessexception.h"
 #include "pbofileformatexception.h"
-#include "pbotreeexception.h"
 #include "io/pboheaderreader.h"
 #include "io/pboioexception.h"
 #include "io/pbowriter.h"
@@ -133,7 +132,7 @@ namespace pboman3 {
 
     void PboModel::unloadFile() {
         if (!rootEntry_)
-            throw PboTreeException("The model is not initialized");
+            throw InvalidOperationException("The model is not initialized");
 
         LOG(info, "Unloading the current file")
 
@@ -148,7 +147,7 @@ namespace pboman3 {
     void PboModel::createNodeSet(PboNode* parent, const QList<NodeDescriptor>& descriptors,
                                  const ConflictsParcel& conflicts) const {
         if (!rootEntry_)
-            throw PboTreeException("The model is not initialized");
+            throw InvalidOperationException("The model is not initialized");
 
         LOG(info, "Creating the set of nodes, parent:", *parent)
 
@@ -200,7 +199,7 @@ namespace pboman3 {
 
     ConflictsParcel PboModel::checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const {
         if (!rootEntry_)
-            throw PboTreeException("The model is not initialized");
+            throw InvalidOperationException("The model is not initialized");
 
         LOG(info, "Check conflicts for the set of descriptors")
 

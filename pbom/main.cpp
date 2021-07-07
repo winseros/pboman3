@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include "ui/errordialog.h"
 #include "ui/mainwindow.h"
-#include "util/appexception.h"
+#include "util/exception.h"
 #include "util/log.h"
 #include <QScopedPointer>
 #include <QThread>

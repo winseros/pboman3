@@ -3,7 +3,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include "gmock/gmock.h"
-#include "model/pbotreeexception.h"
+#include "util/exception.h"
 
 namespace pboman3::test {
     TEST(PboNodeTest, Ctor_Initializes_Node) {
@@ -184,8 +184,8 @@ namespace pboman3::test {
         root.createHierarchy(PboPath("f2/e1.txt"));
         PboNode* e1Old = root.at(0)->at(0);
 
-        ASSERT_THROW(root.createHierarchy(PboPath("f2/e1.txt"), ConflictResolution::Unset), PboTreeException);
-        ASSERT_THROW(root.createHierarchy(PboPath("f2/e1.txt"), ConflictResolution::Skip), PboTreeException);
+        ASSERT_THROW(root.createHierarchy(PboPath("f2/e1.txt"), ConflictResolution::Unset), InvalidOperationException);
+        ASSERT_THROW(root.createHierarchy(PboPath("f2/e1.txt"), ConflictResolution::Skip), InvalidOperationException);
 
         ASSERT_EQ(root.at(0)->count(), 1);
         ASSERT_EQ(root.at(0)->at(0), e1Old);
@@ -250,7 +250,7 @@ namespace pboman3::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1"));
         root.createHierarchy(PboPath("e2"));
 
-        ASSERT_THROW(e1->setTitle("e2"), PboTreeException);
+        ASSERT_THROW(e1->setTitle("e2"), InvalidOperationException);
     }
 
     TEST(PboNodeTest, SetTitle_Emits_If_Set_Title) {
@@ -352,7 +352,7 @@ namespace pboman3::test {
     TEST(PboNodeTest, RemoveFromHierarchy_Throws_If_Can_Not_Remove) {
         PboNode root("file-name", PboNodeType::Container, nullptr);
 
-        ASSERT_THROW(root.removeFromHierarchy(), PboTreeException);
+        ASSERT_THROW(root.removeFromHierarchy(), InvalidOperationException);
     }
 
     TEST(PboNodeTest, RemoveFromHierarchy_Emits_Events) {

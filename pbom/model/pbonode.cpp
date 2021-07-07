@@ -1,7 +1,7 @@
 #include "pbonode.h"
 #include <QRegularExpression>
-#include "pbotreeexception.h"
 #include "pbonodeevents.h"
+#include "util/exception.h"
 
 namespace pboman3 {
     PboNode::PboNode(QString title, PboNodeType nodeType, PboNode* parentNode)
@@ -33,10 +33,10 @@ namespace pboman3 {
                     break;
                 }
                 case ConflictResolution::Skip: {
-                    throw PboTreeException("Unsupported conflict resolution strategy: Skip");
+                    throw InvalidOperationException("Unsupported conflict resolution strategy: Skip");
                 }
                 case ConflictResolution::Unset: {
-                    throw PboTreeException("Unsupported conflict resolution strategy: Unset");
+                    throw InvalidOperationException("Unsupported conflict resolution strategy: Unset");
                 }
             }
         } else {
@@ -50,7 +50,7 @@ namespace pboman3 {
 
     void PboNode::removeFromHierarchy() {
         if (!parentNode_)
-            throw PboTreeException("Must not be called on the root node");
+            throw InvalidOperationException("Must not be called on the root node");
 
         PboNode* node = this;
         while (node->parentNode_
@@ -76,7 +76,7 @@ namespace pboman3 {
     void PboNode::setTitle(QString title) {
         if (title != title_) {
             if (const TitleError err = verifyTitle(title); err != nullptr)
-                throw PboTreeException(err);
+                throw InvalidOperationException(err);
 
             title_ = std::move(title);
             emit titleChanged(title_);

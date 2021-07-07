@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ui/fileviewer.h"
-#include "util/appexception.h"
+#include "util/exception.h"
 
 namespace pboman3 {
     class Win32FileViewerException : public AppException {

@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
         io/pboheaderreader.cpp
         io/pboioexception.cpp
         io/pbowriter.cpp
+        io/unpacknodes.cpp
         model/conflictsparcel.cpp
         model/diskaccessexception.cpp
         model/headersmodel.cpp
@@ -43,7 +44,6 @@ set(PROJECT_SOURCES
         model/pbonode.cpp
         model/pbonodeevents.cpp
         model/pbopath.cpp
-        model/pbotreeexception.cpp
         model/signaturemodel.cpp
         ui/treewidget/deleteop.cpp
         ui/treewidget/treewidget.cpp
@@ -70,7 +70,7 @@ set(PROJECT_SOURCES
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
         ui/statusbar.cpp
-        util/appexception.cpp
+        util/exception.cpp
         util/log.cpp
         util/util.cpp
 )
@@ -94,6 +94,7 @@ set(TEST_SOURCES
     "io/__test__/pboheaderio_test.cpp"
     "io/__test__/pboheaderreader_test.cpp"
     "io/__test__/pbowriter_test.cpp"
+    "io/__test__/unpacknodes_test.cpp"
     "model/__test__/conflictsparcel_test.cpp"
     "model/__test__/headersmodel_test.cpp"
     "model/__test__/interactionparcel_test.cpp"

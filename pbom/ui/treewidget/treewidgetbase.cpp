@@ -2,8 +2,7 @@
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QMimeData>
-
-#include "util/appexception.h"
+#include "util/exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/treewidget/TreeWidgetBase", __VA_ARGS__)

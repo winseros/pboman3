@@ -1,5 +1,5 @@
 #include "statusbar.h"
-#include "util/appexception.h"
+#include "util/exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/StatusBar", __VA_ARGS__)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDebug>
-#include "util/appexception.h"
+#include "util/exception.h"
 
 namespace pboman3 {
     class PboIoException : public AppException {

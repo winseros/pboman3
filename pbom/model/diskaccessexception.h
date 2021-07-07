@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io/pboioexception.h"
-#include "util/appexception.h"
+#include "util/exception.h"
 
 namespace pboman3 {
     class DiskAccessException : public AppException {

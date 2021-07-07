@@ -18,4 +18,15 @@ namespace pboman3 {
     protected:
         const QString message_;
     };
+
+    class InvalidOperationException : public AppException {
+    public:
+        InvalidOperationException(QString message);
+
+        friend QDebug operator<<(QDebug debug, const InvalidOperationException& ex);
+
+        void raise() const override;
+
+        QException* clone() const override;
+    };
 }

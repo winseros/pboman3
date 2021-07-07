@@ -2,7 +2,7 @@
 
 #include "ui_errordialog.h"
 #include "model/diskaccessexception.h"
-#include "util/appexception.h"
+#include "util/exception.h"
 
 namespace Ui {
     class ErrorDialog;

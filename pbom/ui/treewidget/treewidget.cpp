@@ -5,7 +5,7 @@
 #include <QDrag>
 #include "ui/fscollector.h"
 #include "ui/insertdialog.h"
-#include "util/appexception.h"
+#include "util/exception.h"
 #include <QDesktopServices>
 #include "io/pboioexception.h"
 #include "model/diskaccessexception.h"

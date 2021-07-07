@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/appexception.h"
+#include "util/exception.h"
 
 namespace pboman3 {
     class PboFileFormatException : public AppException {

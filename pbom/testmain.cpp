@@ -11,19 +11,19 @@ void TestLogger(QtMsgType type, const QMessageLogContext& context, const QString
 
     switch (type) {
     case QtDebugMsg:
-        std::cout << timeStr.constData() << "|DBG|" << localMsg.constData() << "|file: " << file << ", line: " << context.line << ", func: " << function << std::endl;
+        std::cout << timeStr.constData() << "|DBG|" << file << "|" << localMsg.constData() << std::endl;
         break;
     case QtInfoMsg:
-        std::cout << timeStr.constData() << "|INF|" << localMsg.constData() << "|" << file << ", line " << context.line << "|" << function << std::endl;
+        std::cout << timeStr.constData() << "|INF|" << file << "|" << localMsg.constData() << std::endl;
         break;
     case QtWarningMsg:
-        std::cout << timeStr.constData() << "|WRN|" << localMsg.constData() << "|" << file << ", line " << context.line << "|" << function << std::endl;
+        std::cout << timeStr.constData() << "|WRN|" << file << "|" << localMsg.constData() << std::endl;
         break;
     case QtCriticalMsg:
-        std::cout << timeStr.constData() << "|CRT|" << localMsg.constData() << "|" << file << ", line " << context.line << "|" << function << std::endl;
+        std::cout << timeStr.constData() << "|CRT|" << file << "|" << localMsg.constData() << std::endl;
         break;
     case QtFatalMsg:
-        std::cout << timeStr.constData() << "|FTL|" << localMsg.constData() << "|" << file << ", line " << context.line << "|" << function << std::endl;
+        std::cout << timeStr.constData() << "|FTL|" << file << "|" << localMsg.constData() << std::endl;
         break;
     }
 }

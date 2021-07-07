@@ -239,7 +239,7 @@ namespace pboman3 {
     }
 
     void PboModel::rootTitleChanged() {
-        LOG(info, "The root title was changed");
+        LOG(info, "The root title was changed")
         QFileInfo fi(loadedPath_);
         fi.setFile(fi.dir(), rootEntry_->title());
         setLoadedPath(fi.absoluteFilePath());

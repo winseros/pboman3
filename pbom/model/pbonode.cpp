@@ -143,6 +143,8 @@ namespace pboman3 {
 
     PboPath PboNode::makePath() const {
         PboPath path;
+        path.reserve(depth());
+
         const PboNode* p = this;
         while (p->parentNode_) {
             path.prepend(p->title_);

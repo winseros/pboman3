@@ -46,6 +46,12 @@ namespace pboman3 {
 
         void onViewSignatureClick();
 
+        void selectionExtractToClick();
+
+        void selectionExtractFolderClick() const;
+
+        void selectionExtractContainerClick() const;
+
         bool queryCloseUnsaved();
 
         void treeContextMenuRequested(const QPoint& point) const;

@@ -53,8 +53,7 @@ namespace pboman3::test {
 
         const QList list({e1, e4, tree.get(PboPath("f1"))});
 
-        UnpackNodes unpack;
-        unpack.unpackTo(dir.path(), &tree, list, []() { return false; });
+        UnpackNodes::unpackTo(dir.path(), &tree, list, []() { return false; });
 
         constexpr auto f = QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files;
         constexpr auto s = QDir::DirsFirst | QDir::Name;
@@ -81,14 +80,13 @@ namespace pboman3::test {
         t1.close();
 
         PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
-        PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/e1.txt"));
+        PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t1.fileName()));
         e1->binarySource->open();
 
-        UnpackNodes unpack;
-        unpack.unpackTo(dir.path(), tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
+        UnpackNodes::unpackTo(dir.path(), tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
 
-        const QString filePath = dir.filePath("f3/e1.txt");
+        const QString filePath = dir.filePath("f3/f4/f5/e1.txt");
         ASSERT_TRUE(QFile::exists(filePath));
 
         QFile f1(filePath);
@@ -104,7 +102,6 @@ namespace pboman3::test {
         PboNode* e1 = tree.createHierarchy(PboPath("f1/e1.txt"));
         tree.createHierarchy(PboPath("f2/e2.txt"));
 
-        UnpackNodes unpack;
-        ASSERT_THROW(unpack.unpackTo(dir.path(), tree.get(PboPath("f2")), QList({ e1 }), []() { return false; }), InvalidOperationException);
+        ASSERT_THROW(UnpackNodes::unpackTo(dir.path(), tree.get(PboPath("f2")), QList({ e1 }), []() { return false; }), InvalidOperationException);
     }
 }

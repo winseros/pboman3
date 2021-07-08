@@ -30,6 +30,8 @@ namespace pboman3 {
 
         void selectionOpen();
 
+        void selectionExtract(const QString& dir, const PboNode* relativeTo);
+
         void selectionCopy();
 
         void selectionCut();
@@ -60,6 +62,7 @@ namespace pboman3 {
         QFutureWatcher<InteractionParcel> dragDropWatcher_;
         QFutureWatcher<InteractionParcel> cutCopyWatcher_;
         QFutureWatcher<QString> openWatcher_;
+        QFutureWatcher<int> extractWatcher_;
         ActionState actionState_;
 
         void onDoubleClicked();
@@ -69,6 +72,8 @@ namespace pboman3 {
         QList<PboNode*> selectionCopyImpl();
 
         void openExecute();
+
+        void extractExecute();
 
         void dragStartExecute();
 

@@ -14,7 +14,7 @@ namespace pboman3 {
 
     void NodeDescriptor::setCompressed(bool compressed) {
         if (dynamic_cast<PboBinarySource*>(binarySource_.get())) {
-            throw AppException("Can't query compression status");
+            throw InvalidOperationException("Can't query compression status");
         }
 
         if (compressed) {

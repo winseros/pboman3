@@ -9,8 +9,8 @@ namespace pboman3 {
     void UnpackNodes::unpackTo(const QString& dir, const PboNode* rootNode, const QList<PboNode*>& childNodes,
                                const Cancel& cancel) {
         if (!QDir(dir).exists()) {
-            LOG(critical, "The directory", dir, "did not exist - throwing")
-            throw AppException("The directory must exist");
+            LOG(critical, "The directory does not exist:", dir)
+            throw InvalidOperationException("The target directory does not exist");
         }
 
         for (PboNode* childNode : childNodes) {
@@ -51,7 +51,7 @@ namespace pboman3 {
             return;
 
         QFile file(filePath);
-        if (!file.open(QIODeviceBase::WriteOnly)) {
+        if (!file.open(QIODeviceBase::ReadWrite)) {
             LOG(critical, "Can not access the file:", file.fileName())
             throw PboIoException(
                 "Can not open the file. Check you have enough permissions and the file is not locked by another process.",
@@ -69,7 +69,7 @@ namespace pboman3 {
         pathSegs.reserve(childNode->depth() - rootNode->depth());
         PboNode* parent = childNode->parentNode();
         while (parent && parent != rootNode) {
-            pathSegs.append(parent->title());
+            pathSegs.prepend(parent->title());
             parent = parent->parentNode();
         }
         if (!parent) {

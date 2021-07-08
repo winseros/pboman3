@@ -15,6 +15,8 @@ namespace pboman3 {
 
         ErrorDialog(const AppException& ex, QWidget* parent = nullptr);
 
+        ErrorDialog(const QString& text, QWidget* parent = nullptr);
+
         ~ErrorDialog();
 
     private:

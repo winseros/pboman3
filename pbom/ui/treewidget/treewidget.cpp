@@ -8,6 +8,7 @@
 #include "util/exception.h"
 #include <QDesktopServices>
 #include "io/pboioexception.h"
+#include "io/unpacknodes.h"
 #include "model/diskaccessexception.h"
 #include "ui/errordialog.h"
 #include "ui/win32/win32fileviewer.h"
@@ -26,13 +27,14 @@ namespace pboman3 {
         connect(&dragDropWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::dragStartExecute);
         connect(&cutCopyWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::copyOrCutExecute);
         connect(&openWatcher_, &QFutureWatcher<QString>::finished, this, &TreeWidget::openExecute);
+        connect(&extractWatcher_, &QFutureWatcher<int>::finished, this, &TreeWidget::extractExecute);
         connect(this, &TreeWidget::itemSelectionChanged, this, &TreeWidget::onSelectionChanged);
         connect(this, &TreeWidget::doubleClicked, this, &TreeWidget::onDoubleClicked);
     }
 
     void TreeWidget::selectionOpen() {
         if (!actionState_.canOpen)
-            throw AppException("Open action is not available");
+            throw InvalidOperationException("Open action is not available");
 
         LOG(info, "Opening the selected item")
 
@@ -51,9 +53,36 @@ namespace pboman3 {
         openWatcher_.setFuture(future);
     }
 
+    void TreeWidget::selectionExtract(const QString& dir, const PboNode* relativeTo) {
+        if (!actionState_.canExtract)
+            throw InvalidOperationException("Extract action is not available");
+
+        assert(relativeTo);
+
+        LOG(info, "Extracting selected nodes to: ", dir, "relative to ", relativeTo->title())
+
+        QList<PboNode*> selected = getSelectedHierarchies();
+        LOG(info, selected.count(), "hierarchy items selected")
+
+        const QFuture<int> future = QtConcurrent::run(
+            [this](QPromise<int>& promise,
+                   const QString& pDir,
+                   const PboNode* pRelativeTo,
+                   const QList<PboNode*>& nodes) {
+                LOG(info, "Unpack nodes begin")
+                UnpackNodes::unpackTo(pDir, pRelativeTo, nodes, [&promise]() { return promise.isCanceled(); });
+                LOG(info, "Unpack nodes complete")
+                promise.addResult(0);
+            }, dir, relativeTo, std::move(selected));
+
+        emit backgroundOpStarted(static_cast<QFuture<void>>(future));
+
+        extractWatcher_.setFuture(future);
+    }
+
     void TreeWidget::selectionCopy() {
         if (!actionState_.canCopy)
-            throw AppException("Copy action is not available");
+            throw InvalidOperationException("Copy action is not available");
 
         LOG(info, "Copy selected items")
 
@@ -62,7 +91,7 @@ namespace pboman3 {
 
     void TreeWidget::selectionCut() {
         if (!actionState_.canCut)
-            throw AppException("Cut action is not available");
+            throw InvalidOperationException("Cut action is not available");
 
         LOG(info, "Cut selected items")
 
@@ -72,7 +101,7 @@ namespace pboman3 {
 
     void TreeWidget::selectionPaste() {
         if (!actionState_.canPaste)
-            throw AppException("Paste action is not available");
+            throw InvalidOperationException("Paste action is not available");
 
         LOG(info, "Paste to the selected item")
 
@@ -93,7 +122,7 @@ namespace pboman3 {
 
     void TreeWidget::selectionRemove() const {
         if (!actionState_.canRemove)
-            throw AppException("Remove action is not available");
+            throw InvalidOperationException("Remove action is not available");
 
         LOG(info, "Remove the selected items")
 
@@ -106,7 +135,7 @@ namespace pboman3 {
 
     void TreeWidget::selectionRename() const {
         if (!actionState_.canRename)
-            throw AppException("Rename action is not available");
+            throw InvalidOperationException("Rename action is not available");
 
         LOG(info, "Rename the current item")
 
@@ -232,6 +261,24 @@ namespace pboman3 {
             LOG(info, "Error when running sync - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
         } catch (const Win32FileViewerException& ex) {
+            UI_HANDLE_ERROR(ex)
+        }
+    }
+
+    void TreeWidget::extractExecute() {
+        emit backgroundOpStopped();
+
+        QFuture<int> future = extractWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "The Extract operation was cancelled - exiting")
+            return;
+        }
+
+        try {
+            future.takeResult(); //to catch errors, if any
+            LOG(info, "The Extract operation complete")
+        } catch (const PboIoException& ex) {
             UI_HANDLE_ERROR(ex)
         }
     }

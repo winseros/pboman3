@@ -26,7 +26,7 @@ namespace pboman3 {
 
     void StatusBar::progressShow(QFuture<void> future) {
         if (progress_->isVisible())
-            throw AppException("A new background operation must not begin while the previous is running");
+            throw InvalidOperationException("A new background operation must not begin while the previous is running");
 
         future_ = future;
         progress_->setVisible(true);

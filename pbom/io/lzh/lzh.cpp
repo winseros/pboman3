@@ -1,6 +1,9 @@
 #include "lzh.h"
 #include "compressionchunk.h"
 #include "lzhdecompressionexception.h"
+#include "util/log.h"
+
+#define LOG(...) LOGGER("io/lzh/Lzh", __VA_ARGS__)
 
 namespace pboman3 {
     void Lzh::decompress(QFileDevice* source, QFileDevice* target, int outputLength, const Cancel& cancel) {
@@ -15,9 +18,11 @@ namespace pboman3 {
                 processBlock(ctx);
             }
         }
-        const bool valid = cancel() || isValid(ctx);
-        if (!valid)
+        const bool valid = isValid(ctx);
+        if (!valid) {
+            LOG(warning, "The file checksums did not match - throwing")
             throw LzhDecompressionException("Could not decompress the file");
+        }
     }
 
     void Lzh::compress(QFileDevice* source, QFileDevice* target, const Cancel& cancel) {

@@ -84,6 +84,12 @@ namespace pboman3 {
         connect(ui_->actionFileExit, &QAction::triggered, this, &MainWindow::close);
         connect(ui_->actionViewHeaders, &QAction::triggered, this, &MainWindow::onViewHeadersClick);
         connect(ui_->actionViewSignature, &QAction::triggered, this, &MainWindow::onViewSignatureClick);
+
+        connect(ui_->actionSelectionExtractTo, &QAction::triggered, this, &MainWindow::selectionExtractToClick);
+        connect(ui_->actionSelectionExtractFolder, &QAction::triggered, this, &MainWindow::selectionExtractFolderClick);
+        connect(ui_->actionSelectionExtractContainer, &QAction::triggered, this,
+                &MainWindow::selectionExtractContainerClick);
+
         connect(ui_->actionSelectionOpen, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionOpen);
         ui_->actionSelectionOpen->setShortcuts(QList<QKeySequence>({
             QKeySequence(Qt::Key_Enter),
@@ -146,6 +152,71 @@ namespace pboman3 {
     void MainWindow::onViewSignatureClick() {
         LOG(info, "User clicked the ViewSignature button")
         SignatureDialog(model_->signature(), this).exec();
+    }
+
+    void MainWindow::selectionExtractToClick() {
+        LOG(info, "User clicked the ExtractTo button - showing dialog")
+        QString folderPath = QFileDialog::getExistingDirectory(this, "Select the directory");
+        if (!folderPath.isEmpty()) {
+            LOG(info, "User selected the path:", folderPath)
+            const QDir dir(folderPath);
+            PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+
+            if (selectionRoot->nodeType() == PboNodeType::File) {
+                selectionRoot = selectionRoot->parentNode();
+                folderPath = dir.absolutePath();
+            } else {
+                const QString folderName = selectionRoot->title();
+                folderPath = dir.filePath(folderName);
+                if (!dir.exists(folderName) && !dir.mkdir(folderName)) {
+                    LOG(critical, "Could not create the dir:", folderPath)
+                    ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
+                    return;
+                }
+            }
+
+            LOG(info, "Extracting to:", folderPath)
+            ui_->treeWidget->selectionExtract(folderPath, selectionRoot);
+        }
+    }
+
+    void MainWindow::selectionExtractFolderClick() const {
+        LOG(info, "User clicked the ExtractToFolder button")
+
+        const QDir dir = QFileInfo(model_->loadedPath()).dir();
+        PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+
+        QString folderPath;
+        if (selectionRoot->nodeType() == PboNodeType::File) {
+            selectionRoot = selectionRoot->parentNode();
+            folderPath = dir.absolutePath();
+        } else {
+            const QString folderName = selectionRoot->title();
+            folderPath = dir.filePath(folderName);
+            if (!dir.exists(folderName) && !dir.mkdir(folderName)) {
+                LOG(critical, "Could not create the dir:", folderPath)
+                ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
+                return;
+            }
+        }
+
+        LOG(info, "Extracting to:", folderPath)
+        ui_->treeWidget->selectionExtract(folderPath, selectionRoot);
+    }
+
+    void MainWindow::selectionExtractContainerClick() const {
+        LOG(info, "User clicked the ExtractToContainer button")
+        const QDir dir = QFileInfo(model_->loadedPath()).dir();
+        const QString folderName = GetFileNameWithoutExtension(model_->rootEntry()->title());
+        const QString folderPath = dir.filePath(folderName);
+        if (!dir.exists(folderName) && !dir.mkdir(folderName)) {
+            LOG(critical, "Could not create the dir:", folderPath)
+            ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
+            return;
+        }
+
+        LOG(info, "Extracting to:", folderPath)
+        ui_->treeWidget->selectionExtract(folderPath, model_->rootEntry());
     }
 
     bool MainWindow::queryCloseUnsaved() {

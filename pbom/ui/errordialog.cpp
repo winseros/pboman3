@@ -15,6 +15,13 @@ namespace pboman3 {
         ui_->label->setText(ex.message());
     }
 
+    ErrorDialog::ErrorDialog(const QString& text, QWidget* parent)
+        : QDialog(parent),
+        ui_(new Ui::ErrorDialog) {
+        ui_->setupUi(this);
+        ui_->label->setText(text);
+    }
+
     ErrorDialog::~ErrorDialog() {
         delete ui_;
     }

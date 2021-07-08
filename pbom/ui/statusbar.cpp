@@ -28,7 +28,7 @@ namespace pboman3 {
         if (progress_->isVisible())
             throw InvalidOperationException("A new background operation must not begin while the previous is running");
 
-        future_ = future;
+        future_ = std::move(future);
         progress_->setVisible(true);
         button_->setVisible(true);
     }

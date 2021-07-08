@@ -71,9 +71,13 @@ namespace pboman3 {
         connect(&saveWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::saveComplete);
 
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this](QFuture<void> f) {
+            ui_->treeWidget->setEnabled(false);
             ui_->statusBar->progressShow(f);
         });
-        connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() { ui_->statusBar->progressHide(); });
+        connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() {
+            ui_->treeWidget->setEnabled(true);
+            ui_->statusBar->progressHide();
+        });
         connect(ui_->treeWidget, &TreeWidget::actionStateChanged, this, &MainWindow::treeActionStateChanged);
         connect(ui_->treeWidget, &TreeWidget::customContextMenuRequested, this, &MainWindow::treeContextMenuRequested);
 

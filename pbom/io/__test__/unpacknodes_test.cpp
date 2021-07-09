@@ -6,6 +6,8 @@
 #include <QSharedPointer>
 #include <gtest/gtest.h>
 #include "io/bs/fsrawbinarysource.h"
+#include "io/bs/pbobinarysource.h"
+
 #include "util/exception.h"
 
 namespace pboman3::test {
@@ -71,7 +73,7 @@ namespace pboman3::test {
             QStringList({ "e4.txt" }));
     }
 
-    TEST(UnpackNodesTest, UnpackTo_Extracts_Contents) {
+    TEST(UnpackNodesTest, UnpackTo_Extracts_Raw_Contents) {
         const QTemporaryDir dir;
 
         QTemporaryFile t1;
@@ -92,6 +94,31 @@ namespace pboman3::test {
         QFile f1(filePath);
         f1.open(QIODeviceBase::ReadOnly);
         ASSERT_EQ(f1.readAll(), QByteArray(10, 1));
+        f1.close();
+    }
+
+    TEST(UnpackNodesTest, UnpackTo_Extracts_Lzh_Contents) {
+        const QTemporaryDir dir;
+
+        QTemporaryFile t1;
+        t1.open();
+        t1.write(QByteArray("\xFFLorem Ip\xFFsum is s\xFFimply du\xFFmmy text\xFF of the \xFFprinting\xFF and typ\xEF""eset\x10\x02ind?ustry.\xFC\x1B\x00\x00", 84));
+        t1.close();
+
+        PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
+        PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
+        const PboDataInfo dataInfo{ 74, 84, 0, 0, true }; //the file is marked as compressed
+        e1->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(t1.fileName(), dataInfo));
+        e1->binarySource->open();
+
+        UnpackNodes::unpackTo(dir.path(), tree.get(PboPath("f1/f2")), QList({ e1 }), []() { return false; });
+
+        const QString filePath = dir.filePath("f3/f4/f5/e1.txt");
+        ASSERT_TRUE(QFile::exists(filePath));
+
+        QFile f1(filePath);
+        f1.open(QIODeviceBase::ReadOnly);
+        ASSERT_EQ(f1.readAll(), QString("Lorem Ipsum is simply dummy text of the printing and typesetting industry."));
         f1.close();
     }
 

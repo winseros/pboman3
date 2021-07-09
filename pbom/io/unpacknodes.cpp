@@ -53,7 +53,7 @@ namespace pboman3 {
         if (cancel())
             return;
 
-        QFile file(filePath);
+        QFile file(filePath); //WriteOnly won't work for LZH unpacking
         if (!file.open(QIODeviceBase::ReadWrite)) {
             LOG(critical, "Can not access the file:", file.fileName())
             throw PboIoException(

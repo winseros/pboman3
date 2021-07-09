@@ -361,6 +361,9 @@ namespace pboman3 {
             ui_->treeWidget->setRoot(model_->rootEntry());
             ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
             ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
+            connect(model_->rootEntry(), &PboNode::titleChanged, [this]() {
+                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
+            });
         } else {
             ui_->treeWidget->resetRoot();
             ui_->treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);

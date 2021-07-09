@@ -27,6 +27,8 @@ namespace pboman3 {
 
         ConflictsParcel checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const;
 
+        void unpackNodesTo(const QString& dir, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel);
+
         PboNode* rootEntry() const;
 
         HeadersModel* headers() const;

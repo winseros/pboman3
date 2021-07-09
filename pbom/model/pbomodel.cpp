@@ -7,6 +7,7 @@
 #include "io/pboheaderreader.h"
 #include "io/pboioexception.h"
 #include "io/pbowriter.h"
+#include "io/unpacknodes.h"
 #include "io/bs/pbobinarysource.h"
 #include "util/log.h"
 
@@ -212,6 +213,17 @@ namespace pboman3 {
         }
 
         return conflicts;
+    }
+
+    void PboModel::unpackNodesTo(const QString& dir, const PboNode* rootNode, const QList<PboNode*>& childNodes,
+        const Cancel& cancel) {
+        try {
+            LOG(info, "Unpack", childNodes.count(), "nodes to", dir)
+            UnpackNodes::unpackTo(dir, rootNode, childNodes, cancel);
+        } catch (const PboIoException& ex) {
+            LOG(warning, "Got error while unpacking:", ex)
+            throw DiskAccessException(ex);
+        }
     }
 
     PboNode* PboModel::rootEntry() const {

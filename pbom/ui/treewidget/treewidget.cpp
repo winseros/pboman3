@@ -7,8 +7,6 @@
 #include "ui/insertdialog.h"
 #include "util/exception.h"
 #include <QDesktopServices>
-#include "io/pboioexception.h"
-#include "io/unpacknodes.h"
 #include "model/diskaccessexception.h"
 #include "ui/errordialog.h"
 #include "ui/win32/win32fileviewer.h"
@@ -70,7 +68,7 @@ namespace pboman3 {
                    const PboNode* pRelativeTo,
                    const QList<PboNode*>& nodes) {
                 LOG(info, "Unpack nodes begin")
-                UnpackNodes::unpackTo(pDir, pRelativeTo, nodes, [&promise]() { return promise.isCanceled(); });
+                model_->unpackNodesTo(pDir, pRelativeTo, nodes, [&promise]() { return promise.isCanceled(); });
                 LOG(info, "Unpack nodes complete")
                 promise.addResult(0);
             }, dir, relativeTo, std::move(selected));
@@ -278,7 +276,7 @@ namespace pboman3 {
         try {
             future.takeResult(); //to catch errors, if any
             LOG(info, "The Extract operation complete")
-        } catch (const PboIoException& ex) {
+        } catch (const DiskAccessException& ex) {
             UI_HANDLE_ERROR(ex)
         }
     }

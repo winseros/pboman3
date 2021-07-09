@@ -12,6 +12,9 @@ namespace pboman3 {
             LOG(critical, "The directory does not exist:", dir)
             throw InvalidOperationException("The target directory does not exist");
         }
+        assert(rootNode);
+
+        LOG(info, "Unpack", childNodes.count(), "nodes to", dir)
 
         for (PboNode* childNode : childNodes) {
             if (cancel()) {

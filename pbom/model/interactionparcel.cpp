@@ -18,11 +18,15 @@ namespace pboman3 {
         }
 
         if (compressed) {
-            if (dynamic_cast<FsRawBinarySource*>(binarySource_.get()))
+            if (dynamic_cast<FsRawBinarySource*>(binarySource_.get())) {
                 binarySource_ = QSharedPointer<BinarySource>(new FsLzhBinarySource(binarySource_->path()));
+                binarySource_->open();
+            }
         } else {
-            if (dynamic_cast<FsLzhBinarySource*>(binarySource_.get()))
+            if (dynamic_cast<FsLzhBinarySource*>(binarySource_.get())) {
                 binarySource_ = QSharedPointer<BinarySource>(new FsRawBinarySource(binarySource_->path()));
+                binarySource_->open();
+            }
         }
     }
 

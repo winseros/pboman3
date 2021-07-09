@@ -161,18 +161,17 @@ namespace pboman3 {
     void MainWindow::selectionExtractToClick() {
         LOG(info, "User clicked the ExtractTo button - showing dialog")
         QString folderPath = QFileDialog::getExistingDirectory(this, "Select the directory");
+
         if (!folderPath.isEmpty()) {
             LOG(info, "User selected the path:", folderPath)
-            const QDir dir(folderPath);
             PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
-
             if (selectionRoot->nodeType() == PboNodeType::File) {
                 selectionRoot = selectionRoot->parentNode();
-                folderPath = dir.absolutePath();
             } else {
                 const QString folderName = selectionRoot->title();
+                const QDir dir(folderPath);
                 folderPath = dir.filePath(folderName);
-                if (!dir.exists(folderName) && !dir.mkdir(folderName)) {
+                if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
                     LOG(critical, "Could not create the dir:", folderPath)
                     ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
                     return;
@@ -197,7 +196,7 @@ namespace pboman3 {
         } else {
             const QString folderName = selectionRoot->title();
             folderPath = dir.filePath(folderName);
-            if (!dir.exists(folderName) && !dir.mkdir(folderName)) {
+            if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
                 LOG(critical, "Could not create the dir:", folderPath)
                 ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
                 return;
@@ -213,7 +212,7 @@ namespace pboman3 {
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
         const QString folderName = GetFileNameWithoutExtension(model_->rootEntry()->title());
         const QString folderPath = dir.filePath(folderName);
-        if (!dir.exists(folderName) && !dir.mkdir(folderName)) {
+        if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
             LOG(critical, "Could not create the dir:", folderPath)
             ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
             return;

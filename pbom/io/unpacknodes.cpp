@@ -79,7 +79,7 @@ namespace pboman3 {
 
         QDir dirObj(dir);
         for (const QString& pathSeg : pathSegs) {
-            if (!dirObj.exists(pathSeg) && !dirObj.mkdir(pathSeg)) {
+            if (!QDir(dirObj.filePath(pathSeg)).exists() && !dirObj.mkdir(pathSeg)) {
                 LOG(critical, "Could not create the folder:", dirObj.absolutePath())
                 throw PboIoException("Could not create the folder. Check you have enough permissions.",
                                      dirObj.absolutePath());

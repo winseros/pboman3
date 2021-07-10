@@ -40,6 +40,22 @@ namespace pboman3 {
         return path;
     }
 
+    void BinaryBackend::cleanStoredData(const PboNode* node) const {
+        assert(node->nodeType() == PboNodeType::File);
+
+        const QString fsPath = makeFsPath(node->makePath(), tree_);
+        if (QFileInfo(fsPath).exists()) {
+            if (!QFile::remove(fsPath)) {
+                throw PboIoException(
+                    "Could not remove the file. Check you have enough permissions and the file is not locked by another process.",
+                    fsPath);
+            }
+        }
+
+        if (execStore_)
+            execStore_->cleanStoredData(node);
+    }
+
     QString BinaryBackend::syncPboFileNode(const PboNode* node, const Cancel& cancel) const {
         QString fsPath = makeFsPath(node->makePath(), tree_);
 
@@ -52,7 +68,9 @@ namespace pboman3 {
 
             QFile file(fsPath);
             if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
-                throw PboIoException("Could not open the file. Check you have enough permissions and the file is not locked by another process.", fsPath);
+                throw PboIoException(
+                    "Could not open the file. Check you have enough permissions and the file is not locked by another process.",
+                    fsPath);
 
             node->binarySource->writeToFs(&file, cancel);
 

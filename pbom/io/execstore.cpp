@@ -23,6 +23,14 @@ namespace pboman3 {
         return result;
     }
 
+    void ExecStore::cleanStoredData(const PboNode* node) {
+        assert(node->nodeType() == PboNodeType::File && "Can clean only file nodes");
+
+        const QString path = getFileSystemPath(node->makePath());
+        if (extracted_.contains(path))
+            extracted_.remove(path);
+    }
+
     bool ExecStore::tryFindExisting(const QString& path, QString* result) {
         if (extracted_.contains(path)) {
             QList<CacheData>& cache = extracted_[path];

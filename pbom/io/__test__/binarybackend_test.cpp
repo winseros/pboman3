@@ -121,4 +121,30 @@ namespace pboman3::test {
         ASSERT_FALSE(QDir(QDir::tempPath() + "/pboman3/" + name + "/tree_").exists());
         ASSERT_FALSE(QDir(QDir::tempPath() + "/pboman3/" + name + "/exec_").exists());
     }
+
+    TEST(BinaryBackend, CleanStoredData_Cleans_Up_If_Needed) {
+        //dummy files
+        QTemporaryFile f1;
+        f1.open();
+        f1.write(QByteArray("some text data 1"));
+        f1.close();
+
+        //nodes to sync
+        PboNode root("root", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("file1.txt"));
+
+        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
+
+        //the object tested
+        const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
+        const BinaryBackend be(name);
+        const QList<QUrl> sync = be.hddSync(QList({ e1 }), []() { return false; });
+
+        //call the method
+        be.cleanStoredData(e1);
+
+        //check
+        ASSERT_FALSE(QFile::exists(sync.at(0).path()));
+    }
 }

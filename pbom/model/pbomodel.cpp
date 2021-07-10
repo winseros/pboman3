@@ -161,6 +161,7 @@ namespace pboman3 {
             if (resolution != ConflictResolution::Skip) {
                 PboNode* created = parent->createHierarchy(descriptor.path(), resolution);
                 created->binarySource = descriptor.binarySource();
+                binaryBackend_->cleanStoredData(created);
             }
         }
     }

@@ -16,6 +16,8 @@ namespace pboman3 {
 
         QString execSync(const PboNode* node, const Cancel& cancel);
 
+        void cleanStoredData(const PboNode* node) const;
+
     private:
         QString tree_;
         QString exec_;

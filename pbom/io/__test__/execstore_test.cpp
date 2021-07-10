@@ -205,4 +205,34 @@ namespace pboman3::test {
         ASSERT_EQ(sync1, sync3);
         ASSERT_NE(sync1, sync2);
     }
+
+    TEST(CleanStoredData, CleanStoredData_Cleans_Up_If_Needed) {
+        //dummy files
+        QTemporaryFile f1;
+        f1.open();
+        f1.write(QByteArray("some text data 1"));
+        f1.close();
+
+        //nodes to sync
+        PboNode root("root", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
+
+        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
+
+        //the object tested
+        const QString name = QDir::tempPath() + QDir::separator() + "test_"
+            + QUuid::createUuid().toString(QUuid::WithoutBraces);
+        ExecStore store(name);
+        const QString sync1 = store.execSync(e1, []() { return false; });
+
+        //call the method
+        store.cleanStoredData(e1);
+        ASSERT_TRUE(QFile::exists(sync1));
+        
+        //extract a new file and ensure it is new
+        const QString sync2 = store.execSync(e1, []() { return false; });
+        ASSERT_TRUE(QFile::exists(sync2));
+        ASSERT_NE(sync1, sync2);
+    }
 }

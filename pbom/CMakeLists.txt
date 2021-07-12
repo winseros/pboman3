@@ -15,6 +15,11 @@ find_package(QT NAMES Qt6 COMPONENTS Widgets Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Test REQUIRED)
 
 set(PROJECT_SOURCES
+        io/bb/binarybackend.cpp
+        io/bb/execbackend.cpp
+        io/bb/nodefilesystem.cpp
+        io/bb/tempbackend.cpp
+        io/bb/unpackbackend.cpp
         io/bs/binarysource.cpp
         io/bs/fslzhbinarysource.cpp
         io/bs/fsrawbinarysource.cpp
@@ -24,15 +29,12 @@ set(PROJECT_SOURCES
         io/lzh/decompressioncontext.cpp
         io/lzh/lzh.cpp
         io/lzh/lzhdecompressionexception.cpp
-        io/binarybackend.cpp
-        io/execstore.cpp
         io/pbodatastream.cpp
         io/pbofile.cpp
         io/pboheaderio.cpp
         io/pboheaderreader.cpp
         io/pboioexception.cpp
         io/pbowriter.cpp
-        io/unpacknodes.cpp
         model/conflictsparcel.cpp
         model/diskaccessexception.cpp
         model/headersmodel.cpp
@@ -84,19 +86,19 @@ target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(pbom PRIVATE WINVER=${WIN32_VER})
 
 set(TEST_SOURCES
+    "io/bb/__test__/execbackend_test.cpp"
+    "io/bb/__test__/tempbackend_test.cpp"
+    "io/bb/__test__/unpackbackend_test.cpp"
     "io/bs/__test__/fslzhbinarysource_test.cpp"
     "io/bs/__test__/fsrawbinarysource_test.cpp"
     "io/bs/__test__/pbobinarysource_test.cpp"
     "io/lzh/__test__/compressionbuffer_test.cpp"
     "io/lzh/__test__/compressionchunk_test.cpp"
     "io/lzh/__test__/lzh_test.cpp"
-    "io/__test__/binarybackend_test.cpp"
-    "io/__test__/execstore_test.cpp"
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "io/__test__/pboheaderreader_test.cpp"
     "io/__test__/pbowriter_test.cpp"
-    "io/__test__/unpacknodes_test.cpp"
     "model/__test__/conflictsparcel_test.cpp"
     "model/__test__/headersmodel_test.cpp"
     "model/__test__/interactionparcel_test.cpp"

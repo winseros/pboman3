@@ -1,34 +1,28 @@
 #pragma once
 
-#include "execstore.h"
+#include "nodefilesystem.h"
 #include "model/pbonode.h"
 #include "util/util.h"
-#include <QSharedPointer>
 
 namespace pboman3 {
-    class BinaryBackend {
+    class TempBackend {
     public:
-        BinaryBackend(const QString& name);
+        TempBackend(const QDir& folder);
 
-        ~BinaryBackend();
+        ~TempBackend();
 
         QList<QUrl> hddSync(const QList<PboNode*>& nodes, const Cancel& cancel) const;
 
-        QString execSync(const PboNode* node, const Cancel& cancel);
-
-        void cleanStoredData(const PboNode* node) const;
+        void clear(const PboNode* node) const;
 
     private:
-        QString tree_;
-        QString exec_;
-        QSharedPointer<ExecStore> execStore_;
+        QDir folder_;
+        QSharedPointer<NodeFileSystem> nodeFileSystem_;
 
         QString syncPboFileNode(const PboNode* node, const Cancel& cancel) const;
 
         QString syncPboDirNode(const PboNode* node, const Cancel& cancel) const;
 
         void syncPboDir(const PboNode* node, const Cancel& cancel) const;
-
-        QString makeFsPath(const PboPath& pboPath, const QString& location) const;
     };
 }

@@ -7,7 +7,6 @@
 #include "io/pboheaderreader.h"
 #include "io/pboioexception.h"
 #include "io/pbowriter.h"
-#include "io/unpacknodes.h"
 #include "io/bs/pbobinarysource.h"
 #include "util/log.h"
 
@@ -115,12 +114,16 @@ namespace pboman3 {
             if (QFile::exists(backupPath) && !QFile::remove(backupPath)) {
                 LOG(info, "Could not remove the prev backup file - throwing;", backupPath)
                 writer.resumeBinarySources();
-                throw DiskAccessException("Could not remove the file. Check you have enough permissions and the file is not locked by another process.", backupPath);
+                throw DiskAccessException(
+                    "Could not remove the file. Check you have enough permissions and the file is not locked by another process.",
+                    backupPath);
             }
             if (!QFile::rename(loadedPath_, backupPath)) {
                 LOG(info, "Could not replace the prev PBO file with a write copy - throwing;", loadedPath_)
                 writer.resumeBinarySources();
-                throw DiskAccessException("Could not write to the file. Check you have enough permissions and the file is not locked by another process.", loadedPath_);
+                throw DiskAccessException(
+                    "Could not write to the file. Check you have enough permissions and the file is not locked by another process.",
+                    loadedPath_);
             }
             assert(QFile::rename(tempPath, loadedPath_));
         }
@@ -161,7 +164,7 @@ namespace pboman3 {
             if (resolution != ConflictResolution::Skip) {
                 PboNode* created = parent->createHierarchy(descriptor.path(), resolution);
                 created->binarySource = descriptor.binarySource();
-                binaryBackend_->cleanStoredData(created);
+                binaryBackend_->clear(created);
             }
         }
     }
@@ -216,11 +219,11 @@ namespace pboman3 {
         return conflicts;
     }
 
-    void PboModel::unpackNodesTo(const QString& dir, const PboNode* rootNode, const QList<PboNode*>& childNodes,
-        const Cancel& cancel) {
+    void PboModel::unpackNodesTo(const QDir& dest, const PboNode* rootNode, const QList<PboNode*>& childNodes,
+                                 const Cancel& cancel) const {
         try {
-            LOG(info, "Unpack", childNodes.count(), "nodes to", dir)
-            UnpackNodes::unpackTo(dir, rootNode, childNodes, cancel);
+            LOG(info, "Unpack", childNodes.count(), "nodes to", dest)
+            binaryBackend_->unpackSync(dest, rootNode, childNodes, cancel);
         } catch (const PboIoException& ex) {
             LOG(warning, "Got error while unpacking:", ex)
             throw DiskAccessException(ex);

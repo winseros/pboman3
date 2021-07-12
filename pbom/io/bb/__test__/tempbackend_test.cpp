@@ -2,12 +2,13 @@
 #include <QTemporaryFile>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include "io/binarybackend.h"
+#include "io/bb/tempbackend.h"
+#include <QTemporaryDir>
 #include <QUuid>
 #include "io/bs/fsrawbinarysource.h"
 
 namespace pboman3::test {
-    TEST(BinaryBackendTest, HddSync_Creates_Files_On_Disk) {
+    TEST(TempBackendTest, HddSync_Creates_Files_On_Disk) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -30,17 +31,16 @@ namespace pboman3::test {
         e2->binarySource->open();
 
         //the object tested
-        const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        const BinaryBackend be(name);
+        const QTemporaryDir dir;
+        const TempBackend be(QDir(dir.path()));
         const QList<QUrl> sync = be.hddSync(QList({e1, e2, root.at(0)}), []() { return false; });
 
         //check the result
         ASSERT_EQ(sync.length(), 3);
 
-        const QString expectedPath = QDir::tempPath() + "/pboman3/" + name + "/tree_/";
-        ASSERT_EQ(sync.at(0).toLocalFile(), expectedPath + "file1.txt");
-        ASSERT_EQ(sync.at(1).toLocalFile(), expectedPath + "folder1/file2.txt");
-        ASSERT_EQ(sync.at(2).toLocalFile(), expectedPath + "folder1");
+        ASSERT_EQ(sync.at(0).toLocalFile(), dir.filePath("file1.txt"));
+        ASSERT_EQ(sync.at(1).toLocalFile(), dir.filePath("folder1/file2.txt"));
+        ASSERT_EQ(sync.at(2).toLocalFile(), dir.filePath("folder1"));
 
         //ensure the files have their content
         QFile c1(sync.at(0).toLocalFile());
@@ -54,40 +54,7 @@ namespace pboman3::test {
         c2.close();
     }
 
-    TEST(BinaryBackendTest, ExecSync_Creates_File_On_Disk) {
-        //dummy files
-        QTemporaryFile f1;
-        f1.open();
-        f1.write(QByteArray("some text data 1"));
-        f1.close();
-
-        //nodes to sync
-        PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
-
-        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
-
-        //the object tested
-        const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        BinaryBackend be(name);
-        const QString sync = be.execSync(e1, []() { return false; });
-
-        //check the result
-        const QString expectedPath = QDir::tempPath() + "/pboman3/" + name + "/exec_/";
-
-        //c:\users\%username%\temp\pboman3\exec_\<guid>\e1\file1.txt
-        ASSERT_TRUE(sync.startsWith(expectedPath));
-        ASSERT_TRUE(sync.endsWith("e1/file1.txt"));
-
-        //ensure the files have their content
-        QFile c1(sync);
-        c1.open(QIODeviceBase::ReadOnly);
-        ASSERT_EQ(c1.readAll(), "some text data 1");
-        c1.close();
-    }
-
-    TEST(BinaryBackendTest, Dtor_Cleans_Disk_After_Itself) {
+    TEST(TempBackendTest, Dtor_Cleans_Disk_After_Itself) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -110,19 +77,17 @@ namespace pboman3::test {
         e2->binarySource->open();
 
         //the object tested
-        const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        const auto be = new BinaryBackend(name);
+        const QTemporaryDir dir;
+        const auto be = new TempBackend(QDir(dir.path()));
         be->hddSync(QList({e1, e2, root.at(0)}), []() { return false; });
-        be->execSync(e1, []() { return false; });
 
         //must clean up
         delete be;
 
-        ASSERT_FALSE(QDir(QDir::tempPath() + "/pboman3/" + name + "/tree_").exists());
-        ASSERT_FALSE(QDir(QDir::tempPath() + "/pboman3/" + name + "/exec_").exists());
+        ASSERT_EQ(QDir(dir.path()).entryList().count(), 0);
     }
 
-    TEST(BinaryBackend, CleanStoredData_Cleans_Up_If_Needed) {
+    TEST(TempBackendTest, Clear_Cleans_Up_If_Needed) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -137,14 +102,27 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = "test_" + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        const BinaryBackend be(name);
-        const QList<QUrl> sync = be.hddSync(QList({ e1 }), []() { return false; });
+        const QTemporaryDir dir;
+        const TempBackend be(QDir(dir.path()));
+        const QList<QUrl> sync = be.hddSync(QList({e1}), []() { return false; });
 
         //call the method
-        be.cleanStoredData(e1);
+        be.clear(e1);
 
         //check
         ASSERT_FALSE(QFile::exists(sync.at(0).path()));
+    }
+
+    TEST(TempBackendTest, Clear_Does_Not_Clean_Up) {
+        //nodes to sync
+        PboNode root("root", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("file1.txt"));
+
+        //the object tested
+        const QTemporaryDir dir;
+        const TempBackend be(QDir(dir.path()));
+
+        //call the method
+        ASSERT_NO_THROW(be.clear(e1));
     }
 }

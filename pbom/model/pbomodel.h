@@ -7,7 +7,7 @@
 #include "interactionparcel.h"
 #include "pbonode.h"
 #include "signaturemodel.h"
-#include "io/binarybackend.h"
+#include "io/bb/binarybackend.h"
 
 namespace pboman3 {
     class PboModel : public QObject {
@@ -27,7 +27,7 @@ namespace pboman3 {
 
         ConflictsParcel checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const;
 
-        void unpackNodesTo(const QString& dir, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel);
+        void unpackNodesTo(const QDir& dest, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel) const;
 
         PboNode* rootEntry() const;
 

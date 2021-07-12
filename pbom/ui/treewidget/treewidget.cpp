@@ -68,7 +68,7 @@ namespace pboman3 {
                    const PboNode* pRelativeTo,
                    const QList<PboNode*>& nodes) {
                 LOG(info, "Unpack nodes begin")
-                model_->unpackNodesTo(pDir, pRelativeTo, nodes, [&promise]() { return promise.isCanceled(); });
+                model_->unpackNodesTo(QDir(pDir), pRelativeTo, nodes, [&promise]() { return promise.isCanceled(); });
                 LOG(info, "Unpack nodes complete")
                 promise.addResult(0);
             }, dir, relativeTo, std::move(selected));

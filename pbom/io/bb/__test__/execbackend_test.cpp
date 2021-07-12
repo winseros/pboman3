@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
-#include "io/execstore.h"
+#include "io/bb/execbackend.h"
 #include <QDir>
+#include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QUuid>
 #include "io/bs/fsrawbinarysource.h"
@@ -8,7 +9,7 @@
 #include <fileapi.h>
 
 namespace pboman3::test {
-    TEST(ExecStoreTest, ExecSync_Extracts_New_File) {
+    TEST(ExecBackendTest, ExecSync_Extracts_New_File) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -23,15 +24,14 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = QDir::tempPath() + QDir::separator() + "test_"
-            + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        ExecStore store(name);
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
         const QString sync = store.execSync(e1, []() { return false; });
 
         //check the result
         //c:\users\%username%\temp\<name>\<guid>\e1\file1.txt
-        ASSERT_TRUE(sync.startsWith(QFileInfo(name).absoluteFilePath()));
-        ASSERT_TRUE(sync.endsWith("e1/file1.txt"));
+        ASSERT_TRUE(sync.startsWith(dir.path()));
+        ASSERT_TRUE(sync.endsWith("e1\\file1.txt"));
 
         //ensure the files have their content
         QFile c1(sync);
@@ -40,7 +40,7 @@ namespace pboman3::test {
         c1.close();
     }
 
-    TEST(ExecStoreTest, ExecSync_Reuses_Extracted_File) {
+    TEST(ExecBackendTest, ExecSync_Reuses_Extracted_File) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -55,9 +55,8 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = QDir::tempPath() + QDir::separator() + "test_"
-            + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        ExecStore store(name);
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
         const QString sync1 = store.execSync(e1, []() { return false; });
         const QString sync2 = store.execSync(e1, []() { return false; });
 
@@ -65,7 +64,7 @@ namespace pboman3::test {
         ASSERT_EQ(sync1, sync2);
     }
 
-    TEST(ExecStoreTest, ExecSync_Creates_New_File_If_Previous_Removed) {
+    TEST(ExecBackendTest, ExecSync_Creates_New_File_If_Previous_Removed) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -80,9 +79,8 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = QDir::tempPath() + QDir::separator() + "test_"
-            + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        ExecStore store(name);
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
 
         //extract the 1st file
         const QString sync1 = store.execSync(e1, []() { return false; });
@@ -97,7 +95,7 @@ namespace pboman3::test {
         ASSERT_NE(sync1, sync2);
     }
 
-    TEST(ExecStoreTest, ExecSync_Creates_New_File_If_Previous_Modified) {
+    TEST(ExecBackendTest, ExecSync_Creates_New_File_If_Previous_Modified) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -112,9 +110,8 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = QDir::tempPath() + QDir::separator() + "test_"
-            + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        ExecStore store(name);
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
 
         //extract the 1st file
         const QString sync1 = store.execSync(e1, []() { return false; });
@@ -170,7 +167,7 @@ namespace pboman3::test {
         QString path_;
     };
 
-    TEST(ExecStoreTest, ExecSync_Creates_New_File_If_Previous_Locked) {
+    TEST(ExecBackendTest, ExecSync_Creates_New_File_If_Previous_Locked) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -185,9 +182,8 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = QDir::tempPath() + QDir::separator() + "test_"
-            + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        ExecStore store(name);
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
 
         //extract the 1st copy
         const QString sync1 = store.execSync(e1, []() { return false; });
@@ -206,7 +202,7 @@ namespace pboman3::test {
         ASSERT_NE(sync1, sync2);
     }
 
-    TEST(CleanStoredData, CleanStoredData_Cleans_Up_If_Needed) {
+    TEST(ExecBackendTest, Dtor_Cleans_Disk_After_Itself) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -221,18 +217,54 @@ namespace pboman3::test {
         e1->binarySource->open();
 
         //the object tested
-        const QString name = QDir::tempPath() + QDir::separator() + "test_"
-            + QUuid::createUuid().toString(QUuid::WithoutBraces);
-        ExecStore store(name);
+        const QTemporaryDir dir;
+        auto store = new ExecBackend(QDir(dir.path()));
+        store->execSync(e1, []() { return false; });
+        delete store;
+
+        //check the result
+        ASSERT_EQ(QDir(dir.path()).entryList().count(), 0);
+    }
+
+    TEST(ExecBackendTest, Clear_Cleans_Up_If_Needed) {
+        //dummy files
+        QTemporaryFile f1;
+        f1.open();
+        f1.write(QByteArray("some text data 1"));
+        f1.close();
+
+        //nodes to sync
+        PboNode root("root", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
+
+        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+        e1->binarySource->open();
+
+        //the object tested
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
         const QString sync1 = store.execSync(e1, []() { return false; });
 
         //call the method
-        store.cleanStoredData(e1);
+        store.clear(e1);
         ASSERT_TRUE(QFile::exists(sync1));
-        
+
         //extract a new file and ensure it is new
         const QString sync2 = store.execSync(e1, []() { return false; });
         ASSERT_TRUE(QFile::exists(sync2));
         ASSERT_NE(sync1, sync2);
+    }
+
+    TEST(ExecBackendTest, Clear_Does_Not_Clean_Up) {
+        //nodes to sync
+        PboNode root("root", PboNodeType::Container, nullptr);
+        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
+
+        //the object tested
+        const QTemporaryDir dir;
+        ExecBackend store(QDir(dir.path()));
+
+        //call the method
+        ASSERT_NO_THROW(store.clear(e1));
     }
 }

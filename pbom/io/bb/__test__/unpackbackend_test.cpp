@@ -1,17 +1,16 @@
 #pragma once
 
-#include "io/unpacknodes.h"
+#include "io/bb/unpackbackend.h"
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QSharedPointer>
 #include <gtest/gtest.h>
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
-
 #include "util/exception.h"
 
 namespace pboman3::test {
-    TEST(UnpackNodesTest, UnpackTo_Extracts_Nodes_To_File_System) {
+    TEST(UnpackBackendTest, UnpackSync_Extracts_Nodes_To_File_System) {
         const QTemporaryDir dir;
 
         QTemporaryFile t1;
@@ -55,7 +54,8 @@ namespace pboman3::test {
 
         const QList list({e1, e4, tree.get(PboPath("f1"))});
 
-        UnpackNodes::unpackTo(dir.path(), &tree, list, []() { return false; });
+        UnpackBackend unpack(QDir(dir.path()));
+        unpack.unpackSync(&tree, list, []() { return false; });
 
         constexpr auto f = QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files;
         constexpr auto s = QDir::DirsFirst | QDir::Name;
@@ -73,7 +73,7 @@ namespace pboman3::test {
             QStringList({ "e4.txt" }));
     }
 
-    TEST(UnpackNodesTest, UnpackTo_Extracts_Raw_Contents) {
+    TEST(UnpackBackendTest, UnpackSync_Extracts_Raw_Contents) {
         const QTemporaryDir dir;
 
         QTemporaryFile t1;
@@ -86,7 +86,8 @@ namespace pboman3::test {
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t1.fileName()));
         e1->binarySource->open();
 
-        UnpackNodes::unpackTo(dir.path(), tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
+        UnpackBackend unpack(QDir(dir.path()));
+        unpack.unpackSync(tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
 
         const QString filePath = dir.filePath("f3/f4/f5/e1.txt");
         ASSERT_TRUE(QFile::exists(filePath));
@@ -97,21 +98,24 @@ namespace pboman3::test {
         f1.close();
     }
 
-    TEST(UnpackNodesTest, UnpackTo_Extracts_Lzh_Contents) {
+    TEST(UnpackBackendTest, UnpackSync_Extracts_Lzh_Contents) {
         const QTemporaryDir dir;
 
         QTemporaryFile t1;
         t1.open();
-        t1.write(QByteArray("\xFFLorem Ip\xFFsum is s\xFFimply du\xFFmmy text\xFF of the \xFFprinting\xFF and typ\xEF""eset\x10\x02ind?ustry.\xFC\x1B\x00\x00", 84));
+        t1.write(QByteArray(
+            "\xFFLorem Ip\xFFsum is s\xFFimply du\xFFmmy text\xFF of the \xFFprinting\xFF and typ\xEF"
+            "eset\x10\x02ind?ustry.\xFC\x1B\x00\x00", 84));
         t1.close();
 
         PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
         PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
-        const PboDataInfo dataInfo{ 74, 84, 0, 0, true }; //the file is marked as compressed
+        const PboDataInfo dataInfo{74, 84, 0, 0, true}; //the file is marked as compressed
         e1->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(t1.fileName(), dataInfo));
         e1->binarySource->open();
 
-        UnpackNodes::unpackTo(dir.path(), tree.get(PboPath("f1/f2")), QList({ e1 }), []() { return false; });
+        UnpackBackend unpack(QDir(dir.path()));
+        unpack.unpackSync(tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
 
         const QString filePath = dir.filePath("f3/f4/f5/e1.txt");
         ASSERT_TRUE(QFile::exists(filePath));
@@ -122,13 +126,15 @@ namespace pboman3::test {
         f1.close();
     }
 
-    TEST(UnpackNodesTest, UnpackTo_Throws_If_Root_Is_Invalid) {
+    TEST(UnpackBackendTest, UnpackSync_Throws_If_Root_Is_Invalid) {
         const QTemporaryDir dir;
 
         PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
         PboNode* e1 = tree.createHierarchy(PboPath("f1/e1.txt"));
         tree.createHierarchy(PboPath("f2/e2.txt"));
 
-        ASSERT_THROW(UnpackNodes::unpackTo(dir.path(), tree.get(PboPath("f2")), QList({ e1 }), []() { return false; }), InvalidOperationException);
+        UnpackBackend unpack(QDir(dir.path()));
+        ASSERT_THROW(unpack.unpackSync(tree.get(PboPath("f2")), QList({ e1 }), []() { return false; }),
+                     InvalidOperationException);
     }
 }

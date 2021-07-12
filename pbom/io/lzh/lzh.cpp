@@ -18,10 +18,14 @@ namespace pboman3 {
                 processBlock(ctx);
             }
         }
-        const bool valid = isValid(ctx);
-        if (!valid) {
-            LOG(warning, "The file checksums did not match - throwing")
-            throw LzhDecompressionException("Could not decompress the file");
+        if (!cancel()) {
+            //does not make sense to check validity if cancel
+            //as it won't be valid
+            const bool valid = isValid(ctx);
+            if (!valid) {
+                LOG(warning, "The file checksums did not match - throwing")
+                throw LzhDecompressionException("Could not decompress the file");
+            }
         }
     }
 
@@ -51,7 +55,8 @@ namespace pboman3 {
         } else {
             qint16 pointer;
             ctx.source->read(reinterpret_cast<char*>(&pointer), sizeof pointer);
-            qint64 rpos = ctx.target->pos() - static_cast<qint64>((pointer & 0x00ff)) - static_cast<qint64>(((pointer & 0xf000) >> 4));
+            qint64 rpos = ctx.target->pos() - static_cast<qint64>((pointer & 0x00ff))
+                - static_cast<qint64>(((pointer & 0xf000) >> 4));
             int rlen = ((pointer & 0x0f00) >> 8) + 3;
 
             if (rpos + rlen < 0) {
@@ -65,8 +70,8 @@ namespace pboman3 {
                 }
                 if (rlen > 0) {
                     const int chunkSize = rpos + rlen > ctx.target->pos()
-                                               ? static_cast<int>(ctx.target->pos() - rpos)
-                                               : rlen;
+                                              ? static_cast<int>(ctx.target->pos() - rpos)
+                                              : rlen;
                     ctx.setBuffer(rpos, chunkSize);
 
                     while (rlen >= chunkSize && chunkSize > 0) {
@@ -99,7 +104,7 @@ namespace pboman3 {
 
         source->seek(0);
         while (!source->atEnd()) {
-           const qint64 read = source->read(buffer.data(), buffer.length());
+            const qint64 read = source->read(buffer.data(), buffer.length());
             for (qint64 i = 0; i < read; i++) {
                 crc += static_cast<quint8>(buffer[i]);
             }

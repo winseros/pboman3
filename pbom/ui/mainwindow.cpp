@@ -5,6 +5,8 @@
 #include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
+
+#include "aboutdialog.h"
 #include "closedialog.h"
 #include "errordialog.h"
 #include "headersdialog.h"
@@ -104,6 +106,8 @@ namespace pboman3 {
         connect(ui_->actionSelectionCut, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCut);
         connect(ui_->actionSelectionRename, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRename);
         connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
+
+        connect(ui_->actionHelpAbout, &QAction::triggered, [this]() { AboutDialog(this).exec(); });
 
         connect(model_, &PboModel::modelChanged, this, [this]() { setHasChanges(true); });
         connect(model_, &PboModel::loadedPathChanged, this, &MainWindow::updateWindowTitle);

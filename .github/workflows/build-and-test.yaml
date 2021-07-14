@@ -1,19 +1,25 @@
 name: Build And Test
-on: push
+on: 
+  push:
+    branches-ignore:
+      - main
+    tags:
+      - v*
 
 defaults:
   run:
     shell: powershell
 
 jobs:
-  build-and-test:
-    name: Build And Test
+  release:
+    name: Release
     runs-on: windows-2019
     steps:
       - name: Install MSVC 2019
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+      
       - name: Install Qt6
         uses: jurplel/install-qt-action@v2
         with:
@@ -22,23 +28,28 @@ jobs:
           target: desktop
           arch: win64_msvc2019_64
           dir: ${{github.workspace}}
+      
       - name: Checkout
         uses: actions/checkout@v2
         with:
           path: code
           submodules: true
+      
       - name: CMake Cache
-        run: cmake -S ${{github.workspace}}\code -B ${{github.workspace}}\out -G Ninja -DCMAKE_BUILD_TYPE=Release -DPBOM_BUILD_NUMBER:STRING="${{github.run_number}} ($('${{github.sha}}'.Substring(0, 7)))"
+        run: |
+         cmake -S ${{github.workspace}}\code\ -B ${{github.workspace}}\out\ `
+         -G Ninja -DCMAKE_BUILD_TYPE=Release `
+         -DPBOM_BUILD_NUMBER:STRING="${{github.run_number}} ($('${{github.sha}}'.Substring(0, 7)))" `
+         -DPBOM_VERSION="$('${{github.ref}}' -replace 'refs\/tags\/v','') -replace 'refs\/.+\/',''"
+      
       - name: CMake Build
         run: cmake --build ${{github.workspace}}\out\
-      - name: List local folder
-        run: |
-          ls ${{github.workspace}}\out\
-          ls ${{github.workspace}}\out\pbom\
-      #- name: Upload CMakeCache.txt
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: CMakeCache.txt
-      #    path: ${{github.workspace}}\out\CMakeCache.txt
+      
       - name: Run Tests
         run: ${{github.workspace}}\out\pbom\pbom_test.exe
+      
+      #- name: Collect Artifacts
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: Artifacts
+      #    path: ${{github.workspace}}\code\pbom\io\lzh\__test__\data\lzh\

@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
+#include <QThread>
 #include <QUuid>
 #include "io/bs/fsrawbinarysource.h"
 #include <Windows.h>
@@ -117,6 +118,10 @@ namespace pboman3::test {
         const QString sync1 = store.execSync(e1, []() { return false; });
 
         //modify the file
+        //sleep a bit, otherwise the change
+        //might happen at the same millisecond
+        //and would not be recognized
+        QThread::msleep(100);
         QFile s1(sync1);
         s1.open(QIODeviceBase::Append);
         s1.write(QByteArray("some more content"));

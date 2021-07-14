@@ -168,7 +168,7 @@ namespace pboman3 {
     void PboWriter::writeSignature(QFileDevice* pbo) const {
         pbo->seek(0);
         QCryptographicHash sha1(QCryptographicHash::Sha1);
-        assert(sha1.addData(pbo));
+        sha1.addData(pbo);
 
         const QByteArray sha1Bytes = sha1.result();
 

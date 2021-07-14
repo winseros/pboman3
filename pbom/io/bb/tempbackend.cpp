@@ -11,7 +11,7 @@ namespace pboman3 {
     }
 
     TempBackend::~TempBackend() {
-        assert(folder_.removeRecursively() && "Normally the folder should have been removed");
+        folder_.removeRecursively();
     }
 
     QList<QUrl> TempBackend::hddSync(const QList<PboNode*>& nodes, const Cancel& cancel) const {

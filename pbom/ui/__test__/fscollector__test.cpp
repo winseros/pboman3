@@ -12,9 +12,10 @@ namespace pboman3::test {
 
         const QTemporaryDir temp;
         const QDir tempDir(temp.path());
-        assert(tempDir.mkpath(d11));
-        assert(tempDir.mkpath(d12));
-        assert(tempDir.mkpath(d2));
+
+        ASSERT_TRUE(tempDir.mkpath(d11));
+        ASSERT_TRUE(tempDir.mkpath(d12));
+        ASSERT_TRUE(tempDir.mkpath(d2));
 
         QFile f1(tempDir.absoluteFilePath("f1.txt"));
         f1.open(QIODeviceBase::ReadWrite);

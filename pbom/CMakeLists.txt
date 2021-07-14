@@ -85,6 +85,30 @@ target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(pbom PRIVATE WINVER=${WIN32_VER})
 
+SET(QT_BINARIES_DIR ${Qt${QT_VERSION_MAJOR}_DIR}/../../..)
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    set(QT_BINARIES_SUFFIX)
+else()
+    set(QT_BINARIES_SUFFIX d)
+endif()
+
+include(GNUInstallDirs)
+install(TARGETS pbom)
+install(FILES 
+    ${QT_BINARIES_DIR}/bin/Qt6Core${QT_BINARIES_SUFFIX}.dll
+    ${QT_BINARIES_DIR}/bin/Qt6Gui${QT_BINARIES_SUFFIX}.dll
+    ${QT_BINARIES_DIR}/bin/Qt6Widgets${QT_BINARIES_SUFFIX}.dll
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES 
+    ${QT_BINARIES_DIR}/plugins/imageformats/qico${QT_BINARIES_SUFFIX}.dll
+    DESTINATION ${CMAKE_INSTALL_BINDIR}/imageformats)
+install(FILES 
+    ${QT_BINARIES_DIR}/plugins/platforms/qwindows${QT_BINARIES_SUFFIX}.dll
+    DESTINATION ${CMAKE_INSTALL_BINDIR}/platforms)
+install(FILES 
+    ${QT_BINARIES_DIR}/plugins/styles/qwindowsvistastyle${QT_BINARIES_SUFFIX}.dll
+    DESTINATION ${CMAKE_INSTALL_BINDIR}/styles)
+
 set(TEST_SOURCES
     "io/bb/__test__/execbackend_test.cpp"
     "io/bb/__test__/tempbackend_test.cpp"

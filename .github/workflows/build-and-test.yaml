@@ -15,6 +15,21 @@ jobs:
     name: Release
     runs-on: windows-2019
     steps:
+      - name: Set Short Sha
+        run: |
+          echo "git_sha=$('${{github.sha}}'.Substring(0, 7))" >> $env:GITHUB_ENV
+      - name: Set Version Information - Main
+        if: ${{startsWith(github.ref, 'refs/tags/v')}}
+        run: |
+          echo "pbom_version=$('${{github.ref}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
+          echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
+      
+      - name: Set Version Information - Branch
+        if: ${{startsWith(github.ref, 'refs/heads/')}}
+        run: |
+          echo "pbom_version=$('${{github.ref}}' -replace 'refs/heads/','' -replace '[^\w\d]','_')" >> $env:GITHUB_ENV
+          echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
+
       - name: Install MSVC 2019
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -37,19 +52,25 @@ jobs:
       
       - name: CMake Cache
         run: |
-         cmake -S ${{github.workspace}}\code\ -B ${{github.workspace}}\out\ `
+         cmake -S ${{github.workspace}}\code\ -B ${{github.workspace}}\_build\ `
          -G Ninja -DCMAKE_BUILD_TYPE=Release `
-         -DPBOM_BUILD_NUMBER:STRING="${{github.run_number}} ($('${{github.sha}}'.Substring(0, 7)))" `
-         -DPBOM_VERSION="$('${{github.ref}}' -replace 'refs\/tags\/v','') -replace 'refs\/.+\/',''"
+         -DPBOM_BUILD_NUMBER:STRING="${{env.pbom_build_number}}" `
+         -DPBOM_VERSION:STRING="${{env.pbom_version}}"
       
       - name: CMake Build
-        run: cmake --build ${{github.workspace}}\out\
-      
+        run: cmake --build ${{github.workspace}}\_build\
+
       - name: Run Tests
-        run: ${{github.workspace}}\out\pbom\pbom_test.exe
-      
-      #- name: Collect Artifacts
-      #  uses: actions/upload-artifact@v2
-      #  with:
-      #    name: Artifacts
-      #    path: ${{github.workspace}}\code\pbom\io\lzh\__test__\data\lzh\
+        run: ${{github.workspace}}\_build\pbom\pbom_test.exe
+
+      - name: CMake Install
+        run: |
+            cmake --install ${{github.workspace}}\_build\ --prefix "${{github.workspace}}\_install\"
+            mkdir ${{github.workspace}}\_artifacts\
+            mv -Path ${{github.workspace}}\_install\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager V3"
+     
+      - name: Collect Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: pboman3 binaries ${{env.pbom_version}} ${{env.pbom_build_number}}
+          path: ${{github.workspace}}\_artifacts\

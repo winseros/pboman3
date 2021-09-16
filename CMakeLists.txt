@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(pbom)
 add_subdirectory(pboe)
 
+add_subdirectory(__lib__/cli11)
 set(INSTALL_GTEST OFF)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory(__lib__/googletest)

@@ -11,9 +11,9 @@ namespace pboman3 {
 
         void writeToFs(QFileDevice* targetFile, const Cancel& cancel) override;
 
-        quint32 readOriginalSize() const override;
+        qint32 readOriginalSize() const override;
 
-        quint32 readTimestamp() const override;
+        qint32 readTimestamp() const override;
 
         bool isCompressed() const override;
 

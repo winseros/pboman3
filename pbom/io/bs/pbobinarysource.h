@@ -4,11 +4,11 @@
 
 namespace pboman3 {
     struct PboDataInfo {
-        quint32 originalSize;
-        quint32 dataSize;
+        qint32 originalSize;
+        qint32 dataSize;
         size_t dataOffset;
-        quint32 timestamp;
-        quint32 compressed;
+        qint32 timestamp;
+        qint32 compressed;
     };
 
     class PboBinarySource : public BinarySource {
@@ -21,9 +21,9 @@ namespace pboman3 {
 
         const PboDataInfo& getInfo() const;
 
-        quint32 readOriginalSize() const override;
+        qint32 readOriginalSize() const override;
 
-        quint32 readTimestamp() const override;
+        qint32 readTimestamp() const override;
 
         bool isCompressed() const override;
 

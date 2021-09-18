@@ -56,11 +56,11 @@ namespace pboman3 {
         return dataInfo_;
     }
 
-    quint32 PboBinarySource::readOriginalSize() const {
+    qint32 PboBinarySource::readOriginalSize() const {
         return dataInfo_.originalSize;
     }
 
-    quint32 PboBinarySource::readTimestamp() const {
+    qint32 PboBinarySource::readTimestamp() const {
         return dataInfo_.timestamp;
     }
 

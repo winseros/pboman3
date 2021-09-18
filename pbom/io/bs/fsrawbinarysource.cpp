@@ -31,12 +31,12 @@ namespace pboman3 {
         }
     }
 
-    quint32 FsRawBinarySource::readOriginalSize() const {
+    qint32 FsRawBinarySource::readOriginalSize() const {
         const QFileInfo fi(path());
         return static_cast<quint32>(fi.size());
     }
 
-    quint32 FsRawBinarySource::readTimestamp() const {
+    qint32 FsRawBinarySource::readTimestamp() const {
         const QFileInfo fi(path());
         return static_cast<quint32>(fi.lastModified().toSecsSinceEpoch());
     }

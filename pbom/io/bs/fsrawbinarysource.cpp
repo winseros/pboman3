@@ -18,7 +18,8 @@ namespace pboman3 {
     }
 
     void FsRawBinarySource::writeRaw(QFileDevice* targetFile, const Cancel& cancel) const {
-        file_->seek(0);
+        const bool seek = file_->seek(0);
+        assert(seek);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
 

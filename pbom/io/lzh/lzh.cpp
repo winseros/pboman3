@@ -102,7 +102,9 @@ namespace pboman3 {
         QByteArray buffer(1024, Qt::Initialization::Uninitialized);
         quint32 crc = 0;
 
-        source->seek(0);
+        const bool seek = source->seek(0);
+        assert(seek);
+
         while (!source->atEnd()) {
             const qint64 read = source->read(buffer.data(), buffer.length());
             for (qint64 i = 0; i < read; i++) {

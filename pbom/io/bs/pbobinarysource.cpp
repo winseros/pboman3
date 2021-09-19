@@ -26,7 +26,8 @@ namespace pboman3 {
     }
 
     void PboBinarySource::writeRaw(QFileDevice* targetFile, const Cancel& cancel) const {
-        file_->seek(dataInfo_.dataOffset);
+        const bool seek = file_->seek(dataInfo_.dataOffset);
+        assert(seek);
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
 
@@ -43,7 +44,8 @@ namespace pboman3 {
 
     bool PboBinarySource::tryWriteDecompressed(QFileDevice* targetFile, const Cancel& cancel) const {
         try {
-            file_->seek(dataInfo_.dataOffset);
+            const bool seek = file_->seek(dataInfo_.dataOffset);
+            assert(seek);
             Lzh::decompress(file_, targetFile, dataInfo_.originalSize, cancel);
             return true;
         } catch (LzhDecompressionException&) {

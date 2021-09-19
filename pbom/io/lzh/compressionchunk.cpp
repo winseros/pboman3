@@ -20,7 +20,8 @@ namespace pboman3 {
                 packed = composeCompressed(i, source, chunkSize, dict);
             }
             packedTotal += packed;
-            source->seek(source->pos() + packed);
+            const bool seek = source->seek(source->pos() + packed);
+            assert(seek);
         }
 
         return packedTotal;

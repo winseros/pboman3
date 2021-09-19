@@ -8,7 +8,8 @@ namespace pboman3 {
 
     void FsLzhBinarySource::writeToPbo(QFileDevice* targetFile, const Cancel& cancel) {
         assert(file_->isOpen());
-        file_->seek(0);
+        const bool seek = file_->seek(0);
+        assert(seek);
         Lzh::compress(file_, targetFile, cancel);
     }
 

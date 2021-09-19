@@ -61,7 +61,9 @@ namespace pboman3 {
             return;
         }
 
-        body.seek(0);
+        const bool seek = body.seek(0);
+        assert(seek);
+
         copyBody(&pbo, &body, cancel);
 
         writeSignature(&pbo);
@@ -166,7 +168,9 @@ namespace pboman3 {
     }
 
     void PboWriter::writeSignature(QFileDevice* pbo) const {
-        pbo->seek(0);
+        const bool seek = pbo->seek(0);
+        assert(seek);
+
         QCryptographicHash sha1(QCryptographicHash::Sha1);
         sha1.addData(pbo);
 

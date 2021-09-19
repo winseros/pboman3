@@ -47,7 +47,9 @@ namespace pboman3 {
         dataBlockEnd += dataBlockStart;
 
         QByteArray signature;
-        file->seek(dataBlockEnd + 1); //don`t forget a single 0-byte between the data end and sig start
+        const bool seek = file->seek(dataBlockEnd + 1); //don`t forget a single 0-byte between the data end and sig start
+        assert(seek);
+
         if (!file->atEnd()) {
             constexpr int sha1Size = 20;
             signature.resize(sha1Size);

@@ -21,7 +21,8 @@ namespace pboman3 {
 
     void DecompressionContext::setBuffer(qint64 offset, int length) {
         const qint64 pos = target->pos();
-        target->seek(offset);
+        const bool seek = target->seek(offset);
+        assert(seek);
         target->read(buffer.data(), length);
         target->seek(pos);
     }

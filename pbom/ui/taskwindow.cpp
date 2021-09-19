@@ -11,7 +11,8 @@ namespace pboman3 {
         : QMainWindow(parent),
           ui_(new Ui::TaskWindow),
           activeThreadCount_(0),
-          log_(nullptr) {
+          log_(nullptr),
+          doneText_("Done") {
         ui_->setupUi(this);
     }
 
@@ -62,7 +63,7 @@ namespace pboman3 {
 
     void TaskWindow::threadCompleted(ThreadId threadId) {
         ProgressWidget* progress = progressBars_.value(threadId);
-        progress->showText(false);
+        progress->setText(doneText_);
 
         activeThreadCount_--;
         if (activeThreadCount_ == 0) {
@@ -84,9 +85,10 @@ namespace pboman3 {
         log_->appendPlainText(message);
     }
 
-    void TaskWindow::buttonClicked(QAbstractButton* button) const {
+    void TaskWindow::buttonClicked(QAbstractButton* button) {
         if (button == dynamic_cast<QAbstractButton*>(ui_->buttonBox->button(QDialogButtonBox::Cancel))) {
             ui_->buttonBox->setEnabled(false);
+            doneText_ = "Cancelled";
             model_->stop();
         } else if (button == dynamic_cast<QAbstractButton*>(ui_->buttonBox->button(QDialogButtonBox::Close))) {
             exit(0);

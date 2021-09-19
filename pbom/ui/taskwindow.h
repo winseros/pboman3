@@ -28,6 +28,7 @@ namespace pboman3 {
         int activeThreadCount_;
         QHash<ThreadId, ProgressWidget*> progressBars_;
         QPlainTextEdit* log_;
+        QString doneText_;
 
         void threadStarted(ThreadId threadId);
 
@@ -39,7 +40,7 @@ namespace pboman3 {
 
         void threadMessage(ThreadId threadId, const QString& message);
 
-        void buttonClicked(QAbstractButton* button) const;
+        void buttonClicked(QAbstractButton* button);
     };
 
     class UnpackWindow: public TaskWindow {

@@ -35,6 +35,10 @@ set(PROJECT_SOURCES
         io/pboheaderreader.cpp
         io/pboioexception.cpp
         io/pbowriter.cpp
+        model/task/task.h
+        model/task/taskwindowmodel.cpp
+        model/task/unpacktask.cpp
+        model/task/unpackwindowmodel.cpp
         model/conflictsparcel.cpp
         model/diskaccessexception.cpp
         model/headersmodel.cpp
@@ -47,6 +51,7 @@ set(PROJECT_SOURCES
         model/pbonodeevents.cpp
         model/pbopath.cpp
         model/signaturemodel.cpp
+        ui/progresswidget/progresswidget.cpp
         ui/treewidget/deleteop.cpp
         ui/treewidget/treewidget.cpp
         ui/treewidget/treewidgetbase.cpp
@@ -74,6 +79,8 @@ set(PROJECT_SOURCES
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
         ui/statusbar.cpp
+        ui/taskwindow.cpp
+        ui/taskwindow.h
         util/exception.cpp
         util/log.cpp
         util/util.cpp

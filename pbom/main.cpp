@@ -1,14 +1,16 @@
 #include <QApplication>
+#include <QDir>
 #include <QFile>
+#include <QScopedPointer>
 #include <QTimer>
 #include <Windows.h>
+#include <CLI/CLI.hpp>
+#include "model/pbomodel.h"
 #include "ui/errordialog.h"
 #include "ui/mainwindow.h"
+#include "ui/taskwindow.h"
 #include "util/exception.h"
 #include "util/log.h"
-#include <QScopedPointer>
-#include "model/pbomodel.h"
-#include <CLI/CLI.hpp>
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
 
@@ -73,15 +75,32 @@ namespace pboman3 {
         return exitCode;
     }
 
-
     int RunPackWindow(const QApplication& app, const std::vector<std::string>& folders, const std::string& outDir) {
         qInfo() << "Pack";
         return 0;
     }
 
-    int RunUnpackWindow(const QApplication& app, const std::vector<std::string>& files, const std::string& outDir) {
-        qInfo() << "Unpack";
-        return 0;
+    int RunUnpackWindow(const QApplication& app, const QStringList& files, const QString& targetPath) {
+        using namespace pboman3;
+
+        ACTIVATE_ASYNC_LOG_SINK
+
+        LOG(info, "Starting the app")
+
+        ActivateCom(app);
+
+        int exitCode;
+        UnpackWindow w(nullptr);
+        if (targetPath.isEmpty()) {
+            exitCode = w.tryUnpackFilesWithPrompt(files) ? app.exec() : 0;
+        } else {
+            w.unpackFilesToTargetPath(files, targetPath);
+            exitCode = app.exec();
+        }
+
+        LOG(info, "The app exiting with the code:", exitCode)
+
+        return exitCode;
     }
 }
 
@@ -110,12 +129,17 @@ int main(int argc, char* argv[]) {
 
     App* cmdUnpack = cli.add_subcommand("unpack", "Unpack the specified PBO(s)");
     std::vector<std::string> cmdUnpackFilesPath;
-    Option* cmdUnpackFiles = cmdUnpack->add_option("files", cmdUnpackFilesPath, "The PBO(s) to unpack")
-        ->required()
-        ->check(ExistingFile);
+    cmdUnpack->add_option("files", cmdUnpackFilesPath, "The PBO(s) to unpack")
+             ->required()
+             ->check(ExistingFile);
+
     std::string cmdUnpackOutPath;
-    Option* cmdUnpackOut = cmdUnpack->add_option("-o,--output-directory", "The directory to write the PBO(s) contents")
+    Option* cmdUnpackOut = cmdUnpack->add_option("-o,--output-directory", cmdUnpackOutPath,
+                                                 "The directory to write the PBO(s) contents")
                                     ->check(ExistingDirectory);
+
+    Option* cmdUnpackPrompt = cmdUnpack->add_flag("-p,--prompt", "Show a UI dialog for the output directory selection")
+                                       ->excludes(cmdUnpackOut);
 
     CLI11_PARSE(cli, argc, argv)
 
@@ -128,7 +152,19 @@ int main(int argc, char* argv[]) {
         exitCode = RunPackWindow(app, std::vector<std::string>(), "");
     } else if (cli.got_subcommand(cmdUnpack)) {
         const PboApplication app(argc, argv);
-        exitCode = RunUnpackWindow(app, std::vector<std::string>(), "");
+        QStringList qtFiles;
+        qtFiles.reserve(cmdUnpackFilesPath.size());
+        std::for_each(cmdUnpackFilesPath.begin(), cmdUnpackFilesPath.end(), [&qtFiles](const std::string& f) {
+            qtFiles.append(QString::fromStdString(f));
+        });
+        QString targetPath;
+        if (*cmdUnpackOut)
+            targetPath = QString::fromStdString(cmdUnpackOutPath);
+        else if (*cmdUnpackPrompt)
+            targetPath = "";
+        else
+            targetPath = QDir::currentPath();
+        exitCode = RunUnpackWindow(app, qtFiles, targetPath);
     } else {
         const PboApplication app(argc, argv);
         exitCode = RunMainWindow(app, "");

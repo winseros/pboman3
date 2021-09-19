@@ -388,15 +388,15 @@ namespace pboman3 {
     }
 
     void MainWindow::updateWindowTitle() {
-#define TITLE "PBO Manager 3.0"
+
         if (model_->loadedPath().isNull()) {
             LOG(info, "There is no loaded file - reset window title to the default")
-            setWindowTitle(TITLE);
+            setWindowTitle(PBOM_PROJECT_NAME);
         } else {
             const QFileInfo fi(model_->loadedPath());
             const QString title = hasChanges_
-                                      ? "*" + fi.fileName() + " - " + TITLE
-                                      : fi.fileName() + " - " + TITLE;
+                                      ? "*" + fi.fileName() + " - " + PBOM_PROJECT_NAME
+                                      : fi.fileName() + " - " + PBOM_PROJECT_NAME;
             LOG(info, "Set window title to:", title)
 
             setWindowTitle(title);

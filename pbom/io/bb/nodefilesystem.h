@@ -20,7 +20,11 @@ namespace pboman3 {
     private:
         QDir folder_;
 
-        QDir makeFsPath(const PboNode* node) const;
+        QList<const PboNode*> getParents(const PboNode* node) const;
+
+        QString allocatePath(const QList<const PboNode*>& parents, const PboNode* node) const;
+
+        QString composePath(const PboNode* node, const QString& rootPath) const;
     };
 
 }

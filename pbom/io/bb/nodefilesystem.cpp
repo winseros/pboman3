@@ -1,6 +1,7 @@
 #include "nodefilesystem.h"
 #include "io/pboioexception.h"
 #include "util/log.h"
+#include "util/util.h"
 
 #define LOG(...) LOGGER("io/bb/NodeFileSystem", __VA_ARGS__)
 
@@ -13,30 +14,22 @@ namespace pboman3 {
     QString NodeFileSystem::allocatePath(const PboNode* node) const {
         assert(node);
 
-        QDir local(folder_);
-        const PboPath path = node->makePath();
-        auto it = path.begin();
-        const auto last = path.end() - 1;
+        const QList<const PboNode*> parents = getParents(node);
+        QString path = allocatePath(parents, node);
 
-        while (it != last) {
-            if (!local.exists(*it) && !local.mkdir(*it))
-                throw PboIoException("Could not create the folder.", local.filePath(*it));
-            local.cd(*it);
-            ++it;
-        }
-
-        return local.filePath(*last);
+        return path;
     }
 
     QString NodeFileSystem::allocatePath(const PboNode* parent, const PboNode* node) const {
         assert(parent);
         assert(node);
 
-        QList<QString> pathSegs;
-        pathSegs.reserve(node->depth() - parent->depth());
+        QList<const PboNode*> parents;
+        parents.reserve(node->depth() - parent->depth());
+
         PboNode* p = node->parentNode();
         while (p && p != parent) {
-            pathSegs.prepend(p->title());
+            parents.prepend(p);
             p = p->parentNode();
         }
         if (!p) {
@@ -44,73 +37,57 @@ namespace pboman3 {
             throw InvalidOperationException("The provided rootNode is not a real parent of the provided childNode");
         }
 
-        QDir dir(folder_);
-        for (const QString& pathSeg : pathSegs) {
-            if (!QDir(dir.filePath(pathSeg)).exists() && !dir.mkdir(pathSeg)) {
-                LOG(critical, "Could not create the folder:", dir.absolutePath())
-                throw PboIoException("Could not create the folder. Check you have enough permissions.",
-                                     dir.absolutePath());
-            }
-            dir.cd(pathSeg);
-        }
+        QString path = allocatePath(parents, node);
 
-        return dir.filePath(node->title());
+        return path;
     }
 
-
     QString NodeFileSystem::composeAbsolutePath(const PboNode* node) const {
-        QString fs = folder_.absolutePath();
-        const PboPath path = node->makePath();
-
-        auto it = path.begin();
-        const auto last = path.end() - 1;
-
-        if (it == last) {
-            fs = fs + QDir::separator();
-        } else {
-            while (it != last) {
-                fs = fs + *it + QDir::separator();
-                ++it;
-            }
-        }
-        fs = fs + *last;
-
-        return fs;
+        const QString fs = folder_.absolutePath() + QDir::separator();
+        QString path = composePath(node, fs);
+        return path;
     }
 
     QString NodeFileSystem::composeRelativePath(const PboNode* node) const {
-        QString fs = "";
-        const PboPath path = node->makePath();
-
-        auto it = path.begin();
-        const auto last = path.end() - 1;
-
-        if (it == last) {
-            fs = fs + QDir::separator();
-        } else {
-            while (it != last) {
-                fs = fs + *it + QDir::separator();
-                ++it;
-            }
-        }
-        fs = fs + *last;
-
-        return fs;
+        QString path = composePath(node, "");
+        return path;
     }
 
-    QDir NodeFileSystem::makeFsPath(const PboNode* node) const {
-        assert(node);
+    QList<const PboNode*> NodeFileSystem::getParents(const PboNode* node) const {
+        QList<const PboNode*> parents;
+        parents.reserve(node->depth());
+        const PboNode* p = node->parentNode();
+        while (p->parentNode()) {
+            parents.prepend(p);
+            p = p->parentNode();
+        }
+        return parents;
+    }
+
+    QString NodeFileSystem::allocatePath(const QList<const PboNode*>& parents, const PboNode* node) const {
+        QDir local(folder_);
+        for (const PboNode* par : parents) {
+            if (!local.exists(par->title()) && !local.mkdir(par->title()))
+                throw PboIoException("Could not create the folder.", local.filePath(node->title()));
+            local.cd(par->title());
+        }
+        
+        return local.filePath(node->title());
+    }
+
+    QString NodeFileSystem::composePath(const PboNode* node, const QString& rootPath) const {
+        QString fs = rootPath;
+
+        QList<const PboNode*> parents = getParents(node);
 
         QDir local(folder_);
-        const PboPath path = node->makePath();
-        auto it = path.begin();
-        const auto last = path.end() - 1;
-
-        while (it != last) {
-            local.cd(*it);
-            ++it;
+        for (const PboNode* par : parents) {
+            fs.append(par->title()).append(QDir::separator());
+            local.cd(par->title());
         }
+        
+        fs.append(node->title());
 
-        return local;
+        return fs;
     }
 }

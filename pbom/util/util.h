@@ -9,4 +9,6 @@ namespace pboman3 {
     QString GetFileExtension(const QString& fileName);
 
     QString GetFileNameWithoutExtension(const QString& fileName);
+
+    void SplitByNameAndExtension(const QString& fileName, QString& outFileName, QString& outExtension);
 }

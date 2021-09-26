@@ -3,8 +3,10 @@
 #include <QFile>
 #include "io/pboheaderreader.h"
 #include "io/pboioexception.h"
+#include "io/bb/unpacktaskbackend.h"
 #include "io/bs/pbobinarysource.h"
 #include "model/pboentry.h"
+#include "model/rootreader.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/UnpackTask", __VA_ARGS__)
@@ -29,37 +31,31 @@ namespace pboman3 {
         constexpr qsizetype startProgress = 0;
         emit taskInitialized(pboPath_, startProgress, static_cast<qint32>(header.entries.count()));
 
-        qsizetype entryDataOffset = header.dataBlockStart;
-        qint32 progress = startProgress;
-        for (const QSharedPointer<PboEntry>& entry : header.entries) {
-            if (cancel()) break;
+        
+        std::function onError = [this](const QString& error) {
+            emit taskMessage(error);
+        };
 
-            LOG(debug, "Processing the entry:", *entry)
-            PboDataInfo di{0, 0, 0, 0, 0};
-            di.originalSize = entry->originalSize();
-            di.dataSize = entry->dataSize();
-            di.dataOffset = entryDataOffset;
-            di.timestamp = entry->timestamp();
-            di.compressed = entry->packingMethod() == PboPackingMethod::Packed;
-            PboBinarySource bs(pboPath_, di);
-            bs.open();
-
-            if (tryCreateEntryDir(pboDir, entry)) {
-                QFile entryFile(pboDir.absoluteFilePath(entry->fileName()));
-                if (entryFile.open(QIODeviceBase::NewOnly | QIODeviceBase::ReadWrite)) {
-                    LOG(info, "Write to the file:", entryFile.fileName())
-                    bs.writeToFs(&entryFile, cancel);
-                    entryFile.close();
-                } else {
-                    LOG(info, "Could not create the file:", entryFile.fileName())
-                    emit taskMessage("Could not create file | " + entryFile.fileName());
-                }
-            }
-
-            entryDataOffset += di.dataSize;
+        int progress = startProgress;
+        std::function onProgress = [this, &progress]() {
             progress++;
             emit taskProgress(progress);
-        }
+        };
+
+        PboNode root("root", PboNodeType::Container, nullptr);
+        RootReader(&header, pboPath_).inflateRoot(&root);
+
+        UnpackTaskBackend be(pboDir);
+        be.setOnError(&onError);
+        be.setOnProgress(&onProgress);
+
+        QList<PboNode*> childNodes;
+        childNodes.reserve(root.count());
+        for (PboNode* node: root)
+            childNodes.append(node);
+        be.unpackSync(&root, childNodes, cancel);
+
+        LOG(info, "Unpack complete")
     }
 
     bool UnpackTask::tryReadPboHeader(PboFileHeader* header) {

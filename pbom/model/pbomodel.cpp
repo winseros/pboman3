@@ -4,10 +4,10 @@
 #include <QUuid>
 #include "diskaccessexception.h"
 #include "pbofileformatexception.h"
+#include "rootreader.h"
 #include "io/pboheaderreader.h"
 #include "io/pboioexception.h"
 #include "io/pbowriter.h"
-#include "io/bs/pbobinarysource.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/PboModel", __VA_ARGS__)
@@ -50,22 +50,7 @@ namespace pboman3 {
         signature_ = QSharedPointer<SignatureModel>(new SignatureModel);
         signature_->setSignatureBytes(header.signature);
 
-        LOG(info, "Inflating the nodes hierarchy")
-        size_t entryDataOffset = header.dataBlockStart;
-        for (const QSharedPointer<PboEntry>& entry : header.entries) {
-            LOG(debug, "Processing the entry:", *entry)
-            PboNode* node = rootEntry_->createHierarchy(entry->makePath());
-            PboDataInfo dataInfo{0, 0, 0, 0, 0};
-            dataInfo.originalSize = entry->originalSize();
-            dataInfo.dataSize = entry->dataSize();
-            dataInfo.dataOffset = entryDataOffset;
-            dataInfo.timestamp = entry->timestamp();
-            dataInfo.compressed = entry->packingMethod() == PboPackingMethod::Packed;
-            entryDataOffset += dataInfo.dataSize;
-            node->binarySource = QSharedPointer<PboBinarySource>(
-                new PboBinarySource(path, dataInfo));
-            node->binarySource->open();
-        }
+        RootReader(&header, path).inflateRoot(rootEntry_.get());
 
         LOG(info, "Creating the binary backend")
         binaryBackend_ = QSharedPointer<BinaryBackend>(

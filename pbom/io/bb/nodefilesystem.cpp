@@ -67,8 +67,8 @@ namespace pboman3 {
     QString NodeFileSystem::allocatePath(const QList<const PboNode*>& parents, const PboNode* node) const {
         QDir local(folder_);
         for (const PboNode* par : parents) {
-            if (!local.exists(par->title()) && !local.mkdir(par->title()))
-                throw PboIoException("Could not create the folder.", local.filePath(node->title()));
+            if (!QDir(local.filePath(par->title())).exists() && !local.mkdir(par->title()))
+                throw PboIoException("Could not create the folder.", local.filePath(par->title()));
             local.cd(par->title());
         }
         

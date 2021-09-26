@@ -11,12 +11,13 @@ namespace pboman3 {
         void unpackSync(const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel);
 
     private:
-        QSharedPointer<NodeFileSystem> nodeFileSystem_;
-
         void unpackNode(const PboNode* rootNode, const PboNode* childNode, const Cancel& cancel);
 
         void unpackFolderNode(const PboNode* rootNode, const PboNode* childNode, const Cancel& cancel);
 
-        void unpackFileNode(const PboNode* rootNode, const PboNode* childNode, const Cancel& cancel) const;
+    protected:
+        QSharedPointer<NodeFileSystem> nodeFileSystem_;
+
+        virtual void unpackFileNode(const PboNode* rootNode, const PboNode* childNode, const Cancel& cancel) const;
     };
 }

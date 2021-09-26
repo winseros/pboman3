@@ -20,6 +20,7 @@ set(PROJECT_SOURCES
         io/bb/nodefilesystem.cpp
         io/bb/tempbackend.cpp
         io/bb/unpackbackend.cpp
+        io/bb/unpacktaskbackend.cpp
         io/bs/binarysource.cpp
         io/bs/fslzhbinarysource.cpp
         io/bs/fsrawbinarysource.cpp
@@ -50,6 +51,7 @@ set(PROJECT_SOURCES
         model/pbonode.cpp
         model/pbonodeevents.cpp
         model/pbopath.cpp
+        model/rootreader.cpp
         model/signaturemodel.cpp
         ui/progresswidget/progresswidget.cpp
         ui/treewidget/deleteop.cpp
@@ -79,8 +81,10 @@ set(PROJECT_SOURCES
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
         ui/statusbar.cpp
+        ui/statusbar.cpp
         ui/taskwindow.cpp
-        ui/taskwindow.h
+        ui/taskwindow.ui
+        ui/unpackwindow.cpp
         util/exception.cpp
         util/log.cpp
         util/util.cpp
@@ -138,6 +142,7 @@ set(TEST_SOURCES
     "model/__test__/pboheader_test.cpp"
     "model/__test__/pbonode_test.cpp"
     "model/__test__/pbopath_test.cpp"
+    "model/__test__/rootreader_test.cpp"
     "model/__test__/signaturemodel_test.cpp"
     "ui/__test__/fscollector__test.cpp"
     "ui/treewidget/__test__/treewidgetbase__test.cpp"

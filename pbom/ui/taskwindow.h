@@ -42,13 +42,4 @@ namespace pboman3 {
 
         void buttonClicked(QAbstractButton* button);
     };
-
-    class UnpackWindow: public TaskWindow {
-    public:
-        UnpackWindow(QWidget* parent);
-
-        void unpackFilesToTargetPath(const QStringList& files, const QString& targetPath);
-
-        bool tryUnpackFilesWithPrompt(const QStringList& files);
-    };
 }

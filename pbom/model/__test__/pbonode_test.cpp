@@ -22,38 +22,73 @@ namespace pboman3::test {
         PboNode root("file-name", PboNodeType::Container, nullptr);
         ASSERT_EQ(root.depth(), 0);
 
-        root.createHierarchy(PboPath("e1"));
-        root.createHierarchy(PboPath("f2/e2"));
-        root.createHierarchy(PboPath("f2/e3"));
+        root.createHierarchy(PboPath("e1.txt"));
+        root.createHierarchy(PboPath("f2/e2.txt"));
+        root.createHierarchy(PboPath("f2/e3.txt"));
+        root.createHierarchy(PboPath("f2/e3.txt"));//file node must be renamed
+        root.createHierarchy(PboPath("e1.txt/e4.txt"));//folder node must be renamed
 
-        //f2
-        ASSERT_EQ(root.count(), 2);
+        ASSERT_EQ(root.count(), 3);
+
+        //e1.txt(1)
+        ASSERT_EQ(root.at(0)->count(), 1);
         ASSERT_EQ(root.at(0)->nodeType(), PboNodeType::Folder);
-        ASSERT_EQ(root.at(0)->title(), "f2");
+        ASSERT_EQ(root.at(0)->title(), "e1.txt(1)");
         ASSERT_EQ(root.at(0)->parentNode(), &root);
         ASSERT_EQ(root.at(0)->depth(), 1);
 
-        //e1
-        ASSERT_EQ(root.at(1)->nodeType(), PboNodeType::File);
-        ASSERT_EQ(root.at(1)->title(), "e1");
-        ASSERT_EQ(root.at(1)->parentNode(), &root);
-        ASSERT_EQ(root.at(1)->depth(), 1);
-
-        //f2/e2
-        ASSERT_EQ(root.at(0)->count(), 2);
+        //e1.txt(1)/e2.txt
         ASSERT_EQ(root.at(0)->at(0)->nodeType(), PboNodeType::File);
-        ASSERT_EQ(root.at(0)->at(0)->title(), "e2");
+        ASSERT_EQ(root.at(0)->at(0)->title(), "e4.txt");
         ASSERT_EQ(root.at(0)->at(0)->parentNode(), root.at(0));
         ASSERT_EQ(root.at(0)->at(0)->depth(), 2);
 
-        //f2/e3
-        ASSERT_EQ(root.at(0)->at(1)->nodeType(), PboNodeType::File);
-        ASSERT_EQ(root.at(0)->at(1)->title(), "e3");
-        ASSERT_EQ(root.at(0)->at(1)->parentNode(), root.at(0));
-        ASSERT_EQ(root.at(0)->at(1)->depth(), 2);
+        //f2
+        ASSERT_EQ(root.at(1)->count(), 3);
+        ASSERT_EQ(root.at(1)->nodeType(), PboNodeType::Folder);
+        ASSERT_EQ(root.at(1)->title(), "f2");
+        ASSERT_EQ(root.at(1)->parentNode(), &root);
+        ASSERT_EQ(root.at(1)->depth(), 1);
+
+        //f2/e2.txt
+        ASSERT_EQ(root.at(1)->at(0)->nodeType(), PboNodeType::File);
+        ASSERT_EQ(root.at(1)->at(0)->title(), "e2.txt");
+        ASSERT_EQ(root.at(1)->at(0)->parentNode(), root.at(1));
+        ASSERT_EQ(root.at(1)->at(0)->depth(), 2);
+
+        //f2/e3.txt
+        ASSERT_EQ(root.at(1)->at(1)->nodeType(), PboNodeType::File);
+        ASSERT_EQ(root.at(1)->at(1)->title(), "e3.txt");
+        ASSERT_EQ(root.at(1)->at(1)->parentNode(), root.at(1));
+        ASSERT_EQ(root.at(1)->at(1)->depth(), 2);
+
+        //f2/e3(1).txt
+        ASSERT_EQ(root.at(1)->at(2)->nodeType(), PboNodeType::File);
+        ASSERT_EQ(root.at(1)->at(2)->title(), "e3(1).txt");
+        ASSERT_EQ(root.at(1)->at(2)->parentNode(), root.at(1));
+        ASSERT_EQ(root.at(1)->at(2)->depth(), 2);
+
+        //e1.txt
+        ASSERT_EQ(root.at(2)->nodeType(), PboNodeType::File);
+        ASSERT_EQ(root.at(2)->title(), "e1.txt");
+        ASSERT_EQ(root.at(2)->parentNode(), &root);
+        ASSERT_EQ(root.at(2)->depth(), 1);
     }
 
-    TEST(PboNodeTest, CreateHierarchy1_Emits_Once_When_Creating_Folders) {
+    TEST(PboNodeTest, CreateHierarchy2_Replaces_Conflicting_Node) {
+        PboNode root("file-name", PboNodeType::Container, nullptr);
+
+        root.createHierarchy(PboPath("f2/e1"));
+        const QPointer e1Old = root.at(0)->at(0);
+
+        PboNode* e1New = root.createHierarchy(PboPath("f2/e1"), ConflictResolution::Replace);
+
+        ASSERT_EQ(root.at(0)->count(), 1);
+        ASSERT_EQ(root.at(0)->at(0), e1New);
+        ASSERT_TRUE(e1Old.isNull());
+    }
+
+    TEST(PboNodeTest, CreateHierarchy2_Emits_Once_When_Creating_Folders) {
         PboNode root("file-name", PboNodeType::Container, nullptr);
 
         int count = 0;
@@ -71,11 +106,11 @@ namespace pboman3::test {
         ASSERT_EQ(count, 1);
     }
 
-    TEST(PboNodeTest, CreateHierarchy1_Emits_When_Creating_Files) {
+    TEST(PboNodeTest, CreateHierarchy2_Emits_When_Creating_Files) {
         PboNode root("file-name", PboNodeType::Container, nullptr);
 
         int count = 0;
-        auto onChildCreated = [&count](PboNode* node, qsizetype index) {
+        auto onChildCreated = [&count](const PboNode* node, qsizetype index) {
             switch (count) {
                 case 0: {
                     ASSERT_EQ(node->title(), "e1");
@@ -98,84 +133,6 @@ namespace pboman3::test {
         root.createHierarchy(PboPath("e2"));
 
         ASSERT_EQ(count, 2);
-    }
-
-    TEST(PboNodeTest, CreateHierarchy2_Creates_Tree_If_Entries_Make_No_Conflicts) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-
-        PboNode* e1 = root.createHierarchy(PboPath("e1"), ConflictResolution::Unset);
-        PboNode* e2 = root.createHierarchy(PboPath("f2/e2"), ConflictResolution::Unset);
-        PboNode* e3 = root.createHierarchy(PboPath("f2/e3"), ConflictResolution::Unset);
-
-        ASSERT_EQ(root.count(), 2);
-
-        //f2 check
-        ASSERT_EQ(root.at(0)->nodeType(), PboNodeType::Folder);
-        ASSERT_EQ(root.at(0)->title(), "f2");
-        ASSERT_EQ(root.at(0)->parentNode(), &root);
-        ASSERT_EQ(root.at(0)->count(), 2);
-
-        //f2/e2
-        ASSERT_EQ(root.at(0)->at(0), e2);
-        ASSERT_EQ(root.at(0)->at(0)->nodeType(), PboNodeType::File);
-        ASSERT_EQ(root.at(0)->at(0)->title(), "e2");
-        ASSERT_EQ(root.at(0)->at(0)->parentNode(), root.at(0));
-
-        //f2/e3
-        ASSERT_EQ(root.at(0)->at(1), e3);
-        ASSERT_EQ(root.at(0)->at(1)->nodeType(), PboNodeType::File);
-        ASSERT_EQ(root.at(0)->at(1)->title(), "e3");
-        ASSERT_EQ(root.at(0)->at(1)->parentNode(), root.at(0));
-
-        //e1 check
-        ASSERT_EQ(root.at(1), e1);
-        ASSERT_EQ(root.at(1)->nodeType(), PboNodeType::File);
-        ASSERT_EQ(root.at(1)->title(), "e1");
-        ASSERT_EQ(root.at(1)->parentNode(), &root);
-    }
-
-    TEST(PboNodeTest, CreateHierarchy2_Replaces_Conflicting_Node) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-
-        root.createHierarchy(PboPath("f2/e1"));
-        const QPointer<PboNode> e1Old = root.at(0)->at(0);
-
-        PboNode* e1New = root.createHierarchy(PboPath("f2/e1"), ConflictResolution::Replace);
-
-        ASSERT_EQ(root.at(0)->count(), 1);
-        ASSERT_EQ(root.at(0)->at(0), e1New);
-        ASSERT_TRUE(e1Old.isNull());
-    }
-
-    TEST(PboNodeTest, CreateHierarchy2_Renames_Conflicting_Node) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-
-        PboNode* c1Old = root.createHierarchy(PboPath("e1"));
-        PboNode* c2Old = root.createHierarchy(PboPath("e1.txt"));
-        PboNode* c3Old = root.createHierarchy(PboPath("f2/e1.txt"));
-        PboNode* c4Old = root.createHierarchy(PboPath("f2/e1-copy.txt"));
-
-        PboNode* c1New = root.createHierarchy(PboPath("e1"), ConflictResolution::Copy);
-        PboNode* c2New = root.createHierarchy(PboPath("e1.txt"), ConflictResolution::Copy);
-        PboNode* c3New = root.createHierarchy(PboPath("f2/e1.txt"), ConflictResolution::Copy);
-        PboNode* c4New = root.createHierarchy(PboPath("f2/e1-copy.txt"), ConflictResolution::Copy);
-
-        ASSERT_EQ(root.count(), 5);
-        ASSERT_EQ(root.at(1), c1Old);
-        ASSERT_EQ(root.at(4), c2Old);
-
-        ASSERT_EQ(root.at(2), c1New);
-        ASSERT_EQ(root.at(3), c2New);
-        ASSERT_EQ(c1New->title(), "e1-copy");
-        ASSERT_EQ(c2New->title(), "e1-copy.txt");
-
-        ASSERT_EQ(root.at(0)->count(), 4);
-        ASSERT_EQ(root.at(0)->at(0), c4New);
-        ASSERT_EQ(root.at(0)->at(1), c4Old);
-        ASSERT_EQ(root.at(0)->at(2), c3New);
-        ASSERT_EQ(root.at(0)->at(3), c3Old);
-        ASSERT_EQ(c3New->title(), "e1-copy1.txt");
-        ASSERT_EQ(c4New->title(), "e1-copy-copy.txt");
     }
 
     TEST(PboNodeTest, CreateHierarchy2_Throws_In_Case_Of_Conflict) {
@@ -414,5 +371,22 @@ namespace pboman3::test {
         //only the root fires the callback
         e3->removeFromHierarchy();
         ASSERT_EQ(count, 1);
+    }
+
+    TEST(PboNodeTest, IsPathConflict_Functional) {
+        PboNode root("file-name", PboNodeType::Container, nullptr);
+        ASSERT_EQ(root.depth(), 0);
+
+        root.createHierarchy(PboPath("e1.txt"));
+        root.createHierarchy(PboPath("f2/e2.txt"));
+
+        ASSERT_TRUE(root.isPathConflict(PboPath("e1.txt")));
+        ASSERT_TRUE(root.isPathConflict(PboPath("f2")));
+        ASSERT_TRUE(root.isPathConflict(PboPath("f2/e2.txt")));
+        ASSERT_TRUE(root.isPathConflict(PboPath("f2/e2.txt/e4.txt")));
+
+        ASSERT_FALSE(root.isPathConflict(PboPath("e2.txt")));
+        ASSERT_FALSE(root.isPathConflict(PboPath("f2/e3.txt")));
+        ASSERT_FALSE(root.isPathConflict(PboPath("f3/e4.txt")));
     }
 }

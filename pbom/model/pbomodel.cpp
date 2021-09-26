@@ -210,7 +210,7 @@ namespace pboman3 {
 
         ConflictsParcel conflicts;
         for (const NodeDescriptor& descriptor : descriptors) {
-            if (parent->get(PboPath(descriptor.path()))) {
+            if (parent->isPathConflict(PboPath(descriptor.path()))) {
                 LOG(info, "The descriptor is in conflict:", descriptor)
                 conflicts.setResolution(descriptor, ConflictResolution::Copy);
             }

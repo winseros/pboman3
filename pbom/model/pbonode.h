@@ -24,6 +24,8 @@ namespace pboman3 {
 
         void removeFromHierarchy();
 
+        bool isPathConflict(const PboPath& path) const;
+
         const QString& title() const;
 
         void setTitle(QString title);
@@ -73,15 +75,19 @@ namespace pboman3 {
         PboNode* parentNode_;
         QList<QSharedPointer<PboNode>> children_;
 
-        PboNode* createHierarchyFolders(const PboPath& path);
-
-        PboNode* findChild(const QString& title, PboNodeType nodeType) const;
+        PboNode* createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict, bool emitEvents);
 
         PboNode* findChild(const QString& title) const;
 
-        PboNode* createChild(const QString& title, PboNodeType nodeType);
+        QString pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const;
 
-        QString resolveNameConflict(const PboNode* parent, const PboNode* node) const;
+        QString pickFileTitle(const PboNode* parent, const QString& expectedTitle) const;
+
+        QString formatFolderTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const;
+
+        QString formatFileTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const;
+
+        PboNode* createChild(const QString& title, PboNodeType nodeType);
 
         qsizetype getChildListIndex(const PboNode* node) const;
 

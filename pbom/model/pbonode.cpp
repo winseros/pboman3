@@ -12,40 +12,11 @@ namespace pboman3 {
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath) {
-        PboNode* parent = createHierarchyFolders(entryPath);
-        PboNode* node = parent->createChild(entryPath.last(), PboNodeType::File);
-        return node;
+        return createHierarchy(entryPath, ConflictResolution::Copy, false);
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict) {
-        PboNode* result = nullptr;
-        if (PboNode* existing = get(entryPath)) {
-            switch (onConflict) {
-                case ConflictResolution::Replace: {
-                    result = existing->parentNode_->createChild(entryPath.last(), PboNodeType::File);
-                    existing->removeFromHierarchy();
-                    break;
-                }
-                case ConflictResolution::Copy: {
-                    const QString title = resolveNameConflict(existing->parentNode_, existing);
-                    result = existing->parentNode_->createChild(title, PboNodeType::File);
-                    emitHierarchyChanged();
-                    break;
-                }
-                case ConflictResolution::Skip: {
-                    throw InvalidOperationException("Unsupported conflict resolution strategy: Skip");
-                }
-                case ConflictResolution::Unset: {
-                    throw InvalidOperationException("Unsupported conflict resolution strategy: Unset");
-                }
-            }
-        } else {
-            PboNode* parent = createHierarchyFolders(entryPath);
-            result = parent->createChild(entryPath.last(), PboNodeType::File);
-            emitHierarchyChanged();
-        }
-
-        return result;
+        return createHierarchy(entryPath, onConflict, true);
     }
 
     void PboNode::removeFromHierarchy() {
@@ -67,6 +38,23 @@ namespace pboman3 {
 
         emit p->childRemoved(index);
         p->emitHierarchyChanged();
+    }
+
+    bool PboNode::isPathConflict(const PboPath& path) const {
+        const PboNode* node = this;
+        for (qsizetype i = 0; i < path.length() - 1; i++) {
+            const PboNode* folder = node->findChild(path.at(i));
+            if (folder) {
+                if (folder->nodeType_ == PboNodeType::File)
+                    return true;
+                node = folder;
+            } else {
+                return false;
+            }
+        }
+
+        const PboNode* file = node->findChild(path.last());
+        return file;
     }
 
     const QString& PboNode::title() const {
@@ -170,36 +158,128 @@ namespace pboman3 {
     }
 
     bool PboNode::operator<(const PboNode& node) const {
-        return nodeType_ == node.nodeType_
-                   ? title_ < node.title_ //alphabetically
-                   : nodeType_ > node.nodeType_; //folders first
+        if (nodeType_ == node.nodeType_) {
+            if (nodeType_ == PboNodeType::Folder) {
+                return title_ < node.title_; //folders alphabetically
+            }
+            QString name1, ext1;
+            SplitByNameAndExtension(title_, name1, ext1);
+            QString name2, ext2;
+            SplitByNameAndExtension(node.title_, name2, ext2);
+            if (name1 == name2) {
+                return ext1 < ext2; //files alphabetically by extension
+            }
+            return name1 < name2; //files alphabetically by name
+        }
+
+        return nodeType_ > node.nodeType_; //folders first
     }
 
-    PboNode* PboNode::createHierarchyFolders(const PboPath& path) {
-        PboNode* parent = this;
-        for (int i = 0; i < path.length() - 1; i++) {
-            PboNode* child = parent->findChild(path.at(i), PboNodeType::Folder);
-            if (!child)
-                child = parent->createChild(path.at(i), PboNodeType::Folder);
-            parent = child;
+    PboNode* PboNode::createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict,
+                                      bool emitEvents) {
+        PboNode* node = this;
+        for (qsizetype i = 0; i < entryPath.length() - 1; i++) {
+            PboNode* folder = node->findChild(entryPath.at(i));
+            if (!folder) {
+                folder = node->createChild(entryPath.at(i), PboNodeType::Folder);
+            } else if (folder->nodeType_ == PboNodeType::File) {
+                switch (onConflict) {
+                    case ConflictResolution::Replace: {
+                        PboNode* replaceFolder = folder->parentNode_->createChild(
+                            entryPath.last(), PboNodeType::File);
+                        folder->removeFromHierarchy();
+                        folder = replaceFolder;
+                        break;
+                    }
+                    case ConflictResolution::Copy: {
+                        const QString folderTitle = pickFolderTitle(node, entryPath.at(i));
+                        folder = node->createChild(folderTitle, PboNodeType::Folder);
+                        break;
+                    }
+                    default:
+                        throw InvalidOperationException("Unsupported conflict resolution strategy");
+                }
+            }
+            node = folder;
         }
-        return parent;
-    }
 
-    PboNode* PboNode::findChild(const QString& title, PboNodeType nodeType) const {
-        for (QSharedPointer<PboNode> child : children_) {
-            if (child->title_ == title && child->nodeType_ == nodeType)
-                return child.get();
+        PboNode* file = node->findChild(entryPath.last());
+        if (!file) {
+            file = node->createChild(entryPath.last(), PboNodeType::File);
+            if (emitEvents)
+                emitHierarchyChanged();
+        } else {
+            switch (onConflict) {
+                case ConflictResolution::Replace: {
+                    PboNode* replaceFile = file->parentNode_->createChild(entryPath.last(), PboNodeType::File);
+                    //this emits "hierarchyChanged"; this branch never called with emitEvents==false
+                    file->removeFromHierarchy();
+                    file = replaceFile;
+                    break;
+                }
+                case ConflictResolution::Copy: {
+                    const QString fileTitle = pickFileTitle(node, entryPath.last());
+                    file = node->createChild(fileTitle, PboNodeType::File);
+                    if (emitEvents)
+                        emitHierarchyChanged();
+                    break;
+                }
+                default:
+                    throw InvalidOperationException("Unsupported conflict resolution strategy");
+            }
         }
-        return nullptr;
+
+        return file;
     }
 
     PboNode* PboNode::findChild(const QString& title) const {
-        for (QSharedPointer<PboNode> child : children_) {
+        for (const QSharedPointer<PboNode>& child : children_) {
             if (child->title_ == title)
                 return child.get();
         }
         return nullptr;
+    }
+
+    QString PboNode::pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const {
+        int index = 1;
+        QString attemptTitle = formatFolderTitleCopy(expectedTitle, index);
+        auto it = parent->children_.constBegin();
+        while (it != parent->children_.constEnd()) {
+            if ((*it)->title() == attemptTitle && (*it)->nodeType_ == PboNodeType::File) {
+                index++;
+                attemptTitle = formatFolderTitleCopy(expectedTitle, index);
+                it = parent->children_.constBegin();
+            } else {
+                ++it;
+            }
+        }
+        return attemptTitle;
+    }
+
+    QString PboNode::pickFileTitle(const PboNode* parent, const QString& expectedTitle) const {
+        int index = 1;
+        QString attemptTitle = formatFileTitleCopy(expectedTitle, index);
+        auto it = parent->children_.constBegin();
+        while (it < parent->children_.constEnd()) {
+            if ((*it)->title() == attemptTitle) {
+                index++;
+                attemptTitle = formatFileTitleCopy(expectedTitle, index);
+                it = parent->children_.constBegin();
+            } else {
+                ++it;
+            }
+        }
+        return attemptTitle;
+    }
+
+    QString PboNode::formatFolderTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const {
+        return expectedTitle + "(" + QString::number(copyIndex) + ")";
+    }
+
+    QString PboNode::formatFileTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const {
+        QString expectedName, expectedExt;
+        SplitByNameAndExtension(expectedTitle, expectedName, expectedExt);
+        return expectedName + "(" + QString::number(copyIndex) + ")." + expectedExt;
     }
 
     PboNode* PboNode::createChild(const QString& title, PboNodeType nodeType) {
@@ -208,32 +288,6 @@ namespace pboman3 {
         children_.insert(index, child);
         emit childCreated(child.get(), index);
         return child.get();
-    }
-
-    QString PboNode::resolveNameConflict(const PboNode* parent, const PboNode* node) const {
-        assert(node->nodeType_ == PboNodeType::File && "The conflicts must occur only between files");
-
-        const qsizetype extensionPoint = node->title_.lastIndexOf(".");
-        const QString extName = extensionPoint >= 0 ? node->title_.right(node->title_.length() - extensionPoint) : "";
-        const QString fileName = node->title_.left(extensionPoint);
-
-        int i = 1;
-        QString newName = fileName;
-        newName.append("-copy").append(extName);
-
-        auto it = parent->children_.begin();
-        while (it != parent->children_.end()) {
-            if ((*it)->title_ == newName) {
-                newName = fileName;
-                newName.append("-copy").append(QString::number(i)).append(extName);
-                it = parent->children_.begin();
-                i++;
-            } else {
-                ++it;
-            }
-        }
-
-        return newName;
     }
 
     qsizetype PboNode::getChildListIndex(const PboNode* node) const {

@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
     using namespace CLI;
     using namespace pboman3;
 
-    App cli("PBO Manager V3");
+    App cli("PBO Manager3");
     cli.require_subcommand(0, 1);
 
     App* cmdOpen = cli.add_subcommand("open", "Open the specified PBO file");

@@ -67,7 +67,7 @@ jobs:
         run: |
             cmake --install ${{github.workspace}}\_build\ --prefix "${{github.workspace}}\_install\"
             mkdir ${{github.workspace}}\_artifacts\
-            mv -Path ${{github.workspace}}\_install\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager V3"
+            mv -Path ${{github.workspace}}\_install\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager"
      
       - name: Collect Artifacts
         uses: actions/upload-artifact@v2

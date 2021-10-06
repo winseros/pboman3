@@ -2,6 +2,7 @@ set(PROJECT_SOURCES
     dllmain.cpp
     classfactory.cpp
     contextmenu.cpp
+    executable.cpp
     registry.cpp
 )
 

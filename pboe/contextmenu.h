@@ -2,6 +2,7 @@
 
 #include <ShlObj.h>
 #include <filesystem>
+#include "executable.h"
 
 namespace pboman3 {
     using namespace std;
@@ -34,14 +35,26 @@ namespace pboman3 {
         ULONG refCount_;
         HMENU subMenu_;
         HBITMAP icon_;
-        path selectedPath_;
+        shared_ptr<vector<path>> selectedPaths_;
+        shared_ptr<Executable> executable_;
 
-        path getSelectedPath(IDataObject* dataObject) const;
+        shared_ptr<vector<path>> getSelectedPaths(IDataObject* dataObject) const;
 
         MENUITEMINFO makeMenuItem(UINT wId, LPTSTR text) const;
+
+        void insertRootItem(HMENU hmenu, UINT indexMenu) const;
 
         MENUITEMINFO makeRootItem(LPTSTR text, HBITMAP icon, HMENU subMenu) const;
 
         HBITMAP loadRootIcon() const;
+
+        enum class SelectionMode {
+            None,
+            Mixed,
+            Files,
+            Folders
+        };
+
+        SelectionMode getSelectionMode() const;
     };
 }

@@ -7,31 +7,40 @@
 #include <vector>
 
 namespace pboman3 {
+    using namespace std;
     using namespace std::filesystem;
 
     class Executable {
     public :
-        static std::shared_ptr<Executable> fromRegistry();
+        static shared_ptr<Executable> fromRegistry();
 
-        Executable(std::string executablePath);
+        Executable(string executablePath);
 
-        bool unpackFiles(const LPCSTR cwd, const std::vector<path>& files, const std::string& path) const;
+        bool unpackFiles(LPCSTR cwd, const vector<path>& files, const string& outputDir) const;
 
-        bool unpackFiles(const LPCSTR cwd, const std::vector<path>& files) const;
+        bool unpackFiles(LPCSTR cwd, const vector<path>& files) const;
 
-        HINSTANCE packFolders(const std::vector<std::string>& folders, const std::string& path);
+        bool packFolders(LPCSTR cwd, const vector<path>& folders, const string& outputDir) const;
 
-        HINSTANCE packFolders(const std::vector<std::string>& folders);
+        bool packFolders(LPCSTR cwd, const vector<path>& folders) const;
 
         bool isValid() const;
 
     private:
-        const std::string executablePath_;
+        const string executablePath_;
 
-        static std::size_t estimateArgvLength(const std::vector<path>& items);
+        static void reserveArgvSize(string& argv, vector<path> items, size_t additionalSymbols);
 
-        bool shellExecute(LPCSTR cwd, const std::string& argv) const;
+        bool shellExecute(LPCSTR cwd, const string& argv) const;
 
-        static void appendItemsToArgv(std::string& argv, const std::vector<path>& items);
+        static void appendPaths(string& argv, const vector<path>& paths);
+
+        static void appendPackCommand(string& argv);
+
+        static void appendUnpackCommand(string& argv);
+
+        static void appendOutputDir(string& argv, const string& outputDir);
+
+        static void appendPrompt(string& argv);
     };
 }

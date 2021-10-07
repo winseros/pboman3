@@ -4,7 +4,10 @@
 #include "registry.h"
 
 namespace pboman3 {
+    using namespace std;
     using namespace std::filesystem;
+
+    constexpr size_t additionalCharsReserve = 20;
 
     std::shared_ptr<Executable> Executable::fromRegistry() {
         std::string path = Registry::getExecutablePath();
@@ -15,42 +18,52 @@ namespace pboman3 {
         : executablePath_(std::move(executablePath)) {
     }
 
-    bool Executable::unpackFiles(const LPCSTR cwd, const std::vector<path>& files, const std::string& path) const {
-        //+some characters for command line parameter names
-        const auto reserve = estimateArgvLength(files) + path.length() + 20;
-
+    bool Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files, const string& outputDir) const {
         std::string argv;
-        argv.reserve(reserve);
+        reserveArgvSize(argv, files,  outputDir.size() + additionalCharsReserve);
 
-        argv.append("unpack");
-        appendItemsToArgv(argv, files);
-        argv.append(" -o \"").append(path).append("\"");
+        appendUnpackCommand(argv);
+        appendPaths(argv, files);
+        appendOutputDir(argv, outputDir);
 
         const bool success = shellExecute(cwd, argv);
         return success;
     }
 
-    bool Executable::unpackFiles(const LPCSTR cwd, const std::vector<path>& files) const {
-        //+some characters for command line parameter names
-        const auto reserve = estimateArgvLength(files) + 20;
-
+    bool Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files) const {
         std::string argv;
-        argv.reserve(reserve);
+        reserveArgvSize(argv, files, additionalCharsReserve);
 
-        argv.append("unpack");
-        appendItemsToArgv(argv, files);
-        argv.append(" -p");
+        appendUnpackCommand(argv);
+        appendPaths(argv, files);
+        appendPrompt(argv);
 
         const bool success = shellExecute(cwd, argv);
         return success;
     }
 
-    HINSTANCE Executable::packFolders(const std::vector<std::string>& folders, const std::string& path) {
-        return 0;
+    bool Executable::packFolders(const LPCSTR cwd, const vector<path>& folders, const string& outputDir) const {
+        std::string argv;
+        reserveArgvSize(argv, folders, outputDir.size() + additionalCharsReserve);
+
+        appendPackCommand(argv);
+        appendPaths(argv, folders);
+        appendOutputDir(argv, outputDir);
+
+        const bool success = shellExecute(cwd, argv);
+        return success;
     }
 
-    HINSTANCE Executable::packFolders(const std::vector<std::string>& folders) {
-        return 0;
+    bool Executable::packFolders(const LPCSTR cwd, const vector<path>& folders) const {
+        std::string argv;
+        reserveArgvSize(argv, folders, additionalCharsReserve);
+
+        appendPackCommand(argv);
+        appendPaths(argv, folders);
+        appendPrompt(argv);
+
+        const bool success = shellExecute(cwd, argv);
+        return success;
     }
 
     bool Executable::isValid() const {
@@ -58,13 +71,13 @@ namespace pboman3 {
             && is_regular_file(executablePath_);
     }
 
-    std::size_t Executable::estimateArgvLength(const std::vector<path>& items) {
+    void Executable::reserveArgvSize(string& argv, vector<path> items, size_t additionalSymbols) {
         const auto reserve = std::accumulate(items.begin(), items.end(), static_cast<std::size_t>(0),
                                              [](ULONG64 sum, const path& p) {
                                                  //each item will need 3 additional symbols: 2 quotes and separating whitespace
                                                  return sum + p.string().size() + static_cast<std::size_t>(3);
                                              });
-        return reserve;
+        argv.reserve(reserve + additionalSymbols);
     }
 
     bool Executable::shellExecute(LPCSTR cwd, const std::string& argv) const {
@@ -72,8 +85,24 @@ namespace pboman3 {
         return reinterpret_cast<INT_PTR>(hinst) > 32;
     }
 
-    void Executable::appendItemsToArgv(std::string& argv, const std::vector<path>& items) {
-        for (const path& item : items)
+    void Executable::appendPaths(string& argv, const vector<path>& paths) {
+        for (const path& item : paths)
             argv.append(" \"").append(item.string()).append("\"");
+    }
+
+    void Executable::appendPackCommand(std::string& argv) {
+        argv.append("pack");
+    }
+
+    void Executable::appendUnpackCommand(std::string& argv) {
+        argv.append("unpack");
+    }
+
+    void Executable::appendOutputDir(std::string& argv, const std::string& outputDir) {
+        argv.append(" -o \"").append(outputDir).append("\"");
+    }
+
+    void Executable::appendPrompt(std::string& argv) {
+        argv.append(" -p");
     }
 }

@@ -54,14 +54,10 @@ namespace pboman3 {
         return S_OK;
     }
 
-    constexpr int idUnpackFilePt = 1;
-    constexpr int idUnpackFileAs = 2;
-    constexpr int idUnpackMultiPt = 3;
-    constexpr int idUnpackMultiIn = 4;
-    constexpr int idPackFilePt = 5;
-    constexpr int idPackFileAs = 6;
-    constexpr int idPackMultiPt = 7;
-    constexpr int idPackMultiIn = 8;
+    constexpr int idUnpackWithPrompt = 1;
+    constexpr int idUnpackToCwd = 2;
+    constexpr int idPackWithPrompt = 3;
+    constexpr int idPackToCwd = 4;
 
     HRESULT ContextMenu::QueryContextMenu(HMENU hmenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags) {
         HRESULT hr = E_FAIL;
@@ -74,25 +70,25 @@ namespace pboman3 {
 
                 if (selectedPaths_->size() == 1) {
                     TCHAR textItem1[] = "Unpack to...";
-                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idUnpackFilePt, textItem1);
+                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
                     InsertMenuItem(subMenu_, 0, TRUE, &item1);
 
                     string textItem2 = "Unpack as \"" + selectedPaths_->at(0)
                                                                       .filename().replace_extension().string() + "/\"";
-                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idUnpackFileAs, textItem2.data());
+                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                     InsertMenuItem(subMenu_, 0, TRUE, &item2);
 
-                    lastUsedMenuIndex = idUnpackFileAs;
+                    lastUsedMenuIndex = idUnpackToCwd;
                 } else {
                     TCHAR textItem1[] = "Unpack to...";
-                    const MENUITEMINFO item3 = makeMenuItem(idCmdFirst + idUnpackMultiPt, textItem1);
+                    const MENUITEMINFO item3 = makeMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
                     InsertMenuItem(subMenu_, 0, TRUE, &item3);
 
                     string textItem2 = "Unpack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "/\"";
-                    const MENUITEMINFO item4 = makeMenuItem(idCmdFirst + idUnpackMultiIn, textItem2.data());
+                    const MENUITEMINFO item4 = makeMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                     InsertMenuItem(subMenu_, 0, TRUE, &item4);
 
-                    lastUsedMenuIndex = idUnpackMultiIn;
+                    lastUsedMenuIndex = idUnpackToCwd;
                 }
 
                 insertRootItem(hmenu, indexMenu);
@@ -102,24 +98,24 @@ namespace pboman3 {
 
                 if (selectedPaths_->size() == 1) {
                     TCHAR textItem1[] = "Pack to...";
-                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idPackFilePt, textItem1);
+                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idPackWithPrompt, textItem1);
                     InsertMenuItem(subMenu_, 0, TRUE, &item1);
 
                     string textItem2 = "Pack as \"" + selectedPaths_->at(0).filename().string() + ".pbo\"";
-                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idPackFileAs, textItem2.data());
+                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idPackToCwd, textItem2.data());
                     InsertMenuItem(subMenu_, 0, TRUE, &item2);
 
-                    lastUsedMenuIndex = idPackFileAs;
+                    lastUsedMenuIndex = idPackToCwd;
                 } else {
                     TCHAR textItem3[] = "Pack to...";
-                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idPackMultiPt, textItem3);
+                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idPackWithPrompt, textItem3);
                     InsertMenuItem(subMenu_, 0, TRUE, &item1);
 
                     string textItem4 = "Pack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "/\"";
-                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idPackMultiIn, textItem4.data());
+                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idPackToCwd, textItem4.data());
                     InsertMenuItem(subMenu_, 0, TRUE, &item2);
 
-                    lastUsedMenuIndex = idPackMultiIn;
+                    lastUsedMenuIndex = idPackToCwd;
                 }
 
                 insertRootItem(hmenu, indexMenu);
@@ -142,20 +138,16 @@ namespace pboman3 {
                 //means pici contains idCmd, otherwise would mean pici contains a verb
                 const auto idCmd = LOWORD(pici->lpVerb);
                 switch (idCmd) {
-                    case idUnpackFilePt:
-                    case idUnpackMultiPt:
+                    case idUnpackWithPrompt:
                         hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_);
                         break;
-                    case idUnpackFileAs:
-                    case idUnpackMultiIn:
+                    case idUnpackToCwd:
                         hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
                         break;
-                    case idPackFilePt:
-                    case idPackMultiPt:
+                    case idPackWithPrompt:
                         hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_);
                         break;
-                    case idPackFileAs:
-                    case idPackMultiIn:
+                    case idPackToCwd:
                         hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
                         break;
                 }

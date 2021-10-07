@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
+#include <filesystem>
 #include "dllmain_test.h"
-
 #include "registry.h"
 
 namespace pboman3::test {
@@ -14,20 +14,36 @@ namespace pboman3::test {
         ASSERT_TRUE(SUCCEEDED(hr));
     }
 
-    TEST(DrawIconTest, IconDraws) {
-        const string exePath = Registry::getExecutablePath();
+    // TEST(DrawIconTest, IconDraws) {
+    //     const string exePath = Registry::getExecutablePath();
+    //
+    //     HICON icon;
+    //     ExtractIconEx(exePath.data(), 0, NULL, &icon, 1);
+    //
+    //     HDC dc = GetDC(NULL);
+    //     HBITMAP bitmap = CreateCompatibleBitmap(dc, 16, 16);
+    //     HGDIOBJ prev = SelectObject(dc, bitmap);
+    //
+    //     BOOL ok = DrawIcon(dc, 0, 0, icon);
+    //
+    //     DestroyIcon(icon);
+    //     DeleteObject(bitmap);
+    //     DeleteDC(dc);
+    // }
 
-        HICON icon;
-        ExtractIconEx(exePath.data(), 0, NULL, &icon, 1);
+    TEST(DllRegisterServerTest, RegistersDevelopmentApplication) {
+        using namespace std::filesystem;
 
-        HDC dc = GetDC(NULL);
-        HBITMAP bitmap = CreateCompatibleBitmap(dc, 16, 16);
-        HGDIOBJ prev = SelectObject(dc, bitmap);
+        path binaryDir(BINARY_DIR);
+        const string exe = binaryDir.parent_path().append("pbom").append("pbom.exe").string();
+        const string dll = binaryDir.append("pboe.dll").string();
 
-        BOOL ok = DrawIcon(dc, 0, 0, icon);
+        const HRESULT hr = Registry::registerServer(exe, dll);
+        ASSERT_TRUE(SUCCEEDED(hr));
+    }
 
-        DestroyIcon(icon);
-        DeleteObject(bitmap);
-        DeleteDC(dc);
+    TEST(DllRegisterServerTest, UnregistersDevelopmentApplication) {
+        const HRESULT hr = Registry::unregisterServer();
+        ASSERT_TRUE(SUCCEEDED(hr));
     }
 }

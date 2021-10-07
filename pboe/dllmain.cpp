@@ -3,8 +3,8 @@
 #include <new>
 #include "dllmain.h"
 #include "registry.h"
-#include <cstdio>
 #include "classfactory.h"
+#include <filesystem>
 
 namespace pboman3 {
     ULONG DllRefCount = 0;
@@ -50,9 +50,21 @@ LSTATUS RegGetValueAtKey(HKEY hKey, LPCTSTR lpSubKey, PVOID pvData, LPDWORD pcbD
 }
 
 STDAPI DllRegisterServer() {
-#define EXE_PATH "C:\\Users\\winse\\Desktop\\pboman3\\out\\build\\x64-Debug\\pbom\\pbom.exe"
-#define DLL_PATH "C:\\Users\\winse\\Desktop\\pboman3\\out\\build\\x64-Debug\\pboe\\pboe.dll"
-    return pboman3::Registry::registerServer(EXE_PATH, DLL_PATH);
+    using namespace std::filesystem;
+
+    HRESULT hr;
+
+    TCHAR buf[MAX_PATH];
+    if (GetModuleFileName(HInstanceDll, buf, MAX_PATH)) {
+        const path dllPath(buf);
+        const path exePath = dllPath.parent_path().append(PBOM_EXECUTABLE);
+        
+        hr = pboman3::Registry::registerServer(exePath.string(), dllPath.string());
+    } else {
+        hr = HRESULT_FROM_WIN32(GetLastError());
+    }
+
+    return hr;
 }
 
 STDAPI DllUnregisterServer() {

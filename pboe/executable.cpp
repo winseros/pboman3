@@ -18,7 +18,7 @@ namespace pboman3 {
         : executablePath_(std::move(executablePath)) {
     }
 
-    bool Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files, const string& outputDir) const {
+    HRESULT Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files, const string& outputDir) const {
         std::string argv;
         reserveArgvSize(argv, files,  outputDir.size() + additionalCharsReserve);
 
@@ -26,11 +26,11 @@ namespace pboman3 {
         appendPaths(argv, files);
         appendOutputDir(argv, outputDir);
 
-        const bool success = shellExecute(cwd, argv);
-        return success;
+        const HRESULT hr = shellExecute(cwd, argv);
+        return hr;
     }
 
-    bool Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files) const {
+    HRESULT Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files) const {
         std::string argv;
         reserveArgvSize(argv, files, additionalCharsReserve);
 
@@ -38,11 +38,11 @@ namespace pboman3 {
         appendPaths(argv, files);
         appendPrompt(argv);
 
-        const bool success = shellExecute(cwd, argv);
-        return success;
+        const HRESULT hr = shellExecute(cwd, argv);
+        return hr;
     }
 
-    bool Executable::packFolders(const LPCSTR cwd, const vector<path>& folders, const string& outputDir) const {
+    HRESULT Executable::packFolders(const LPCSTR cwd, const vector<path>& folders, const string& outputDir) const {
         std::string argv;
         reserveArgvSize(argv, folders, outputDir.size() + additionalCharsReserve);
 
@@ -50,11 +50,11 @@ namespace pboman3 {
         appendPaths(argv, folders);
         appendOutputDir(argv, outputDir);
 
-        const bool success = shellExecute(cwd, argv);
-        return success;
+        const HRESULT hr = shellExecute(cwd, argv);
+        return hr;
     }
 
-    bool Executable::packFolders(const LPCSTR cwd, const vector<path>& folders) const {
+    HRESULT Executable::packFolders(const LPCSTR cwd, const vector<path>& folders) const {
         std::string argv;
         reserveArgvSize(argv, folders, additionalCharsReserve);
 
@@ -62,8 +62,8 @@ namespace pboman3 {
         appendPaths(argv, folders);
         appendPrompt(argv);
 
-        const bool success = shellExecute(cwd, argv);
-        return success;
+        const HRESULT hr = shellExecute(cwd, argv);
+        return hr;
     }
 
     bool Executable::isValid() const {
@@ -80,9 +80,14 @@ namespace pboman3 {
         argv.reserve(reserve + additionalSymbols);
     }
 
-    bool Executable::shellExecute(LPCSTR cwd, const std::string& argv) const {
+    HRESULT Executable::shellExecute(LPCSTR cwd, const std::string& argv) const {
         HINSTANCE hinst = ShellExecute(nullptr, "open", executablePath_.c_str(), argv.c_str(), cwd, SW_SHOWNORMAL);
-        return reinterpret_cast<INT_PTR>(hinst) > 32;
+        if (reinterpret_cast<INT_PTR>(hinst) > 32) {
+            return S_OK;
+        }
+
+        const HRESULT err = HRESULT_FROM_WIN32(GetLastError());
+        return err;
     }
 
     void Executable::appendPaths(string& argv, const vector<path>& paths) {

@@ -16,13 +16,13 @@ namespace pboman3 {
 
         Executable(string executablePath);
 
-        bool unpackFiles(LPCSTR cwd, const vector<path>& files, const string& outputDir) const;
+        HRESULT unpackFiles(LPCSTR cwd, const vector<path>& files, const string& outputDir) const;
 
-        bool unpackFiles(LPCSTR cwd, const vector<path>& files) const;
+        HRESULT unpackFiles(LPCSTR cwd, const vector<path>& files) const;
 
-        bool packFolders(LPCSTR cwd, const vector<path>& folders, const string& outputDir) const;
+        HRESULT packFolders(LPCSTR cwd, const vector<path>& folders, const string& outputDir) const;
 
-        bool packFolders(LPCSTR cwd, const vector<path>& folders) const;
+        HRESULT packFolders(LPCSTR cwd, const vector<path>& folders) const;
 
         bool isValid() const;
 
@@ -31,7 +31,7 @@ namespace pboman3 {
 
         static void reserveArgvSize(string& argv, vector<path> items, size_t additionalSymbols);
 
-        bool shellExecute(LPCSTR cwd, const string& argv) const;
+        HRESULT shellExecute(LPCSTR cwd, const string& argv) const;
 
         static void appendPaths(string& argv, const vector<path>& paths);
 

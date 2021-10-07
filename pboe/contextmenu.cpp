@@ -144,19 +144,19 @@ namespace pboman3 {
                 switch (idCmd) {
                     case idUnpackFilePt:
                     case idUnpackMultiPt:
-                        if (executable_->unpackFiles(pici->lpDirectory, *selectedPaths_))
-                            hr = S_OK;
+                        hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_);
                         break;
                     case idUnpackFileAs:
                     case idUnpackMultiIn:
-                        if (executable_->unpackFiles(pici->lpDirectory, *selectedPaths_, pici->lpDirectory))
-                            hr = S_OK;
+                        hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
                         break;
                     case idPackFilePt:
                     case idPackMultiPt:
+                        hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_);
                         break;
                     case idPackFileAs:
                     case idPackMultiIn:
+                        hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
                         break;
                 }
             }

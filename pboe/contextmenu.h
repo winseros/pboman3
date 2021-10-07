@@ -40,14 +40,6 @@ namespace pboman3 {
 
         shared_ptr<vector<path>> getSelectedPaths(IDataObject* dataObject) const;
 
-        MENUITEMINFO makeMenuItem(UINT wId, LPTSTR text) const;
-
-        void insertRootItem(HMENU hmenu, UINT indexMenu) const;
-
-        MENUITEMINFO makeRootItem(LPTSTR text, HBITMAP icon, HMENU subMenu) const;
-
-        HBITMAP loadRootIcon() const;
-
         enum class SelectionMode {
             None,
             Mixed,
@@ -56,5 +48,17 @@ namespace pboman3 {
         };
 
         SelectionMode getSelectionMode() const;
+
+        void insertRootItem(HMENU hmenu, UINT indexMenu) const;
+
+        MENUITEMINFO makeRootItem(LPTSTR text, HBITMAP icon, HMENU subMenu) const;
+
+        void insertMenuItem(UINT wId, LPTSTR text);
+
+        MENUITEMINFO makeMenuItem(UINT wId, LPTSTR text) const;
+
+        HBITMAP loadRootIcon() const;
+
+        
     };
 }

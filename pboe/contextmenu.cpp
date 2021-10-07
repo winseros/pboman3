@@ -66,58 +66,40 @@ namespace pboman3 {
             UINT lastUsedMenuIndex;
 
             if (sel == SelectionMode::Files) {
-                subMenu_ = CreateMenu();
-
                 if (selectedPaths_->size() == 1) {
                     TCHAR textItem1[] = "Unpack to...";
-                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
-                    InsertMenuItem(subMenu_, 0, TRUE, &item1);
+                    insertMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
 
                     string textItem2 = "Unpack as \"" + selectedPaths_->at(0)
                                                                       .filename().replace_extension().string() + "/\"";
-                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
-                    InsertMenuItem(subMenu_, 0, TRUE, &item2);
-
-                    lastUsedMenuIndex = idUnpackToCwd;
+                    insertMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                 } else {
                     TCHAR textItem1[] = "Unpack to...";
-                    const MENUITEMINFO item3 = makeMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
-                    InsertMenuItem(subMenu_, 0, TRUE, &item3);
+                    insertMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
 
                     string textItem2 = "Unpack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "/\"";
-                    const MENUITEMINFO item4 = makeMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
-                    InsertMenuItem(subMenu_, 0, TRUE, &item4);
-
-                    lastUsedMenuIndex = idUnpackToCwd;
+                    insertMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                 }
 
+                lastUsedMenuIndex = idUnpackToCwd;
                 insertRootItem(hmenu, indexMenu);
                 hr = MAKE_HRESULT(SEVERITY_SUCCESS, 0, static_cast<USHORT>(lastUsedMenuIndex + 1));
             } else if (sel == SelectionMode::Folders) {
-                subMenu_ = CreateMenu();
-
                 if (selectedPaths_->size() == 1) {
                     TCHAR textItem1[] = "Pack to...";
-                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idPackWithPrompt, textItem1);
-                    InsertMenuItem(subMenu_, 0, TRUE, &item1);
+                    insertMenuItem(idCmdFirst + idPackWithPrompt, textItem1);
 
                     string textItem2 = "Pack as \"" + selectedPaths_->at(0).filename().string() + ".pbo\"";
-                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idPackToCwd, textItem2.data());
-                    InsertMenuItem(subMenu_, 0, TRUE, &item2);
-
-                    lastUsedMenuIndex = idPackToCwd;
+                    insertMenuItem(idCmdFirst + idPackToCwd, textItem2.data());
                 } else {
                     TCHAR textItem3[] = "Pack to...";
-                    const MENUITEMINFO item1 = makeMenuItem(idCmdFirst + idPackWithPrompt, textItem3);
-                    InsertMenuItem(subMenu_, 0, TRUE, &item1);
+                    insertMenuItem(idCmdFirst + idPackWithPrompt, textItem3);
 
                     string textItem4 = "Pack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "/\"";
-                    const MENUITEMINFO item2 = makeMenuItem(idCmdFirst + idPackToCwd, textItem4.data());
-                    InsertMenuItem(subMenu_, 0, TRUE, &item2);
-
-                    lastUsedMenuIndex = idPackToCwd;
+                    insertMenuItem(idCmdFirst + idPackToCwd, textItem4.data());
                 }
 
+                lastUsedMenuIndex = idPackToCwd;
                 insertRootItem(hmenu, indexMenu);
                 hr = MAKE_HRESULT(SEVERITY_SUCCESS, 0, static_cast<USHORT>(lastUsedMenuIndex + 1));
             }
@@ -183,6 +165,30 @@ namespace pboman3 {
         return res;
     }
 
+    ContextMenu::SelectionMode ContextMenu::getSelectionMode() const {
+        auto res = SelectionMode::None;
+
+        if (selectedPaths_ && !selectedPaths_->empty()) {
+            for (const path& path : *selectedPaths_) {
+                if (is_regular_file(path)) {
+                    if (res == SelectionMode::Folders) {
+                        res = SelectionMode::Mixed;
+                        break;
+                    }
+                    res = SelectionMode::Files;
+                } else {
+                    if (res == SelectionMode::Files) {
+                        res = SelectionMode::Mixed;
+                        break;
+                    }
+                    res = SelectionMode::Folders;
+                }
+            }
+        }
+
+        return res;
+    }
+
     MENUITEMINFO ContextMenu::makeMenuItem(UINT wId, LPTSTR text) const {
         MENUITEMINFO item;
         item.cbSize = sizeof item;
@@ -194,12 +200,6 @@ namespace pboman3 {
         item.cch = sizeof item.dwTypeData;
         // ReSharper disable once CppSomeObjectMembersMightNotBeInitialized
         return item;
-    }
-
-    void ContextMenu::insertRootItem(HMENU hmenu, UINT indexMenu) const {
-        TCHAR menuText[] = "PBO Manager";
-        const MENUITEMINFO menu = makeRootItem(menuText, icon_, subMenu_);
-        InsertMenuItem(hmenu, indexMenu, TRUE, &menu);
     }
 
     MENUITEMINFO ContextMenu::makeRootItem(LPTSTR text, HBITMAP icon, HMENU subMenu) const {
@@ -218,6 +218,20 @@ namespace pboman3 {
         }
         // ReSharper disable once CppSomeObjectMembersMightNotBeInitialized
         return menu;
+    }
+
+    void ContextMenu::insertMenuItem(UINT wId, LPTSTR text) {
+        if (!subMenu_)
+            subMenu_ = CreateMenu();
+
+        const MENUITEMINFO item = makeMenuItem(wId, text);
+        InsertMenuItem(subMenu_, 0, TRUE, &item);
+    }
+
+    void ContextMenu::insertRootItem(HMENU hmenu, UINT indexMenu) const {
+        TCHAR menuText[] = "PBO Manager";
+        const MENUITEMINFO menu = makeRootItem(menuText, icon_, subMenu_);
+        InsertMenuItem(hmenu, indexMenu, TRUE, &menu);
     }
 
     HBITMAP ContextMenu::loadRootIcon() const {
@@ -255,29 +269,5 @@ namespace pboman3 {
         DeleteDC(hdc);
 
         return bitmap;
-    }
-
-    ContextMenu::SelectionMode ContextMenu::getSelectionMode() const {
-        auto res = SelectionMode::None;
-
-        if (selectedPaths_ && !selectedPaths_->empty()) {
-            for (const path& path : *selectedPaths_) {
-                if (is_regular_file(path)) {
-                    if (res == SelectionMode::Folders) {
-                        res = SelectionMode::Mixed;
-                        break;
-                    }
-                    res = SelectionMode::Files;
-                } else {
-                    if (res == SelectionMode::Files) {
-                        res = SelectionMode::Mixed;
-                        break;
-                    }
-                    res = SelectionMode::Folders;
-                }
-            }
-        }
-
-        return res;
     }
 }

@@ -3,6 +3,7 @@ set(PROJECT_SOURCES
     classfactory.cpp
     contextmenu.cpp
     executable.cpp
+    menuicon.cpp
     registry.cpp
 )
 

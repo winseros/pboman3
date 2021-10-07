@@ -12,8 +12,8 @@
 namespace pboman3 {
     ContextMenu::ContextMenu()
         : refCount_(1),
-          subMenu_(NULL),
-          icon_(NULL),
+          subMenu_(nullptr),
+          icon_(nullptr),
           selectedPaths_(nullptr),
           executable_(nullptr) {
         DllAddRef();
@@ -23,8 +23,6 @@ namespace pboman3 {
         DllRelease();
         if (subMenu_)
             DestroyMenu(subMenu_);
-        if (icon_)
-            DeleteObject(icon_);
     }
 
     HRESULT ContextMenu::QueryInterface(const IID& riid, void** ppvObject) {
@@ -202,7 +200,7 @@ namespace pboman3 {
         return item;
     }
 
-    MENUITEMINFO ContextMenu::makeRootItem(LPTSTR text, HBITMAP icon, HMENU subMenu) const {
+    MENUITEMINFO ContextMenu::makeRootItem(LPTSTR text, HMENU subMenu) const {
         MENUITEMINFO menu;
         menu.cbSize = sizeof menu;
         menu.fMask = MIIM_FTYPE | MIIM_STATE | MIIM_STRING | MIIM_SUBMENU;
@@ -212,9 +210,9 @@ namespace pboman3 {
         menu.dwTypeData = text;
         menu.cch = sizeof menu.dwTypeData;
 
-        if (icon) {
+        if (icon_ && icon_->isValid()) {
             menu.fMask |= MIIM_BITMAP;
-            menu.hbmpItem = icon;
+            menu.hbmpItem = *icon_;
         }
         // ReSharper disable once CppSomeObjectMembersMightNotBeInitialized
         return menu;
@@ -230,44 +228,15 @@ namespace pboman3 {
 
     void ContextMenu::insertRootItem(HMENU hmenu, UINT indexMenu) const {
         TCHAR menuText[] = "PBO Manager";
-        const MENUITEMINFO menu = makeRootItem(menuText, icon_, subMenu_);
+        const MENUITEMINFO menu = makeRootItem(menuText, subMenu_);
         InsertMenuItem(hmenu, indexMenu, TRUE, &menu);
     }
 
-    HBITMAP ContextMenu::loadRootIcon() const {
+    shared_ptr<MenuIcon> ContextMenu::loadRootIcon() const {
         const string exePath = Registry::getExecutablePath();
         if (exePath.empty() || !is_regular_file(exePath))
-            return NULL;
+            return nullptr;
 
-        const int cx = GetSystemMetrics(SM_CXSMICON);
-        const int cy = GetSystemMetrics(SM_CYSMICON);
-
-        HICON icon;
-        if (!ExtractIconEx(exePath.data(), 0, &icon, NULL, 1))
-            return NULL;
-
-        // ReSharper disable CppLocalVariableMayBeConst
-        HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-
-        HDC dc = CreateCompatibleDC(hdc);
-
-        HBITMAP bitmap = CreateCompatibleBitmap(hdc, cx, cy);
-        HGDIOBJ prev = SelectObject(dc, bitmap);
-
-        HBRUSH brush = GetSysColorBrush(COLOR_MENU);
-        RECT rect{0, 0, cx, cy};
-        FillRect(dc, &rect, brush);
-
-        DrawIconEx(dc, 0, 0, icon, cx, cy, 0, NULL, DI_NORMAL);
-
-        HGDIOBJ btmp = SelectObject(dc, prev);
-        assert(btmp == bitmap);
-        // ReSharper restore CppLocalVariableMayBeConst
-
-        DestroyIcon(icon);
-        DeleteDC(dc);
-        DeleteDC(hdc);
-
-        return bitmap;
+        return make_shared<MenuIcon>(exePath.data());
     }
 }

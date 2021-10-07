@@ -3,6 +3,7 @@
 #include <ShlObj.h>
 #include <filesystem>
 #include "executable.h"
+#include "menuicon.h"
 
 namespace pboman3 {
     using namespace std;
@@ -34,7 +35,7 @@ namespace pboman3 {
 
         ULONG refCount_;
         HMENU subMenu_;
-        HBITMAP icon_;
+        shared_ptr<MenuIcon> icon_;
         shared_ptr<vector<path>> selectedPaths_;
         shared_ptr<Executable> executable_;
 
@@ -51,14 +52,12 @@ namespace pboman3 {
 
         void insertRootItem(HMENU hmenu, UINT indexMenu) const;
 
-        MENUITEMINFO makeRootItem(LPTSTR text, HBITMAP icon, HMENU subMenu) const;
+        MENUITEMINFO makeRootItem(LPTSTR text, HMENU subMenu) const;
 
         void insertMenuItem(UINT wId, LPTSTR text);
 
         MENUITEMINFO makeMenuItem(UINT wId, LPTSTR text) const;
 
-        HBITMAP loadRootIcon() const;
-
-        
+        shared_ptr<MenuIcon> loadRootIcon() const;
     };
 }

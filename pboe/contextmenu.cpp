@@ -227,8 +227,7 @@ namespace pboman3 {
     }
 
     void ContextMenu::insertRootItem(HMENU hmenu, UINT indexMenu) const {
-        TCHAR menuText[] = "PBO Manager";
-        const MENUITEMINFO menu = makeRootItem(menuText, subMenu_);
+        const MENUITEMINFO menu = makeRootItem(PBOM_PROJECT_NAME, subMenu_);
         InsertMenuItem(hmenu, indexMenu, TRUE, &menu);
     }
 

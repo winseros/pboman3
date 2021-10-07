@@ -69,13 +69,13 @@ namespace pboman3 {
                     insertMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
 
                     string textItem2 = "Unpack as \"" + selectedPaths_->at(0)
-                                                                      .filename().replace_extension().string() + "/\"";
+                                                                      .filename().replace_extension().string() + "\"";
                     insertMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                 } else {
                     TCHAR textItem1[] = "Unpack to...";
                     insertMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
 
-                    string textItem2 = "Unpack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "/\"";
+                    string textItem2 = "Unpack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "\"";
                     insertMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                 }
 
@@ -93,7 +93,7 @@ namespace pboman3 {
                     TCHAR textItem3[] = "Pack to...";
                     insertMenuItem(idCmdFirst + idPackWithPrompt, textItem3);
 
-                    string textItem4 = "Pack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "/\"";
+                    string textItem4 = "Pack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "\"";
                     insertMenuItem(idCmdFirst + idPackToCwd, textItem4.data());
                 }
 

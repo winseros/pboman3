@@ -1,7 +1,7 @@
 #include "nodefilesystem.h"
+#include "sanitizedstring.h"
 #include "io/pboioexception.h"
 #include "util/log.h"
-#include "util/util.h"
 
 #define LOG(...) LOGGER("io/bb/NodeFileSystem", __VA_ARGS__)
 
@@ -67,12 +67,14 @@ namespace pboman3 {
     QString NodeFileSystem::allocatePath(const QList<const PboNode*>& parents, const PboNode* node) const {
         QDir local(folder_);
         for (const PboNode* par : parents) {
-            if (!QDir(local.filePath(par->title())).exists() && !local.mkdir(par->title()))
-                throw PboIoException("Could not create the folder.", local.filePath(par->title()));
-            local.cd(par->title());
+            SanitizedString title(par->title());
+            if (!QDir(local.filePath(title)).exists() && !local.mkdir(title))
+                throw PboIoException("Could not create the folder.", local.filePath(title));
+            local.cd(title);
         }
-        
-        return local.filePath(node->title());
+
+        SanitizedString title(node->title());
+        return local.filePath(title);
     }
 
     QString NodeFileSystem::composePath(const PboNode* node, const QString& rootPath) const {
@@ -82,11 +84,13 @@ namespace pboman3 {
 
         QDir local(folder_);
         for (const PboNode* par : parents) {
-            fs.append(par->title()).append(QDir::separator());
-            local.cd(par->title());
+            SanitizedString title(par->title());
+            fs.append(title).append(QDir::separator());
+            local.cd(title);
         }
-        
-        fs.append(node->title());
+
+        SanitizedString title(node->title());
+        fs.append(title);
 
         return fs;
     }

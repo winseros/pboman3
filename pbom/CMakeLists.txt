@@ -18,6 +18,7 @@ set(PROJECT_SOURCES
         io/bb/binarybackend.cpp
         io/bb/execbackend.cpp
         io/bb/nodefilesystem.cpp
+        io/bb/sanitizedstring.cpp
         io/bb/tempbackend.cpp
         io/bb/unpackbackend.cpp
         io/bb/unpacktaskbackend.cpp
@@ -123,6 +124,7 @@ install(FILES
 set(TEST_SOURCES
     "io/bb/__test__/execbackend_test.cpp"
     "io/bb/__test__/nodefilesystem_test.cpp"
+    "io/bb/__test__/sanitizedstring_test.cpp"
     "io/bb/__test__/tempbackend_test.cpp"
     "io/bb/__test__/unpackbackend_test.cpp"
     "io/bs/__test__/fslzhbinarysource_test.cpp"

@@ -25,6 +25,8 @@ namespace pboman3 {
         QString allocatePath(const QList<const PboNode*>& parents, const PboNode* node) const;
 
         QString composePath(const PboNode* node, const QString& rootPath) const;
+
+        QString sanitarize(const QString& text);
     };
 
 }

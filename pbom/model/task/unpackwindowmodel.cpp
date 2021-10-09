@@ -2,9 +2,9 @@
 #include "unpacktask.h"
 
 namespace pboman3 {
-    UnpackWindowModel::UnpackWindowModel(const QStringList& pboFiles, const QString& targetPath) {
+    UnpackWindowModel::UnpackWindowModel(const QStringList& pboFiles, const QString& outputDir) {
         for (const QString& pboFile : pboFiles) {
-            QSharedPointer<Task> task(new UnpackTask(pboFile, targetPath));
+            QSharedPointer<Task> task(new UnpackTask(pboFile, outputDir));
             addTask(task);
         }
     }

@@ -7,14 +7,15 @@
 namespace pboman3 {
     class UnpackTask : public Task {
     public:
-        UnpackTask(QString pboPath, const QString& targetPath);
+        UnpackTask(QString pboPath, const QString& outputDir);
 
         void execute(const Cancel& cancel) override;
 
+        friend QDebug operator <<(QDebug debug, const UnpackTask& task);
+
     private:
         const QString pboPath_;
-
-        const QDir targetDir_;
+        const QDir outputDir_;
 
         bool tryReadPboHeader(PboFileHeader* header);
 

@@ -2,6 +2,10 @@
 #include <QThread>
 #include <QMutexLocker>
 #include <QThreadPool>
+#include "util/exception.h"
+#include "util/log.h"
+
+#define LOG(...) LOGGER("model/task/TaskWindowModel", __VA_ARGS__)
 
 namespace pboman3 {
     void TaskWindowModel::start() {
@@ -51,6 +55,9 @@ namespace pboman3 {
         while (task != nullptr) {
             if (model_->isCancelled()) break;
 
+            connect(task.get(), &Task::taskThinking, [this](const QString& text) {
+                emit model_->threadThinnking(threadId_, text);
+            });
             connect(task.get(), &Task::taskInitialized,
                     [this](const QString& text, qint32 minProgress, qint32 maxProgress) {
                         emit model_->threadInitialized(threadId_, text, minProgress, maxProgress);
@@ -61,7 +68,16 @@ namespace pboman3 {
             connect(task.get(), &Task::taskMessage, [this](const QString& message) {
                 emit model_->threadMessage(threadId_, message);
             });
-            task->execute(cancel);
+
+            try {
+                task->execute(cancel);
+            } catch (const AppException& ex) {
+                LOG(warning, "Task", task, "failed with exception:", ex)
+                emit model_->threadMessage(threadId_, ex.message());
+            } catch (const std::exception& ex) {
+                LOG(warning, "Task", task, "failed with exception:", QString(ex.what()))
+                emit model_->threadMessage(threadId_, ex.what());
+            }
             task = model_->pickNextTask();
         }
 

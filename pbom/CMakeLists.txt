@@ -37,6 +37,8 @@ set(PROJECT_SOURCES
         io/pboheaderreader.cpp
         io/pboioexception.cpp
         io/pbowriter.cpp
+        model/task/packtask.cpp
+        model/task/packwindowmodel.cpp
         model/task/task.h
         model/task/taskwindowmodel.cpp
         model/task/unpacktask.cpp
@@ -79,6 +81,7 @@ set(PROJECT_SOURCES
         ui/renamedialog.ui
         ui/mainwindow.cpp
         ui/mainwindow.ui
+        ui/packwindow.cpp
         ui/signaturedialog.cpp
         ui/signaturedialog.ui
         ui/statusbar.cpp

@@ -20,7 +20,9 @@ namespace pboman3 {
     signals:
         void threadStarted(ThreadId threadId);
 
-        void threadInitialized(ThreadId threadId, const QString& fileName, qint32 progressMin, qint32 progressMax);
+        void threadThinnking(ThreadId threadId, const QString& text);
+
+        void threadInitialized(ThreadId threadId, const QString& text, qint32 progressMin, qint32 progressMax);
 
         void threadProgress(ThreadId threadId, qint32 progress);
 

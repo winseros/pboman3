@@ -10,8 +10,8 @@ namespace pboman3 {
         setWindowTitle(title);
     }
 
-    void UnpackWindow::unpackFilesToTargetPath(const QStringList& files, const QString& targetPath) {
-        const QSharedPointer<TaskWindowModel> model(new UnpackWindowModel(files, targetPath));
+    void UnpackWindow::unpackFilesToOutputDir(const QStringList& files, const QString& outputDir) {
+        const QSharedPointer<TaskWindowModel> model(new UnpackWindowModel(files, outputDir));
         show();
         start(model);
     }
@@ -21,7 +21,7 @@ namespace pboman3 {
         if (dir.isEmpty())
             return false;
 
-        unpackFilesToTargetPath(files, dir);
+        unpackFilesToOutputDir(files, dir);
         return true;
     }
 }

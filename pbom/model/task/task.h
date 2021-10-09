@@ -11,6 +11,8 @@ namespace pboman3 {
         virtual void execute(const Cancel& cancel) = 0;
 
     signals:
+        void taskThinking(const QString& text);
+
         void taskInitialized(const QString& text, qint32 minProgress, qint32 maxProgress);
 
         void taskProgress(qint32 progress);

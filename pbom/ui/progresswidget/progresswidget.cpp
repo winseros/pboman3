@@ -27,6 +27,16 @@ namespace pboman3 {
         progress_->setMaximum(maximum);
     }
 
+    void ProgressWidget::setIndeterminate(bool indeterminate) const {
+        if (indeterminate) {
+            progress_->setMinimum(0);
+            progress_->setMaximum(0);
+        } else if (progress_->maximum() == progress_->minimum()) {
+            progress_->setMinimum(0);
+            progress_->setMaximum(1);
+        }
+    }
+
     void ProgressWidget::setValue(int value) const {
         progress_->setValue(value);
     }

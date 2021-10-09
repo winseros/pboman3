@@ -8,8 +8,12 @@
 #include "model/pbonode.h"
 
 namespace pboman3 {
-    class PboWriter {
+    class PboWriter : public QObject {
+        Q_OBJECT
+
     public:
+        struct ProgressEvent;
+
         PboWriter();
 
         PboWriter& usePath(QString path);
@@ -28,6 +32,9 @@ namespace pboman3 {
 
         void assignBinarySources(const QString& path);
 
+    signals:
+        void progress(const ProgressEvent* evt);
+
     private:
         QString path_;
         PboNode* root_;
@@ -41,12 +48,44 @@ namespace pboman3 {
 
         void copyBody(QFileDevice* pbo, QFileDevice* body, const Cancel& cancel);
 
-        void writeSignature(QFileDevice* pbo) const;
+        void writeSignature(QFileDevice* pbo, const Cancel& cancel);
 
         void suspendBinarySources(PboNode* node) const;
 
         void resumeBinarySources(PboNode* node) const;
 
         void assignBinarySources(PboNode* node, const QString& path);
+
+        void emitWriteEntry();
+
+        void emitCopyBytes(qsizetype copied, qsizetype total);
+
+        void emitCalcHash(qsizetype processed, qsizetype total);
+
+    public:
+        struct ProgressEvent {
+            virtual ~ProgressEvent() = default;
+        };
+
+        struct WriteEntryEvent : ProgressEvent {
+        };
+
+        struct CopyBytesEvent : ProgressEvent {
+            CopyBytesEvent(qsizetype c, qsizetype t):
+                copied(c), total(t) {
+            }
+
+            const qsizetype copied;
+            const qsizetype total;
+        };
+
+        struct CalcHashEvent : ProgressEvent {
+            CalcHashEvent(qsizetype p, qsizetype t) :
+                processed(p), total(t) {
+            }
+
+            const qsizetype processed;
+            const qsizetype total;
+        };
     };
 }

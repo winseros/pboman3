@@ -45,9 +45,8 @@ namespace pboman3 {
         QList<PboEntry> entries;
         writeNode(&body, root_, entries, cancel);
 
-        if (cancel()) {
+        if (cancel())
             return;
-        }
 
         PboFile pbo(path_);
         if (!pbo.open(QIODeviceBase::ReadWrite))
@@ -86,6 +85,9 @@ namespace pboman3 {
 
     void PboWriter::writeNode(QFileDevice* file, PboNode* node, QList<PboEntry>& entries, const Cancel& cancel) {
         for (PboNode* child : *node) {
+            if (cancel())
+                return;
+
             if (child->nodeType() == PboNodeType::File) {
                 const qint64 before = file->pos();
                 child->binarySource->writeToPbo(file, cancel);
@@ -112,6 +114,7 @@ namespace pboman3 {
 
                 binarySources_.insert(child, data);
 
+                emitWriteEntry();
             } else {
                 writeNode(file, child, entries, cancel);
             }
@@ -158,21 +161,43 @@ namespace pboman3 {
         QByteArray data;
         data.resize(1024 * 1024);
 
+        qsizetype copiedBytes = 0;
+        const qsizetype totalBytes = body->size();
+
         qint64 read = body->read(data.data(), data.size());
         while (read > 0) {
             pbo->write(data.data(), read);
+
+            copiedBytes += read;
+            emitCopyBytes(copiedBytes, totalBytes);
+
             if (cancel())
                 return;
             read = body->read(data.data(), data.size());
         }
     }
 
-    void PboWriter::writeSignature(QFileDevice* pbo) const {
+    void PboWriter::writeSignature(QFileDevice* pbo, const Cancel& cancel) {
         const bool seek = pbo->seek(0);
         assert(seek);
 
         QCryptographicHash sha1(QCryptographicHash::Sha1);
-        sha1.addData(pbo);
+
+        qsizetype processed = 0;
+        const qsizetype total = pbo->size();
+
+        constexpr qint64 bufferSize = 1024;
+        char buffer[bufferSize];
+        qint64 read;
+
+        while (!cancel() && (read = pbo->read(buffer, bufferSize)) > 0) {
+            sha1.addData(buffer, read);
+            processed += read;
+            emitCalcHash(processed, total);
+        }
+
+        if (cancel())
+            return;
 
         const QByteArray sha1Bytes = sha1.result();
 
@@ -214,5 +239,20 @@ namespace pboman3 {
                 assignBinarySources(child, path);
             }
         }
+    }
+
+    void PboWriter::emitWriteEntry() {
+        const WriteEntryEvent evt;
+        emit progress(&evt);
+    }
+
+    void PboWriter::emitCopyBytes(qsizetype copied, qsizetype total) {
+        const CopyBytesEvent evt(copied, total);
+        emit progress(&evt);
+    }
+
+    void PboWriter::emitCalcHash(qsizetype processed, qsizetype total) {
+        const CalcHashEvent evt(processed, total);
+        emit progress(&evt);
     }
 }

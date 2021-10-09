@@ -28,6 +28,7 @@ namespace pboman3 {
         connect(ui_->buttonBox, &QDialogButtonBox::clicked, this, &TaskWindow::buttonClicked);
 
         connect(model.get(), &TaskWindowModel::threadStarted, this, &TaskWindow::threadStarted);
+        connect(model.get(), &TaskWindowModel::threadThinnking, this, &TaskWindow::threadThinking);
         connect(model.get(), &TaskWindowModel::threadInitialized, this, &TaskWindow::threadInitialized);
         connect(model.get(), &TaskWindowModel::threadProgress, this, &TaskWindow::threadProgress);
         connect(model.get(), &TaskWindowModel::threadCompleted, this, &TaskWindow::threadCompleted);
@@ -47,6 +48,12 @@ namespace pboman3 {
         setMaximumHeight(height());
     }
 
+    void TaskWindow::threadThinking(ThreadId threadId, const QString& text) const {
+        ProgressWidget* progress = progressBars_.value(threadId);
+        progress->setIndeterminate(true);
+        progress->setText(text);
+    }
+
     void TaskWindow::threadInitialized(ThreadId threadId, const QString& text, qint32 minProgress,
                                        qint32 maxProgress) const {
         ProgressWidget* progress = progressBars_.value(threadId);
@@ -63,6 +70,7 @@ namespace pboman3 {
 
     void TaskWindow::threadCompleted(ThreadId threadId) {
         ProgressWidget* progress = progressBars_.value(threadId);
+        progress->setIndeterminate(false);
         progress->setText(doneText_);
 
         activeThreadCount_--;

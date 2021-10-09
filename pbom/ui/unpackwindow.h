@@ -7,7 +7,7 @@ namespace pboman3 {
     public:
         UnpackWindow(QWidget* parent);
 
-        void unpackFilesToTargetPath(const QStringList& files, const QString& targetPath);
+        void unpackFilesToOutputDir(const QStringList& files, const QString& outputDir);
 
         bool tryUnpackFilesWithPrompt(const QStringList& files);
     };

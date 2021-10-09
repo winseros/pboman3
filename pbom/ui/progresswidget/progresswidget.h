@@ -15,6 +15,8 @@ namespace pboman3 {
 
         void setMaximum(int maximum) const;
 
+        void setIndeterminate(bool indeterminate) const;
+
         void setValue(int value) const;
 
         void setText(const QString& text) const;

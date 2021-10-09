@@ -12,14 +12,14 @@
 #define LOG(...) LOGGER("model/task/UnpackTask", __VA_ARGS__)
 
 namespace pboman3 {
-    UnpackTask::UnpackTask(QString pboPath, const QString& targetPath)
+    UnpackTask::UnpackTask(QString pboPath, const QString& outputDir)
         : pboPath_(std::move(pboPath)),
-          targetDir_(targetPath) {
+          outputDir_(outputDir) {
     }
 
     void UnpackTask::execute(const Cancel& cancel) {
         LOG(info, "PBO file: ", pboPath_)
-        LOG(info, "Target dir: ", targetDir_.absolutePath())
+        LOG(info, "Output dir: ", outputDir_.absolutePath())
 
         PboFileHeader header;
         if (!tryReadPboHeader(&header))
@@ -31,7 +31,6 @@ namespace pboman3 {
         constexpr qsizetype startProgress = 0;
         emit taskInitialized(pboPath_, startProgress, static_cast<qint32>(header.entries.count()));
 
-        
         std::function onError = [this](const QString& error) {
             emit taskMessage(error);
         };
@@ -58,6 +57,10 @@ namespace pboman3 {
         LOG(info, "Unpack complete")
     }
 
+    QDebug operator<<(QDebug debug, const UnpackTask& task) {
+        return debug << "UnpackTask(PboPath=" << task.pboPath_ << ", OutputDir=" << task.outputDir_ << ")";
+    }
+
     bool UnpackTask::tryReadPboHeader(PboFileHeader* header) {
         try {
             PboFile file(pboPath_);
@@ -74,8 +77,8 @@ namespace pboman3 {
 
     bool UnpackTask::tryCreatePboDir(QDir* dir) {
         const QString fileNameWithoutExt = GetFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
-        const QString absPath = targetDir_.absoluteFilePath(fileNameWithoutExt);
-        if (!targetDir_.exists(fileNameWithoutExt) && !targetDir_.mkdir(fileNameWithoutExt)) {
+        const QString absPath = outputDir_.absoluteFilePath(fileNameWithoutExt);
+        if (!outputDir_.exists(fileNameWithoutExt) && !outputDir_.mkdir(fileNameWithoutExt)) {
             LOG(warning, "Could not create the directory:", absPath)
             emit taskMessage("Could not create the directory | " + absPath);
         }

@@ -32,6 +32,8 @@ namespace pboman3 {
 
         void threadStarted(ThreadId threadId);
 
+        void threadThinking(ThreadId threadId, const QString& text) const;
+
         void threadInitialized(ThreadId threadId, const QString& text, qint32 minProgress, qint32 maxProgress) const;
 
         void threadProgress(ThreadId threadId, qint32 progress) const;

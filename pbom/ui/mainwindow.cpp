@@ -28,7 +28,7 @@ namespace pboman3 {
         ui_->setupUi(this);
 
         ui_->treeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-        ui_->treeWidget->setModel(model_);
+        ui_->treeWidget->setWidgetModel(model_);
 
         setupConnections();
 
@@ -168,11 +168,11 @@ namespace pboman3 {
 
         if (!folderPath.isEmpty()) {
             LOG(info, "User selected the path:", folderPath)
-            PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+            const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
             if (selectionRoot->nodeType() == PboNodeType::File) {
                 selectionRoot = selectionRoot->parentNode();
             } else {
-                const QString folderName = selectionRoot->title();
+                const QString& folderName = selectionRoot->title();
                 const QDir dir(folderPath);
                 folderPath = dir.filePath(folderName);
                 if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
@@ -191,14 +191,14 @@ namespace pboman3 {
         LOG(info, "User clicked the ExtractToFolder button")
 
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+        const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
 
         QString folderPath;
         if (selectionRoot->nodeType() == PboNodeType::File) {
             selectionRoot = selectionRoot->parentNode();
             folderPath = dir.absolutePath();
         } else {
-            const QString folderName = selectionRoot->title();
+            const QString& folderName = selectionRoot->title();
             folderPath = dir.filePath(folderName);
             if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
                 LOG(critical, "Could not create the dir:", folderPath)

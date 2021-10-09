@@ -42,7 +42,7 @@ namespace pboman3 {
 
         void selectionRename() const;
 
-        void setModel(PboModel* model);
+        void setWidgetModel(PboModel* model);
 
     signals:
         void backgroundOpStarted(QFuture<void> future);

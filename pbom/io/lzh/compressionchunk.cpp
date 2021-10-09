@@ -11,7 +11,7 @@ namespace pboman3 {
     qint64 CompressionChunk::compose(QFileDevice* source, CompressionBuffer& dict) {
         qint64 packedTotal = 0;
 
-        for (int i = 0; i < chunks_ && !source->atEnd(); i++) {
+        for (qint8 i = 0; i < chunks_ && !source->atEnd(); i++) {
             const qint64 chunkSize = std::min(maxChunkSize_, source->size() - source->pos());
             qint64 packed;
             if (chunkSize < minBytesToPack_) {
@@ -33,12 +33,12 @@ namespace pboman3 {
         return length_ + 1;
     }
 
-    qint64 CompressionChunk::composeUncompressed(int chunk, QFileDevice* source, CompressionBuffer& dict) {
+    qint64 CompressionChunk::composeUncompressed(qint8 chunk, QFileDevice* source, CompressionBuffer& dict) {
         constexpr qint64 bytesToCopy = 1;
         char byte;
         source->peek(&byte, bytesToCopy);
         data_[length_] = byte;
-        format_ = format_ + static_cast<qint8>(1 << chunk);
+        format_ += 1 << chunk;  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
         length_ += bytesToCopy;
 
         dict.add(byte);
@@ -46,7 +46,7 @@ namespace pboman3 {
         return bytesToCopy;
     }
 
-    qint64 CompressionChunk::composeCompressed(int chunk, QFileDevice* source, qint64 chunkSize,
+    qint64 CompressionChunk::composeCompressed(qint8 chunk, QFileDevice* source, qint64 chunkSize,
                                                CompressionBuffer& dict) {
         source->peek(next_.data(), chunkSize);
 
@@ -83,7 +83,7 @@ namespace pboman3 {
     qint16 CompressionChunk::composePointer(qint64 offset, qint64 length) {
         const auto vLength = static_cast<qint16>((length - minBytesToPack_) << 8);
         const auto vOffset = static_cast<qint16>(((offset & 0x0F00) << 4) + (offset & 0x00FF));
-        const qint16 result = vOffset + vLength;
+        const auto result = static_cast<qint16>(vOffset + vLength);
         return result;
     }
 }

@@ -26,13 +26,13 @@ namespace pboman3 {
     }
 
     void HeadersDialog::accept() {
-        LOG(info, "User clicked the Accept button");
+        LOG(info, "User clicked the Accept button")
 
         QList<QSharedPointer<PboHeader>> headers;
         headers.reserve(ui_->treeWidget->topLevelItemCount());
 
         for (int i = 0; i < ui_->treeWidget->topLevelItemCount(); i++) {
-            QTreeWidgetItem* item = ui_->treeWidget->topLevelItem(i);
+            const QTreeWidgetItem* item = ui_->treeWidget->topLevelItem(i);
 
             if (isValidHeader(item->text(colName), item->text(colValue))) {
                 LOG(debug, "Append header, name=", item->text(colName), "value=", item->text(colValue))
@@ -42,7 +42,7 @@ namespace pboman3 {
 
         model_->setData(std::move(headers));
 
-        LOG(info, "Accepting the dialog");
+        LOG(info, "Accepting the dialog")
         QDialog::accept();
     }
 
@@ -58,7 +58,7 @@ namespace pboman3 {
         for (const QSharedPointer<PboHeader>& header : *model_) {
             LOG(debug, "Render header, name=", header->name, "value=", header->value)
 
-            auto item = new QTreeWidgetItem();
+            const auto item = new QTreeWidgetItem();
             item->setText(colName, header->name);
             item->setText(colValue, header->value);
             item->setFlags(itemFlags);
@@ -105,7 +105,7 @@ namespace pboman3 {
     void HeadersDialog::onInsertClick(int index) const {
         LOG(info, "User clicked the Insert button")
 
-        auto item = new QTreeWidgetItem();
+        const auto item = new QTreeWidgetItem();
         item->setFlags(itemFlags);
 
         const QModelIndex selected = ui_->treeWidget->currentIndex();
@@ -137,7 +137,7 @@ namespace pboman3 {
     }
 
     void HeadersDialog::onRemoveClick() const {
-        QTreeWidgetItem* selected = ui_->treeWidget->currentItem();
+        const QTreeWidgetItem* selected = ui_->treeWidget->currentItem();
         LOG(info, "User clicked the Remove button, name=", selected->text(colName), "value=", selected->text(colValue), "index=", ui_->treeWidget->currentIndex())
         delete selected; //https://doc.qt.io/qt-6/qtreewidgetitem.html#dtor.QTreeWidgetItem
     }

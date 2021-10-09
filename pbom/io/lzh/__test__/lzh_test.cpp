@@ -24,7 +24,7 @@ namespace pboman3::test {
         QFile source(p.source);
         source.open(QIODeviceBase::ReadOnly);
 
-        Lzh::decompress(&source, &t, original.size(), []() { return false; });
+        Lzh::decompress(&source, &t, static_cast<int>(original.size()), []() { return false; });
 
         t.seek(0);
         const QByteArray targetBytes = t.readAll();

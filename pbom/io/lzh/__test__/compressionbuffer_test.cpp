@@ -114,7 +114,7 @@ namespace pboman3::test {
         CompressionBuffer buffer;
         buffer.add(&t1, t1.size());
 
-        QByteArray arr("ddd");
+        const QByteArray arr("ddd");
         const BufferIntersection intersection = buffer.intersect(arr, arr.size());
 
         ASSERT_EQ(intersection.position, -1);
@@ -130,7 +130,7 @@ namespace pboman3::test {
         CompressionBuffer buffer;
         buffer.add(&t1, t1.size());
 
-        QByteArray arr("bbccc");
+        const QByteArray arr("bbccc");
         const BufferIntersection intersection = buffer.intersect(arr, arr.size());
 
         ASSERT_EQ(intersection.position, 4);
@@ -146,7 +146,7 @@ namespace pboman3::test {
         CompressionBuffer buffer;
         buffer.add(&t1, t1.size());
 
-        QByteArray arr("ccdea");
+        const QByteArray arr("ccdea");
         const BufferIntersection intersection = buffer.intersect(arr, arr.size());
 
         ASSERT_EQ(intersection.position, 7);
@@ -162,7 +162,7 @@ namespace pboman3::test {
         CompressionBuffer buffer;
         buffer.add(&t1, t1.size());
 
-        QByteArray arr("bbcea");
+        const QByteArray arr("bbcea");
         const BufferIntersection intersection = buffer.intersect(arr, arr.size());
 
         ASSERT_EQ(intersection.position, 5);

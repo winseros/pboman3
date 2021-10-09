@@ -25,7 +25,7 @@ namespace pboman3 {
     }
 
     void CompressionBuffer::add(char byte) {
-        const uint length = sizeof byte;
+        constexpr uint length = sizeof byte;
         if (fullfillment_ + length > size_) {
             //shift the buffer contents left until there is enough space for the new bunch of bytes
             const qint64 bytesToMoveCount = size_ - length;

@@ -292,7 +292,7 @@ namespace pboman3 {
 
     qsizetype PboNode::getChildListIndex(const PboNode* node) const {
         qsizetype index = 0;
-        for (QSharedPointer<PboNode> sibling : children_) {
+        for (const QSharedPointer<PboNode>& sibling : children_) {
             if (sibling != node) {
                 if (*sibling < *node) {
                     index++;

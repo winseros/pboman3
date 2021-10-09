@@ -17,12 +17,12 @@ namespace pboman3 {
 
         InsertDialog(QWidget* parent, Mode dialogMode, NodeDescriptors* descriptors, ConflictsParcel* conflicts);
 
-        ~InsertDialog();
+        ~InsertDialog() override;
 
     public slots:
-        void next();
+        void next() const;
 
-        void back();
+        void back() const;
 
     private:
         Ui::InsertDialog* ui_;

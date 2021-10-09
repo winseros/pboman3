@@ -18,7 +18,7 @@ namespace pboman3 {
         static const QITAB qit[] =
         {
             QITABENT(ClassFactory, IClassFactory),
-            {0}
+            {0, 0}
         };
         return QISearch(this, qit, riid, ppvObject);
     }

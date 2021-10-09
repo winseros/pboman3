@@ -9,7 +9,7 @@ namespace pboman3::test {
         const NodeFileSystem fs(QDir(dir.path()));
 
         PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
+        const PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.allocatePath(file);
         const QString expected = dir.path() + "/e1%09/e2%09/e3%09.txt";
@@ -26,7 +26,7 @@ namespace pboman3::test {
 
         PboNode root("root", PboNodeType::Container, nullptr);
         PboNode f1("f1", PboNodeType::Folder, &root);
-        PboNode* file = f1.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
+        const PboNode* file = f1.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.allocatePath(&f1, file);
         const QString expected = dir.path() + "/e1%09/e2%09/e3%09.txt";
@@ -42,7 +42,7 @@ namespace pboman3::test {
         const NodeFileSystem fs(QDir(dir.path()));
 
         PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* file = root.createHierarchy(PboPath("e1/e2/e3.txt"));
+        const PboNode* file = root.createHierarchy(PboPath("e1/e2/e3.txt"));
 
         ASSERT_THROW(fs.allocatePath(file, file->parentNode()), InvalidOperationException);
     }
@@ -52,7 +52,7 @@ namespace pboman3::test {
         const NodeFileSystem fs(QDir(dir.path()));
 
         PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
+        const PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.composeAbsolutePath(file);
         const QString expected = dir.path() + QDir::separator() + "e1%09" + QDir::separator() + "e2%09" + QDir::separator() +
@@ -69,7 +69,7 @@ namespace pboman3::test {
         const NodeFileSystem fs(QDir(dir.path()));
 
         PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
+        const PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.composeRelativePath(file);
         const QString expected = QString("e1%09") + QDir::separator() + "e2%09" + QDir::separator() + "e3%09.txt";

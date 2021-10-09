@@ -86,7 +86,7 @@ namespace pboman3 {
         }
     }
 
-    bool Lzh::isValid(DecompressionContext& ctx) {
+    bool Lzh::isValid(const DecompressionContext& ctx) {
         bool valid = false;
 
         if (ctx.source->size() - ctx.source->pos() >= static_cast<qint32>(sizeof(uint))) {

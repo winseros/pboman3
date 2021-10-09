@@ -12,7 +12,7 @@ namespace pboman3 {
 
     void RootReader::inflateRoot(PboNode* root) const {
         LOG(info, "Inflating the nodes hierarchy")
-        size_t entryDataOffset = header_->dataBlockStart;
+        qsizetype entryDataOffset = header_->dataBlockStart;
         for (const QSharedPointer<PboEntry>& entry : header_->entries) {
             LOG(debug, "Processing the entry:", *entry)
             PboNode* node = root->createHierarchy(entry->makePath());

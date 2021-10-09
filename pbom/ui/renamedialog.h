@@ -11,7 +11,7 @@ namespace pboman3 {
     public:
         RenameDialog(QWidget* parent, PboNode* node);
 
-        ~RenameDialog();
+        ~RenameDialog() override;
        
     public slots:
         void onTextEdited(const QString& title) const;

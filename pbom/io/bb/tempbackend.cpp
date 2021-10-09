@@ -69,6 +69,7 @@ namespace pboman3 {
     void TempBackend::syncPboDir(const PboNode* node, const Cancel& cancel) const {
         for (const PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File)
+                // ReSharper disable once CppExpressionWithoutSideEffects
                 syncPboFileNode(child, cancel);
             else
                 syncPboDir(child, cancel);

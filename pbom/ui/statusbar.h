@@ -15,7 +15,7 @@ namespace pboman3 {
     public slots:
         void progressShow(QFuture<void> future);
 
-        void progressHide();
+        void progressHide() const;
 
     signals:
         void cancelRequested();

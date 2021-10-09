@@ -89,7 +89,7 @@ namespace pboman3 {
 
         //1 item selected
         if (items.count() > 0) {
-            auto* item = dynamic_cast<TreeWidgetItem*>(items.at(0));
+            const auto* item = dynamic_cast<TreeWidgetItem*>(items.at(0));
             return item->node();
         }
 

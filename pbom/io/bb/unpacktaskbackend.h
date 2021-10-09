@@ -3,8 +3,7 @@
 #include "unpackbackend.h"
 
 namespace pboman3 {
-    class UnpackTaskBackend
-        : public UnpackBackend {
+    class UnpackTaskBackend : public UnpackBackend {
 
     public:
         UnpackTaskBackend(const QDir& folder);

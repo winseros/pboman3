@@ -49,14 +49,14 @@ namespace pboman3 {
     }
 
     void TaskWindow::threadThinking(ThreadId threadId, const QString& text) const {
-        ProgressWidget* progress = progressBars_.value(threadId);
+        const ProgressWidget* progress = progressBars_.value(threadId);
         progress->setIndeterminate(true);
         progress->setText(text);
     }
 
     void TaskWindow::threadInitialized(ThreadId threadId, const QString& text, qint32 minProgress,
                                        qint32 maxProgress) const {
-        ProgressWidget* progress = progressBars_.value(threadId);
+        const ProgressWidget* progress = progressBars_.value(threadId);
         progress->setMinimum(minProgress);
         progress->setMaximum(maxProgress);
         progress->setValue(minProgress);
@@ -64,12 +64,12 @@ namespace pboman3 {
     }
 
     void TaskWindow::threadProgress(ThreadId threadId, qint32 progress) const {
-        ProgressWidget* progressBar = progressBars_.value(threadId);
+        const ProgressWidget* progressBar = progressBars_.value(threadId);
         progressBar->setValue(progress);
     }
 
     void TaskWindow::threadCompleted(ThreadId threadId) {
-        ProgressWidget* progress = progressBars_.value(threadId);
+        const ProgressWidget* progress = progressBars_.value(threadId);
         progress->setIndeterminate(false);
         progress->setText(doneText_);
 
@@ -99,7 +99,7 @@ namespace pboman3 {
             doneText_ = "Cancelled";
             model_->stop();
         } else if (button == dynamic_cast<QAbstractButton*>(ui_->buttonBox->button(QDialogButtonBox::Close))) {
-            exit(0);
+            close();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace pboman3 {
     public:
         explicit MainWindow(QWidget* parent, PboModel* model);
 
-        ~MainWindow();
+        ~MainWindow() override;
 
         void loadFile(const QString& fileName);
 

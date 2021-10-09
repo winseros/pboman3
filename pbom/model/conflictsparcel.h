@@ -13,7 +13,7 @@ namespace pboman3 {
 
         bool hasConflicts() const;
 
-        friend QDebug operator<<(QDebug debug, const ConflictsParcel parcel);
+        friend QDebug operator<<(QDebug debug, const ConflictsParcel& parcel);
 
     private:
         QHash<PboPath, ConflictResolution> conflicts_;

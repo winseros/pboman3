@@ -13,7 +13,7 @@ namespace pboman3 {
     private:
         static void processBlock(DecompressionContext& ctx);
 
-        static bool isValid(DecompressionContext& ctx);
+        static bool isValid(const DecompressionContext& ctx);
 
         static void writeCrc(QFileDevice* source, QFileDevice* target);
 

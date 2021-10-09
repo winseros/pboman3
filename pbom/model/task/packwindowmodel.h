@@ -5,6 +5,6 @@
 namespace pboman3 {
     class PackWindowModel: public TaskWindowModel{
     public:
-        PackWindowModel(const QStringList& folders, const QString& targetPath);
+        PackWindowModel(const QStringList& folders, const QString& outputDir);
     };
 }

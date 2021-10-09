@@ -71,8 +71,7 @@ namespace pboman3 {
 
     class InteractionParcel {
     public:
-        InteractionParcel() {
-        }
+        InteractionParcel() = default;
 
         InteractionParcel(QList<QUrl> files, NodeDescriptors nodes)
             : files_(std::move(files)),

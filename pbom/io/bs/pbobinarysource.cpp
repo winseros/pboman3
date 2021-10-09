@@ -4,7 +4,7 @@
 #include "io/lzh/lzhdecompressionexception.h"
 
 namespace pboman3 {
-    PboBinarySource::PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize)
+    PboBinarySource::PboBinarySource(const QString& path, const PboDataInfo& dataInfo, qsizetype bufferSize)
         : BinarySource(path),
           dataInfo_(dataInfo),
           bufferSize_(bufferSize) {
@@ -31,10 +31,10 @@ namespace pboman3 {
 
         QByteArray buf(bufferSize_, Qt::Initialization::Uninitialized);
 
-        int remaining = dataInfo_.dataSize;
+        qint64 remaining = dataInfo_.dataSize;
         while (!cancel() && remaining > 0) {
             const qsizetype willRead = remaining > buf.size() ? buf.size() : remaining;
-            const quint64 hasRead = file_->read(buf.data(), willRead);
+            const qint64 hasRead = file_->read(buf.data(), willRead);
             if (hasRead <= 0)
                 throw PboIoException("For some reason could not read from the file.", file_->fileName());
             targetFile->write(buf.data(), hasRead);

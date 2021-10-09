@@ -14,7 +14,7 @@ namespace pboman3 {
     public:
         HeadersDialog(HeadersModel* model, QWidget* parent = nullptr);
 
-        ~HeadersDialog();
+        ~HeadersDialog() override;
 
         void accept() override;
 

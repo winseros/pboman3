@@ -2,7 +2,7 @@
 #include <QFileInfo>
 
 namespace pboman3 {
-    FsRawBinarySource::FsRawBinarySource(QString path, size_t bufferSize)
+    FsRawBinarySource::FsRawBinarySource(QString path, qsizetype bufferSize)
         : BinarySource(std::move(path)),
           bufferSize_(bufferSize) {
     }
@@ -26,7 +26,7 @@ namespace pboman3 {
         qsizetype remaining = file_->size();
         while (!cancel() && remaining > 0) {
             const qsizetype willRead = remaining > buf.size() ? buf.size() : remaining;
-            const quint64 hasRead = file_->read(buf.data(), willRead);
+            const qint64 hasRead = file_->read(buf.data(), willRead);
             targetFile->write(buf.data(), hasRead);
             remaining -= hasRead;
         }
@@ -34,12 +34,12 @@ namespace pboman3 {
 
     qint32 FsRawBinarySource::readOriginalSize() const {
         const QFileInfo fi(path());
-        return static_cast<quint32>(fi.size());
+        return static_cast<qint32>(fi.size());
     }
 
     qint32 FsRawBinarySource::readTimestamp() const {
         const QFileInfo fi(path());
-        return static_cast<quint32>(fi.lastModified().toSecsSinceEpoch());
+        return static_cast<qint32>(fi.lastModified().toSecsSinceEpoch());
     }
 
     bool FsRawBinarySource::isCompressed() const {

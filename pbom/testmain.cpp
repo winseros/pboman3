@@ -6,7 +6,6 @@ void TestLogger(QtMsgType type, const QMessageLogContext& context, const QString
 {
     const QByteArray localMsg = msg.toLocal8Bit();
     const char* file = context.file ? context.file : "";
-    const char* function = context.function ? context.function : "";
     const QByteArray timeStr = QTime::currentTime().toString(Qt::ISODateWithMs).toLocal8Bit();
 
     switch (type) {

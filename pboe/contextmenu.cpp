@@ -130,6 +130,8 @@ namespace pboman3 {
                     case idPackToCwd:
                         hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
                         break;
+                    default:
+                        break;
                 }
             }
         }

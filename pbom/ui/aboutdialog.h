@@ -11,7 +11,7 @@ namespace pboman3 {
     public:
         AboutDialog(QWidget* parent = nullptr);
 
-        ~AboutDialog();
+        ~AboutDialog() override;
 
     private:
         Ui::AboutDialog* ui_;

@@ -5,7 +5,7 @@
 namespace pboman3 {
     class FsLzhBinarySource: public FsRawBinarySource {
     public:
-        FsLzhBinarySource(QString path, size_t bufferSize = 1024 * 1024);
+        FsLzhBinarySource(QString path, qsizetype bufferSize = 1024 * 1024);
 
         void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override;
 

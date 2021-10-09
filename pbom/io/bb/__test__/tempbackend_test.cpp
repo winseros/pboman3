@@ -116,7 +116,7 @@ namespace pboman3::test {
     TEST(TempBackendTest, Clear_Does_Not_Clean_Up) {
         //nodes to sync
         PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("file1.txt"));
+        const PboNode* e1 = root.createHierarchy(PboPath("file1.txt"));
 
         //the object tested
         const QTemporaryDir dir;

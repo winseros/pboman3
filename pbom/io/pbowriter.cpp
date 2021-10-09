@@ -65,7 +65,7 @@ namespace pboman3 {
 
         copyBody(&pbo, &body, cancel);
 
-        writeSignature(&pbo);
+        writeSignature(&pbo, cancel);
 
         body.close();
         pbo.close();
@@ -94,7 +94,7 @@ namespace pboman3 {
                 const qint64 after = file->pos();
 
                 const qint32 originalSize = child->binarySource->readOriginalSize();
-                const qint32 dataSize = static_cast<qint32>(after - before);
+                const auto dataSize = static_cast<qint32>(after - before);
 
                 PboEntry entry(
                     child->makePath().toString(),

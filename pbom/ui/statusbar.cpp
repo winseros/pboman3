@@ -2,8 +2,6 @@
 #include "util/exception.h"
 #include "util/log.h"
 
-#define LOG(...) LOGGER("ui/StatusBar", __VA_ARGS__)
-
 namespace pboman3 {
     StatusBar::StatusBar(QWidget* parent)
         : QStatusBar(parent) {
@@ -33,7 +31,7 @@ namespace pboman3 {
         button_->setVisible(true);
     }
 
-    void StatusBar::progressHide() {
+    void StatusBar::progressHide() const {
         progress_->setVisible(false);
         button_->setVisible(false);
     }

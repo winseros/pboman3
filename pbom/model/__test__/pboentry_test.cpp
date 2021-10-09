@@ -24,6 +24,7 @@ namespace pboman3::test {
         ASSERT_FALSE(entry.isContent());
     }
 
+    // ReSharper disable once CppInconsistentNaming
     class PboEntryTest_IsContent : public testing::TestWithParam<PboPackingMethod> {
     };
 

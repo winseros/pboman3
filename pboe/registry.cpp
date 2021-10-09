@@ -82,7 +82,7 @@ namespace pboman3 {
             throw RegistryException::fromLStatus(key, ls);
     }
 
-    string Registry::getRegistryKeyValue(const string& key, const string name) {
+    string Registry::getRegistryKeyValue(const string& key, const string& name) {
         HKEY reg;
         LSTATUS ls = RegOpenKeyEx(HKEY_CURRENT_USER,
                                   key.data(),

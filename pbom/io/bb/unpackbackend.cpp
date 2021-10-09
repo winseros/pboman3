@@ -19,7 +19,7 @@ namespace pboman3 {
 
         LOG(info, "Unpack", childNodes.count(), "nodes")
 
-        for (PboNode* childNode : childNodes) {
+        for (const PboNode* childNode : childNodes) {
             if (cancel()) {
                 LOG(info, "The extraction was cancelled - exiting")
                 break;

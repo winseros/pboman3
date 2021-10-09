@@ -6,14 +6,14 @@ namespace pboman3 {
     struct PboDataInfo {
         qint32 originalSize;
         qint32 dataSize;
-        size_t dataOffset;
+        qsizetype dataOffset;
         qint32 timestamp;
         qint32 compressed;
     };
 
     class PboBinarySource : public BinarySource {
     public:
-        PboBinarySource(const QString& path, const PboDataInfo& dataInfo, size_t bufferSize = 1024 * 1024);
+        PboBinarySource(const QString& path, const PboDataInfo& dataInfo, qsizetype bufferSize = 1024 * 1024);
 
         void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override;
 
@@ -29,7 +29,7 @@ namespace pboman3 {
 
     private:
         PboDataInfo dataInfo_;
-        size_t bufferSize_;
+        qsizetype bufferSize_;
 
         void writeRaw(QFileDevice* targetFile, const Cancel& cancel) const;
 

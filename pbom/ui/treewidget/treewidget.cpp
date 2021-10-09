@@ -106,7 +106,7 @@ namespace pboman3 {
         if (PboNode* item = getCurrentFolder()) {
             LOG(info, "The selected item is:", *item)
 
-            QClipboard* clipboard = QGuiApplication::clipboard();
+            const QClipboard* clipboard = QGuiApplication::clipboard();
             const QMimeData* mimeData = clipboard->mimeData();
             if (mimeData->hasFormat(MIME_TYPE_PBOMAN)) {
                 LOG(info, "Clipboard contained data in internal format")
@@ -142,7 +142,7 @@ namespace pboman3 {
         selected->rename();
     }
 
-    void TreeWidget::setModel(PboModel* model) {
+    void TreeWidget::setWidgetModel(PboModel* model) {
         LOG(info, "Using the new model")
         model_ = model;
     }
@@ -199,7 +199,7 @@ namespace pboman3 {
             QList<PboNode*> nodes = getSelectedHierarchies();
             if (!nodes.count())
                 return false;
-            const bool rootSelected = !std::any_of(nodes.begin(), nodes.end(), [](PboNode* n) {
+            const bool rootSelected = !std::any_of(nodes.begin(), nodes.end(), [](const PboNode* n) {
                 return !n->parentNode();
             });
             return rootSelected;

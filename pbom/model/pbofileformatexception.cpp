@@ -1,4 +1,4 @@
-#include "PboFileFormatException.h"
+#include "pbofileformatexception.h"
 #include <QDebug>
 
 namespace pboman3 {

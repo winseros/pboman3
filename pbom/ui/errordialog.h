@@ -17,7 +17,7 @@ namespace pboman3 {
 
         ErrorDialog(const QString& text, QWidget* parent = nullptr);
 
-        ~ErrorDialog();
+        ~ErrorDialog() override;
 
     private:
         Ui::ErrorDialog* ui_;

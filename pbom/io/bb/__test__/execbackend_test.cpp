@@ -136,9 +136,9 @@ namespace pboman3::test {
 
     class Win32File {
     public:
-        Win32File(const QString& path):
+        Win32File(QString path):
             file_(INVALID_HANDLE_VALUE),
-            path_(path) {
+            path_(std::move(path)) {
         }
 
         ~Win32File() {
@@ -156,7 +156,7 @@ namespace pboman3::test {
                     FILE_ATTRIBUTE_NORMAL,
                     nullptr
                 );
-                assert(file_ != INVALID_HANDLE_VALUE);
+                assert(file_ != INVALID_HANDLE_VALUE);  // NOLINT(performance-no-int-to-ptr)
             }
         }
 
@@ -223,7 +223,7 @@ namespace pboman3::test {
 
         //the object tested
         const QTemporaryDir dir;
-        auto store = new ExecBackend(QDir(dir.path()));
+        const auto store = new ExecBackend(QDir(dir.path()));
         store->execSync(e1, []() { return false; });
         delete store;
 
@@ -263,7 +263,7 @@ namespace pboman3::test {
     TEST(ExecBackendTest, Clear_Does_Not_Clean_Up) {
         //nodes to sync
         PboNode root("root", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
+        const PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         //the object tested
         const QTemporaryDir dir;

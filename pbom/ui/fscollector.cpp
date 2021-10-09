@@ -23,7 +23,7 @@ namespace pboman3 {
             return f1.path() < f2.path();
         });
 
-        LOG(info, "Collected files:", result.size());
+        LOG(info, "Collected files:", result.size())
 
         return result;
     }

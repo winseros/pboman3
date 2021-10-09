@@ -46,7 +46,7 @@ namespace pboman3 {
     }
 
     //each header entry consists of 5x4 bytes of fields + filename.length + 1 byte zero string terminator
-    const int PboEntry::sizeOfFields = 21;
+    constexpr int PboEntry::sizeOfFields = 21;
 
     const QString& PboEntry::fileName() const {
         return fileName_;
@@ -72,7 +72,7 @@ namespace pboman3 {
         return dataSize_;
     }
 
-    QDebug operator<<(QDebug debug, const PboEntry entry) {
+    QDebug operator<<(QDebug debug, const PboEntry& entry) {
         return debug << "PboEntry(FileName=" << entry.fileName_ << ", PackingMethod=" <<
             static_cast<qint32>(entry.packingMethod_) << ", OriginalSize=" << entry.originalSize_ << ", TimeStamp=" <<
             entry.timestamp_ << ", DataSize=" << entry.dataSize_ << ")";

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QSharedPointer>
 #include "pbopath.h"
 #include "io/bs/binarysource.h"
 
@@ -49,7 +48,7 @@ namespace pboman3 {
 
         qint32 dataSize() const;
 
-        friend QDebug operator <<(QDebug debug, const PboEntry entry);
+        friend QDebug operator <<(QDebug debug, const PboEntry& entry);
 
     private:
         static const int sizeOfFields;

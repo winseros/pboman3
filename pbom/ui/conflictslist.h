@@ -10,7 +10,7 @@ namespace pboman3 {
             id_ = id;
         }
 
-        int id() { return id_; }
+        int id() const { return id_; }
 
     private:
         int id_;

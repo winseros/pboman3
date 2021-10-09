@@ -34,7 +34,7 @@ namespace pboman3 {
 
     int PboFile::writeCString(const QString& value) {
         write(value.toUtf8());
-        char zero = 0;
+        constexpr char zero = 0;
         write(&zero, sizeof zero);
         return static_cast<int>(value.length() + sizeof zero);
     }

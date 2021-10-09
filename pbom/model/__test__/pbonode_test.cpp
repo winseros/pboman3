@@ -92,7 +92,7 @@ namespace pboman3::test {
         PboNode root("file-name", PboNodeType::Container, nullptr);
 
         int count = 0;
-        auto onChildCreated = [&count](PboNode* node, qsizetype index) {
+        auto onChildCreated = [&count](const PboNode* node, qsizetype index) {
             ASSERT_EQ(node->title(), "f1");
             ASSERT_EQ(index, 0);
             count++;
@@ -153,7 +153,7 @@ namespace pboman3::test {
         root.createHierarchy(PboPath("f1/e2"));
 
         int count = 0;
-        auto hierarchyChanged1 = []() { ASSERT_FALSE("Should not have been called"); };
+        auto hierarchyChanged1 = []() { FAIL() << "Should not have been called"; };
         auto hierarchyChanged2 = [&count]() {count++; };
 
         QObject::connect(root.at(0), &PboNode::hierarchyChanged, hierarchyChanged1);
@@ -249,7 +249,7 @@ namespace pboman3::test {
         PboNode* e2 = root.createHierarchy(PboPath("f1/e2"));
 
         int count = 0;
-        auto hierarchyChanged1 = []() { ASSERT_FALSE("Should not have been called"); };
+        auto hierarchyChanged1 = []() { FAIL() << "Should not have been called"; };
         auto hierarchyChanged2 = [&count]() {count++; };
 
         QObject::connect(root.at(0), &PboNode::hierarchyChanged, hierarchyChanged1);
@@ -274,7 +274,7 @@ namespace pboman3::test {
     TEST_P(VerifyTitleTest, VerifyTitle_Is_Functional) {
         PboNode root("file-name", PboNodeType::Container, nullptr);
         root.createHierarchy(PboPath("e1"));
-        PboNode* e2 = root.createHierarchy(PboPath("e2"));
+        const PboNode* e2 = root.createHierarchy(PboPath("e2"));
 
         ASSERT_EQ(e2->verifyTitle(GetParam().input), GetParam().expectedOutput);
     }
@@ -362,7 +362,7 @@ namespace pboman3::test {
         PboNode* e3 = root.createHierarchy(PboPath("f1/e3"));
 
         int count = 0;
-        auto hierarchyChanged1 = []() { ASSERT_FALSE("Should not have been called"); };
+        auto hierarchyChanged1 = []() { FAIL() << "Should not have been called"; };
         auto hierarchyChanged2 = [&count]() {count++; };
 
         QObject::connect(root.at(0), &PboNode::hierarchyChanged, hierarchyChanged1);

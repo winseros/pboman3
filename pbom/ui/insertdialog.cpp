@@ -29,13 +29,13 @@ namespace pboman3 {
         delete ui_;
     }
 
-    void InsertDialog::next() {
+    void InsertDialog::next() const {
         LOG(info, "User clicked the Next button")
         ui_->compressWidget->hide();
         ui_->conflictsWidget->show();
     }
 
-    void InsertDialog::back() {
+    void InsertDialog::back() const {
         LOG(info, "User clicked the Back button")
         ui_->compressWidget->show();
         ui_->conflictsWidget->hide();

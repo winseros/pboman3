@@ -1,6 +1,4 @@
 #include <QApplication>
-#include <QDir>
-#include <QFile>
 #include <QScopedPointer>
 #include <QTimer>
 #include <Windows.h>
@@ -69,7 +67,7 @@ namespace pboman3 {
             w.loadFile(file);
         }
 
-        const int exitCode = app.exec();
+        const int exitCode = QApplication::exec();
 
         LOG(info, "The app exiting with the code:", exitCode)
 
@@ -88,10 +86,10 @@ namespace pboman3 {
         int exitCode;
         PackWindow w(nullptr);
         if (outputDir.isEmpty()) {
-            exitCode = w.tryPackFoldersWithPrompt(folders) ? app.exec() : 0;
+            exitCode = w.tryPackFoldersWithPrompt(folders) ? QApplication::exec() : 0;
         } else {
             w.packFoldersToOutputDir(folders, outputDir);
-            exitCode = app.exec();
+            exitCode = QApplication::exec();
         }
 
         LOG(info, "The app exiting with the code:", exitCode)
@@ -111,10 +109,10 @@ namespace pboman3 {
         int exitCode;
         UnpackWindow w(nullptr);
         if (outputDir.isEmpty()) {
-            exitCode = w.tryUnpackFilesWithPrompt(files) ? app.exec() : 0;
+            exitCode = w.tryUnpackFilesWithPrompt(files) ? QApplication::exec() : 0;
         } else {
             w.unpackFilesToOutputDir(files, outputDir);
-            exitCode = app.exec();
+            exitCode = QApplication::exec();
         }
 
         LOG(info, "The app exiting with the code:", exitCode)

@@ -53,7 +53,7 @@ namespace pboman3::test {
         QTAPP
 
         const auto node = QScopedPointer(new PboNode("file.pbo", PboNodeType::Container, nullptr));
-        auto item = new TreeWidgetItem(node.get());
+        const auto item = new TreeWidgetItem(node.get());
 
         MockTreeWidgetBase tree;
         tree.addTopLevelItem(item);
@@ -104,7 +104,7 @@ namespace pboman3::test {
         QTAPP
 
         const auto node = QScopedPointer(new PboNode("file.pbo", PboNodeType::Container, nullptr));
-        auto item = new TreeWidgetItem(node.get());
+        const auto item = new TreeWidgetItem(node.get());
 
         MockTreeWidgetBase tree;
         tree.addTopLevelItem(item);

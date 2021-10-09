@@ -5,7 +5,7 @@
 namespace pboman3 {
     class FsRawBinarySource : public BinarySource {
     public:
-        FsRawBinarySource(QString path, size_t bufferSize = 1024 * 1024);
+        FsRawBinarySource(QString path, qsizetype bufferSize = 1024 * 1024);
 
         void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override;
 
@@ -18,7 +18,7 @@ namespace pboman3 {
         bool isCompressed() const override;
 
     private:
-        size_t bufferSize_;
+        qsizetype bufferSize_;
 
         void writeRaw(QFileDevice* targetFile, const Cancel& cancel) const;
     };

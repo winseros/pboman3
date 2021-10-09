@@ -28,7 +28,7 @@ namespace pboman3 {
 
         SHFILEINFOW info;
         const QString fn = "file." + extension;
-        const HRESULT hr = SHGetFileInfoW(
+        const DWORD_PTR hr = SHGetFileInfoW(
             reinterpret_cast<LPCWSTR>(fn.utf16()),
             FILE_ATTRIBUTE_NORMAL,
             &info,

@@ -187,7 +187,7 @@ namespace pboman3 {
         return file;
     }
 
-    ConflictsParcel PboModel::checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const {
+    ConflictsParcel PboModel::checkConflicts(const PboNode* parent, const QList<NodeDescriptor>& descriptors) const {
         if (!rootEntry_)
             throw InvalidOperationException("The model is not initialized");
 

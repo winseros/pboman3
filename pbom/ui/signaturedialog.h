@@ -14,7 +14,7 @@ namespace pboman3 {
     public:
         SignatureDialog(const SignatureModel* model, QWidget* parent);
 
-        ~SignatureDialog();
+        ~SignatureDialog() override;
 
     private:
         Ui::SignatureDialog* ui_;

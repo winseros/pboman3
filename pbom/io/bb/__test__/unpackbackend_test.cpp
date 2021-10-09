@@ -1,5 +1,3 @@
-#pragma once
-
 #include "io/bb/unpackbackend.h"
 #include <QTemporaryDir>
 #include <QTemporaryFile>
@@ -110,7 +108,7 @@ namespace pboman3::test {
 
         PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
         PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
-        const PboDataInfo dataInfo{74, 84, 0, 0, true}; //the file is marked as compressed
+        constexpr PboDataInfo dataInfo{74, 84, 0, 0, true}; //the file is marked as compressed
         e1->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(t1.fileName(), dataInfo));
         e1->binarySource->open();
 

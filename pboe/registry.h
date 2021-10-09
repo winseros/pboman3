@@ -21,7 +21,7 @@ namespace pboman3 {
 
         static void setRegistryKeyValue(const string& key, const string& value, const string& name = "");
 
-        static string getRegistryKeyValue(const string& key, const string name = "");
+        static string getRegistryKeyValue(const string& key, const string& name = "");
 
         static void removeRegistryKey(const string& key);
 

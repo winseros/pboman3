@@ -14,7 +14,7 @@ namespace pboman3 {
     public:
         CloseDialog(const QFileInfo& file, QWidget* parent = nullptr);
 
-        ~CloseDialog();
+        ~CloseDialog() override;
 
     private:
         Ui::CloseDialog* ui_;

@@ -126,7 +126,7 @@ namespace pboman3 {
         QString fsPath;
         stream >> fsPath;
 
-        PboDataInfo di;
+        PboDataInfo di;  // NOLINT(cppcoreguidelines-pro-type-member-init)
         stream >> di.originalSize;
         stream >> di.dataSize;
         stream >> di.dataOffset;
@@ -168,7 +168,7 @@ namespace pboman3 {
         //that allows to avoid duplicates in the parcel
 
         QList<PboNode*> sortedNodes(nodes);
-        std::sort(sortedNodes.begin(), sortedNodes.end(), [](PboNode* a, PboNode* b) {
+        std::sort(sortedNodes.begin(), sortedNodes.end(), [](const PboNode* a, const PboNode* b) {
             return a->depth() < b->depth();
         });
 

@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 namespace pboman3::test {
+    // ReSharper disable once CppInconsistentNaming
     class PboHeaderIOTest_ReadNextEntry : public testing::TestWithParam<int> {
     };
 
@@ -49,6 +50,7 @@ namespace pboman3::test {
         ASSERT_TRUE(e->isBoundary());
     }
 
+    // ReSharper disable once CppInconsistentNaming
     class PboHeaderIOTest_ReadNextHeader : public testing::TestWithParam<int> {
     };
 
@@ -120,9 +122,9 @@ namespace pboman3::test {
     }
 
     TEST(PboHeaderIOTest, WriteHeader_Writes) {
-        PboHeader h1("h1", "v1");
-        PboHeader h2("h2", "v2");
-        PboHeader h3 = PboHeader::makeBoundary();
+        const PboHeader h1("h1", "v1");
+        const PboHeader h2("h2", "v2");
+        const PboHeader h3 = PboHeader::makeBoundary();
         QTemporaryFile t;
         ASSERT_TRUE(t.open());
 

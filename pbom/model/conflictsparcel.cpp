@@ -13,7 +13,7 @@ namespace pboman3 {
         return conflicts_.count() > 0;
     }
 
-    QDebug operator<<(QDebug debug, const ConflictsParcel parcel) {
+    QDebug operator<<(QDebug debug, const ConflictsParcel& parcel) {
         return debug << "ConflictsParcel(" << parcel.conflicts_.count() << "items)";
     }
 }

@@ -54,7 +54,7 @@ namespace pboman3 {
         int checkedCount = 0;
         int uncheckedCount = 0;
 
-        for (QTreeWidgetItem* item : items) {
+        for (const QTreeWidgetItem* item : items) {
             if (item->checkState(colCompressIndex) == Qt::Checked)
                 checkedCount++;
             else

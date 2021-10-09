@@ -25,7 +25,7 @@ namespace pboman3 {
 
         QString execPrepare(const PboNode* node, const Cancel& cancel) const;
 
-        ConflictsParcel checkConflicts(PboNode* parent, const QList<NodeDescriptor>& descriptors) const;
+        ConflictsParcel checkConflicts(const PboNode* parent, const QList<NodeDescriptor>& descriptors) const;
 
         void unpackNodesTo(const QDir& dest, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel) const;
 

@@ -8,6 +8,8 @@ namespace pboman3 {
     public:
         explicit UnpackBackend(const QDir& folder);
 
+        virtual ~UnpackBackend() = default;
+
         void unpackSync(const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel);
 
     private:

@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <Windows.h>
 #include <CLI/CLI.hpp>
+#include "commandline.h"
 #include "model/pbomodel.h"
 #include "ui/errordialog.h"
 #include "ui/mainwindow.h"
@@ -12,6 +13,8 @@
 #include "util/log.h"
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
+
+using namespace std;
 
 namespace pboman3 {
     class PboApplication : public QApplication {
@@ -47,7 +50,7 @@ namespace pboman3 {
         timer->start();
     }
 
-    int RunMainWindow(const QApplication& app, const std::string& pboFile) {
+    int RunMainWindow(const QApplication& app, const QString& pboFile) {
         using namespace pboman3;
 
         ACTIVATE_ASYNC_LOG_SINK
@@ -61,10 +64,9 @@ namespace pboman3 {
         MainWindow w(nullptr, model.get());
         w.show();
 
-        if (!pboFile.empty()) {
-            const QString file(pboFile.c_str());
-            LOG(info, "Loading the file:", file)
-            w.loadFile(file);
+        if (!pboFile.isEmpty()) {
+            LOG(info, "Loading the file:", pboFile)
+            w.loadFile(pboFile);
         }
 
         const int exitCode = QApplication::exec();
@@ -119,92 +121,88 @@ namespace pboman3 {
 
         return exitCode;
     }
-}
 
-int main(int argc, char* argv[]) {
-    using namespace CLI;
-    using namespace pboman3;
+    int RunWithCliOptions(int argc, char* argv[]) {
+        using namespace CLI;
+        using namespace pboman3;
 
-    App cli("PBO Manager3");
-    cli.require_subcommand(0, 1);
+        int exitCode;
+        if (argc == 1) {
+            const PboApplication app(argc, argv);
+            exitCode = RunMainWindow(app, "");
+        } else {
+            App cli;
+            const CommandLine cmd(&cli);
+            const shared_ptr<CommandLine::Result> commandLine = cmd.build();
+            CLI11_PARSE(cli, argc, argv)
 
-    App* cmdOpen = cli.add_subcommand("open", "Open the specified PBO file");
-    std::string cmdOpenFilePath;
-    auto cmdOpenFile = cmdOpen->add_option("file", cmdOpenFilePath, "The PBO file to open")
-                              ->required()
-                              ->check(ExistingFile);
+            if (commandLine->open.hasBeenSet()) {
+                const PboApplication app(argc, argv);
+                const QString file = CommandLine::toQt(commandLine->open.fileName);
+                exitCode = RunMainWindow(app, file);
+            } else if (commandLine->pack.hasBeenSet()) {
+                const PboApplication app(argc, argv);
 
-    App* cmdPack = cli.add_subcommand("pack", "Pack the specified folders(s) as PBO(s)");
-    std::vector<std::string> cmdPackFoldersPath;
-    cmdPack->add_option("folders", cmdPackFoldersPath, "The folder(s) to pack")
-           ->required()
-           ->check(ExistingDirectory);
-    std::string cmdPackOutPath;
+                QString outputDir;
+                if (commandLine->pack.hasOutputPath())
+                    outputDir = CommandLine::toQt(commandLine->pack.outputPath);
+                else if (commandLine->pack.prompt())
+                    outputDir = "";
+                else
+                    outputDir = QDir::currentPath();
 
-    Option* cmdPackOut = cmdPack->add_option("-o,--output-directory", cmdPackOutPath,
-                                             "The directory to write the resulting PBO(s)")
-                                ->check(ExistingDirectory);
+                const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
+                exitCode = RunPackWindow(app, folders, outputDir);
+            } else if (commandLine->unpack.hasBeenSet()) {
+                const PboApplication app(argc, argv);
 
-    const Option* cmdPackPrompt = cmdPack->add_flag("-p,--prompt",
-                                                    "Show a UI dialog for the output directory selection")
-                                         ->excludes(cmdPackOut);
+                QString outputDir;
+                if (commandLine->unpack.hasOutputPath())
+                    outputDir = CommandLine::toQt(commandLine->unpack.outputPath);
+                else if (commandLine->unpack.prompt())
+                    outputDir = "";
+                else
+                    outputDir = QDir::currentPath();
 
-
-    App* cmdUnpack = cli.add_subcommand("unpack", "Unpack the specified PBO(s)");
-    std::vector<std::string> cmdUnpackFilesPath;
-    cmdUnpack->add_option("files", cmdUnpackFilesPath, "The PBO(s) to unpack")
-             ->required()
-             ->check(ExistingFile);
-    std::string cmdUnpackOutPath;
-
-    Option* cmdUnpackOut = cmdUnpack->add_option("-o,--output-directory", cmdUnpackOutPath,
-                                                 "The directory to write the PBO(s) contents")
-                                    ->check(ExistingDirectory);
-
-    const Option* cmdUnpackPrompt = cmdUnpack->add_flag("-p,--prompt",
-                                                        "Show a UI dialog for the output directory selection")
-                                             ->excludes(cmdUnpackOut);
-
-    CLI11_PARSE(cli, argc, argv)
-
-    int exitCode;
-    if (cli.got_subcommand(cmdOpen)) {
-        const PboApplication app(argc, argv);
-        exitCode = RunMainWindow(app, cmdOpenFilePath);
-    } else if (cli.got_subcommand(cmdPack)) {
-        const PboApplication app(argc, argv);
-        QStringList qtFolders;
-        qtFolders.reserve(static_cast<qsizetype>(cmdPackFoldersPath.size()));
-        std::for_each(cmdPackFoldersPath.begin(), cmdPackFoldersPath.end(), [&qtFolders](const std::string& f) {
-            qtFolders.append(QString::fromStdString(f));
-        });
-        QString outputDir;
-        if (*cmdPackOut)
-            outputDir = QString::fromStdString(cmdPackOutPath);
-        else if (*cmdPackPrompt)
-            outputDir = "";
-        else
-            outputDir = QDir::currentPath();
-        exitCode = RunPackWindow(app, qtFolders, outputDir);
-    } else if (cli.got_subcommand(cmdUnpack)) {
-        const PboApplication app(argc, argv);
-        QStringList qtFiles;
-        qtFiles.reserve(static_cast<qsizetype>(cmdUnpackFilesPath.size()));
-        std::for_each(cmdUnpackFilesPath.begin(), cmdUnpackFilesPath.end(), [&qtFiles](const std::string& f) {
-            qtFiles.append(QString::fromStdString(f));
-        });
-        QString outputDir;
-        if (*cmdUnpackOut)
-            outputDir = QString::fromStdString(cmdUnpackOutPath);
-        else if (*cmdUnpackPrompt)
-            outputDir = "";
-        else
-            outputDir = QDir::currentPath();
-        exitCode = RunUnpackWindow(app, qtFiles, outputDir);
-    } else {
-        const PboApplication app(argc, argv);
-        exitCode = RunMainWindow(app, "");
+                const QStringList files = CommandLine::toQt(commandLine->unpack.files);
+                exitCode = RunUnpackWindow(app, files, outputDir);
+            } else {
+                //should not normally get here; if did - CLI11 was misconfigured somewhere
+                cout << cli.help();
+                exitCode = 1;
+            }
+        }
+        return exitCode;
     }
 
-    return exitCode;
+    int RunMain(int argc, char* argv[]) {
+        int exitCode;
+        if (argc == 2) {
+            //an escape hatch for those who won't install the app via the installer
+            //and use it in "Open with" operating system feature
+            //in that case the OS would call the app as "pbom <file>"
+            const QString file = QString(argv[1]);
+            const QFileInfo fi(file);
+            if (fi.isFile() && !fi.isSymLink()) {
+                const PboApplication app(argc, argv);
+                exitCode = RunMainWindow(app, file);
+            } else {
+                //but still call regular CLI if the input argument we thought
+                //might be a file - was not a file
+                exitCode = RunWithCliOptions(argc, argv);
+            }
+        } else {
+            exitCode = RunWithCliOptions(argc, argv);
+        }
+        return exitCode;
+    }
+}
+
+
+int main(int argc, char* argv[]) {
+    try {
+        const int res = pboman3::RunMain(argc, argv);
+        return res;
+    } catch (...) {
+    }
 }

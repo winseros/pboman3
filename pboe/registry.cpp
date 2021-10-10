@@ -38,7 +38,7 @@ namespace pboman3 {
         setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID,
                             pathToExe, "Path");
         setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID "\\DefaultIcon",
-                            "\"" + pathToExe + ",1\"");
+                            pathToExe + ",1");
         setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\Open\\Command",
                             "\"" + pathToExe + "\" open \"%1\"");
         setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID "\\ShellEx\\ContextMenuHandlers\\pboman3",

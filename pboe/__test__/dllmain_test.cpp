@@ -35,6 +35,7 @@ namespace pboman3::test {
         using namespace std::filesystem;
 
         path binaryDir(BINARY_DIR);
+        binaryDir = binaryDir.lexically_normal();
         const string exe = binaryDir.parent_path().append("pbom").append("pbom.exe").string();
         const string dll = binaryDir.append("pboe.dll").string();
 

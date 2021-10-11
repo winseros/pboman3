@@ -61,4 +61,37 @@ namespace pboman3::test {
         ASSERT_EQ(files[4].path(), PboPath("f2/f5.txt"));
         ASSERT_EQ(files[4].binarySource()->path(), f5.fileName());
     }
+
+    TEST(FsCollectorTest, CollectFiles_Wont_Find_Symlinks) {
+        //make a temp directory with the structure
+        //temp
+        // |-d1
+        // | |-f1.txt
+        // |-d1.link
+        // |-f1.txt.link
+
+        //temp/d1
+        const QTemporaryDir temp;
+        const QString d1 = "d1";
+        const QDir tempDir(temp.path());
+        ASSERT_TRUE(tempDir.mkpath(d1));
+
+        //temp/d1/f1.txt
+        QFile f1(tempDir.absoluteFilePath(d1 + QDir::separator() + "f1.txt"));
+        f1.open(QIODeviceBase::ReadWrite);
+        f1.close();
+
+        //links
+        ASSERT_TRUE(QFile::link(f1.fileName(), tempDir.filePath("f1.txt.lnk")));
+        ASSERT_TRUE(QFile::link(tempDir.filePath(d1), tempDir.filePath("d1.lnk")));
+
+        //run the code
+        const NodeDescriptors files = FsCollector::collectFiles(QList{
+            QUrl::fromLocalFile(tempDir.absolutePath())
+        });
+
+        //ensure symlinks were not collected
+        ASSERT_EQ(files.count(), 1);
+        ASSERT_EQ(files[0].path(), PboPath({ tempDir.dirName(), "d1", "f1.txt" }));
+    }
 }

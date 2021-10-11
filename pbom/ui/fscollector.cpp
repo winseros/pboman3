@@ -34,10 +34,12 @@ namespace pboman3 {
         const QDir d(fi.filePath() + QDir::separator());
         const QFileInfoList entries = d.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
         for (const QFileInfo& entry : entries) {
-            if (entry.isFile())
-                collectFile(entry, parent, descriptors);
-            else if (entry.isDir())
-                collectDir(entry, parent, descriptors);
+            if (!entry.isSymLink()) {
+                if (entry.isFile())
+                    collectFile(entry, parent, descriptors);
+                else if (entry.isDir())
+                    collectDir(entry, parent, descriptors);
+            }
         }
     }
 

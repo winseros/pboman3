@@ -24,6 +24,8 @@ if(MSVC)
       "${CMAKE_MODULE_LINKER_FLAGS} /DEF:${CMAKE_CURRENT_SOURCE_DIR}/dllmain.def /NODEFAULTLIB:LIBCMT")
 endif()
 
+include(GNUInstallDirs)
+install(TARGETS pboe DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 set(TEST_SOURCES
     __test__/dllmain_test.cpp

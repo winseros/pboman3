@@ -69,6 +69,10 @@ namespace pboman3 {
 
         body.close();
         pbo.close();
+
+        if (cancel()) {
+            pbo.remove();
+        }
     }
 
     void PboWriter::suspendBinarySources() const {

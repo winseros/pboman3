@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include "io/bs/fsrawbinarysource.h"
 #include <QDebug>
+#include <QTemporaryDir>
 #include "io/pboheaderreader.h"
 
 namespace pboman3::test {
@@ -21,9 +22,8 @@ namespace pboman3::test {
         e2.close();
 
         //pbo file
-        QTemporaryFile placeholder;
-        placeholder.open();
-        placeholder.close();
+        const QTemporaryDir temp;
+        const QString filePath = temp.filePath("file.pbo");
 
         //pbo content structure
         PboNode root("file.pbo", PboNodeType::Container, nullptr);
@@ -45,7 +45,7 @@ namespace pboman3::test {
 
         //write the file
         PboWriter writer;
-        writer.usePath(placeholder.fileName())
+        writer.usePath(filePath)
               .useRoot(&root)
               .useHeaders(&headers)
               .copySignatureTo(&signature);
@@ -53,7 +53,7 @@ namespace pboman3::test {
         writer.write([]() { return false; });
 
         //assert the result
-        PboFile pbo(placeholder.fileName());
+        PboFile pbo(filePath);
         pbo.open(QIODeviceBase::ReadOnly);
         const PboFileHeader header = PboHeaderReader::readFileHeader(&pbo);
         
@@ -96,7 +96,9 @@ namespace pboman3::test {
         ASSERT_TRUE(pbo.atEnd());
     }
 
-    TEST(PboWriterTest, Write_Does_Not_Throw_If_No_Signature_Copy_Target_Set) {
+    class PboWriterTest: public testing::TestWithParam<int>{};
+
+    TEST_P(PboWriterTest, Cleans_Files_On_Cancel) {
         //mock files contents
         const QByteArray mockContent1(15, 1);
         QTemporaryFile e1;
@@ -105,9 +107,8 @@ namespace pboman3::test {
         e1.close();
 
         //pbo file
-        QTemporaryFile placeholder;
-        placeholder.open();
-        placeholder.close();
+        const QTemporaryDir temp;
+        const QString filePath = temp.filePath("file.pbo");
 
         //pbo content structure
         PboNode root("file.pbo", PboNodeType::Container, nullptr);
@@ -120,7 +121,77 @@ namespace pboman3::test {
 
         //write the file
         PboWriter writer;
-        writer.usePath(placeholder.fileName())
+        writer.usePath(filePath)
+            .useRoot(&root)
+            .useHeaders(&headers);
+
+        int count = 0;
+        int expectedHitCount = GetParam();//experimental way
+        writer.write([&count, expectedHitCount]() { count++; return count > expectedHitCount - 1; });
+
+        ASSERT_FALSE(QFileInfo(filePath).exists());
+        ASSERT_FALSE(QFileInfo(filePath + ".b").exists());
+    }
+
+    INSTANTIATE_TEST_SUITE_P(Write_Cleans_On_Cancel, PboWriterTest, testing::Range(1, 13));
+
+    TEST(PboWriterTest, Cleans_Temporary_Files_On_Write) {
+        //mock files contents
+        const QByteArray mockContent1(15, 1);
+        QTemporaryFile e1;
+        e1.open();
+        e1.write(mockContent1);
+        e1.close();
+
+        //pbo file
+        const QTemporaryDir temp;
+        const QString filePath = temp.filePath("file.pbo");
+
+        //pbo content structure
+        PboNode root("file.pbo", PboNodeType::Container, nullptr);
+        PboNode* n1 = root.createHierarchy(PboPath("e1.txt"));
+        n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
+        n1->binarySource->open();
+
+        //pbo headers
+        HeadersModel headers;
+
+        //write the file
+        PboWriter writer;
+        writer.usePath(filePath)
+            .useRoot(&root)
+            .useHeaders(&headers);
+
+        writer.write([]() { return false; });
+
+        ASSERT_TRUE(QFileInfo(filePath).exists());
+        ASSERT_FALSE(QFileInfo(filePath + ".b").exists());
+    }
+
+    TEST(PboWriterTest, Write_Does_Not_Throw_If_No_Signature_Copy_Target_Set) {
+        //mock files contents
+        const QByteArray mockContent1(15, 1);
+        QTemporaryFile e1;
+        e1.open();
+        e1.write(mockContent1);
+        e1.close();
+
+        //pbo file
+        const QTemporaryDir temp;
+        const QString filePath = temp.filePath("file.pbo");
+
+        //pbo content structure
+        PboNode root("file.pbo", PboNodeType::Container, nullptr);
+        PboNode* n1 = root.createHierarchy(PboPath("e1.txt"));
+        n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
+        n1->binarySource->open();
+
+        //pbo headers
+        HeadersModel headers;
+
+        //write the file
+        PboWriter writer;
+        writer.usePath(filePath)
               .useRoot(&root)
               .useHeaders(&headers);//don't specify signature target
 
@@ -140,11 +211,6 @@ namespace pboman3::test {
         e2.open();
         e2.write(mockContent2);
         e2.close();
-
-        //pbo file
-        QTemporaryFile placeholder;
-        placeholder.open();
-        placeholder.close();
 
         //pbo content structure
         PboNode root("file.pbo", PboNodeType::Container, nullptr);

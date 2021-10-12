@@ -1,4 +1,5 @@
 #include "registry.h"
+#include <Shlobj.h>
 #include <Windows.h>
 #include "dllmain.h"
 
@@ -6,6 +7,7 @@ namespace pboman3 {
     HRESULT Registry::registerServer(const string& pathToExe, const string& pathToDll) {
         try {
             registerServerImpl(pathToExe, pathToDll);
+            SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
             return S_OK;
         } catch (const RegistryException& ex) {
             return HRESULT_FROM_WIN32(ex.status());
@@ -23,7 +25,7 @@ namespace pboman3 {
 
     string Registry::getExecutablePath() {
         try {
-            string value = getRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID, "Path");
+            string value = getRegistryKeyValue(PBOM_SHELL_PROGID, "Path");
             return value;
         } catch (const RegistryException&) {
             return "";
@@ -84,7 +86,7 @@ namespace pboman3 {
 
     string Registry::getRegistryKeyValue(const string& key, const string& name) {
         HKEY reg;
-        LSTATUS ls = RegOpenKeyEx(HKEY_CURRENT_USER,
+        LSTATUS ls = RegOpenKeyEx(HKEY_CLASSES_ROOT,
                                   key.data(),
                                   NULL,
                                   KEY_QUERY_VALUE | KEY_WOW64_64KEY,

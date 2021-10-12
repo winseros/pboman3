@@ -73,6 +73,7 @@ Thumbs.db
 # Visual Studio
 .vs/
 out/
+obj/
 *.user
 CMakeSettings.json
 

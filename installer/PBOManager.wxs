@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define ProductVersion="0.0.1"?>
+<?define UpgradeCode="A6EA91AB-5F50-4010-BC8B-C5A21885C695"?>
+<?define Author="Nikita Kobzev"?>
+<?define RegProgId="pboman3_pbo"?>
+<?define RegClsId="{dd2a27fa-7c7f-4b50-9b54-836af42fb64d}"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="PBO Manager" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Author)"
+             UpgradeCode="$(var.UpgradeCode)">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated"
+                 Platform="x64"
+                 Manufacturer="$(var.Author)" />
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        <MediaTemplate EmbedCab="yes" />
+
+        <Icon Id="ICON_PBOM" SourceFile="$(var.ArtifactsFolder)pbom.exe" />
+        <Property Id="ARPPRODUCTICON" Value="ICON_PBOM" />
+
+        <Feature Id="F_MainFiles" Title="Application" Level="1" InstallDefault="local" Absent="disallow"
+                 Description="The main application files.">
+            <ComponentGroupRef Id="CG_MainFiles" />
+        </Feature>
+
+        <UI>
+            <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+            <UIRef Id="WixUI_InstallDir" />
+            <UIRef Id="PBOMan_Ui"/>
+        </UI>
+
+        <InstallExecuteSequence>
+            <ScheduleReboot After="InstallFinalize"/>
+        </InstallExecuteSequence>
+    </Product>
+
+    <Fragment>
+        <Property Id="INSTALLFOLDERName" Value="PBO Manager"/>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ApplicationDataFolder">
+                <Directory Id="INSTALLFOLDER" Name="[INSTALLFOLDERName]">
+                    <Directory Id="D_ImageFormats" Name="ImageFormats" />
+                    <Directory Id="D_Platforms" Name="Platforms" />
+                    <Directory Id="D_Styles" Name="Styles" />
+                </Directory>
+            </Directory>
+        </Directory>
+
+        <ComponentGroup Id="CG_MainFiles">
+            <ComponentRef Id="C_MainFiles__pboe.dll" />
+            <ComponentRef Id="C_MainFiles__pbom.exe" />
+            <ComponentRef Id="C_MainFiles__Qt6Core.dll" />
+            <ComponentRef Id="C_MainFiles__Qt6Gui.dll" />
+            <ComponentRef Id="C_MainFiles__Qt6Widgets.dll" />
+            <ComponentRef Id="C_MainFiles__ImageFormats__qico.dll" />
+            <ComponentRef Id="C_MainFiles__Platforms__qwindows.dll" />
+            <ComponentRef Id="C_MainFiles__Styles__qwindowsvistastyle.dll" />
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="C_MainFiles__pboe.dll" Guid="08AE24AD-11EE-481E-8E38-2A30968FA898" Win64="yes">
+                <File Id="F_MainFiles__pboe.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)pboe.dll" />
+                <Class Id="$(var.RegClsId)" Context="InprocServer32" Description="[ProductName] shell extension"
+                       Server="F_MainFiles__pboe.dll" ThreadingModel="apartment" Advertise="no">
+                </Class>
+
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)\ShellEx\ContextMenuHandlers\pboman3"
+                               Value="$(var.RegClsId)" Type="string" />
+
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)"
+                               Name="Path"
+                               Value="[INSTALLFOLDER]pbom.exe" Type="string" />
+
+                <RegistryValue Root="HKCR"
+                               Key="Folder\ShellEx\ContextMenuHandlers\pboman3"
+                               Value="$(var.RegClsId)" Type="string" />
+            </Component>
+
+            <Component Id="C_MainFiles__pbom.exe" Guid="7FC3F37E-AE6D-4BA0-8677-3C056F13519C" Win64="yes">
+                <File Id="F_MainFiles__pbom.exe" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)pbom.exe" />
+
+                <ProgId Id="$(var.RegProgId)" Icon="F_MainFiles__pbom.exe" IconIndex="1"
+                        Description="[ProductName] file">
+                    <Extension Id="pbo">
+                        <Verb Id="open" Command="Open" TargetFile="F_MainFiles__pbom.exe"
+                              Argument="open &quot;%1&quot;" />
+                    </Extension>
+                </ProgId>
+            </Component>
+
+            <Component Id="C_MainFiles__Qt6Core.dll" Guid="1D77E778-A132-44DA-BB2C-1A6D275DCB45" Win64="yes">
+                <File Id="F_MainFiles__Qt6Core.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Qt6Core.dll" />
+            </Component>
+
+            <Component Id="C_MainFiles__Qt6Gui.dll" Guid="3DECC976-0D8C-429A-B322-874F782F1094" Win64="yes">
+                <File Id="F_MainFiles__Qt6Gui.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Qt6Gui.dll" />
+            </Component>
+
+            <Component Id="C_MainFiles__Qt6Widgets.dll" Guid="AC56AA6E-8B4B-4DD9-90E6-392F36296D37" Win64="yes">
+                <File Id="F_MainFiles__Qt6Widgets.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Qt6Widgets.dll" />
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="D_ImageFormats">
+            <Component Id="C_MainFiles__ImageFormats__qico.dll" Guid="C57F8095-A82C-4F3A-8612-A0EBED935FA4" Win64="yes">
+                <File Id="F_MainFiles__ImageFormats__qico.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)ImageFormats\qico.dll" />
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="D_Platforms">
+            <Component Id="C_MainFiles__Platforms__qwindows.dll" Guid="6DCE46A8-8B54-4EE6-BC69-7B22974E61E2"
+                       Win64="yes">
+                <File Id="F_MainFiles__Platforms__qwindows.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Platforms\qwindows.dll" />
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="D_Styles">
+            <Component Id="C_MainFiles__Styles__qwindowsvistastyle.dll" Guid="720D10E0-AEA8-47E1-9A5C-9EB49C4CCCDB"
+                       Win64="yes">
+                <File Id="F_MainFiles__Styles__qwindowsvistastyle.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Styles\qwindowsvistastyle.dll" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+
+    <Fragment>
+        <Property Id="PbomAppFolder" Value="PbomPerUserFolder"/>
+        <CustomAction Id="PbomSetDefaultPerUserFolder" Property="PbomPerUserFolder" Value="[LocalAppDataFolder][INSTALLFOLDERName]" Execute="immediate" />
+        <CustomAction Id="PbomSetDefaultPerMachineFolder" Property="PbomPerMachineFolder" Value="[ProgramFiles64Folder][INSTALLFOLDERName]" Execute="immediate" />
+        <CustomAction Id="PbomSetPerUserFolder" Property="INSTALLFOLDER" Value="[PbomPerUserFolder]" Execute="immediate" />
+        <CustomAction Id="PbomSetPerMachineFolder" Property="INSTALLFOLDER" Value="[PbomPerMachineFolder]" Execute="immediate" />
+        
+        <InstallExecuteSequence>
+            <Custom Action="PbomSetDefaultPerUserFolder" Before="CostFinalize" />
+            <Custom Action="PbomSetDefaultPerMachineFolder" After="PbomSetDefaultPerUserFolder" />
+            <Custom Action="PbomSetPerUserFolder" After="PbomSetDefaultPerMachineFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS="" OR (ALLUSERS=2 AND (NOT Privileged)))</Custom>
+            <Custom Action="PbomSetPerMachineFolder" After="PbomSetPerUserFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))</Custom>
+        </InstallExecuteSequence>
+        <InstallUISequence>
+            <Custom Action="PbomSetDefaultPerUserFolder" Before="CostFinalize" />
+            <Custom Action="PbomSetDefaultPerMachineFolder" After="PbomSetDefaultPerUserFolder" />
+            <Custom Action="PbomSetPerUserFolder" After="PbomSetDefaultPerMachineFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS="" OR (ALLUSERS=2 AND (NOT Privileged)))</Custom>
+            <Custom Action="PbomSetPerMachineFolder" After="PbomSetPerUserFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))</Custom>
+        </InstallUISequence>
+
+        <UI Id="PBOMan_Ui">
+            <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="MachineOrUserDlg">LicenseAccepted = "1"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">1</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="{}">PbomAppFolder = "PbomPerUserFolder"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="1">PbomAppFolder = "PbomPerUserFolder"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="2">PbomAppFolder = "PbomPerMachineFolder"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="{}">PbomAppFolder = "PbomPerMachineFolder"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomPerUserFolder]">PbomAppFolder = "PbomPerUserFolder"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomPerMachineFolder]">PbomAppFolder = "PbomPerMachineFolder"</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="MachineOrUserDlg">1</Publish>
+
+            <Dialog Id="MachineOrUserDlg" Width="370" Height="270" Title="!(loc.InstallScopeDlg_Title)" KeepModeless="yes">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallScopeDlgBannerBitmap)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallScopeDlgDescription)" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallScopeDlgTitle)" />
+                <Control Id="BothScopes" Type="RadioButtonGroup" X="20" Y="55" Width="330" Height="120" Property="PbomAppFolder">
+                    <RadioButtonGroup Property="PbomAppFolder">
+                        <RadioButton Value="PbomPerUserFolder" X="0" Y="0" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerUser)" />
+                        <RadioButton Value="PbomPerMachineFolder" X="0" Y="60" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerMachine)" />
+                    </RadioButtonGroup>
+                </Control>
+                <Control Id="PerUserDescription" Type="Text" X="33" Y="70" Width="300" Height="36" NoPrefix="yes" Text="!(loc.InstallScopeDlgPerUserDescription)"/>
+                <Control Id="PerMachineDescription" Type="Text" X="33" Y="131" Width="300" Height="36" NoPrefix="yes" Text="!(loc.InstallScopeDlgPerMachineDescription)"/>
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+            </Dialog>
+        </UI>
+    </Fragment>
+
+</Wix>

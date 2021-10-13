@@ -15,5 +15,7 @@ namespace pboman3 {
 
     private:
         Ui::AboutDialog* ui_;
+
+        void onCopyClicked() const;
     };
 }

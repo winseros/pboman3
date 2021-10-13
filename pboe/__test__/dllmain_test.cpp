@@ -7,6 +7,9 @@ namespace pboman3::test {
     TEST(DllRegisterServerTest, RegistersEntryInRegistry) {
         const HRESULT hr = DllRegisterServer();
         ASSERT_TRUE(SUCCEEDED(hr));
+
+        const string path = Registry::getExecutablePath();
+        ASSERT_FALSE(path.empty());
     }
 
     TEST(DllUnregisterServerTest, UnregistersEntryInRegistry) {
@@ -41,6 +44,9 @@ namespace pboman3::test {
 
         const HRESULT hr = Registry::registerServer(exe, dll);
         ASSERT_TRUE(SUCCEEDED(hr));
+
+        const string path = Registry::getExecutablePath();
+        ASSERT_FALSE(path.empty());
     }
 
     TEST(DllRegisterServerTest, UnregistersDevelopmentApplication) {

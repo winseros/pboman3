@@ -23,12 +23,14 @@ jobs:
         run: |
           echo "pbom_version=$('${{github.ref}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
           echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
-      
+          echo "pbom_installer_version=${{env.pbom_version}}" >> $env:GITHUB_ENV
+
       - name: Set Version Information - Branch
         if: ${{startsWith(github.ref, 'refs/heads/')}}
         run: |
           echo "pbom_version=$('${{github.ref}}' -replace 'refs/heads/','' -replace '[^\w\d]','_')" >> $env:GITHUB_ENV
           echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
+          echo "pbom_installer_version=0.0.${{github.run_number}}" >> $env:GITHUB_ENV
 
       - name: Install MSVC 2019
         uses: ilammy/msvc-dev-cmd@v1
@@ -67,10 +69,23 @@ jobs:
         run: |
             cmake --install ${{github.workspace}}\_build\ --prefix "${{github.workspace}}\_install\"
             mkdir ${{github.workspace}}\_artifacts\
-            mv -Path ${{github.workspace}}\_install\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager"
+            cp -Path ${{github.workspace}}\_install\bin -Destination "${{github.workspace}}\_artifacts\" -Recurse
+            mv -Path ${{github.workspace}}\_artifacts\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager"
      
-      - name: Collect Artifacts
+      - name: Upload binaries
         uses: actions/upload-artifact@v2
         with:
-          name: pboman3 binaries ${{env.pbom_version}} ${{env.pbom_build_number}}
+          name: PBOManager-binaries-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\
+
+      - name: Build installer
+        run: |
+         $env:Path=$env:Path + ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
+         candle.exe -dArtifactsFolder=${{github.workspace}}\_install\bin\ -dProductVersion="${{env.pbom_installer_version}}" -out ${{github.workspace}}\_artifacts\PBOManager.wixobj ${{github.workspace}}\code\installer\PBOManager.wxs
+         light.exe -ext WixUIExtension -dWixUILicenseRtf=${{github.workspace}}\code\LICENSE.rtf -out ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi ${{github.workspace}}\_artifacts\PBOManager.wixobj
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: PBOManager-installer-${{env.pbom_version}}-${{env.pbom_build_number}}
+          path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi

@@ -42,4 +42,4 @@ cmake -S <path_to_source_code> -B <path_to_build_files>
 cmake --build <path_to_build_files>
 ```
 
-Also, see [how CI builds](.github/workflows/build-and-test.yaml).
+Also, see [how CI builds](.github/workflows/artifcats.yaml).

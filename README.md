@@ -1,6 +1,6 @@
 # PBO Manager
 
-A tool to pack and unpack ArmA PBO files.
+A tool to open, pack and unpack ArmA PBO files.
 
 ## Key features
  - Can pack/unpack PBO files.

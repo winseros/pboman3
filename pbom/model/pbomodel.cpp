@@ -110,7 +110,8 @@ namespace pboman3 {
                     "Could not write to the file. Check you have enough permissions and the file is not locked by another process.",
                     loadedPath_);
             }
-            assert(QFile::rename(tempPath, loadedPath_));
+            const bool renamed = QFile::rename(tempPath, loadedPath_);
+            assert(renamed);
         }
 
         LOG(info, "Assign binary sources back")

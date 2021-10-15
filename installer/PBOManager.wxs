@@ -13,6 +13,19 @@
                  Platform="x64"
                  Manufacturer="$(var.Author)" />
 
+        <Condition Message="This application is only supported on Windows 10, or higher.">
+            <![CDATA[Installed OR (VersionNT64 >= 603)]]>
+        </Condition>
+
+        <Property Id="PBOMCPPREDISTEXISTS">
+            <DirectorySearch Id="VcRedistDir" Path="[System64Folder]" Depth="0">
+                <FileSearch Id="VcRedistFile" Name="vcruntime140.dll"/>
+            </DirectorySearch>
+        </Property>
+        <Condition Message="This application requires Microsoft Visual C++ Redistributable 2015 or higher. Please install it, then run this installer again.">
+            <![CDATA[Installed OR PBOMCPPREDISTEXISTS]]>
+        </Condition>
+
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
         <MediaTemplate EmbedCab="yes" />
 

@@ -16,6 +16,8 @@ A tool to open, pack and unpack ArmA PBO files.
 
 ## Installation 
 
+:small_blue_diamond: The application requires [Microsoft Visual C++ Redistributable 2015-2019](https://aka.ms/vs/16/release/vc_redist.x64.exe) to run. Othervise, the application will complain regarding the `vcruntime140.dll`.
+
 ### Installer
 1. Download the `installer` from the [Releases](https://github.com/winseros/pboman3/releases) section.
 2. Run the `installer`.

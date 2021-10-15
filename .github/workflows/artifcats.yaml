@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "pbom_version=$('${{github.ref}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
           echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
-          echo "pbom_installer_version=${{env.pbom_version}}" >> $env:GITHUB_ENV
+          echo "pbom_installer_version=$('${{github.ref}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
 
       - name: Set Version Information - Branch
         if: ${{startsWith(github.ref, 'refs/heads/')}}

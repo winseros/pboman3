@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?define UpgradeCode="A6EA91AB-5F50-4010-BC8B-C5A21885C695"?>
 <?define Author="Nikita Kobzev"?>
+<?define AppName="PBO Manager"?>
+<?define RegAppId="pboman3"?>
 <?define RegProgId="pboman3_pbo"?>
 <?define RegClsId="{dd2a27fa-7c7f-4b50-9b54-836af42fb64d}"?>
 
@@ -17,33 +19,36 @@
         <Icon Id="ICON_PBOM" SourceFile="$(var.ArtifactsFolder)pbom.exe" />
         <Property Id="ARPPRODUCTICON" Value="ICON_PBOM" />
 
-        <Feature Id="F_MainFiles" Title="Application" Level="1" InstallDefault="local" Absent="disallow"
-                 Description="The main application files.">
-            <ComponentGroupRef Id="CG_MainFiles" />
-        </Feature>
+        <FeatureRef Id="F_MainFiles" />
+        <FeatureRef Id="F_ProgramMenuShortcut" />
+        <FeatureRef Id="F_DesktopShortcut" />
 
         <UI>
             <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
             <UIRef Id="WixUI_InstallDir" />
-            <UIRef Id="PBOMan_Ui"/>
+            <UIRef Id="PBOMan_Ui" />
         </UI>
 
         <InstallExecuteSequence>
-            <ScheduleReboot After="InstallFinalize"/>
+            <ScheduleReboot After="InstallFinalize" />
         </InstallExecuteSequence>
+
+        <Property Id="PbomInstallPer" Value="user" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ApplicationDataFolder">
+                <Directory Id="INSTALLFOLDER" Name="$(var.AppName)" />
+            </Directory>
+            <Directory Id="ProgramMenuFolder" />
+            <Directory Id="DesktopFolder" />
+        </Directory>
     </Product>
 
     <Fragment>
-        <Property Id="INSTALLFOLDERName" Value="PBO Manager"/>
-        <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="ApplicationDataFolder">
-                <Directory Id="INSTALLFOLDER" Name="[INSTALLFOLDERName]">
-                    <Directory Id="D_ImageFormats" Name="ImageFormats" />
-                    <Directory Id="D_Platforms" Name="Platforms" />
-                    <Directory Id="D_Styles" Name="Styles" />
-                </Directory>
-            </Directory>
-        </Directory>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Directory Id="D_ImageFormats" Name="ImageFormats" />
+            <Directory Id="D_Platforms" Name="Platforms" />
+            <Directory Id="D_Styles" Name="Styles" />
+        </DirectoryRef>
 
         <ComponentGroup Id="CG_MainFiles">
             <ComponentRef Id="C_MainFiles__pboe.dll" />
@@ -55,6 +60,33 @@
             <ComponentRef Id="C_MainFiles__Platforms__qwindows.dll" />
             <ComponentRef Id="C_MainFiles__Styles__qwindowsvistastyle.dll" />
         </ComponentGroup>
+
+        <Feature Id="F_MainFiles" Title="Application" Level="1" InstallDefault="local" Absent="disallow"
+                 Description="The main application files.">
+            <ComponentGroupRef Id="CG_MainFiles" />
+        </Feature>
+
+        <CustomAction Id="PbomSetDefaultMainFilesUserFolder" Property="PbomMainFilesUserFolder"
+                      Value="[LocalAppDataFolder]$(var.AppName)" Execute="immediate" />
+        <CustomAction Id="PbomSetDefaultMainFilesMachineFolder" Property="PbomMainFilesMachineFolder"
+                      Value="[ProgramFiles64Folder]$(var.AppName)" Execute="immediate" />
+        <CustomAction Id="PbomSetMainFilesUserFolder" Property="INSTALLFOLDER" Value="[PbomMainFilesUserFolder]"
+                      Execute="immediate" />
+        <CustomAction Id="PbomSetMainFilesMachineFolder" Property="INSTALLFOLDER" Value="[PbomMainFilesMachineFolder]"
+                      Execute="immediate" />
+
+        <InstallExecuteSequence>
+            <Custom Action="PbomSetDefaultMainFilesUserFolder" Before="CostFinalize" />
+            <Custom Action="PbomSetDefaultMainFilesMachineFolder" After="PbomSetDefaultMainFilesUserFolder" />
+            <Custom Action="PbomSetMainFilesUserFolder" After="PbomSetDefaultMainFilesMachineFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS="" OR (ALLUSERS=2 AND (NOT Privileged)))</Custom>
+            <Custom Action="PbomSetMainFilesMachineFolder" After="PbomSetMainFilesUserFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))</Custom>
+        </InstallExecuteSequence>
+        <InstallUISequence>
+            <Custom Action="PbomSetDefaultMainFilesUserFolder" Before="CostFinalize" />
+            <Custom Action="PbomSetDefaultMainFilesMachineFolder" After="PbomSetDefaultMainFilesUserFolder" />
+            <Custom Action="PbomSetMainFilesUserFolder" After="PbomSetDefaultMainFilesMachineFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS="" OR (ALLUSERS=2 AND (NOT Privileged)))</Custom>
+            <Custom Action="PbomSetMainFilesMachineFolder" After="PbomSetMainFilesUserFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))</Custom>
+        </InstallUISequence>
     </Fragment>
 
     <Fragment>
@@ -67,7 +99,7 @@
                 </Class>
 
                 <RegistryValue Root="HKCR"
-                               Key="$(var.RegProgId)\ShellEx\ContextMenuHandlers\pboman3"
+                               Key="$(var.RegProgId)\ShellEx\ContextMenuHandlers\$(var.RegAppId)"
                                Value="$(var.RegClsId)" Type="string" />
 
                 <RegistryValue Root="HKCR"
@@ -76,7 +108,7 @@
                                Value="[INSTALLFOLDER]pbom.exe" Type="string" />
 
                 <RegistryValue Root="HKCR"
-                               Key="Folder\ShellEx\ContextMenuHandlers\pboman3"
+                               Key="Folder\ShellEx\ContextMenuHandlers\$(var.RegAppId)"
                                Value="$(var.RegClsId)" Type="string" />
             </Component>
 
@@ -134,54 +166,83 @@
     </Fragment>
 
     <Fragment>
-        <Property Id="PbomAppFolder" Value="PbomPerUserFolder"/>
-        <CustomAction Id="PbomSetDefaultPerUserFolder" Property="PbomPerUserFolder" Value="[LocalAppDataFolder][INSTALLFOLDERName]" Execute="immediate" />
-        <CustomAction Id="PbomSetDefaultPerMachineFolder" Property="PbomPerMachineFolder" Value="[ProgramFiles64Folder][INSTALLFOLDERName]" Execute="immediate" />
-        <CustomAction Id="PbomSetPerUserFolder" Property="INSTALLFOLDER" Value="[PbomPerUserFolder]" Execute="immediate" />
-        <CustomAction Id="PbomSetPerMachineFolder" Property="INSTALLFOLDER" Value="[PbomPerMachineFolder]" Execute="immediate" />
-        
-        <InstallExecuteSequence>
-            <Custom Action="PbomSetDefaultPerUserFolder" Before="CostFinalize" />
-            <Custom Action="PbomSetDefaultPerMachineFolder" After="PbomSetDefaultPerUserFolder" />
-            <Custom Action="PbomSetPerUserFolder" After="PbomSetDefaultPerMachineFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS="" OR (ALLUSERS=2 AND (NOT Privileged)))</Custom>
-            <Custom Action="PbomSetPerMachineFolder" After="PbomSetPerUserFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))</Custom>
-        </InstallExecuteSequence>
-        <InstallUISequence>
-            <Custom Action="PbomSetDefaultPerUserFolder" Before="CostFinalize" />
-            <Custom Action="PbomSetDefaultPerMachineFolder" After="PbomSetDefaultPerUserFolder" />
-            <Custom Action="PbomSetPerUserFolder" After="PbomSetDefaultPerMachineFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS="" OR (ALLUSERS=2 AND (NOT Privileged)))</Custom>
-            <Custom Action="PbomSetPerMachineFolder" After="PbomSetPerUserFolder">ACTION="INSTALL" AND INSTALLFOLDER="" AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))</Custom>
-        </InstallUISequence>
+        <Feature Id="F_ProgramMenuShortcut" Title="&quot;Start&quot; menu entry" Level="1" InstallDefault="local"
+                 Description="Application shortcut in the &quot;Start&quot; menu.">
+            <ComponentRef Id="C_ProgramMenuShortcut" />
+        </Feature>
+        <Feature Id="F_DesktopShortcut" Title="Desktop shortcut" Level="1" InstallDefault="local"
+                 Description="Application shortcut on the desktop.">
+            <ComponentRef Id="C_DesktopShortcut" />
+        </Feature>
 
+        <DirectoryRef Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="$(var.AppName)">
+                <Component Id="C_ProgramMenuShortcut" Guid="D7DB1D47-84F0-4208-A747-7F75B08D9D8F">
+                    <Shortcut Id="S_ProgramMenuShortcut" Name="$(var.AppName)"
+                              Description="Utility to open/pack/unpack ArmA PBO files"
+                              Target="[INSTALLFOLDER]pbom.exe"
+                              WorkingDirectory="INSTALLFOLDER" />
+                    <RemoveFolder Id="RF_ProgramMenuShortcut" Directory="ApplicationProgramsFolder"
+                                  On="uninstall" />
+                    <RegistryValue KeyPath="yes" Root="HKCU" Key="Software\$(var.RegAppId)" Name="ProgramMenu"
+                                   Value="1" Type="integer"/>
+                </Component>
+            </Directory>
+        </DirectoryRef>
+
+        <DirectoryRef Id="DesktopFolder">
+            <Component Id="C_DesktopShortcut" Guid="886844F8-FF22-4F40-8332-FEDE21F42928">
+                <Shortcut Id="S_DesktopShortcut" Name="$(var.AppName)"
+                          Description="Utility to open/pack/unpack ArmA PBO files"
+                          Target="[INSTALLFOLDER]pbom.exe"
+                          WorkingDirectory="INSTALLFOLDER" />
+                <RegistryValue KeyPath="yes" Root="HKCU" Key="Software\$(var.RegAppId)" Name="Desktop"
+                               Value="1" Type="integer"/>
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+
+    <Fragment>
         <UI Id="PBOMan_Ui">
             <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="MachineOrUserDlg">LicenseAccepted = "1"</Publish>
             <Publish Dialog="MachineOrUserDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
             <Publish Dialog="MachineOrUserDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">1</Publish>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="{}">PbomAppFolder = "PbomPerUserFolder"</Publish>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="1">PbomAppFolder = "PbomPerUserFolder"</Publish>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="2">PbomAppFolder = "PbomPerMachineFolder"</Publish>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="{}">PbomAppFolder = "PbomPerMachineFolder"</Publish>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomPerUserFolder]">PbomAppFolder = "PbomPerUserFolder"</Publish>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomPerMachineFolder]">PbomAppFolder = "PbomPerMachineFolder"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="{}">PbomInstallPer = "user"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="1">PbomInstallPer = "user"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="2">PbomInstallPer = "machine"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="{}">PbomInstallPer = "machine"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomMainFilesUserFolder]">PbomInstallPer = "user"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomMainFilesMachineFolder]">PbomInstallPer = "machine"</Publish>
             <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="MachineOrUserDlg">1</Publish>
 
-            <Dialog Id="MachineOrUserDlg" Width="370" Height="270" Title="!(loc.InstallScopeDlg_Title)" KeepModeless="yes">
-                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallScopeDlgBannerBitmap)" />
+            <Dialog Id="MachineOrUserDlg" Width="370" Height="270" Title="!(loc.InstallScopeDlg_Title)"
+                    KeepModeless="yes">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no"
+                         Text="!(loc.InstallScopeDlgBannerBitmap)" />
                 <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
-                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallScopeDlgDescription)" />
-                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallScopeDlgTitle)" />
-                <Control Id="BothScopes" Type="RadioButtonGroup" X="20" Y="55" Width="330" Height="120" Property="PbomAppFolder">
-                    <RadioButtonGroup Property="PbomAppFolder">
-                        <RadioButton Value="PbomPerUserFolder" X="0" Y="0" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerUser)" />
-                        <RadioButton Value="PbomPerMachineFolder" X="0" Y="60" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerMachine)" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes"
+                         NoPrefix="yes" Text="!(loc.InstallScopeDlgDescription)" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes"
+                         Text="!(loc.InstallScopeDlgTitle)" />
+                <Control Id="BothScopes" Type="RadioButtonGroup" X="20" Y="55" Width="330" Height="120"
+                         Property="PbomInstallPer">
+                    <RadioButtonGroup Property="PbomInstallPer">
+                        <RadioButton Value="user" X="0" Y="0" Width="295" Height="16"
+                                     Text="!(loc.InstallScopeDlgPerUser)" />
+                        <RadioButton Value="machine" X="0" Y="60" Width="295" Height="16"
+                                     Text="!(loc.InstallScopeDlgPerMachine)" />
                     </RadioButtonGroup>
                 </Control>
-                <Control Id="PerUserDescription" Type="Text" X="33" Y="70" Width="300" Height="36" NoPrefix="yes" Text="!(loc.InstallScopeDlgPerUserDescription)"/>
-                <Control Id="PerMachineDescription" Type="Text" X="33" Y="131" Width="300" Height="36" NoPrefix="yes" Text="!(loc.InstallScopeDlgPerMachineDescription)"/>
+                <Control Id="PerUserDescription" Type="Text" X="33" Y="70" Width="300" Height="36" NoPrefix="yes"
+                         Text="!(loc.InstallScopeDlgPerUserDescription)" />
+                <Control Id="PerMachineDescription" Type="Text" X="33" Y="131" Width="300" Height="36" NoPrefix="yes"
+                         Text="!(loc.InstallScopeDlgPerMachineDescription)" />
                 <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
-                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
-                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes"
+                         Text="!(loc.WixUINext)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes"
+                         Text="!(loc.WixUICancel)">
                     <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
                 </Control>
             </Dialog>

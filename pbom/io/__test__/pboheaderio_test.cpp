@@ -121,7 +121,8 @@ namespace pboman3::test {
         ASSERT_EQ(expected.compare(all), 0);
     }
 
-    TEST(PboHeaderIOTest, WriteHeader_Writes) {
+    TEST(PboHeaderIOTest, WriteHeader_Writes) {		
+		const PboHeader prefix("prefix", t.fileName().remove(".pbo"));
         const PboHeader h1("h1", "v1");
         const PboHeader h2("h2", "v2");
         const PboHeader h3 = PboHeader::makeBoundary();
@@ -131,6 +132,7 @@ namespace pboman3::test {
         PboFile f{t.fileName()};
         f.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&f);
+		io.writeHeader(prefix);
         io.writeHeader(h1);
         io.writeHeader(h2);
         io.writeHeader(h3);
@@ -139,6 +141,8 @@ namespace pboman3::test {
         const QByteArray all = t.readAll();
 
         QByteArray expected;
+		expected.append(prefix.name.toUtf8()).append(1, 0);
+        expected.append(prefix.value.toUtf8()).append(1, 0);
         expected.append(h1.name.toUtf8()).append(1, 0);
         expected.append(h1.value.toUtf8()).append(1, 0);
         expected.append(h2.name.toUtf8()).append(1, 0);

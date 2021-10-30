@@ -31,7 +31,9 @@ list(APPEND PROJECT_SOURCES
     "ui/statusbar.cpp"
     "ui/taskwindow.cpp"
     "ui/taskwindow.ui"
-    "ui/unpackwindow.cpp")
+    "ui/unpackwindow.cpp"
+    "ui/updatesdialog.ui"
+    "ui/updatesdialog.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 

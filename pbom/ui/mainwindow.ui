@@ -121,6 +121,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionHelpAbout"/>
+    <addaction name="actionCheckUpdates"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -314,6 +315,11 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionCheckUpdates">
+   <property name="text">
+    <string>Check for updates</string>
    </property>
   </action>
  </widget>

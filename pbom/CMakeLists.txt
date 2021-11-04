@@ -51,6 +51,10 @@ install(FILES
 install(FILES 
     ${QT_BINARIES_DIR}/plugins/styles/qwindowsvistastyle${QT_BINARIES_SUFFIX}.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR}/styles)
+install(FILES 
+    ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libssl-1_1-x64.dll
+    ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libcrypto-1_1-x64.dll
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)

@@ -31,12 +31,15 @@ list(APPEND PROJECT_SOURCES
     "ui/statusbar.cpp"
     "ui/taskwindow.cpp"
     "ui/taskwindow.ui"
-    "ui/unpackwindow.cpp")
+    "ui/unpackwindow.cpp"
+    "ui/updatesdialog.ui"
+    "ui/updatesdialog.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
 list(APPEND TEST_SOURCES
     "ui/__test__/fscollector__test.cpp"
+    "ui/__test__/updatesdialog__test.cpp"
     "ui/treewidget/__test__/treewidgetbase__test.cpp")
 
 set(TEST_SOURCES ${TEST_SOURCES} PARENT_SCOPE)

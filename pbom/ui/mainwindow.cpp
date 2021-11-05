@@ -5,12 +5,12 @@
 #include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
-
 #include "aboutdialog.h"
 #include "closedialog.h"
 #include "errordialog.h"
 #include "headersdialog.h"
 #include "signaturedialog.h"
+#include "updatesdialog.h"
 #include "ui_mainwindow.h"
 #include "model/diskaccessexception.h"
 #include "model/pbofileformatexception.h"
@@ -108,6 +108,7 @@ namespace pboman3 {
         connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
 
         connect(ui_->actionHelpAbout, &QAction::triggered, [this]() { AboutDialog(this).exec(); });
+        connect(ui_->actionCheckUpdates, &QAction::triggered, [this]() { UpdatesDialog(this).exec(); });
 
         connect(model_, &PboModel::modelChanged, this, [this]() { setHasChanges(true); });
         connect(model_, &PboModel::loadedPathChanged, this, &MainWindow::updateWindowTitle);

@@ -69,6 +69,9 @@
             <ComponentRef Id="C_MainFiles__Qt6Core.dll" />
             <ComponentRef Id="C_MainFiles__Qt6Gui.dll" />
             <ComponentRef Id="C_MainFiles__Qt6Widgets.dll" />
+            <ComponentRef Id="C_MainFiles__Qt6Network.dll" />
+            <ComponentRef Id="C_MainFiles__LibCrypto.dll" />
+            <ComponentRef Id="C_MainFiles__LibSsl.dll" />
             <ComponentRef Id="C_MainFiles__ImageFormats__qico.dll" />
             <ComponentRef Id="C_MainFiles__Platforms__qwindows.dll" />
             <ComponentRef Id="C_MainFiles__Styles__qwindowsvistastyle.dll" />
@@ -151,6 +154,21 @@
             <Component Id="C_MainFiles__Qt6Widgets.dll" Guid="AC56AA6E-8B4B-4DD9-90E6-392F36296D37" Win64="yes">
                 <File Id="F_MainFiles__Qt6Widgets.dll" KeyPath="yes" Vital="yes"
                       Source="$(var.ArtifactsFolder)Qt6Widgets.dll" />
+            </Component>
+
+            <Component Id="C_MainFiles__Qt6Network.dll" Guid="789B6BB3-0304-4CEE-A675-D250A610F1BE" Win64="yes">
+                <File Id="F_MainFiles__Qt6Network.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Qt6Network.dll" />
+            </Component>
+
+            <Component Id="C_MainFiles__LibCrypto.dll" Guid="D20CBC68-368C-4B9C-A86B-0DC53656BAD4" Win64="yes">
+                <File Id="F_MainFiles__LibCrypto.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)libcrypto-1_1-x64.dll" />
+            </Component>
+
+            <Component Id="C_MainFiles__LibSsl.dll" Guid="3F707811-31E4-4EAE-BB35-2F7013107C7C" Win64="yes">
+                <File Id="F_MainFiles__LibSsl.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)libssl-1_1-x64.dll" />
             </Component>
         </DirectoryRef>
 

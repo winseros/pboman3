@@ -37,11 +37,32 @@ A tool to open, pack and unpack ArmA PBO files.
 
 ## Building from source
 
-```
-# powershell
-git clone --recurse-submodules git@github.com:winseros/pboman3.git
-cmake -S <path_to_source_code> -B <path_to_build_files>
-cmake --build <path_to_build_files>
-```
+1. Set the env variables:
+
+   | Variable | Description                                                       | Example                         |
+   |----------|-------------------------------------------------------------------|---------------------------------|
+   | QT_DIR   | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.1.1\msvc2019_64         |
+
+
+2. Run the script:
+   
+   ```
+   # powershell
+   git clone --recurse-submodules git@github.com:winseros/pboman3.git
+   cmake -S <path_to_source_code> -B <path_to_build_files>
+   cmake --build <path_to_build_files>
+   ```
 
 Also, see [how CI builds](.github/workflows/artifcats.yaml).
+
+## Open in IDE
+
+1. Set the env variabls:
+
+   | Variable | Description                                                       | Example                         |
+   |----------|-------------------------------------------------------------------|---------------------------------|
+   | QT_DIR   | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.1.1\msvc2019_64         |
+   | PATH     | Where QT binaries are located. Needed for the IDE to run/debug.   | G:\Qt\6.1.1\msvc2019_64\bin     |
+   | PATH     | Where OpenSSL binaries are located. Needed for IDE to run/debug.  | G:\Qt\Tools\OpenSSL\Win_x64\bin |
+
+2. Open the the root folder in IDE

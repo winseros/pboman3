@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QNetworkReply>
 #include <QNetworkAccessManager>
 
 namespace Ui {
@@ -56,7 +57,7 @@ namespace pboman3 {
     public:
         UpdatesDialog(QWidget* parent);
 
-        ~UpdatesDialog();
+        ~UpdatesDialog() override;
 
     protected:
         void closeEvent(QCloseEvent*) override;

@@ -1,7 +1,6 @@
 list(APPEND PROJECT_SOURCES
     "domain/binarysource.cpp"
     "domain/pbonode.cpp"
-    "domain/pbonodeevents.cpp"
     "domain/pbopath.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)

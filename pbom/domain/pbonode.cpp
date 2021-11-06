@@ -1,6 +1,5 @@
 #include "pbonode.h"
 #include <QRegularExpression>
-#include "pbonodeevents.h"
 #include "util/exception.h"
 
 namespace pboman3 {

@@ -39,6 +39,7 @@ list(APPEND TEST_SOURCES
     "io/lzh/__test__/lzh_test.cpp"
     "io/__test__/pboentry_test.cpp"
     "io/__test__/pbofile_test.cpp"
+    "io/__test__/pboheader_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
     "io/__test__/pboheaderreader_test.cpp"
     "io/__test__/pbowriter_test.cpp")

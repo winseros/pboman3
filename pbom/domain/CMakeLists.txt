@@ -6,7 +6,6 @@ list(APPEND PROJECT_SOURCES
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
 list(APPEND TEST_SOURCES
-    "domain/__test__/pboheader_test.cpp"
     "domain/__test__/pbonode_test.cpp"
     "domain/__test__/pbopath_test.cpp")
 

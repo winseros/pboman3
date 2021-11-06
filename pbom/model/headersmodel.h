@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QSharedPointer>
-#include "pboheader.h"
+#include "io/pboheader.h"
 #include "util/qpointerlistiterator.h"
 
 namespace pboman3 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTreeWidgetItem>
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 #include "ui/iconmgr.h"
 
 namespace pboman3 {

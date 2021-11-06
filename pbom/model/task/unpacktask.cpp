@@ -5,7 +5,8 @@
 #include "io/pboioexception.h"
 #include "io/bb/unpacktaskbackend.h"
 #include "io/bs/pbobinarysource.h"
-#include "model/pboentry.h"
+#include "io/pboentry.h"
+#include "domain/pbonode.h"
 #include "model/rootreader.h"
 #include "util/log.h"
 

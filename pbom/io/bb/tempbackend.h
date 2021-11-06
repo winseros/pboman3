@@ -1,7 +1,7 @@
 #pragma once
 
 #include "nodefilesystem.h"
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 #include "util/util.h"
 
 namespace pboman3 {

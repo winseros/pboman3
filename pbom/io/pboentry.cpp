@@ -1,4 +1,5 @@
 #include "pboentry.h"
+#include <QDebug>
 
 namespace pboman3 {
     PboEntry PboEntry::makeSignature() {

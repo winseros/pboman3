@@ -4,7 +4,7 @@
 #include "pbonodetype.h"
 #include "pbopath.h"
 #include "conflictresolution.h"
-#include "io/bs/binarysource.h"
+#include "binarysource.h"
 #include "util/qpointerlistiterator.h"
 
 namespace pboman3 {

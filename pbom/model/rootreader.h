@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pbonode.h"
+#include "domain/pbonode.h"
 #include "io/pboheaderreader.h"
 
 namespace pboman3 {

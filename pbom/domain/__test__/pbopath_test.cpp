@@ -1,4 +1,4 @@
-#include "model/pbopath.h"
+#include "domain/pbopath.h"
 #include <gtest/gtest.h>
 
 namespace pboman3::test {

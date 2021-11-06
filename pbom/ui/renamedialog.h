@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 #include "ui_renamedialog.h"
 
 namespace pboman3 {

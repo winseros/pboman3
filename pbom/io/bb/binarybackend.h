@@ -2,7 +2,7 @@
 
 #include "execbackend.h"
 #include "tempbackend.h"
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 
 namespace pboman3 {
     class BinaryBackend {

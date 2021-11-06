@@ -1,8 +1,8 @@
 #pragma once
 
-#include "pbonode.h"
-#include "pbopath.h"
-#include "io/bs/binarysource.h"
+#include "domain/pbonode.h"
+#include "domain/pbopath.h"
+#include "domain/binarysource.h"
 #include "io/bs/fslzhbinarysource.h"
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"

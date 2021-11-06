@@ -1,4 +1,4 @@
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 #include <QPointer>
 #include <QTemporaryFile>
 #include <gtest/gtest.h>

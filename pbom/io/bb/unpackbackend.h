@@ -1,7 +1,7 @@
 #pragma once
 
 #include "nodefilesystem.h"
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 
 namespace pboman3 {
     class UnpackBackend {

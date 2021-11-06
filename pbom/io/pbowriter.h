@@ -4,8 +4,8 @@
 #include "pbofile.h"
 #include "bs/pbobinarysource.h"
 #include "model/headersmodel.h"
-#include "model/pboentry.h"
-#include "model/pbonode.h"
+#include "io/pboentry.h"
+#include "domain/pbonode.h"
 
 namespace pboman3 {
     class PboWriter : public QObject {

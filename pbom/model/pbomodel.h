@@ -5,7 +5,7 @@
 #include "conflictsparcel.h"
 #include "headersmodel.h"
 #include "interactionparcel.h"
-#include "pbonode.h"
+#include "domain/pbonode.h"
 #include "signaturemodel.h"
 #include "io/bb/binarybackend.h"
 

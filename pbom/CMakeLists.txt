@@ -14,6 +14,7 @@ set(CMAKE_FIND_DEBUG_MODE FALSE)
 find_package(QT NAMES Qt6 COMPONENTS Widgets Network Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network Test REQUIRED)
 
+add_subdirectory(domain)
 add_subdirectory(io)
 add_subdirectory(model)
 add_subdirectory(ui)

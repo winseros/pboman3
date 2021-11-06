@@ -1,7 +1,6 @@
 #pragma once
 
-#include "pbopath.h"
-#include "io/bs/binarysource.h"
+#include "domain/pbopath.h"
 
 namespace pboman3 {
     using namespace std;

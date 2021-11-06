@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "util/qpointerlistiterator.h"
-#include "model/pboheader.h"
+#include "io/pboheader.h"
 
 namespace pboman3::test {
     TEST(QPointerListIteratorTest, Ietrator_Works) {

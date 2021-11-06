@@ -1,6 +1,6 @@
 #pragma once
 
-#include "binarysource.h"
+#include "domain/binarysource.h"
 
 namespace pboman3 {
     struct PboDataInfo {

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "model/pboentry.h"
+#include "io/pboentry.h"
 
 namespace pboman3::test {
     TEST(PboEntryTest, Ctor_Functional) {

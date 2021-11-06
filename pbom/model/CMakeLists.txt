@@ -9,13 +9,8 @@ list(APPEND PROJECT_SOURCES
     "model/diskaccessexception.cpp"
     "model/headersmodel.cpp"
     "model/interactionparcel.cpp"
-    "model/pboentry.cpp"
     "model/pbofileformatexception.cpp"
-    "model/pboheader.cpp"
     "model/pbomodel.cpp"
-    "model/pbonode.cpp"
-    "model/pbonodeevents.cpp"
-    "model/pbopath.cpp"
     "model/rootreader.cpp"
     "model/signaturemodel.cpp")
 
@@ -25,10 +20,6 @@ list(APPEND TEST_SOURCES
     "model/__test__/conflictsparcel_test.cpp"
     "model/__test__/headersmodel_test.cpp"
     "model/__test__/interactionparcel_test.cpp"
-    "model/__test__/pboentry_test.cpp"
-    "model/__test__/pboheader_test.cpp"
-    "model/__test__/pbonode_test.cpp"
-    "model/__test__/pbopath_test.cpp"
     "model/__test__/rootreader_test.cpp"
     "model/__test__/signaturemodel_test.cpp")
 

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "pbofile.h"
-#include "model/pboentry.h"
-#include "model/pboheader.h"
+#include "io/pboentry.h"
+#include "io/pboheader.h"
+#include <QDebug>
 
 namespace pboman3 {
     struct PboFileHeader {

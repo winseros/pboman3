@@ -2,7 +2,7 @@
 
 #include <QTreeWidget>
 #include "treewidgetitem.h"
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 
 namespace pboman3 {
     class TreeWidgetBase : public QTreeWidget {

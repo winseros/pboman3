@@ -1,6 +1,7 @@
 #pragma once
 
-#include "conflictresolution.h"
+#include "domain/conflictresolution.h"
+#include "domain/pbopath.h"
 #include "interactionparcel.h"
 #include <QHash>
 

@@ -5,12 +5,12 @@
 #include "pbopath.h"
 #include "conflictresolution.h"
 #include "binarysource.h"
-#include "util/qpointerlistiterator.h"
+#include "abstractnode.h"
 
 namespace pboman3 {
     typedef QString TitleError;
 
-    class PboNode final : public QObject {
+    class PboNode final : public AbstractNode<PboNode> {
     Q_OBJECT
 
     public:
@@ -34,25 +34,9 @@ namespace pboman3 {
 
         PboNodeType nodeType() const;
 
-        PboNode* parentNode() const;
-
         PboNode* get(const PboPath& path);
 
-        PboNode* at(qsizetype index) const;
-
-        int depth() const;
-
-        int count() const;
-
         PboPath makePath() const;
-
-        QPointerListIterator<PboNode> begin();
-
-        QPointerListIterator<PboNode> end();
-
-        QPointerListConstIterator<PboNode> begin() const;
-
-        QPointerListConstIterator<PboNode> end() const;
 
         bool operator <(const PboNode& node) const;
 
@@ -72,8 +56,6 @@ namespace pboman3 {
     private:
         PboNodeType nodeType_;
         QString title_;
-        PboNode* parentNode_;
-        QList<QSharedPointer<PboNode>> children_;
 
         PboNode* createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict, bool emitEvents);
 

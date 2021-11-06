@@ -5,10 +5,9 @@
 
 namespace pboman3 {
     PboNode::PboNode(QString title, PboNodeType nodeType, PboNode* parentNode)
-        : QObject(),
+        : AbstractNode(parentNode),
           nodeType_(nodeType),
-          title_(std::move(title)),
-          parentNode_(parentNode) {
+          title_(std::move(title)) {
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath) {
@@ -95,10 +94,6 @@ namespace pboman3 {
         return nodeType_;
     }
 
-    PboNode* PboNode::parentNode() const {
-        return parentNode_;
-    }
-
     PboNode* PboNode::get(const PboPath& path) {
         PboNode* result = this;
         auto it = path.begin();
@@ -111,24 +106,6 @@ namespace pboman3 {
         return result;
     }
 
-    PboNode* PboNode::at(qsizetype index) const {
-        return children_.at(index).get();
-    }
-
-    int PboNode::depth() const {
-        int result = 0;
-        PboNode* parentNode = parentNode_;
-        while (parentNode) {
-            result++;
-            parentNode = parentNode->parentNode_;
-        }
-        return result;
-    }
-
-    int PboNode::count() const {
-        return static_cast<int>(children_.count());
-    }
-
     PboPath PboNode::makePath() const {
         PboPath path;
         path.reserve(depth());
@@ -139,22 +116,6 @@ namespace pboman3 {
             p = p->parentNode_;
         }
         return path;
-    }
-
-    QPointerListIterator<PboNode> PboNode::begin() {
-        return QPointerListIterator(children_.data());
-    }
-
-    QPointerListIterator<PboNode> PboNode::end() {
-        return QPointerListIterator(children_.data() + children_.count());
-    }
-
-    QPointerListConstIterator<PboNode> PboNode::begin() const {
-        return QPointerListConstIterator(children_.data());
-    }
-
-    QPointerListConstIterator<PboNode> PboNode::end() const {
-        return QPointerListConstIterator(children_.data() + count());
     }
 
     bool PboNode::operator<(const PboNode& node) const {

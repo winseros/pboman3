@@ -1,7 +1,12 @@
 list(APPEND PROJECT_SOURCES
     "domain/binarysource.cpp"
+    "domain/documentheader.cpp"
+    "domain/documentheaders.cpp"
+    "domain/documentnode.cpp"
+    "domain/pbodocument.cpp"
     "domain/pbonode.cpp"
-    "domain/pbopath.cpp")
+    "domain/pbopath.cpp"
+    "domain/validationexception.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 

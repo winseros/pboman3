@@ -7,7 +7,7 @@
 #include <QUuid>
 #include "io/bs/fsrawbinarysource.h"
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(TempBackendTest, HddSync_Creates_Files_On_Disk) {
         //dummy files
         QTemporaryFile f1;

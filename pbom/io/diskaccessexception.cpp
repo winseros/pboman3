@@ -1,15 +1,10 @@
 #include "diskaccessexception.h"
 #include <QDebug>
 
-namespace pboman3 {
+namespace pboman3::io {
     DiskAccessException::DiskAccessException(QString message, QString file)
         : AppException(std::move(message)),
           file_(std::move(file)) {
-    }
-
-    DiskAccessException::DiskAccessException(const PboIoException& ex):
-        AppException(ex.message()),
-        file_(ex.file()) {
     }
 
     void DiskAccessException::raise() const {

@@ -5,7 +5,7 @@
 #include "io/pboheader.h"
 #include <QDebug>
 
-namespace pboman3 {
+namespace pboman3::io {
     struct PboFileHeader {
         QList<QSharedPointer<PboHeader>> headers;
         QList<QSharedPointer<PboEntry>> entries;

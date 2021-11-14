@@ -11,11 +11,13 @@ namespace Ui {
 }
 
 namespace pboman3 {
+    using namespace model;
+
     class MainWindow : public QMainWindow {
     Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget* parent, PboModel* model);
+        explicit MainWindow(QWidget* parent, model::PboModel* model);
 
         ~MainWindow() override;
 

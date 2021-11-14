@@ -1,7 +1,7 @@
 #pragma once
 
 #include "documentheaders.h"
-#include "documentnode.h"
+#include "pbonode.h"
 
 namespace pboman3::domain {
     class PboDocument : public QObject {
@@ -10,17 +10,26 @@ namespace pboman3::domain {
     public:
         PboDocument(QString pboName);
 
+        PboDocument(QString pboName, QList<QSharedPointer<DocumentHeader>> headers, QByteArray signature);//Repository Ctor
+
         DocumentHeaders* headers() const;
 
-        DocumentNode* root() const;
+        PboNode* root() const;
 
         const QByteArray& signature() const;
 
         void setSignature(QByteArray signature);
 
+    signals:
+        void changed();
+
+        void titleChanged(const QString& title);
+
     private:
         QSharedPointer<DocumentHeaders> headers_;
-        QSharedPointer<DocumentNode> root_;
+        QSharedPointer<PboNode> root_;
         QByteArray signature_;
+
+        void setupConnections();
     };
 }

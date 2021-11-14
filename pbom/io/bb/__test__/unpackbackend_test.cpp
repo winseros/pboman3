@@ -7,7 +7,7 @@
 #include "io/bs/pbobinarysource.h"
 #include "util/exception.h"
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(UnpackBackendTest, UnpackSync_Extracts_Nodes_To_File_System) {
         const QTemporaryDir dir;
 

@@ -4,7 +4,9 @@
 #include "tempbackend.h"
 #include "domain/pbonode.h"
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
+
     class BinaryBackend {
     public:
         BinaryBackend(const QString& name);

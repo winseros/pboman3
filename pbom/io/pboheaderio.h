@@ -5,7 +5,7 @@
 #include "io/pboheader.h"
 #include <QSharedPointer>
 
-namespace pboman3 {
+namespace pboman3::io {
     using namespace std;
 
     class PboHeaderIO {

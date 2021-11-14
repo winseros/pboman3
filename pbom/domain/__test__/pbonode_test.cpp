@@ -2,10 +2,12 @@
 #include <QPointer>
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
+
+#include "domain/pbonodetransaction.h"
 #include "gmock/gmock.h"
 #include "util/exception.h"
 
-namespace pboman3::test {
+namespace pboman3::domain::test {
     TEST(PboNodeTest, Ctor_Initializes_Node) {
         PboNode nodeA("a-node", PboNodeType::Folder, nullptr);
         ASSERT_EQ(nodeA.nodeType(), PboNodeType::Folder);
@@ -202,67 +204,6 @@ namespace pboman3::test {
         ASSERT_EQ(node, &root);
     }
 
-    TEST(PboNodeTest, SetTitle_Throws_If_Can_Not_Set_Title) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1"));
-        root.createHierarchy(PboPath("e2"));
-
-        ASSERT_THROW(e1->setTitle("e2"), InvalidOperationException);
-    }
-
-    TEST(PboNodeTest, SetTitle_Emits_If_Set_Title) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1"));
-
-        //callback variables
-        int count = 0;
-
-        //connect and wait for the callback
-        QObject::connect(e1, &PboNode::titleChanged, [&count](const QString& title) {
-            ASSERT_EQ(title, "e2");
-            count++;
-        });
-
-        e1->setTitle("e2");
-        ASSERT_EQ(count, 1);
-    }
-
-    TEST(PboNodeTest, SetTitle_Does_Not_Emit_If_Did_Not_Set_Title) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1"));
-
-        //callback variables
-        int callbackCount = 0;
-
-        //connect and wait for the callback
-        QObject::connect(e1, &PboNode::titleChanged, [&callbackCount]() {
-            callbackCount++;
-        });
-
-        e1->setTitle("e1"); //the same name - not changing
-
-        ASSERT_EQ(callbackCount, 0);
-    }
-
-    TEST(PboNodeTest, SetTitle_Emits_HierarchyChanged_On_Root) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        PboNode* e2 = root.createHierarchy(PboPath("f1/e2"));
-
-        int count = 0;
-        auto hierarchyChanged1 = []() { FAIL() << "Should not have been called"; };
-        auto hierarchyChanged2 = [&count]() {count++; };
-
-        QObject::connect(root.at(0), &PboNode::hierarchyChanged, hierarchyChanged1);
-        QObject::connect(&root, &PboNode::hierarchyChanged, hierarchyChanged2);
-
-        //only the root fires the callback
-        e2->setTitle("e1");
-        ASSERT_EQ(count, 1);
-
-        e2->setTitle("e1");//does not emit if no actual change
-        ASSERT_EQ(count, 1);
-    }
-
     struct VerifyTitleTestParam {
         QString input;
         QString expectedOutput;
@@ -270,20 +211,6 @@ namespace pboman3::test {
 
     class VerifyTitleTest : public testing::TestWithParam<VerifyTitleTestParam> {
     };
-
-    TEST_P(VerifyTitleTest, VerifyTitle_Is_Functional) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        root.createHierarchy(PboPath("e1"));
-        const PboNode* e2 = root.createHierarchy(PboPath("e2"));
-
-        ASSERT_EQ(e2->verifyTitle(GetParam().input), GetParam().expectedOutput);
-    }
-
-    INSTANTIATE_TEST_SUITE_P(PboNodeTest, VerifyTitleTest, testing::Values(
-                                 VerifyTitleTestParam {nullptr, "The value can not be empty"},
-                                 VerifyTitleTestParam {"", "The value can not be empty"},
-                                 VerifyTitleTestParam {"e1", "The item with this name already exists"},
-                                 VerifyTitleTestParam {"e2", ""}));
 
     TEST(PboNodeTest, RemoveFromHierarchy_Removes) {
         PboNode root("file-name", PboNodeType::Container, nullptr);
@@ -388,5 +315,73 @@ namespace pboman3::test {
         ASSERT_FALSE(root.isPathConflict(PboPath("e2.txt")));
         ASSERT_FALSE(root.isPathConflict(PboPath("f2/e3.txt")));
         ASSERT_FALSE(root.isPathConflict(PboPath("f3/e4.txt")));
+    }
+
+    TEST(PboNodeTest, SetTitle_Wont_Emit_If_Title_Not_Changed) {
+        PboNode root("file-name", PboNodeType::Container, nullptr);
+
+        int count = 0;
+        auto changed = [&count]() {count++; };
+        QObject::connect(&root, &PboNode::titleChanged, changed);
+        QObject::connect(&root, &PboNode::hierarchyChanged, changed);
+
+        QSharedPointer<PboNodeTransaction> tran = root.beginTransaction();
+        tran->commit();
+        tran.clear();
+
+        ASSERT_EQ(count, 0);
+    }
+
+    TEST(PboNodeTest, SetTitle_Emits_If_Title_Changed) {
+        PboNode root("file-name", PboNodeType::Container, nullptr);
+
+        int count = 0;
+        QObject::connect(&root, &PboNode::titleChanged, [&count](const QString& title) {
+            count++;
+            ASSERT_EQ(title, "new-title");
+        });
+        QObject::connect(&root, &PboNode::hierarchyChanged, [&count]() {count++; });
+
+        QSharedPointer<PboNodeTransaction> tran = root.beginTransaction();
+        tran->setTitle("new-title");
+        tran->commit();
+        tran.clear();
+
+        ASSERT_EQ(count, 2);
+    }
+
+    TEST(PboNodeTest, SetTitle_Emits_ChildMoved) {
+        PboNode root("node.pbo", PboNodeType::Container, nullptr);
+        root.createHierarchy(PboPath("f1.txt"));
+        PboNode* f2 = root.createHierarchy(PboPath("f2.txt"));
+
+        int count = 0;
+        QObject::connect(&root, &PboNode::childMoved, [&count](qsizetype prevIndex, qsizetype newIndex) {
+            count++;
+            ASSERT_EQ(prevIndex, 1);
+            ASSERT_EQ(newIndex, 0);
+        });
+
+        QSharedPointer<PboNodeTransaction> tran = f2->beginTransaction();
+        tran->setTitle("f0.txt");
+        tran->commit();
+        tran.clear();
+
+        ASSERT_EQ(count, 1);
+    }
+
+    TEST(PboNodeTest, SetTitle_Emits_Changed_On_Root) {
+        PboNode root("node.pbo", PboNodeType::Container, nullptr);
+        PboNode* f1 = root.createHierarchy(PboPath("f1.txt"));
+
+        int count = 0;
+        QObject::connect(&root, &PboNode::hierarchyChanged, [&count]() {count++; });
+
+        QSharedPointer<PboNodeTransaction> tran = f1->beginTransaction();
+        tran->setTitle("f0.txt");
+        tran->commit();
+        tran.clear();
+
+        ASSERT_EQ(count, 1);
     }
 }

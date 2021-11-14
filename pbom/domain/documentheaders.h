@@ -4,21 +4,19 @@
 #include "util/qpointerlistiterator.h"
 
 namespace pboman3::domain {
+    class DocumentHeadersTransaction;
+
     class DocumentHeaders : public QObject {
         Q_OBJECT
 
     public:
+        DocumentHeaders();
+
+        explicit DocumentHeaders(QList<QSharedPointer<DocumentHeader>> headers);//Repository Ctor
+
         qsizetype count() const;
 
         const DocumentHeader* at(qsizetype index) const;
-
-        void add(const QString& name, const QString& value);
-
-        void remove(const DocumentHeader* header);
-
-        void moveUp(const DocumentHeader* header);
-
-        void moveDown(const DocumentHeader* header);
 
         QPointerListIterator<DocumentHeader> begin();
 
@@ -28,16 +26,18 @@ namespace pboman3::domain {
 
         QPointerListConstIterator<DocumentHeader> end() const;
 
+        QSharedPointer<DocumentHeadersTransaction> beginTransaction();
+
+        friend DocumentHeadersTransaction;
+
     signals:
-        void headerAdded(const DocumentHeader* header, qsizetype index);
-
-        void headerRemoved(const DocumentHeader* header, qsizetype index);
-
-        void headerMoved(const DocumentHeader* header, qsizetype prevIndex, qsizetype newIndex);
+        void headersChanged();
 
     private:
         QList<QSharedPointer<DocumentHeader>> headers_;
 
-        qsizetype getIndex(const DocumentHeader* header) const;
+        void setHeaders(QList<QSharedPointer<DocumentHeader>> headers);
+
+        static bool areDifferent(const QList<QSharedPointer<DocumentHeader>>& list1, const QList<QSharedPointer<DocumentHeader>>& list2);
     };
 }

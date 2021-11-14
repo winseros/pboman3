@@ -1,10 +1,10 @@
 #include "unpacktaskbackend.h"
-#include "io/pboioexception.h"
+#include "io/diskaccessexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("io/bb/UnpackTaskBackend", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::io {
     UnpackTaskBackend::UnpackTaskBackend(const QDir& folder)
         : UnpackBackend(folder),
           onError_(nullptr),
@@ -26,7 +26,7 @@ namespace pboman3 {
         QString filePath;
         try {
             filePath = nodeFileSystem_->allocatePath(rootNode, childNode);
-        } catch (const PboIoException& ex) {
+        } catch (const DiskAccessException& ex) {
             LOG(warning, ex)
             //remove the "." symbol from the end
             error(ex.message().left(ex.message().length() - 1) + " | " + ex.file());

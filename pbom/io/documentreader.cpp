@@ -1,5 +1,6 @@
 #include "documentreader.h"
 #include <QFileInfo>
+#include "diskaccessexception.h"
 #include "pboheaderreader.h"
 #include "bs/pbobinarysource.h"
 
@@ -10,20 +11,22 @@ namespace pboman3::io {
 
     QSharedPointer<PboDocument> DocumentReader::read() const {
         PboFile pbo(path_);
-        pbo.open(QIODeviceBase::ReadOnly);
+        if (!pbo.open(QIODeviceBase::ReadOnly)) {
+            throw DiskAccessException("Can not access the file. Check if it is used by other processes.", path_);
+        }
         PboFileHeader header = PboHeaderReader::readFileHeader(&pbo);
 
+        QList<QSharedPointer<DocumentHeader>> headers;
+        headers.reserve(header.headers.count());
+        for (const QSharedPointer<PboHeader>& h : header.headers)
+            headers.append(QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeader::InternalData{ h->name, h->value })));
+
         const QFileInfo fi(path_);
-
-        QSharedPointer<PboDocument> document(new PboDocument(fi.fileName()));
-
-        for (const QSharedPointer<PboHeader>& h : header.headers) {
-            document->headers()->add(h->name, h->value);
-        }
+        QSharedPointer<PboDocument> document(new PboDocument(fi.fileName(), std::move(headers), std::move(header.signature)));
 
         qsizetype entryDataOffset = header.dataBlockStart;
         for (const QSharedPointer<PboEntry>& e : header.entries) {
-            DocumentNode* node = document->root()->createHierarchy(e->makePath());
+            PboNode* node = document->root()->createHierarchy(e->makePath());
             PboDataInfo dataInfo{0, 0, 0, 0, 0};
             dataInfo.originalSize = e->originalSize();
             dataInfo.dataSize = e->dataSize();
@@ -35,8 +38,6 @@ namespace pboman3::io {
                 new PboBinarySource(path_, dataInfo));
             node->binarySource->open();
         }
-
-        document->setSignature(std::move(header.signature));
 
         return document;
     }

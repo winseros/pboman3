@@ -6,6 +6,8 @@
 #include <QFutureWatcher>
 
 namespace pboman3 {
+    using namespace model;
+
     class TreeWidget : public TreeWidgetBase {
     Q_OBJECT
     public:

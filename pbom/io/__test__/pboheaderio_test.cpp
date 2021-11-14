@@ -4,7 +4,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     // ReSharper disable once CppInconsistentNaming
     class PboHeaderIOTest_ReadNextEntry : public testing::TestWithParam<int> {
     };

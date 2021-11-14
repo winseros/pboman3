@@ -1,11 +1,11 @@
 #include "pbobinarysource.h"
-#include "io/pboioexception.h"
+#include "io/diskaccessexception.h"
 #include "io/lzh/lzh.h"
 #include "io/lzh/lzhdecompressionexception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     PboBinarySource::PboBinarySource(const QString& path, const PboDataInfo& dataInfo, qsizetype bufferSize)
-        : BinarySource(path),
+        : BinarySourceBase(path),
           dataInfo_(dataInfo),
           bufferSize_(bufferSize) {
     }
@@ -36,7 +36,7 @@ namespace pboman3 {
             const qsizetype willRead = remaining > buf.size() ? buf.size() : remaining;
             const qint64 hasRead = file_->read(buf.data(), willRead);
             if (hasRead <= 0)
-                throw PboIoException("For some reason could not read from the file.", file_->fileName());
+                throw DiskAccessException("For some reason could not read from the file.", file_->fileName());
             targetFile->write(buf.data(), hasRead);
             remaining -= hasRead;
         }

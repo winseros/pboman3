@@ -4,7 +4,9 @@
 #include "domain/pbonode.h"
 #include "util/util.h"
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
+
     class TempBackend {
     public:
         TempBackend(const QDir& folder);

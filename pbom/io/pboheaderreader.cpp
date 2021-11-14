@@ -1,9 +1,9 @@
 #include "pboheaderreader.h"
 #include <QFileInfo>
+#include "pbofileformatexception.h"
 #include "pboheaderio.h"
-#include "pboioexception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     PboFileHeader PboHeaderReader::readFileHeader(PboFile* file) {
         QList<QSharedPointer<PboHeader>> headers;
         QList<QSharedPointer<PboEntry>> entries;
@@ -12,7 +12,7 @@ namespace pboman3 {
         QSharedPointer<PboEntry> entry = reader.readNextEntry();
 
         if (!entry) {
-            throw PboIoException("The file is not a valid PBO.", file->fileName());
+            throw PboFileFormatException("The file is not a valid PBO.");
         }
 
         qsizetype dataBlockEnd = 0;
@@ -23,13 +23,13 @@ namespace pboman3 {
                 header = reader.readNextHeader();
             }
             if (!header) {
-                throw PboIoException("The file headers are corrupted.", file->fileName());
+                throw PboFileFormatException("The file headers are corrupted.");
             }
         } else if (entry->isContent()) {
             entries.append(entry);
             dataBlockEnd += entry->dataSize();
         } else {
-            throw PboIoException("The file first entry is corrupted.", file->fileName());
+            throw PboFileFormatException("The file first entry is corrupted.");
         }
 
         entry = reader.readNextEntry();
@@ -39,9 +39,8 @@ namespace pboman3 {
             entry = reader.readNextEntry();
         }
         if (!entry || !entry->isBoundary()) {
-            throw PboIoException("The file entries list is corrupted.", file->fileName());
+            throw PboFileFormatException("The file entries list is corrupted.");
         }
-
 
         const qsizetype dataBlockStart = file->pos();
         dataBlockEnd += dataBlockStart;

@@ -1,14 +1,17 @@
 #pragma once
 
-#include "domain/pbonode.h"
 #include "domain/pbopath.h"
 #include "domain/binarysource.h"
 #include "io/bs/fslzhbinarysource.h"
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
 #include <QDebug>
+#include "domain/pbonode.h"
 
-namespace pboman3 {
+namespace pboman3::model {
+    using namespace domain;
+    using namespace io;
+
     enum class BinarySourceType {
         Pbo = 0,
         FsLzh = 1,
@@ -46,7 +49,7 @@ namespace pboman3 {
 
         static NodeDescriptors deserialize(const QByteArray& data);
 
-        static NodeDescriptors packNodes(const QList<PboNode*>& nodes);
+        static NodeDescriptors packNodes(const QList<domain::PboNode*>& nodes);
 
     private:
         static void writeNodeInfo(QDataStream& stream, const NodeDescriptor& nodeInfo);

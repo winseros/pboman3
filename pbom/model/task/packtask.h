@@ -5,6 +5,8 @@
 #include "model/interactionparcel.h"
 
 namespace pboman3 {
+    using namespace domain;
+
     class PackTask : public Task {
     public:
         PackTask(QString folder, QString outputDir);

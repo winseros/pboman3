@@ -5,6 +5,8 @@
 #include "domain/pbonode.h"
 
 namespace pboman3 {
+    using namespace domain;
+
     class TreeWidgetBase : public QTreeWidget {
     Q_OBJECT
     public:

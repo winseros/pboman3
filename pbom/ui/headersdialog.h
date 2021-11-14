@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ui_headersdialog.h"
-#include "model/headersmodel.h"
+#include "domain/documentheaders.h"
 #include <QDialog>
 
 namespace Ui {
@@ -10,9 +10,11 @@ namespace Ui {
 
 
 namespace pboman3 {
+    using namespace domain;
+
     class HeadersDialog : public QDialog {
     public:
-        HeadersDialog(HeadersModel* model, QWidget* parent = nullptr);
+        HeadersDialog(DocumentHeaders* headers, QWidget* parent = nullptr);
 
         ~HeadersDialog() override;
 
@@ -23,15 +25,13 @@ namespace pboman3 {
 
     private:
         Ui::HeadersDialog* ui_;
-        HeadersModel* model_;
+        QSharedPointer<DocumentHeadersTransaction> tran_;
 
         void renderHeaderItems() const;
 
         void setupConnections() const;
 
         void contextMenuRequested(const QPoint& pos) const;
-
-        bool isValidHeader(const QString& name, const QString& value) const;
 
         void onInsertClick(int index) const;
 

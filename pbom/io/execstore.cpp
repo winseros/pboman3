@@ -2,8 +2,9 @@
 #include <QDir>
 #include <QUuid>
 #include "pboioexception.h"
+#include "io/diskaccessexception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     ExecStore::ExecStore(QString fileSystemPath)
         : fileSystemPath_(std::move(fileSystemPath)) {
     }
@@ -93,11 +94,11 @@ namespace pboman3 {
 
         QString tempDirPath = fi.dir().absolutePath();
         if (!QDir::temp().mkpath(QDir::temp().relativeFilePath(tempDirPath)))
-            throw PboIoException("Could not create the folder.", std::move(tempDirPath));
+            throw DiskAccessException("Could not create the folder.", std::move(tempDirPath));
 
         QFile file(execPath);
         if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
-            throw PboIoException("Could not open file. Check you have enough permissions and the file is not locked by another process.", execPath);
+            throw DiskAccessException("Could not open file. Check you have enough permissions and the file is not locked by another process.", execPath);
 
         node->binarySource->writeToFs(&file, cancel);
 

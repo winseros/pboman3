@@ -4,14 +4,24 @@
 namespace pboman3::domain {
     PboDocument::PboDocument(QString pboName) {
         headers_ = QSharedPointer<DocumentHeaders>(new DocumentHeaders);
-        root_ = QSharedPointer<DocumentNode>(new DocumentNode(std::move(pboName), PboNodeType::Container, nullptr));
+        root_ = QSharedPointer<PboNode>(new PboNode(std::move(pboName), PboNodeType::Container, nullptr));
+        setupConnections();
+    }
+
+    PboDocument::PboDocument(QString pboName, QList<QSharedPointer<DocumentHeader>> headers, QByteArray signature)
+        : signature_(std::move(signature)) {
+        root_ = QSharedPointer<PboNode>(new PboNode(std::move(pboName), PboNodeType::Container, nullptr));
+        headers_ = QSharedPointer<DocumentHeaders>(new DocumentHeaders(std::move(headers)));
+        setupConnections();
+        //this is a repository constructor
+        //it does no validation but must be used only from the persistence layer
     }
 
     DocumentHeaders* PboDocument::headers() const {
         return headers_.get();
     }
 
-    DocumentNode* PboDocument::root() const {
+    PboNode* PboDocument::root() const {
         return root_.get();
     }
 
@@ -23,5 +33,21 @@ namespace pboman3::domain {
         if (signature.length() != 20)
             throw ValidationException("The signature must be 20 bytes long");
         signature_ = std::move(signature);
+    }
+
+    void PboDocument::setupConnections() {
+        connect(root_.get(), &PboNode::hierarchyChanged, [this] {
+            signature_.clear();
+            emit changed();
+        });
+
+        connect(root_.get(), &PboNode::titleChanged, [this](const QString& title) {
+            emit titleChanged(title);
+        });
+
+        connect(headers_.get(), &DocumentHeaders::headersChanged, [this]() {
+            signature_.clear();
+            emit changed();
+        });
     }
 }

@@ -6,22 +6,22 @@
 
 namespace pboman3 {
     class BinarySource {
+
+    protected:
+        ~BinarySource() = default;
+
     public:
-        BinarySource(QString path);
-
-        virtual ~BinarySource();
-
         virtual void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
         virtual void writeToFs(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
-        void open() const;
+        virtual void open() const = 0;
 
-        void close() const;
+        virtual void close() const = 0;
 
-        bool isOpen() const;
+        virtual bool isOpen() const = 0;
 
-        const QString& path() const;
+        virtual const QString& path() const = 0;
 
         virtual qint32 readOriginalSize() const = 0;
 
@@ -30,13 +30,7 @@ namespace pboman3 {
         virtual bool isCompressed() const = 0;
 
         friend QDebug operator <<(QDebug debug, const BinarySource& bs) {
-            return debug << "BinarySource(Compressed=" << bs.isCompressed() << ", Path=" << bs.path_ << ")";
+            return debug << "BinarySource()";
         }
-
-    protected:
-        QFileDevice* file_;
-
-    private:
-        QString path_;
     };
 }

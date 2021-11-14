@@ -1,8 +1,10 @@
 #pragma once
 
-#include "model/pbomodel.h"
+#include "domain/pbonode.h"
 
 namespace pboman3 {
+    using namespace domain;
+
     class DeleteOp {
     public:
         void schedule(QList<PboNode*> nodes);

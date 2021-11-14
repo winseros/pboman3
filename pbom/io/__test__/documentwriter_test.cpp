@@ -3,6 +3,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include "domain/pbodocument.h"
+#include "domain/documentheaderstransaction.h"
 #include "io/pboheaderreader.h"
 #include "io/bs/fsrawbinarysource.h"
 
@@ -26,14 +27,17 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
 
         //pbo headers
-        document.headers()->add("h1", "v1");
-        document.headers()->add("h2", "v2");
+        QSharedPointer<DocumentHeadersTransaction> tran = document.headers()->beginTransaction();
+        tran->add("h1", "v1");
+        tran->add("h2", "v2");
+        tran->commit();
+        tran.clear();
 
         //pbo entries with content
-        DocumentNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
         n1->binarySource->open();
-        DocumentNode* n2 = document.root()->createHierarchy(PboPath("f2/e2.txt"));
+        PboNode* n2 = document.root()->createHierarchy(PboPath("f2/e2.txt"));
         n2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e2.fileName()));
         n2->binarySource->open();
 
@@ -100,7 +104,7 @@ namespace pboman3::io::test {
 
         //pbo document with content
         PboDocument document("file.pbo");
-        DocumentNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
         n1->binarySource->open();
 
@@ -134,7 +138,7 @@ namespace pboman3::io::test {
 
         //pbo content structure
         PboDocument document("file.pbo");
-        DocumentNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
         n1->binarySource->open();
 
@@ -161,7 +165,7 @@ namespace pboman3::io::test {
 
         //pbo content structure
         PboDocument document("file.pbo");
-        DocumentNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
         n1->binarySource->open();
 
@@ -191,7 +195,7 @@ namespace pboman3::io::test {
 
         //pbo content structure
         PboDocument document("file.pbo");
-        DocumentNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
         n1->binarySource->open();
 
@@ -220,7 +224,7 @@ namespace pboman3::io::test {
 
         //pbo content structure
         PboDocument document("file.pbo");
-        DocumentNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
         n1->binarySource->open();
 

@@ -4,6 +4,8 @@
 #include "model/interactionparcel.h"
 
 namespace pboman3 {
+    using namespace model;
+
     class FsCollector {
     public:
         static NodeDescriptors collectFiles(const QList<QUrl>& urls);

@@ -1,7 +1,7 @@
 #include "pboheaderio.h"
 #include "pbodatastream.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     using namespace std;
 
     PboHeaderIO::PboHeaderIO(PboFile* file)

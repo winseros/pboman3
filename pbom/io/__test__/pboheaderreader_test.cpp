@@ -3,9 +3,9 @@
 #include <gtest/gtest.h>
 #include "io/pbofile.h"
 #include "io/pboheaderio.h"
-#include "io/pboioexception.h"
+#include "io/pbofileformatexception.h"
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(PboHeaderReaderTest, ReadFileHeader_Reads_File_Without_Headers_Without_Signature) {
         //build a mock pbo file
         QTemporaryFile t;
@@ -201,7 +201,7 @@ namespace pboman3::test {
         //call the method
         PboFile p(t.fileName());
         p.open(QIODeviceBase::ReadOnly);
-        ASSERT_THROW(PboHeaderReader::readFileHeader(&p), PboIoException);
+        ASSERT_THROW(PboHeaderReader::readFileHeader(&p), PboFileFormatException);
         p.close();
     }
 
@@ -215,7 +215,7 @@ namespace pboman3::test {
         //call the method
         PboFile p(t.fileName());
         p.open(QIODeviceBase::ReadOnly);
-        ASSERT_THROW(PboHeaderReader::readFileHeader(&p), PboIoException);
+        ASSERT_THROW(PboHeaderReader::readFileHeader(&p), PboFileFormatException);
         p.close();
     }
 
@@ -235,7 +235,7 @@ namespace pboman3::test {
         //call the method
         PboFile r(t.fileName());
         r.open(QIODeviceBase::ReadOnly);
-        ASSERT_THROW(PboHeaderReader::readFileHeader(&r), PboIoException);
+        ASSERT_THROW(PboHeaderReader::readFileHeader(&r), PboFileFormatException);
         r.close();
     }
 
@@ -266,7 +266,7 @@ namespace pboman3::test {
         //call the method
         PboFile r(t.fileName());
         r.open(QIODeviceBase::ReadOnly);
-        ASSERT_THROW(PboHeaderReader::readFileHeader(&r), PboIoException);
+        ASSERT_THROW(PboHeaderReader::readFileHeader(&r), PboFileFormatException);
         r.close();
     }
 }

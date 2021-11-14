@@ -3,7 +3,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(PboBinarySource, WriteToPbo_Writes_When_Buffer_Size_Less_Than_Data_Size) {
         //create a binary source
         QTemporaryFile sourceFile;

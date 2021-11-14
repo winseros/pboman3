@@ -4,10 +4,14 @@
 #include "model/interactionparcel.h"
 
 namespace pboman3 {
+    using namespace model;
+
     class CompressListItem : public QTreeWidgetItem {
     public:
-        CompressListItem(int id) : QTreeWidgetItem() {
-            id_ = id;
+        CompressListItem(int id)
+            : QTreeWidgetItem(),
+              id_(id) {
+
         }
 
         int id() const { return id_; }
@@ -16,7 +20,7 @@ namespace pboman3 {
         int id_;
     };
 
-    class CompressList: public QTreeWidget {
+    class CompressList : public QTreeWidget {
     public:
         CompressList(QWidget* parent = nullptr);
 

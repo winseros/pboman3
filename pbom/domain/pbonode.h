@@ -7,8 +7,8 @@
 #include "binarysource.h"
 #include "abstractnode.h"
 
-namespace pboman3 {
-    typedef QString TitleError;
+namespace pboman3::domain {
+    class PboNodeTransaction;
 
     class PboNode final : public AbstractNode<PboNode> {
     Q_OBJECT
@@ -28,15 +28,13 @@ namespace pboman3 {
 
         const QString& title() const;
 
-        void setTitle(QString title);
-
-        TitleError verifyTitle(const QString& title) const;
-
         PboNodeType nodeType() const;
 
         PboNode* get(const PboPath& path);
 
         PboPath makePath() const;
+
+        QSharedPointer<PboNodeTransaction> beginTransaction();
 
         bool operator <(const PboNode& node) const;
 
@@ -74,5 +72,9 @@ namespace pboman3 {
         qsizetype getChildListIndex(const PboNode* node) const;
 
         void emitHierarchyChanged();
+
+        void setTitle(QString title);
+
+        friend PboNodeTransaction;
     };
 }

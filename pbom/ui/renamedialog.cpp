@@ -1,21 +1,22 @@
 #include "renamedialog.h"
 #include <QPushButton>
+#include "domain/pbonodetransaction.h"
+#include "domain/validationexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/RenameDialog", __VA_ARGS__)
 
 namespace pboman3 {
-    RenameDialog::RenameDialog(QWidget* parent,
-                               PboNode* node)
+    RenameDialog::RenameDialog(QWidget* parent, PboNode* node)
         : QDialog(parent),
           ui_(new Ui::RenameDialog),
-          node_(node),
+          initialTitle_(node->title()),
           isDirty_(false) {
         ui_->setupUi(this);
 
-        disableAccept(setErrorState(""));
-
-        setTextAndSelect();
+        transaction_ = node->beginTransaction();
+        setErrorState("");
+        setTextAndSelect(node->title());
     }
 
     RenameDialog::~RenameDialog() {
@@ -23,47 +24,46 @@ namespace pboman3 {
     }
 
     void RenameDialog::onTextEdited(const QString& title) const {
-        if (title == node_->title()) {
+        if (title == initialTitle_) {
             LOG(info, "Title was set to the initial value")
-            disableAccept(setErrorState(""));
+            setErrorState("");
         } else {
             LOG(info, "Title was set to the value:", title)
-            if (isDirty_) {
-                LOG(info, "The input is dirty - validating")
-                disableAccept(setErrorState(node_->verifyTitle(title)));
+            try {
+                transaction_->setTitle(title);
+                setErrorState("");
+            } catch (const ValidationException& ex) {
+                if (isDirty_) {
+                    LOG(info, "The input is dirty - validating")
+                    setErrorState(ex.message());
+                }
             }
         }
     }
 
     void RenameDialog::accept() {
         const QString title = ui_->input->text();
-        if (title == node_->title()) {
+        if (title == initialTitle_) {
             LOG(info, "The user clicked Accept having not changed the title")
             QDialog::reject();
         } else {
-            if (isDirty_) {
+            try {
                 LOG(info, "Updating the node title to:", title)
-                node_->setTitle(title);
-                QDialog::accept();
-            } else {
-                LOG(info, "The user clicked Accept the 1st time - running validations")
                 isDirty_ = true;
-                if (setErrorState(node_->verifyTitle(title))) {
-                    LOG(info, "The title contained errors:", title)
-                    disableAccept(true);
-                } else {
-                    LOG(info, "The title contained no errors:", title)
-                    node_->setTitle(title);
-                    QDialog::accept();
-                }
+                transaction_->setTitle(title);
+                transaction_->commit();
+                QDialog::accept();
+            } catch (const ValidationException& ex) {
+                LOG(info, "The title contained errors:", ex.message())
+                setErrorState(ex.message());
             }
         }
     }
 
-    bool RenameDialog::setErrorState(const TitleError& err) const {
+    void RenameDialog::setErrorState(const QString& err) const {
         LOG(info, "Set validation error to:", err)
         ui_->error->setText(err);
-        return !err.isEmpty();
+        disableAccept(!err.isEmpty());
     }
 
     void RenameDialog::disableAccept(bool disable) const {
@@ -71,8 +71,7 @@ namespace pboman3 {
         ui_->buttonBox->button(QDialogButtonBox::Ok)->setDisabled(disable);
     }
 
-    void RenameDialog::setTextAndSelect() const {
-        const QString title = node_->title();
+    void RenameDialog::setTextAndSelect(const QString& title) const {
         qsizetype index = title.lastIndexOf(".");
         if (index < 1)
             index = title.length();

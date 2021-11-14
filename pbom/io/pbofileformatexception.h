@@ -2,7 +2,7 @@
 
 #include "util/exception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class PboFileFormatException : public AppException {
     public:
         explicit PboFileFormatException(QString message);

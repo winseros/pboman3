@@ -3,7 +3,7 @@
 #include "nodefilesystem.h"
 #include "domain/pbonode.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class UnpackBackend {
     public:
         explicit UnpackBackend(const QDir& folder);

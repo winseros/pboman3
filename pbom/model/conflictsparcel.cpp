@@ -1,6 +1,6 @@
 #include "conflictsparcel.h"
 
-namespace pboman3 {
+namespace pboman3::model {
     ConflictResolution ConflictsParcel::getResolution(const NodeDescriptor& descriptor) const {
         return conflicts_.contains(descriptor.path()) ? conflicts_[descriptor.path()] : ConflictResolution::Unset;
     }

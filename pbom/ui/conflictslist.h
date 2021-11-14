@@ -4,10 +4,14 @@
 #include "model/conflictsparcel.h"
 
 namespace pboman3 {
+    using namespace model;
+
     class ConflictsListItem : public QTreeWidgetItem {
     public:
-        ConflictsListItem(int id): QTreeWidgetItem() {
-            id_ = id;
+        ConflictsListItem(int id):
+            QTreeWidgetItem(),
+            id_(id) {
+
         }
 
         int id() const { return id_; }

@@ -1,12 +1,16 @@
 #include "pbonode.h"
 #include <QRegularExpression>
 #include "util/exception.h"
+#include "validationexception.h"
+#include "pbonodetransaction.h"
 
-namespace pboman3 {
+namespace pboman3::domain {
     PboNode::PboNode(QString title, PboNodeType nodeType, PboNode* parentNode)
         : AbstractNode(parentNode),
           nodeType_(nodeType),
           title_(std::move(title)) {
+        if (title_.isEmpty())
+            throw ValidationException("Title must not be empty");
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath) {
@@ -59,36 +63,6 @@ namespace pboman3 {
         return title_;
     }
 
-    void PboNode::setTitle(QString title) {
-        if (title != title_) {
-            if (const TitleError err = verifyTitle(title); err != nullptr)
-                throw InvalidOperationException(err);
-
-            title_ = std::move(title);
-            emit titleChanged(title_);
-
-            if (parentNode_) {
-                const qsizetype prevIndex = parentNode_->children_.indexOf(this);
-                const qsizetype newIndex = parentNode_->getChildListIndex(this);
-                if (prevIndex != newIndex) {
-                    parentNode_->children_.move(prevIndex, newIndex);
-                    emit parentNode_->childMoved(prevIndex, newIndex);
-                }
-
-            }
-            emitHierarchyChanged();
-        }
-    }
-
-    TitleError PboNode::verifyTitle(const QString& title) const {
-        if (title == nullptr || title.isEmpty())
-            return "The value can not be empty";
-        if (!parentNode_)
-            return "";
-        PboNode* existing = parentNode_->findChild(title);
-        return existing && existing != this ? "The item with this name already exists" : "";
-    }
-
     PboNodeType PboNode::nodeType() const {
         return nodeType_;
     }
@@ -117,6 +91,10 @@ namespace pboman3 {
         return path;
     }
 
+    QSharedPointer<PboNodeTransaction> PboNode::beginTransaction() {
+        return QSharedPointer<PboNodeTransaction>(new PboNodeTransaction(this));
+    }
+
     bool PboNode::operator<(const PboNode& node) const {
         if (nodeType_ == node.nodeType_) {
             if (nodeType_ == PboNodeType::Folder) {
@@ -136,7 +114,7 @@ namespace pboman3 {
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict,
-                                      bool emitEvents) {
+                                                bool emitEvents) {
         PboNode* node = this;
         for (qsizetype i = 0; i < entryPath.length() - 1; i++) {
             PboNode* folder = node->findChild(entryPath.at(i));
@@ -270,6 +248,25 @@ namespace pboman3 {
             parent = parent->parentNode_;
         }
         emit parent->hierarchyChanged();
+    }
+
+    void PboNode::setTitle(QString title) {
+        if (title != title_) {
+
+            title_ = std::move(title);
+            emit titleChanged(title_);
+
+            if (parentNode_) {
+                const qsizetype prevIndex = parentNode_->children_.indexOf(this);
+                const qsizetype newIndex = parentNode_->getChildListIndex(this);
+                if (prevIndex != newIndex) {
+                    parentNode_->children_.move(prevIndex, newIndex);
+                    emit parentNode_->childMoved(prevIndex, newIndex);
+                }
+
+            }
+            emitHierarchyChanged();
+        }
     }
 
     QDebug operator<<(QDebug debug, const PboNode& node) {

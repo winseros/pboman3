@@ -6,6 +6,7 @@ list(APPEND PROJECT_SOURCES
     "io/bb/tempbackend.cpp"
     "io/bb/unpackbackend.cpp"
     "io/bb/unpacktaskbackend.cpp"
+    "io/bs/binarysourcebase.cpp"
     "io/bs/fslzhbinarysource.cpp"
     "io/bs/fsrawbinarysource.cpp"
     "io/bs/pbobinarysource.cpp"
@@ -14,16 +15,16 @@ list(APPEND PROJECT_SOURCES
     "io/lzh/decompressioncontext.cpp"
     "io/lzh/lzh.cpp"
     "io/lzh/lzhdecompressionexception.cpp"
+    "io/diskaccessexception.cpp"
     "io/documentreader.cpp"
     "io/documentwriter.cpp"
     "io/pbodatastream.cpp"
     "io/pboentry.cpp"
     "io/pbofile.cpp"
+    "io/pbofileformatexception.cpp"
     "io/pboheader.cpp"
     "io/pboheaderio.cpp"
-    "io/pboheaderreader.cpp"
-    "io/pboioexception.cpp"
-    "io/pbowriter.cpp")
+    "io/pboheaderreader.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
@@ -45,7 +46,6 @@ list(APPEND TEST_SOURCES
     "io/__test__/pbofile_test.cpp"
     "io/__test__/pboheader_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
-    "io/__test__/pboheaderreader_test.cpp"
-    "io/__test__/pbowriter_test.cpp")
+    "io/__test__/pboheaderreader_test.cpp")
 
 set(TEST_SOURCES ${TEST_SOURCES} PARENT_SCOPE)

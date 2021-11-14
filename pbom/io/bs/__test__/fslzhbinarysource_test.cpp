@@ -3,7 +3,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(FsLzhBinarySourceTest, WriteToPbo_Compresses_Data) {
         //create a binary source
         QTemporaryFile sourceFile;

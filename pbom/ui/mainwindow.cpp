@@ -12,15 +12,16 @@
 #include "signaturedialog.h"
 #include "updatesdialog.h"
 #include "ui_mainwindow.h"
-#include "model/diskaccessexception.h"
-#include "model/pbofileformatexception.h"
+#include "io/diskaccessexception.h"
+#include "io/pbofileformatexception.h"
+#include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/MainWindow", __VA_ARGS__)
 
 namespace pboman3 {
-    MainWindow::MainWindow(QWidget* parent, PboModel* model)
+    MainWindow::MainWindow(QWidget* parent, model::PboModel* model)
         : QMainWindow(parent),
           ui_(new Ui::MainWindow),
           model_(model),
@@ -155,12 +156,12 @@ namespace pboman3 {
 
     void MainWindow::onViewHeadersClick() {
         LOG(info, "User clicked the ViewHeaders button")
-        HeadersDialog(model_->headers(), this).exec();
+        HeadersDialog(model_->document()->headers(), this).exec();
     }
 
     void MainWindow::onViewSignatureClick() {
         LOG(info, "User clicked the ViewSignature button")
-        SignatureDialog(model_->signature(), this).exec();
+        SignatureDialog(&model_->document()->signature(), this).exec();
     }
 
     void MainWindow::selectionExtractToClick() {
@@ -215,7 +216,7 @@ namespace pboman3 {
     void MainWindow::selectionExtractContainerClick() const {
         LOG(info, "User clicked the ExtractToContainer button")
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        const QString folderName = GetFileNameWithoutExtension(model_->rootEntry()->title());
+        const QString folderName = GetFileNameWithoutExtension(model_->document()->root()->title());
         const QString folderPath = dir.filePath(folderName);
         if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
             LOG(critical, "Could not create the dir:", folderPath)
@@ -224,7 +225,7 @@ namespace pboman3 {
         }
 
         LOG(info, "Extracting to:", folderPath)
-        ui_->treeWidget->selectionExtract(folderPath, model_->rootEntry());
+        ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
     }
 
     bool MainWindow::queryCloseUnsaved() {
@@ -363,11 +364,11 @@ namespace pboman3 {
         LOG(info, "The Loaded status set to:", loaded)
 
         if (loaded) {
-            ui_->treeWidget->setRoot(model_->rootEntry());
+            ui_->treeWidget->setRoot(model_->document()->root());
             ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
-            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
-            connect(model_->rootEntry(), &PboNode::titleChanged, [this]() {
-                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
+            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->document()->root()));
+            connect(model_->document()->root(), &PboNode::titleChanged, [this]() {
+                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->document()->root()));
             });
         } else {
             ui_->treeWidget->resetRoot();

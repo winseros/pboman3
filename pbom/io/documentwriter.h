@@ -26,11 +26,11 @@ namespace pboman3::io {
 
     private:
         QString path_;
-        QHash<DocumentNode*, PboDataInfo> binarySources_;
+        QHash<PboNode*, PboDataInfo> binarySources_;
 
         void writeInternal(PboDocument* document, const QString& path, const Cancel& cancel);
 
-        void writeNode(QFileDevice* file, DocumentNode* node, QList<QSharedPointer<PboEntry>>& entries, const Cancel& cancel);
+        void writeNode(QFileDevice* file, PboNode* node, QList<QSharedPointer<PboEntry>>& entries, const Cancel& cancel);
 
         void writeHeader(PboFile* file, const DocumentHeaders* headers, const QList<QSharedPointer<PboEntry>>& entries, const Cancel& cancel);
 
@@ -38,11 +38,11 @@ namespace pboman3::io {
 
         void writeSignature(QFileDevice* pbo, PboDocument* document, const Cancel& cancel);
 
-        void suspendBinarySources(DocumentNode* node) const;
+        void suspendBinarySources(PboNode* node) const;
 
-        void resumeBinarySources(DocumentNode* node) const;
+        void resumeBinarySources(PboNode* node) const;
 
-        void assignBinarySources(DocumentNode* node);
+        void assignBinarySources(PboNode* node);
 
         void emitWriteEntry();
 

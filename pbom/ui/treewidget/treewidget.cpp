@@ -7,7 +7,7 @@
 #include "ui/insertdialog.h"
 #include "util/exception.h"
 #include <QDesktopServices>
-#include "model/diskaccessexception.h"
+#include "io/diskaccessexception.h"
 #include "ui/errordialog.h"
 #include "ui/win32/win32fileviewer.h"
 #include "util/log.h"
@@ -379,7 +379,7 @@ namespace pboman3 {
         try {
             files = FsCollector::collectFiles(urls);
             LOG(debug, "Collected descriptors:", files)
-        } catch (const PboIoException& ex) {
+        } catch (const DiskAccessException& ex) {
             LOG(info, "Error when collecting - show error modal:", ex)
             UI_HANDLE_ERROR_RET(ex)
         }

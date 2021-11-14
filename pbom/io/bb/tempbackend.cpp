@@ -1,8 +1,10 @@
 #include "tempbackend.h"
 #include <QDir>
-#include "io/pboioexception.h"
+#include "io/diskaccessexception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
+
     TempBackend::TempBackend(const QDir& folder)
         : folder_(folder) {
         if (!folder.exists())
@@ -32,7 +34,7 @@ namespace pboman3 {
         const QString path = nodeFileSystem_->composeAbsolutePath(node);
         if (QFileInfo(path).exists()) {
             if (!QFile::remove(path)) {
-                throw PboIoException(
+                throw DiskAccessException(
                     "Could not remove the file. Check you have enough permissions and the file is not locked by another process.",
                     path);
             }
@@ -45,7 +47,7 @@ namespace pboman3 {
         if (const QFileInfo fi(fsPath); !fi.exists()) {
             QFile file(fsPath);
             if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
-                throw PboIoException(
+                throw DiskAccessException(
                     "Could not open the file. Check you have enough permissions and the file is not locked by another process.",
                     fsPath);
 

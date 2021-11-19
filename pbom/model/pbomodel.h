@@ -33,10 +33,14 @@ namespace pboman3::model {
 
         const QString& loadedPath() const;
 
+        bool isLoaded() const;
+
     signals:
         void modelChanged();
 
         void loadedPathChanged();
+
+        void loadedStatusChanged(bool loaded);
 
     private:
         QString loadedPath_;

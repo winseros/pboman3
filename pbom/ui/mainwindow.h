@@ -66,7 +66,7 @@ namespace pboman3 {
 
         void setHasChanges(bool hasChanges);
 
-        void setLoaded(bool loaded) const;
+        void updateLoadedStatus(bool loaded) const;
 
         void updateWindowTitle();
 

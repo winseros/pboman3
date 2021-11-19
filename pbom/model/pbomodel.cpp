@@ -24,13 +24,22 @@ namespace pboman3::model {
         setLoadedPath(path);
 
         const DocumentReader reader(path);
-        document_ = reader.read();
+        try {
+            document_ = reader.read();
+        } catch (const AppException& ex) {
+            LOG(debug, "Could not load the file:", ex)
+            setLoadedPath(nullptr);
+            throw;
+        }
+
         connect(document_.get(), &PboDocument::changed, this, &PboModel::modelChanged);
         connect(document_.get(), &PboDocument::titleChanged, this, &PboModel::titleChanged);
 
         LOG(info, "Creating the binary backend")
         binaryBackend_ = QSharedPointer<BinaryBackend>(
             new BinaryBackend(QUuid::createUuid().toString(QUuid::WithoutBraces)));
+
+        emit loadedStatusChanged(true);
     }
 
     void PboModel::saveFile(const Cancel& cancel, const QString& filePath) {
@@ -54,6 +63,8 @@ namespace pboman3::model {
         LOG(info, "Unloading the current file")
 
         setLoadedPath(nullptr);
+
+        emit loadedStatusChanged(false);
 
         document_.clear();
         binaryBackend_.clear();
@@ -132,6 +143,10 @@ namespace pboman3::model {
 
     const QString& PboModel::loadedPath() const {
         return loadedPath_;
+    }
+
+    bool PboModel::isLoaded() const {
+        return !loadedPath_.isNull();
     }
 
     void PboModel::setLoadedPath(const QString& loadedFile) {

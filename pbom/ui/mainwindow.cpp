@@ -44,21 +44,19 @@ namespace pboman3 {
         LOG(info, "Loading the file:", fileName)
         try {
             model_->loadFile(fileName);
-            setLoaded(true);
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            unloadFile();
+            if (model_->isLoaded()) unloadFile();
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            unloadFile();
+            if (model_->isLoaded()) unloadFile();
         }
     }
 
     void MainWindow::unloadFile() {
         setHasChanges(false);
-        setLoaded(false);
         model_->unloadFile();
     }
 
@@ -113,6 +111,7 @@ namespace pboman3 {
 
         connect(model_, &PboModel::modelChanged, this, [this]() { setHasChanges(true); });
         connect(model_, &PboModel::loadedPathChanged, this, &MainWindow::updateWindowTitle);
+        connect(model_, &PboModel::loadedStatusChanged, this, &MainWindow::updateLoadedStatus);
     }
 
     void MainWindow::onFileOpenClick() {
@@ -360,7 +359,7 @@ namespace pboman3 {
         updateWindowTitle();
     }
 
-    void MainWindow::setLoaded(bool loaded) const {
+    void MainWindow::updateLoadedStatus(bool loaded) const {
         LOG(info, "The Loaded status set to:", loaded)
 
         if (loaded) {
@@ -390,11 +389,7 @@ namespace pboman3 {
     }
 
     void MainWindow::updateWindowTitle() {
-
-        if (model_->loadedPath().isNull()) {
-            LOG(info, "There is no loaded file - reset window title to the default")
-            setWindowTitle(PBOM_PROJECT_NAME);
-        } else {
+        if (model_->isLoaded()) {
             const QFileInfo fi(model_->loadedPath());
             const QString title = hasChanges_
                                       ? "*" + fi.fileName() + " - " + PBOM_PROJECT_NAME
@@ -402,6 +397,9 @@ namespace pboman3 {
             LOG(info, "Set window title to:", title)
 
             setWindowTitle(title);
+        } else {
+            LOG(info, "There is no loaded file - reset window title to the default")
+            setWindowTitle(PBOM_PROJECT_NAME);
         }
     }
 

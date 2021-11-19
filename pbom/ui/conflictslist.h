@@ -3,7 +3,7 @@
 #include "QTreeWidget"
 #include "model/conflictsparcel.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace model;
 
     class ConflictsListItem : public QTreeWidgetItem {

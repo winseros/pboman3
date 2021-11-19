@@ -7,7 +7,7 @@ namespace Ui {
     class SignatureDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     class SignatureDialog : public QDialog {
     Q_OBJECT
     public:

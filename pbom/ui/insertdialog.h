@@ -8,7 +8,7 @@ namespace Ui {
     class InsertDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     class InsertDialog : public QDialog {
     Q_OBJECT
 

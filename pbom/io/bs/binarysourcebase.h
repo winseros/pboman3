@@ -3,6 +3,8 @@
 #include "domain/binarysource.h"
 
 namespace pboman3::io {
+    using namespace domain;
+
     class BinarySourceBase: public BinarySource {
     public:
         BinarySourceBase(QString path);

@@ -2,7 +2,7 @@
 #include "util/exception.h"
 #include "util/log.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     StatusBar::StatusBar(QWidget* parent)
         : QStatusBar(parent) {
 

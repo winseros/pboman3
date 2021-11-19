@@ -4,7 +4,7 @@
 #include "task.h"
 #include "domain/pbodocument.h"
 
-namespace pboman3 {
+namespace pboman3::model {
     using namespace domain;
 
     class UnpackTask : public Task {

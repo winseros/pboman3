@@ -9,7 +9,7 @@ namespace Ui {
     class ErrorDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace io;
 
     class ErrorDialog : public QDialog {

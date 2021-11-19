@@ -4,7 +4,7 @@
 #include "domain/pbonode.h"
 #include "ui/iconmgr.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace domain;
 
     class TreeWidgetItem : public QTreeWidgetItem, public QObject {

@@ -5,7 +5,7 @@
 #include "model/pbomodel.h"
 #include <QFutureWatcher>
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace model;
 
     class TreeWidget : public TreeWidgetBase {

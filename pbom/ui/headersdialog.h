@@ -9,7 +9,7 @@ namespace Ui {
 }
 
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace domain;
 
     class HeadersDialog : public QDialog {

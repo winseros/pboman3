@@ -1,6 +1,6 @@
 #pragma once
 
-namespace pboman3 {
+namespace pboman3::domain {
     enum class ConflictResolution {
         Unset = -1,
         Skip = 0,

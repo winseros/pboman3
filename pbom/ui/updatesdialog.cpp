@@ -6,8 +6,7 @@
 
 #define LOG(...) LOGGER("ui/UpdatesDialog", __VA_ARGS__)
 
-namespace pboman3 {
-
+namespace pboman3::ui {
     SemanticVersion::SemanticVersion(QString rawVersion)
         : raw_(std::move(rawVersion)) {
         const QRegularExpression reg("v?(\\d+)\\.(\\d+)\\.(\\d+)");

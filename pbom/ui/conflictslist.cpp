@@ -3,7 +3,7 @@
 #include <QHeaderView>
 #include <QMenu>
 
-namespace pboman3 {
+namespace pboman3::ui {
     constexpr int colTitleIndex = 0;
     constexpr int colExtensionIndex = 1;
     constexpr int colResolutionIndex = 2;

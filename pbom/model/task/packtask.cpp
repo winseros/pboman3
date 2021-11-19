@@ -6,7 +6,7 @@
 
 #define LOG(...) LOGGER("model/task/PackTask", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::model {
     using namespace io;
 
     PackTask::PackTask(QString folder, QString outputDir)

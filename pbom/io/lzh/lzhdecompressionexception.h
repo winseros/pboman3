@@ -2,7 +2,7 @@
 
 #include "util/exception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class LzhDecompressionException : public AppException {
     public:
         LzhDecompressionException(QString message);

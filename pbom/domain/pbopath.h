@@ -2,7 +2,7 @@
 
 #include <QUrl>
 
-namespace pboman3 {
+namespace pboman3::domain {
     class PboPath : public QList<QString> {
     public:
         PboPath();

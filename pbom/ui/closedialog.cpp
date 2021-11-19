@@ -1,7 +1,6 @@
 #include "closedialog.h"
 
-namespace pboman3 {
-
+namespace pboman3::ui {
     CloseDialog::CloseDialog(const QFileInfo& file, QWidget* parent)
         : QDialog(parent),
           ui_(new Ui::CloseDialog) {

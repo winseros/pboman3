@@ -6,7 +6,7 @@
 #include "model/task/taskwindowmodel.h"
 #include "util/exception.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     TaskWindow::TaskWindow(QWidget* parent)
         : QMainWindow(parent),
           ui_(new Ui::TaskWindow),

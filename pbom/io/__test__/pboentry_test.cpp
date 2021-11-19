@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "io/pboentry.h"
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(PboEntryTest, Ctor_Functional) {
         const PboEntry entry("some-file", PboPackingMethod::Packed, 1, 2, 3, 4);
         ASSERT_EQ(entry.fileName(), "some-file");

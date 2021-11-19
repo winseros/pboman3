@@ -3,7 +3,7 @@
 #include <QDir>
 #include "model/interactionparcel.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace model;
 
     class FsCollector {

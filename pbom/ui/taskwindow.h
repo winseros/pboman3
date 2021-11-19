@@ -10,7 +10,9 @@ namespace Ui {
     class TaskWindow;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
+    using namespace model;
+
     class TaskWindow : public QMainWindow {
     Q_OBJECT
 

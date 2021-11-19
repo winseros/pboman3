@@ -8,7 +8,7 @@ namespace Ui {
     class UpdatesDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     class SemanticVersion {
     public:
         explicit SemanticVersion(QString rawVersion);

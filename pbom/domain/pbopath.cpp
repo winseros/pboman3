@@ -1,7 +1,7 @@
 #include "pbopath.h"
 #include <QRegularExpression>
 
-namespace pboman3 {
+namespace pboman3::domain {
     PboPath::PboPath()
         : QList() {
     }

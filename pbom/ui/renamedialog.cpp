@@ -6,7 +6,7 @@
 
 #define LOG(...) LOGGER("ui/RenameDialog", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     RenameDialog::RenameDialog(QWidget* parent, PboNode* node)
         : QDialog(parent),
           ui_(new Ui::RenameDialog),

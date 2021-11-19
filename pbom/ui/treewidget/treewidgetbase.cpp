@@ -7,7 +7,7 @@
 
 #define LOG(...) LOGGER("ui/treewidget/TreeWidgetBase", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     TreeWidgetBase::TreeWidgetBase(QWidget* parent)
         : QTreeWidget(parent),
           root_(nullptr),

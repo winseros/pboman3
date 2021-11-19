@@ -8,7 +8,7 @@
 
 #define LOG(...) LOGGER("ui/win32/Win32IconMgr", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     Win32IconMgr::Win32IconMgr() {
         cache_[""] = QIcon(":ifile.png");
         cache_[":folder-closed:"] = QIcon(":ifolderclosed.png");

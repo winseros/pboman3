@@ -8,7 +8,7 @@
 
 #define LOG(...) LOGGER("ui/HeadersDialog", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     constexpr int colName = 0;
     constexpr int colValue = 1;
     constexpr Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;

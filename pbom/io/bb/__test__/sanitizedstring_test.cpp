@@ -2,7 +2,7 @@
 #include <QString>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     struct CtorParam {
         const QString sourceText;
         const QString expectedText;

@@ -3,7 +3,7 @@
 #include "decompressioncontext.h"
 #include "util/util.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class Lzh {
     public:
         static void decompress(QFileDevice* source, QFileDevice* target, int outputLength, const Cancel& cancel);

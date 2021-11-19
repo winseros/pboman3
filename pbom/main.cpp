@@ -60,8 +60,8 @@ namespace pboman3 {
         ActivateCom(app);
 
         LOG(info, "Display the main window")
-        const auto model = QScopedPointer(new PboModel());
-        MainWindow w(nullptr, model.get());
+        const auto model = QScopedPointer(new model::PboModel());
+        ui::MainWindow w(nullptr, model.get());
         w.show();
 
         if (!pboFile.isEmpty()) {
@@ -86,7 +86,7 @@ namespace pboman3 {
         ActivateCom(app);
 
         int exitCode;
-        PackWindow w(nullptr);
+        ui::PackWindow w(nullptr);
         if (outputDir.isEmpty()) {
             exitCode = w.tryPackFoldersWithPrompt(folders) ? QApplication::exec() : 0;
         } else {
@@ -109,7 +109,7 @@ namespace pboman3 {
         ActivateCom(app);
 
         int exitCode;
-        UnpackWindow w(nullptr);
+        ui::UnpackWindow w(nullptr);
         if (outputDir.isEmpty()) {
             exitCode = w.tryUnpackFilesWithPrompt(files) ? QApplication::exec() : 0;
         } else {

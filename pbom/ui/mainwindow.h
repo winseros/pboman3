@@ -10,7 +10,7 @@ namespace Ui {
     class MainWindow;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace model;
 
     class MainWindow : public QMainWindow {

@@ -2,8 +2,9 @@
 
 #include "domain/pbopath.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     using namespace std;
+    using namespace domain;
 
     enum class PboPackingMethod {
         Uncompressed = 0x00000000,

@@ -6,7 +6,7 @@ namespace Ui {
     class AboutDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     class AboutDialog : public QDialog {
     public:
         AboutDialog(QWidget* parent = nullptr);

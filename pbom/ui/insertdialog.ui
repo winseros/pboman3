@@ -40,7 +40,7 @@
        </widget>
       </item>
       <item>
-       <widget class="pboman3::ConflictsList" name="conflictsList">
+       <widget class="pboman3::ui::ConflictsList" name="conflictsList">
         <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
@@ -74,7 +74,7 @@
        </widget>
       </item>
       <item>
-       <widget class="pboman3::CompressList" name="compressList">
+       <widget class="pboman3::ui::CompressList" name="compressList">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
@@ -99,7 +99,7 @@
     </widget>
    </item>
    <item>
-    <widget class="pboman3::InsertDialogButtons" name="buttons">
+    <widget class="pboman3::ui::InsertDialogButtons" name="buttons">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -109,17 +109,17 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>pboman3::CompressList</class>
+   <class>pboman3::ui::CompressList</class>
    <extends>QTreeView</extends>
    <header>ui/compresslist.h</header>
   </customwidget>
   <customwidget>
-   <class>pboman3::ConflictsList</class>
+   <class>pboman3::ui::ConflictsList</class>
    <extends>QTreeWidget</extends>
    <header>ui/conflictslist.h</header>
   </customwidget>
   <customwidget>
-   <class>pboman3::InsertDialogButtons</class>
+   <class>pboman3::ui::InsertDialogButtons</class>
    <extends>QDialogButtonBox</extends>
    <header>ui/insertdialogbuttons.h</header>
    <slots>

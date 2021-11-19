@@ -2,7 +2,7 @@
 
 #include "compressionbuffer.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class CompressionChunk {
     public:
         CompressionChunk();

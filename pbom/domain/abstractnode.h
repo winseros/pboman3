@@ -3,7 +3,7 @@
 #include <QSharedPointer>
 #include "util/qpointerlistiterator.h"
 
-namespace pboman3 {
+namespace pboman3::domain {
     template <typename T>
     class AbstractNode : public QObject {
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "io/pboheader.h"
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(PboHeaderTest, Ctor_Functional) {
         const PboHeader header("name1", "value1");
         ASSERT_EQ(header.name, "name1");

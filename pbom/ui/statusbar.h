@@ -6,7 +6,7 @@
 #include <QStatusBar>
 #include <QWidget>
 
-namespace pboman3 {
+namespace pboman3::ui {
     class StatusBar : public QStatusBar {
     Q_OBJECT
     public:

@@ -3,7 +3,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include <QIcon>
 
-namespace pboman3 {
+namespace pboman3::ui {
     class IconMgr {
     public:
         virtual ~IconMgr() = default;

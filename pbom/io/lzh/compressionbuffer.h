@@ -2,7 +2,7 @@
 
 #include <QFileDevice>
 
-namespace pboman3 {
+namespace pboman3::io {
     struct BufferIntersection {
         inline static qint64 posNo = -1;
         qint64 position;

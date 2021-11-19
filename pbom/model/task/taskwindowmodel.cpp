@@ -7,7 +7,7 @@
 
 #define LOG(...) LOGGER("model/task/TaskWindowModel", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::model {
     void TaskWindowModel::start() {
         const int numThreads = std::min(QThread::idealThreadCount(), static_cast<int>(tasks_.count()));
         for (int i = 0; i < numThreads; i++) {

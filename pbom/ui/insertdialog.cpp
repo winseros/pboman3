@@ -3,7 +3,7 @@
 
 #define LOG(...) LOGGER("ui/InsertDialog", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     InsertDialog::InsertDialog(QWidget* parent, Mode dialogMode,
                                NodeDescriptors* descriptors, ConflictsParcel* conflicts)
         : QDialog(parent),

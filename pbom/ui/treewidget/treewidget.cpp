@@ -14,7 +14,7 @@
 
 #define LOG(...) LOGGER("ui/treewidget/TreeWidget", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
 #define MIME_TYPE_PBOMAN "application/pboman3"
 
     TreeWidget::TreeWidget(QWidget* parent)

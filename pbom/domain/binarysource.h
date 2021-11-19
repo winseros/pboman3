@@ -4,7 +4,7 @@
 #include <QFileDevice>
 #include "util/util.h"
 
-namespace pboman3 {
+namespace pboman3::domain {
     class BinarySource {
 
     protected:

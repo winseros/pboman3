@@ -3,7 +3,7 @@
 
 #define LOG(...) LOGGER("ui/SignatureDialog", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     SignatureDialog::SignatureDialog(const QByteArray* signature, QWidget* parent)
         : QDialog(parent),
           ui_(new Ui::SignatureDialog) {

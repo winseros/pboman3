@@ -1,7 +1,7 @@
 #include "domain/pbopath.h"
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::domain::test {
     TEST(PboPath, Ctor_Initializes_Empty_Path) {
         const PboPath p;
         ASSERT_EQ(p.length(), 0);

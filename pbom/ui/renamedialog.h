@@ -4,7 +4,7 @@
 #include "domain/pbonode.h"
 #include "ui_renamedialog.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     using namespace domain;
 
     class RenameDialog : public QDialog {

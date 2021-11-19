@@ -4,7 +4,7 @@
 #include "task.h"
 #include "model/interactionparcel.h"
 
-namespace pboman3 {
+namespace pboman3::model {
     using namespace domain;
 
     class PackTask : public Task {

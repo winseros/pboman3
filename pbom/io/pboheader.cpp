@@ -1,6 +1,6 @@
 #include "pboheader.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     PboHeader PboHeader::makeBoundary() {
         return PboHeader(QString(), QString());
     }

@@ -2,7 +2,7 @@
 
 #include "taskwindow.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     class PackWindow : public TaskWindow {
     public:
         PackWindow(QWidget* parent);

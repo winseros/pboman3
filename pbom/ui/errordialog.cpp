@@ -1,6 +1,6 @@
 #include "errordialog.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     ErrorDialog::ErrorDialog(const DiskAccessException& ex, QWidget* parent)
         : QDialog(parent),
           ui_(new Ui::ErrorDialog) {

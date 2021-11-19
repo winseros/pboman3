@@ -2,7 +2,7 @@
 
 #include <QString>
 
-namespace pboman3 {
+namespace pboman3::io {
     struct PboHeader {
         static PboHeader makeBoundary();
 

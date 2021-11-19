@@ -2,7 +2,7 @@
 #include <QFileDialog>
 #include "model/task/unpackwindowmodel.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     UnpackWindow::UnpackWindow(QWidget* parent)
         : TaskWindow(parent) {
         QString title = "Unpack PBO(s) - ";

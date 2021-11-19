@@ -4,7 +4,7 @@
 #include <QProgressBar>
 #include <QWidget>
 
-namespace pboman3 {
+namespace pboman3::ui {
     class ProgressWidget : public QWidget {
     public:
         ProgressWidget(QWidget* parent = nullptr);

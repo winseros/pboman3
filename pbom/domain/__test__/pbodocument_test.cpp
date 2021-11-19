@@ -30,29 +30,6 @@ namespace pboman3::domain::test {
         ASSERT_EQ(count, 1);
     }
 
-    TEST(PboDocumentTest, Public_Ctor_Changed_Clears_Signature_When_Hierarchy_Changes) {
-        QByteArray signature;
-        signature.fill('p', 20);
-
-        PboDocument document("file.pbo");
-        document.setSignature(std::move(signature));
-        
-        document.root()->createHierarchy(PboPath("f1.txt"), ConflictResolution::Unset);
-
-        ASSERT_EQ(document.signature(), QByteArray());
-    }
-
-    TEST(PboDocumentTest, Repository_Ctor_Changed_Clears_Signature_When_Hierarchy_Changes) {
-        QByteArray signature;
-        signature.fill('p', 10);
-
-        const PboDocument document("file.pbo", QList<QSharedPointer<DocumentHeader>>{}, signature);
-        
-        document.root()->createHierarchy(PboPath("f1.txt"), ConflictResolution::Unset);
-
-        ASSERT_EQ(document.signature(), QByteArray());
-    }
-
 
     TEST(PboDocumentTest, Public_Ctor_Changed_Fires_When_Headers_Change) {
         const PboDocument document("file.pbo");
@@ -84,35 +61,6 @@ namespace pboman3::domain::test {
         tran.clear();
 
         ASSERT_EQ(count, 1);
-    }
-
-    TEST(PboDocumentTest, Public_Ctor_Changed_Clears_Signature_When_Header_Change) {
-        QByteArray signature;
-        signature.fill('p', 20);
-
-        PboDocument document("file.pbo");
-        document.setSignature(std::move(signature));
-        
-        QSharedPointer<DocumentHeadersTransaction> tran = document.headers()->beginTransaction();
-        tran->add("h1", "v1");
-        tran->commit();
-        tran.clear();
-
-        ASSERT_EQ(document.signature(), QByteArray());
-    }
-
-    TEST(PboDocumentTest, Repository_Ctor_Changed_Clears_Signature_When_Header_Change) {
-        QByteArray signature;
-        signature.fill('p', 10);
-
-        const PboDocument document("file.pbo", QList<QSharedPointer<DocumentHeader>>{}, signature);
-        
-        QSharedPointer<DocumentHeadersTransaction> tran = document.headers()->beginTransaction();
-        tran->add("h1", "v1");
-        tran->commit();
-        tran.clear();
-
-        ASSERT_EQ(document.signature(), QByteArray());
     }
 
 
@@ -152,34 +100,5 @@ namespace pboman3::domain::test {
 
         ASSERT_EQ(count, 1);
         ASSERT_EQ(title, "new.pbo");
-    }
-
-    TEST(PboDocumentTest, Public_Ctor_TitleChanged_Clears_Signature) {
-        QByteArray signature;
-        signature.fill('p', 20);
-
-        PboDocument document("file.pbo");
-        document.setSignature(std::move(signature));
-
-        QSharedPointer<PboNodeTransaction> tran = document.root()->beginTransaction();
-        tran->setTitle("new.pbo");
-        tran->commit();
-        tran.clear();
-
-        ASSERT_EQ(document.signature(), QByteArray());
-    }
-
-    TEST(PboDocumentTest, Repository_Ctor_TitleChanged_Clears_Signature) {
-        QByteArray signature;
-        signature.fill('p', 10);
-
-        const PboDocument document("file.pbo", QList<QSharedPointer<DocumentHeader>>{}, signature);
-
-        QSharedPointer<PboNodeTransaction> tran = document.root()->beginTransaction();
-        tran->setTitle("new.pbo");
-        tran->commit();
-        tran.clear();
-
-        ASSERT_EQ(document.signature(), QByteArray());
     }
 }

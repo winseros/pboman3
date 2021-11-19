@@ -37,7 +37,6 @@ namespace pboman3::domain {
 
     void PboDocument::setupConnections() {
         connect(root_.get(), &PboNode::hierarchyChanged, [this] {
-            signature_.clear();
             emit changed();
         });
 
@@ -46,7 +45,6 @@ namespace pboman3::domain {
         });
 
         connect(headers_.get(), &DocumentHeaders::headersChanged, [this]() {
-            signature_.clear();
             emit changed();
         });
     }

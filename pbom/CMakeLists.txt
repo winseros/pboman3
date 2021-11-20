@@ -21,7 +21,7 @@ add_subdirectory(ui)
 add_subdirectory(util)
 
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
-qt_add_executable(pbom ${PROJECT_SOURCES} main.cpp res/winapp.rc)
+qt_add_executable(pbom ${PROJECT_SOURCES} exception.cpp main.cpp res/winapp.rc)
 
 target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network CLI11)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,7 +1,7 @@
 #include "win32iconmgr.h"
 #include <QPixmap>
 #include <QImage>
-#include "util/exception.h"
+#include "exception.h"
 #include <Windows.h>
 #include <shellapi.h>
 #include "util/log.h"

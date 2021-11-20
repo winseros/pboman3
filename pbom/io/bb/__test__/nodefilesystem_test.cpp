@@ -1,5 +1,5 @@
 #include "io/bb/nodefilesystem.h"
-#include "util/exception.h"
+#include "exception.h"
 #include <QTemporaryDir>
 #include <gtest/gtest.h>
 

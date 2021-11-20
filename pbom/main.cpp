@@ -9,7 +9,7 @@
 #include "ui/mainwindow.h"
 #include "ui/packwindow.h"
 #include "ui/unpackwindow.h"
-#include "util/exception.h"
+#include "exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)

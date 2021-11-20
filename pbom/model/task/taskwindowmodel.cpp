@@ -2,7 +2,7 @@
 #include <QThread>
 #include <QMutexLocker>
 #include <QThreadPool>
-#include "util/exception.h"
+#include "exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/TaskWindowModel", __VA_ARGS__)

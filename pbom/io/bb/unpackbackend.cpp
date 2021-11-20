@@ -1,7 +1,7 @@
 #include "unpackbackend.h"
 #include <QDir>
 #include "io/diskaccessexception.h"
-#include "util/exception.h"
+#include "exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("io/bb/UnpackBackend", __VA_ARGS__)

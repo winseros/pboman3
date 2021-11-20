@@ -5,7 +5,7 @@
 #include <QUuid>
 #include "io/documentreader.h"
 #include "io/documentwriter.h"
-#include "util/exception.h"
+#include "exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/PboModel", __VA_ARGS__)

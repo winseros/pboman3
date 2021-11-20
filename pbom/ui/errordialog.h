@@ -3,7 +3,7 @@
 #include "ui_errordialog.h"
 #include "io/diskaccessexception.h"
 #include "io/pbofileformatexception.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace Ui {
     class ErrorDialog;

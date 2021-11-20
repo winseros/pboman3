@@ -1,6 +1,6 @@
 #include "pbonode.h"
 #include <QRegularExpression>
-#include "util/exception.h"
+#include "exception.h"
 #include "validationexception.h"
 #include "pbonodetransaction.h"
 

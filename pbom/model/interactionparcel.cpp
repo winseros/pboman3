@@ -1,7 +1,7 @@
 #include "interactionparcel.h"
 #include <QDataStream>
 #include <QSet>
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::model {
     const QSharedPointer<BinarySource>& NodeDescriptor::binarySource() const {

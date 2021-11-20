@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::io::test {
     TEST(UnpackBackendTest, UnpackSync_Extracts_Nodes_To_File_System) {

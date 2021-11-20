@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/exception.h"
+#include "exception.h"
 #include <QDebug>
 
 namespace pboman3::domain {

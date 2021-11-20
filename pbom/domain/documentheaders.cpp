@@ -1,6 +1,6 @@
 #include "documentheaders.h"
 #include "documentheaderstransaction.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::domain {
     DocumentHeaders::DocumentHeaders() = default;

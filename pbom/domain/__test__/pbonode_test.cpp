@@ -5,7 +5,7 @@
 
 #include "domain/pbonodetransaction.h"
 #include "gmock/gmock.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::domain::test {
     TEST(PboNodeTest, Ctor_Initializes_Node) {

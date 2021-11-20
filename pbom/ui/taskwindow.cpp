@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include "ui_taskwindow.h"
 #include "model/task/taskwindowmodel.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::ui {
     TaskWindow::TaskWindow(QWidget* parent)

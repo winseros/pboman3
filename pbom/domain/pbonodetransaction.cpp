@@ -1,6 +1,6 @@
 #include "pbonodetransaction.h"
 #include "validationexception.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::domain {
     PboNodeTransaction::PboNodeTransaction(PboNode* node)

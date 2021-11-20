@@ -1,5 +1,4 @@
 list(APPEND PROJECT_SOURCES
-    "util/exception.cpp"
     "util/log.cpp"
     "util/util.cpp")
 

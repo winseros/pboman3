@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "domain/documentheaders.h"
 #include "domain/documentheaderstransaction.h"
-#include "util/exception.h"
+#include "exception.h"
 
 namespace pboman3::domain::test {
     TEST(DocumentHeadersTransactionTest, Count_Returns_Headers_Count) {

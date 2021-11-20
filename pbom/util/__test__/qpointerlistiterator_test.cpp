@@ -3,6 +3,7 @@
 #include "io/pboheader.h"
 
 namespace pboman3::test {
+    using namespace io;
     TEST(QPointerListIteratorTest, Ietrator_Works) {
         const QSharedPointer<PboHeader> h1(new PboHeader("n1", "v1"));
         const QSharedPointer<PboHeader> h2(new PboHeader("n2", "v2"));

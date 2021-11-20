@@ -2,7 +2,7 @@
 #include "util/qpointerlistiterator.h"
 #include "io/pboheader.h"
 
-namespace pboman3::test {
+namespace pboman3::util::test {
     using namespace io;
     TEST(QPointerListIteratorTest, Ietrator_Works) {
         const QSharedPointer<PboHeader> h1(new PboHeader("n1", "v1"));

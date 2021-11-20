@@ -4,6 +4,8 @@
 #include "util/qpointerlistiterator.h"
 
 namespace pboman3::domain {
+    using namespace util;
+
     class DocumentHeadersTransaction;
 
     class DocumentHeaders : public QObject {

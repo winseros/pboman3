@@ -3,7 +3,7 @@
 #include <QString>
 #include <functional>
 
-namespace pboman3 {
+namespace pboman3::util {
     typedef std::function<bool()> Cancel;
 
     QString GetFileExtension(const QString& fileName);

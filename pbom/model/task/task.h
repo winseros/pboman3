@@ -4,6 +4,8 @@
 #include "util/util.h"
 
 namespace pboman3::model {
+    using namespace util;
+
     class Task : public QObject {
     Q_OBJECT
 

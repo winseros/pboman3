@@ -5,6 +5,8 @@
 #include "util/util.h"
 
 namespace pboman3::domain {
+    using namespace util;
+
     class BinarySource {
 
     protected:

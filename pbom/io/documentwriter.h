@@ -2,7 +2,7 @@
 
 #include <QHash>
 #include <QString>
-#include "pboentry.h"
+#include "pbonodeentity.h"
 #include "pbofile.h"
 #include "bs/pbobinarysource.h"
 #include "domain/pbodocument.h"
@@ -30,9 +30,9 @@ namespace pboman3::io {
 
         void writeInternal(PboDocument* document, const QString& path, const Cancel& cancel);
 
-        void writeNode(QFileDevice* file, PboNode* node, QList<QSharedPointer<PboEntry>>& entries, const Cancel& cancel);
+        void writeNode(QFileDevice* file, PboNode* node, QList<QSharedPointer<PboNodeEntity>>& entries, const Cancel& cancel);
 
-        void writeHeader(PboFile* file, const DocumentHeaders* headers, const QList<QSharedPointer<PboEntry>>& entries, const Cancel& cancel);
+        void writeHeader(PboFile* file, const DocumentHeaders* headers, const QList<QSharedPointer<PboNodeEntity>>& entries, const Cancel& cancel);
 
         void copyBody(QFileDevice* pbo, QFileDevice* body, const Cancel& cancel);
 

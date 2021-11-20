@@ -12,17 +12,17 @@ namespace pboman3::io {
         Product = 0x56657273
     };
 
-    class PboEntry {
+    class PboNodeEntity {
     public:
-        static PboEntry makeSignature();
+        static PboNodeEntity makeSignature();
 
-        static PboEntry makeBoundary();
+        static PboNodeEntity makeBoundary();
 
-        PboEntry(QString fileName, PboPackingMethod packingMethod,
+        PboNodeEntity(QString fileName, PboPackingMethod packingMethod,
                  qint32 originalSize, qint32 reserved,
                  qint32 timestamp, qint32 dataSize);
 
-        virtual ~PboEntry() = default;
+        virtual ~PboNodeEntity() = default;
 
         bool isBoundary() const;
 
@@ -48,7 +48,7 @@ namespace pboman3::io {
 
         qint32 dataSize() const;
 
-        friend QDebug operator <<(QDebug debug, const PboEntry& entry);
+        friend QDebug operator <<(QDebug debug, const PboNodeEntity& entry);
 
     private:
         static const int sizeOfFields;

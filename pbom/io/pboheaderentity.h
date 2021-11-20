@@ -3,13 +3,13 @@
 #include <QString>
 
 namespace pboman3::io {
-    struct PboHeader {
-        static PboHeader makeBoundary();
+    struct PboHeaderEntity {
+        static PboHeaderEntity makeBoundary();
 
         const QString name;
         const QString value;
 
-        PboHeader(QString name, QString value);
+        PboHeaderEntity(QString name, QString value);
 
         bool isBoundary() const;
     };

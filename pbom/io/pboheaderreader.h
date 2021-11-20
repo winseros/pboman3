@@ -1,14 +1,14 @@
 #pragma once
 
 #include "pbofile.h"
-#include "io/pboentry.h"
-#include "io/pboheader.h"
+#include "io/pbonodeentity.h"
+#include "io/pboheaderentity.h"
 #include <QDebug>
 
 namespace pboman3::io {
     struct PboFileHeader {
-        QList<QSharedPointer<PboHeader>> headers;
-        QList<QSharedPointer<PboEntry>> entries;
+        QList<QSharedPointer<PboHeaderEntity>> headers;
+        QList<QSharedPointer<PboNodeEntity>> entries;
         qsizetype dataBlockStart;
         QByteArray signature;
 

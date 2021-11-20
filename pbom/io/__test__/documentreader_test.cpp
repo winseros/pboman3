@@ -16,16 +16,16 @@ namespace pboman3::io::test {
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
 
-        const PboEntry e0 = PboEntry::makeSignature();
-        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+        const PboNodeEntity e0 = PboNodeEntity::makeSignature();
+        const PboNodeEntity e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
                           0x03030303, 5);
-        const PboEntry e2("f2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606,
+        const PboNodeEntity e2("f2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606,
                           0x07070707, 10);
-        const PboEntry e3 = PboEntry::makeBoundary();
+        const PboNodeEntity e3 = PboNodeEntity::makeBoundary();
 
-        const PboHeader h1("p1", "v1");
-        const PboHeader h2("p2", "v2");
-        const PboHeader h3 = PboHeader::makeBoundary();
+        const PboHeaderEntity h1("p1", "v1");
+        const PboHeaderEntity h2("p2", "v2");
+        const PboHeaderEntity h3 = PboHeaderEntity::makeBoundary();
 
         const QByteArray signature(20, 5);
 

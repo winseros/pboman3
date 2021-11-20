@@ -8,7 +8,7 @@ namespace pboman3::io {
         : file_(file) {
     }
 
-    QSharedPointer<PboEntry> PboHeaderIO::readNextEntry() const {
+    QSharedPointer<PboNodeEntity> PboHeaderIO::readNextEntry() const {
         PboDataStream data(file_);
 
         try {
@@ -30,13 +30,13 @@ namespace pboman3::io {
             qint32 dataSize;
             data >> dataSize;
 
-            return QSharedPointer<PboEntry>(new PboEntry(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize));
+            return QSharedPointer<PboNodeEntity>(new PboNodeEntity(fileName, packingMethod, originalSize, reserved, timeStamp, dataSize));
         } catch (PboEofException&) {
             return nullptr;
         }
     }
 
-    QSharedPointer<PboHeader> PboHeaderIO::readNextHeader() const {
+    QSharedPointer<PboHeaderEntity> PboHeaderIO::readNextHeader() const {
         PboDataStream data(file_);
 
         try {
@@ -44,18 +44,18 @@ namespace pboman3::io {
             data >> name;
 
             if (name.isEmpty())
-                return QSharedPointer<PboHeader>(new PboHeader("", ""));
+                return QSharedPointer<PboHeaderEntity>(new PboHeaderEntity("", ""));
 
             QString value;
             data >> value;
 
-            return QSharedPointer<PboHeader>(new PboHeader(name, value));
+            return QSharedPointer<PboHeaderEntity>(new PboHeaderEntity(name, value));
         } catch (PboEofException&) {
             return nullptr;
         }
     }
 
-    void PboHeaderIO::writeEntry(const PboEntry& entry) const {
+    void PboHeaderIO::writeEntry(const PboNodeEntity& entry) const {
         PboDataStream data(file_);
 
         data << entry.fileName();
@@ -66,7 +66,7 @@ namespace pboman3::io {
         data << entry.dataSize();
     }
 
-    void PboHeaderIO::writeHeader(const PboHeader& header) const {
+    void PboHeaderIO::writeHeader(const PboHeaderEntity& header) const {
         PboDataStream data(file_);
 
         if (header.isBoundary()) {

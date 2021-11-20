@@ -3,7 +3,7 @@
 #include <QFile>
 #include "io/bb/unpacktaskbackend.h"
 #include "io/bs/pbobinarysource.h"
-#include "io/pboentry.h"
+#include "io/pbonodeentity.h"
 #include "domain/pbonode.h"
 #include "io/diskaccessexception.h"
 #include "io/documentreader.h"

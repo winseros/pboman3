@@ -14,9 +14,9 @@ namespace pboman3::io::test {
         PboFile p(t.fileName());
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
-        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+        const PboNodeEntity e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
                           0x03030303, 0x04040404);
-        const PboEntry e2 = PboEntry::makeBoundary();
+        const PboNodeEntity e2 = PboNodeEntity::makeBoundary();
 
         io.writeEntry(e1);
         io.writeEntry(e2);
@@ -53,9 +53,9 @@ namespace pboman3::io::test {
         PboFile p(t.fileName());
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
-        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+        const PboNodeEntity e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
                           0x03030303, 10);
-        const PboEntry e2 = PboEntry::makeBoundary();
+        const PboNodeEntity e2 = PboNodeEntity::makeBoundary();
         const QByteArray signature(20, 5);
 
         io.writeEntry(e1);
@@ -97,16 +97,16 @@ namespace pboman3::io::test {
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
 
-        const PboEntry e0 = PboEntry::makeSignature();
-        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+        const PboNodeEntity e0 = PboNodeEntity::makeSignature();
+        const PboNodeEntity e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
                           0x03030303, 5);
-        const PboEntry e2("f2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606,
+        const PboNodeEntity e2("f2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606,
                           0x07070707, 10);
-        const PboEntry e3 = PboEntry::makeBoundary();
+        const PboNodeEntity e3 = PboNodeEntity::makeBoundary();
 
-        const PboHeader h1("p1", "v1");
-        const PboHeader h2("p2", "v2");
-        const PboHeader h3 = PboHeader::makeBoundary();
+        const PboHeaderEntity h1("p1", "v1");
+        const PboHeaderEntity h2("p2", "v2");
+        const PboHeaderEntity h3 = PboHeaderEntity::makeBoundary();
 
         const QByteArray signature(20, 5);
 
@@ -165,9 +165,9 @@ namespace pboman3::io::test {
         PboFile p(t.fileName());
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
-        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+        const PboNodeEntity e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
                           0x03030303, 10);
-        const PboEntry e2 = PboEntry::makeBoundary();
+        const PboNodeEntity e2 = PboNodeEntity::makeBoundary();
 
         io.writeEntry(e1);
         io.writeEntry(e2);
@@ -227,8 +227,8 @@ namespace pboman3::io::test {
         PboFile p(t.fileName());
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
-        io.writeEntry(PboEntry::makeSignature());
-        io.writeHeader(PboHeader("p1", "v1"));
+        io.writeEntry(PboNodeEntity::makeSignature());
+        io.writeHeader(PboHeaderEntity("p1", "v1"));
         p.close();
         t.close();
 
@@ -248,12 +248,12 @@ namespace pboman3::io::test {
         p.open(QIODeviceBase::WriteOnly);
         const PboHeaderIO io(&p);
 
-        const PboEntry e0 = PboEntry::makeSignature();
-        const PboEntry e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
+        const PboNodeEntity e0 = PboNodeEntity::makeSignature();
+        const PboNodeEntity e1("f1", PboPackingMethod::Packed, 0x01010101, 0x02020202,
                           0x03030303, 0x04040404);
 
-        const PboHeader h1("p1", "v1");
-        const PboHeader h2 = PboHeader::makeBoundary();
+        const PboHeaderEntity h1("p1", "v1");
+        const PboHeaderEntity h2 = PboHeaderEntity::makeBoundary();
 
         io.writeEntry(e0);
         io.writeHeader(h1);

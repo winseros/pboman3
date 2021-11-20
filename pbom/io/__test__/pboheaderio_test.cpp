@@ -25,7 +25,7 @@ namespace pboman3::io::test {
 
         const PboHeaderIO io(&f);
 
-        const QSharedPointer<PboEntry> e = io.readNextEntry();
+        const QSharedPointer<PboNodeEntity> e = io.readNextEntry();
         ASSERT_FALSE(e);
     }
 
@@ -45,7 +45,7 @@ namespace pboman3::io::test {
 
         const PboHeaderIO io(&f);
 
-        const QSharedPointer<PboEntry> e = io.readNextEntry();
+        const QSharedPointer<PboNodeEntity> e = io.readNextEntry();
         ASSERT_TRUE(e);
         ASSERT_TRUE(e->isBoundary());
     }
@@ -70,15 +70,15 @@ namespace pboman3::io::test {
 
         const PboHeaderIO io(&f);
 
-        const QSharedPointer<PboHeader> e = io.readNextHeader();
+        const QSharedPointer<PboHeaderEntity> e = io.readNextHeader();
         ASSERT_FALSE(e);
     }
 
     INSTANTIATE_TEST_SUITE_P(ReadNextHeader, PboHeaderIOTest_ReadNextHeader, testing::Values(0));
 
     TEST(PboHeaderIOTest, WriteEntry_Writes) {
-        const PboEntry e1("some-file1", PboPackingMethod::Packed, 0x01010101, 0x02020202, 0x03030303, 0x04040404);
-        const PboEntry e2("some-file2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606, 0x07070707, 0x08080808);
+        const PboNodeEntity e1("some-file1", PboPackingMethod::Packed, 0x01010101, 0x02020202, 0x03030303, 0x04040404);
+        const PboNodeEntity e2("some-file2", PboPackingMethod::Uncompressed, 0x05050505, 0x06060606, 0x07070707, 0x08080808);
         QTemporaryFile t;
         ASSERT_TRUE(t.open());
 
@@ -122,9 +122,9 @@ namespace pboman3::io::test {
     }
 
     TEST(PboHeaderIOTest, WriteHeader_Writes) {
-        const PboHeader h1("h1", "v1");
-        const PboHeader h2("h2", "v2");
-        const PboHeader h3 = PboHeader::makeBoundary();
+        const PboHeaderEntity h1("h1", "v1");
+        const PboHeaderEntity h2("h2", "v2");
+        const PboHeaderEntity h3 = PboHeaderEntity::makeBoundary();
         QTemporaryFile t;
         ASSERT_TRUE(t.open());
 

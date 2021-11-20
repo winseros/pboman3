@@ -5,11 +5,11 @@
 namespace pboman3::io {
     using namespace domain;
 
-    class BinarySourceBase: public BinarySource {
+    class AbstractBinarySource: public BinarySource {
     public:
-        BinarySourceBase(QString path);
+        AbstractBinarySource(QString path);
 
-        virtual ~BinarySourceBase();
+        virtual ~AbstractBinarySource();
 
         virtual void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) = 0;
 
@@ -29,8 +29,8 @@ namespace pboman3::io {
 
         bool isCompressed() const override = 0;
 
-        friend QDebug operator <<(QDebug debug, const BinarySourceBase& bs) {
-            return debug << "BinarySourceBase(Compressed=" << bs.isCompressed() << ", Path=" << bs.path_ << ")";
+        friend QDebug operator <<(QDebug debug, const AbstractBinarySource& bs) {
+            return debug << "AbstractBinarySource(Compressed=" << bs.isCompressed() << ", Path=" << bs.path_ << ")";
         }
 
     protected:

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "binarysourcebase.h"
+#include "abstractbinarysource.h"
 
 namespace pboman3::io {
-    class FsRawBinarySource : public BinarySourceBase {
+    class FsRawBinarySource : public AbstractBinarySource {
     public:
         FsRawBinarySource(QString path, qsizetype bufferSize = 1024 * 1024);
 

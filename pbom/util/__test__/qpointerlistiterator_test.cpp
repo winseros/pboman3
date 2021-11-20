@@ -1,14 +1,14 @@
 #include <gtest/gtest.h>
 #include "util/qpointerlistiterator.h"
-#include "io/pboheader.h"
+#include "io/pboheaderentity.h"
 
 namespace pboman3::util::test {
     using namespace io;
     TEST(QPointerListIteratorTest, Ietrator_Works) {
-        const QSharedPointer<PboHeader> h1(new PboHeader("n1", "v1"));
-        const QSharedPointer<PboHeader> h2(new PboHeader("n2", "v2"));
+        const QSharedPointer<PboHeaderEntity> h1(new PboHeaderEntity("n1", "v1"));
+        const QSharedPointer<PboHeaderEntity> h2(new PboHeaderEntity("n2", "v2"));
 
-        QList<QSharedPointer<PboHeader>> headers;
+        QList<QSharedPointer<PboHeaderEntity>> headers;
         headers.append(h1);
         headers.append(h2);
 
@@ -78,14 +78,14 @@ namespace pboman3::util::test {
         ASSERT_EQ(it11, it22);
         ASSERT_EQ(it1, it2);
 
-        ASSERT_EQ(static_cast<PboHeader*>(it1), static_cast<PboHeader*>(it2));
+        ASSERT_EQ(static_cast<PboHeaderEntity*>(it1), static_cast<PboHeaderEntity*>(it2));
     }
 
     TEST(QPointerListConstIteratorTest, Ietrator_Works) {
-        const QSharedPointer<PboHeader> h1(new PboHeader("n1", "v1"));
-        const QSharedPointer<PboHeader> h2(new PboHeader("n2", "v2"));
+        const QSharedPointer<PboHeaderEntity> h1(new PboHeaderEntity("n1", "v1"));
+        const QSharedPointer<PboHeaderEntity> h2(new PboHeaderEntity("n2", "v2"));
 
-        QList<QSharedPointer<PboHeader>> headers;
+        QList<QSharedPointer<PboHeaderEntity>> headers;
         headers.append(h1);
         headers.append(h2);
 
@@ -155,6 +155,6 @@ namespace pboman3::util::test {
         ASSERT_EQ(it11, it22);
         ASSERT_EQ(it1, it2);
 
-        ASSERT_EQ(static_cast<const PboHeader*>(it1), static_cast<const PboHeader*>(it2));
+        ASSERT_EQ(static_cast<const PboHeaderEntity*>(it1), static_cast<const PboHeaderEntity*>(it2));
     }
 }

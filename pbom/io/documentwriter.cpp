@@ -2,7 +2,7 @@
 #include <QCryptographicHash>
 #include <QTemporaryFile>
 #include "diskaccessexception.h"
-#include "pboheader.h"
+#include "pboheaderentity.h"
 #include "pboheaderio.h"
 
 namespace pboman3::io {
@@ -53,7 +53,7 @@ namespace pboman3::io {
         if (!body.open())
             throw DiskAccessException("Could not create the file.", body.fileName());
 
-        QList<QSharedPointer<PboEntry>> entries;
+        QList<QSharedPointer<PboNodeEntity>> entries;
         writeNode(&body, document->root(), entries, cancel);
 
         if (cancel())
@@ -84,7 +84,7 @@ namespace pboman3::io {
         }
     }
 
-    void DocumentWriter::writeNode(QFileDevice* file, PboNode* node, QList<QSharedPointer<PboEntry>>& entries,
+    void DocumentWriter::writeNode(QFileDevice* file, PboNode* node, QList<QSharedPointer<PboNodeEntity>>& entries,
                                    const Cancel& cancel) {
         for (PboNode* child : *node) {
             if (cancel())
@@ -98,7 +98,7 @@ namespace pboman3::io {
                 const qint32 originalSize = child->binarySource->readOriginalSize();
                 const auto dataSize = static_cast<qint32>(after - before);
 
-                QSharedPointer<PboEntry> entry(new PboEntry(
+                QSharedPointer<PboNodeEntity> entry(new PboNodeEntity(
                     child->makePath().toString(),
                     child->binarySource->isCompressed() ? PboPackingMethod::Packed : PboPackingMethod::Uncompressed,
                     child->binarySource->readOriginalSize(),
@@ -124,24 +124,24 @@ namespace pboman3::io {
     }
 
     void DocumentWriter::writeHeader(PboFile* file, const DocumentHeaders* headers,
-                                     const QList<QSharedPointer<PboEntry>>& entries, const Cancel& cancel) {
+                                     const QList<QSharedPointer<PboNodeEntity>>& entries, const Cancel& cancel) {
         const PboHeaderIO io(file);
-        io.writeEntry(PboEntry::makeSignature());
+        io.writeEntry(PboNodeEntity::makeSignature());
 
         for (const DocumentHeader* header : *headers) {
             if (cancel()) {
                 break;
             }
-            io.writeHeader(PboHeader(header->name(), header->value()));
+            io.writeHeader(PboHeaderEntity(header->name(), header->value()));
         }
 
         if (cancel()) {
             return;
         }
 
-        io.writeHeader(PboHeader::makeBoundary());
+        io.writeHeader(PboHeaderEntity::makeBoundary());
 
-        for (const QSharedPointer<PboEntry>& entry : entries) {
+        for (const QSharedPointer<PboNodeEntity>& entry : entries) {
             if (cancel()) {
                 break;
             }
@@ -152,7 +152,7 @@ namespace pboman3::io {
             return;
         }
 
-        io.writeEntry(PboEntry::makeBoundary());
+        io.writeEntry(PboNodeEntity::makeBoundary());
 
         for (PboNode* key : binarySources_.keys()) {
             PboDataInfo& existing = binarySources_[key];

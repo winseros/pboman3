@@ -5,11 +5,11 @@
 
 namespace pboman3::io {
     PboFileHeader PboHeaderReader::readFileHeader(PboFile* file) {
-        QList<QSharedPointer<PboHeader>> headers;
-        QList<QSharedPointer<PboEntry>> entries;
+        QList<QSharedPointer<PboHeaderEntity>> headers;
+        QList<QSharedPointer<PboNodeEntity>> entries;
 
         const PboHeaderIO reader(file);
-        QSharedPointer<PboEntry> entry = reader.readNextEntry();
+        QSharedPointer<PboNodeEntity> entry = reader.readNextEntry();
 
         if (!entry) {
             throw PboFileFormatException("The file is not a valid PBO.");
@@ -17,7 +17,7 @@ namespace pboman3::io {
 
         qsizetype dataBlockEnd = 0;
         if (entry->isSignature()) {
-            QSharedPointer<PboHeader> header = reader.readNextHeader();
+            QSharedPointer<PboHeaderEntity> header = reader.readNextHeader();
             while (header && !header->isBoundary()) {
                 headers.append(header);
                 header = reader.readNextHeader();

@@ -5,7 +5,7 @@
 
 namespace pboman3::io {
     PboBinarySource::PboBinarySource(const QString& path, const PboDataInfo& dataInfo, qsizetype bufferSize)
-        : BinarySourceBase(path),
+        : AbstractBinarySource(path),
           dataInfo_(dataInfo),
           bufferSize_(bufferSize) {
     }

@@ -18,14 +18,14 @@ namespace pboman3::io {
 
         QList<QSharedPointer<DocumentHeader>> headers;
         headers.reserve(header.headers.count());
-        for (const QSharedPointer<PboHeader>& h : header.headers)
+        for (const QSharedPointer<PboHeaderEntity>& h : header.headers)
             headers.append(QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeader::InternalData{ h->name, h->value })));
 
         const QFileInfo fi(path_);
         QSharedPointer<PboDocument> document(new PboDocument(fi.fileName(), std::move(headers), std::move(header.signature)));
 
         qsizetype entryDataOffset = header.dataBlockStart;
-        for (const QSharedPointer<PboEntry>& e : header.entries) {
+        for (const QSharedPointer<PboNodeEntity>& e : header.entries) {
             PboNode* node = document->root()->createHierarchy(e->makePath());
             PboDataInfo dataInfo{0, 0, 0, 0, 0};
             dataInfo.originalSize = e->originalSize();

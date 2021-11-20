@@ -6,7 +6,7 @@ list(APPEND PROJECT_SOURCES
     "io/bb/tempbackend.cpp"
     "io/bb/unpackbackend.cpp"
     "io/bb/unpacktaskbackend.cpp"
-    "io/bs/binarysourcebase.cpp"
+    "io/bs/abstractbinarysource.cpp"
     "io/bs/fslzhbinarysource.cpp"
     "io/bs/fsrawbinarysource.cpp"
     "io/bs/pbobinarysource.cpp"
@@ -19,12 +19,12 @@ list(APPEND PROJECT_SOURCES
     "io/documentreader.cpp"
     "io/documentwriter.cpp"
     "io/pbodatastream.cpp"
-    "io/pboentry.cpp"
     "io/pbofile.cpp"
     "io/pbofileformatexception.cpp"
-    "io/pboheader.cpp"
+    "io/pboheaderentity.cpp"
     "io/pboheaderio.cpp"
-    "io/pboheaderreader.cpp")
+    "io/pboheaderreader.cpp"
+    "io/pbonodeentity.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
@@ -42,10 +42,10 @@ list(APPEND TEST_SOURCES
     "io/lzh/__test__/lzh_test.cpp"
     "io/__test__/documentreader_test.cpp"
     "io/__test__/documentwriter_test.cpp"
-    "io/__test__/pboentry_test.cpp"
     "io/__test__/pbofile_test.cpp"
-    "io/__test__/pboheader_test.cpp"
+    "io/__test__/pboheaderentity_test.cpp"
     "io/__test__/pboheaderio_test.cpp"
-    "io/__test__/pboheaderreader_test.cpp")
+    "io/__test__/pboheaderreader_test.cpp"
+    "io/__test__/pbonodeentity_test.cpp")
 
 set(TEST_SOURCES ${TEST_SOURCES} PARENT_SCOPE)

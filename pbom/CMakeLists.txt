@@ -57,7 +57,7 @@ install(FILES
     ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libcrypto-1_1-x64.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
+add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} exception.cpp testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)
 target_link_libraries(pbom_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network gtest gmock)
 target_include_directories(pbom_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

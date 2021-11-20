@@ -3,7 +3,7 @@
 
 namespace pboman3::io {
     FsRawBinarySource::FsRawBinarySource(QString path, qsizetype bufferSize)
-        : BinarySourceBase(std::move(path)),
+        : AbstractBinarySource(std::move(path)),
           bufferSize_(bufferSize) {
     }
 

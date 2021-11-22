@@ -51,6 +51,6 @@ namespace pboman3::domain {
 
     QDebug& operator<<(QDebug& debug, const PboDocument& document) {
         return debug << "PboDocument(Headers=" << *document.headers_  << ", Root=" << *document.root_ << ", Signature="
-            << document.signature_.length() << " bytes)";
+            << document.signature_.length() << "bytes)";
     }
 }

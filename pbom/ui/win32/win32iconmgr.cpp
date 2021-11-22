@@ -19,12 +19,11 @@ namespace pboman3::ui {
         if (extension.startsWith("."))
             throw AppException("The extension must not start with a \".\" symbol");
 
-        LOG(debug, "Get icon for extension:", extension)
-
         if (cache_.contains(extension)) {
-            LOG(debug, "Retrieve from cache")
             return cache_[extension];
         }
+
+        LOG(info, "Get icon for extension:", extension)
 
         SHFILEINFOW info;
         const QString fn = "file." + extension;
@@ -35,7 +34,7 @@ namespace pboman3::ui {
             sizeof info,
             SHGFI_ICON | SHGFI_USEFILEATTRIBUTES);
 
-        LOG(debug, "Retrieve from the OS:", hr)
+        LOG(info, "Retrieve from the OS:", hr)
 
         if (SUCCEEDED(hr)) {
             cache_[extension] = QIcon(QPixmap::fromImage(QImage::fromHICON(info.hIcon)));
@@ -43,7 +42,7 @@ namespace pboman3::ui {
             return cache_[extension];
         }
 
-        LOG(debug, "Retrieve failed - fall back to the default", hr)
+        LOG(warning, "Retrieve failed - fall back to the default", hr)
 
         return cache_[""];
     }

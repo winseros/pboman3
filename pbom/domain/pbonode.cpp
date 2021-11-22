@@ -114,7 +114,7 @@ namespace pboman3::domain {
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict,
-                                                bool emitEvents) {
+                                      bool emitEvents) {
         PboNode* node = this;
         for (qsizetype i = 0; i < entryPath.length() - 1; i++) {
             PboNode* folder = node->findChild(entryPath.at(i));
@@ -270,6 +270,9 @@ namespace pboman3::domain {
     }
 
     QDebug operator<<(QDebug debug, const PboNode& node) {
-        return debug << "PboNode(" << node.makePath() << ")";
+        return node.parentNode_
+                   ? debug << "PboNode(Path=" << node.makePath() << ")"
+                   : debug << "PboNode(RootTitle=" << node.title_ << ")";
+
     }
 }

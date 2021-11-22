@@ -3,7 +3,7 @@
 #include "ui/iconmgr.h"
 #include <QHash>
 
-namespace pboman3 {
+namespace pboman3::ui {
     class Win32IconMgr: public IconMgr {
     public:
         Win32IconMgr();

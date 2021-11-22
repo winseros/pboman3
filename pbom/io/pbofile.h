@@ -2,7 +2,7 @@
 
 #include <QFile>
 
-namespace pboman3 {
+namespace pboman3::io {
     class PboFile : public QFile {
     Q_OBJECT
     public:

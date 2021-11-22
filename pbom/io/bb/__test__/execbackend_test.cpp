@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <fileapi.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(ExecBackendTest, ExecSync_Extracts_New_File) {
         //dummy files
         QTemporaryFile f1;

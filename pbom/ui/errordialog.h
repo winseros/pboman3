@@ -1,17 +1,22 @@
 #pragma once
 
 #include "ui_errordialog.h"
-#include "model/diskaccessexception.h"
-#include "util/exception.h"
+#include "io/diskaccessexception.h"
+#include "io/pbofileformatexception.h"
+#include "exception.h"
 
 namespace Ui {
     class ErrorDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
+    using namespace io;
+
     class ErrorDialog : public QDialog {
     public:
         ErrorDialog(const DiskAccessException& ex, QWidget* parent = nullptr);
+
+        ErrorDialog(const PboFileFormatException& ex, QWidget* parent = nullptr);
 
         ErrorDialog(const AppException& ex, QWidget* parent = nullptr);
 

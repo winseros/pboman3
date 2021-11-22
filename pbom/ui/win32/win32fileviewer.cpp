@@ -6,7 +6,7 @@
 
 #define LOG(...) LOGGER("ui/win32/Win32FileViewer", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     Win32FileViewerException::Win32FileViewerException(QString message)
         : AppException(std::move(message)) {
     }

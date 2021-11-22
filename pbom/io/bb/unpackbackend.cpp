@@ -1,13 +1,13 @@
 #include "unpackbackend.h"
 #include <QDir>
-#include "io/pboioexception.h"
-#include "util/exception.h"
+#include "io/diskaccessexception.h"
+#include "exception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("io/bb/UnpackBackend", __VA_ARGS__)
 
-namespace pboman3 {
-    UnpackBackend::UnpackBackend(const QDir& folder) {
+namespace pboman3::io {
+    io::UnpackBackend::UnpackBackend(const QDir& folder) {
         if (!folder.exists())
             throw InvalidOperationException("The folder provided must exist");
         nodeFileSystem_ = QSharedPointer<NodeFileSystem>(new NodeFileSystem(folder));
@@ -59,7 +59,7 @@ namespace pboman3 {
         QFile file(filePath); //WriteOnly won't work for LZH unpacking
         if (!file.open(QIODeviceBase::ReadWrite)) {
             LOG(critical, "Can not access the file:", file.fileName())
-            throw PboIoException(
+            throw DiskAccessException(
                 "Can not open the file. Check you have enough permissions and the file is not locked by another process.",
                 file.fileName());
         }

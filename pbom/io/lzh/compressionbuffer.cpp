@@ -1,7 +1,7 @@
 #include "compressionbuffer.h"
 #include <cstring>
 
-namespace pboman3 {
+namespace pboman3::io {
     CompressionBuffer::CompressionBuffer(qint64 size)
         : size_(size),
           fullfillment_(0) {

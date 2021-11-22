@@ -2,20 +2,23 @@
 #include <QTreeWidgetItem>
 #include <QAction>
 #include <QMenu>
+#include "domain/documentheaderstransaction.h"
+#include "domain/validationexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/HeadersDialog", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     constexpr int colName = 0;
     constexpr int colValue = 1;
     constexpr Qt::ItemFlags itemFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 
-    HeadersDialog::HeadersDialog(HeadersModel* model, QWidget* parent)
+    HeadersDialog::HeadersDialog(DocumentHeaders* headers, QWidget* parent)
         : QDialog(parent),
-          ui_(new Ui::HeadersDialog),
-          model_(model) {
+          ui_(new Ui::HeadersDialog) {
         ui_->setupUi(this);
+
+        tran_ = headers->beginTransaction();
 
         renderHeaderItems();
         setupConnections();
@@ -28,21 +31,20 @@ namespace pboman3 {
     void HeadersDialog::accept() {
         LOG(info, "User clicked the Accept button")
 
-        QList<QSharedPointer<PboHeader>> headers;
-        headers.reserve(ui_->treeWidget->topLevelItemCount());
-
+        tran_->clear();
         for (int i = 0; i < ui_->treeWidget->topLevelItemCount(); i++) {
             const QTreeWidgetItem* item = ui_->treeWidget->topLevelItem(i);
 
-            if (isValidHeader(item->text(colName), item->text(colValue))) {
+            try {
                 LOG(debug, "Append header, name=", item->text(colName), "value=", item->text(colValue))
-                headers.append(QSharedPointer<PboHeader>(new PboHeader(item->text(colName), item->text(colValue))));
+                tran_->add(item->text(colName), item->text(colValue));
+            } catch (const ValidationException& ex) {
+                LOG(debug, "Header failed validation:", ex.message())
             }
         }
 
-        model_->setData(std::move(headers));
-
         LOG(info, "Accepting the dialog")
+        tran_->commit();
         QDialog::accept();
     }
 
@@ -55,12 +57,12 @@ namespace pboman3 {
         LOG(info, "Rendering headers")
 
         ui_->treeWidget->setHeaderLabels(QList<QString>({"Name", "Value"}));
-        for (const QSharedPointer<PboHeader>& header : *model_) {
-            LOG(debug, "Render header, name=", header->name, "value=", header->value)
+        for (const DocumentHeader* header : *tran_) {
+            LOG(debug, "Render header, name=", header->name(), "value=", header->value())
 
             const auto item = new QTreeWidgetItem();
-            item->setText(colName, header->name);
-            item->setText(colValue, header->value);
+            item->setText(colName, header->name());
+            item->setText(colValue, header->value());
             item->setFlags(itemFlags);
             ui_->treeWidget->addTopLevelItem(item);
         }
@@ -96,10 +98,6 @@ namespace pboman3 {
         }
 
         menu.exec(ui_->treeWidget->mapToGlobal(pos));
-    }
-
-    bool HeadersDialog::isValidHeader(const QString& name, const QString& value) const {
-        return !name.isEmpty() && !value.isEmpty();
     }
 
     void HeadersDialog::onInsertClick(int index) const {

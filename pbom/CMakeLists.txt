@@ -14,13 +14,14 @@ set(CMAKE_FIND_DEBUG_MODE FALSE)
 find_package(QT NAMES Qt6 COMPONENTS Widgets Network Test REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network Test REQUIRED)
 
+add_subdirectory(domain)
 add_subdirectory(io)
 add_subdirectory(model)
 add_subdirectory(ui)
 add_subdirectory(util)
 
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
-qt_add_executable(pbom ${PROJECT_SOURCES} main.cpp res/winapp.rc)
+qt_add_executable(pbom ${PROJECT_SOURCES} exception.cpp main.cpp res/winapp.rc)
 
 target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network CLI11)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -56,7 +57,7 @@ install(FILES
     ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libcrypto-1_1-x64.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} testmain.cpp)
+add_executable(pbom_test ${PROJECT_SOURCES} ${TEST_SOURCES} exception.cpp testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)
 target_link_libraries(pbom_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network gtest gmock)
 target_include_directories(pbom_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

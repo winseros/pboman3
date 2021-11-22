@@ -2,7 +2,7 @@
 
 #include "unpackbackend.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class UnpackTaskBackend : public UnpackBackend {
 
     public:

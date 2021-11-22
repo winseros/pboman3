@@ -3,10 +3,10 @@
 #include <gtest/gtest.h>
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
-#include "model/pbonode.h"
-#include "model/pbopath.h"
+#include "domain/pbonode.h"
+#include "domain/pbopath.h"
 
-namespace pboman3::test {
+namespace pboman3::model::test {
     TEST(NodeDescriptorTest, Ctor_Initializes_Fields) {
         QTemporaryFile t;
         t.open();

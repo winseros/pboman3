@@ -12,15 +12,16 @@
 #include "signaturedialog.h"
 #include "updatesdialog.h"
 #include "ui_mainwindow.h"
-#include "model/diskaccessexception.h"
-#include "model/pbofileformatexception.h"
+#include "io/diskaccessexception.h"
+#include "io/pbofileformatexception.h"
+#include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/MainWindow", __VA_ARGS__)
 
-namespace pboman3 {
-    MainWindow::MainWindow(QWidget* parent, PboModel* model)
+namespace pboman3::ui {
+    MainWindow::MainWindow(QWidget* parent, model::PboModel* model)
         : QMainWindow(parent),
           ui_(new Ui::MainWindow),
           model_(model),
@@ -43,21 +44,19 @@ namespace pboman3 {
         LOG(info, "Loading the file:", fileName)
         try {
             model_->loadFile(fileName);
-            setLoaded(true);
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            unloadFile();
+            if (model_->isLoaded()) unloadFile();
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            unloadFile();
+            if (model_->isLoaded()) unloadFile();
         }
     }
 
     void MainWindow::unloadFile() {
         setHasChanges(false);
-        setLoaded(false);
         model_->unloadFile();
     }
 
@@ -112,6 +111,7 @@ namespace pboman3 {
 
         connect(model_, &PboModel::modelChanged, this, [this]() { setHasChanges(true); });
         connect(model_, &PboModel::loadedPathChanged, this, &MainWindow::updateWindowTitle);
+        connect(model_, &PboModel::loadedStatusChanged, this, &MainWindow::updateLoadedStatus);
     }
 
     void MainWindow::onFileOpenClick() {
@@ -155,12 +155,12 @@ namespace pboman3 {
 
     void MainWindow::onViewHeadersClick() {
         LOG(info, "User clicked the ViewHeaders button")
-        HeadersDialog(model_->headers(), this).exec();
+        HeadersDialog(model_->document()->headers(), this).exec();
     }
 
     void MainWindow::onViewSignatureClick() {
         LOG(info, "User clicked the ViewSignature button")
-        SignatureDialog(model_->signature(), this).exec();
+        SignatureDialog(&model_->document()->signature(), this).exec();
     }
 
     void MainWindow::selectionExtractToClick() {
@@ -215,7 +215,7 @@ namespace pboman3 {
     void MainWindow::selectionExtractContainerClick() const {
         LOG(info, "User clicked the ExtractToContainer button")
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        const QString folderName = GetFileNameWithoutExtension(model_->rootEntry()->title());
+        const QString folderName = GetFileNameWithoutExtension(model_->document()->root()->title());
         const QString folderPath = dir.filePath(folderName);
         if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
             LOG(critical, "Could not create the dir:", folderPath)
@@ -224,7 +224,7 @@ namespace pboman3 {
         }
 
         LOG(info, "Extracting to:", folderPath)
-        ui_->treeWidget->selectionExtract(folderPath, model_->rootEntry());
+        ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
     }
 
     bool MainWindow::queryCloseUnsaved() {
@@ -359,15 +359,15 @@ namespace pboman3 {
         updateWindowTitle();
     }
 
-    void MainWindow::setLoaded(bool loaded) const {
+    void MainWindow::updateLoadedStatus(bool loaded) const {
         LOG(info, "The Loaded status set to:", loaded)
 
         if (loaded) {
-            ui_->treeWidget->setRoot(model_->rootEntry());
+            ui_->treeWidget->setRoot(model_->document()->root());
             ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
-            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
-            connect(model_->rootEntry(), &PboNode::titleChanged, [this]() {
-                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
+            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->document()->root()));
+            connect(model_->document()->root(), &PboNode::titleChanged, [this]() {
+                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->document()->root()));
             });
         } else {
             ui_->treeWidget->resetRoot();
@@ -389,11 +389,7 @@ namespace pboman3 {
     }
 
     void MainWindow::updateWindowTitle() {
-
-        if (model_->loadedPath().isNull()) {
-            LOG(info, "There is no loaded file - reset window title to the default")
-            setWindowTitle(PBOM_PROJECT_NAME);
-        } else {
+        if (model_->isLoaded()) {
             const QFileInfo fi(model_->loadedPath());
             const QString title = hasChanges_
                                       ? "*" + fi.fileName() + " - " + PBOM_PROJECT_NAME
@@ -401,6 +397,9 @@ namespace pboman3 {
             LOG(info, "Set window title to:", title)
 
             setWindowTitle(title);
+        } else {
+            LOG(info, "There is no loaded file - reset window title to the default")
+            setWindowTitle(PBOM_PROJECT_NAME);
         }
     }
 

@@ -3,7 +3,7 @@
 #include "pbofile.h"
 #include <QException>
 
-namespace pboman3 {
+namespace pboman3::io {
     class PboEofException: public QException {    
     };
 

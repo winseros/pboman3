@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "ui/treewidget/treewidgetbase.h"
 
-namespace pboman3::test {
+namespace pboman3::ui::test {
     namespace treewidgetbase__test {
         class MockTreeWidgetBase : public TreeWidgetBase {
         protected:

@@ -2,7 +2,7 @@
 
 #include <QDialogButtonBox>
 
-namespace pboman3 {
+namespace pboman3::ui {
     class InsertDialogButtons : public QDialogButtonBox {
     Q_OBJECT
 

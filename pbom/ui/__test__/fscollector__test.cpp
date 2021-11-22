@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "ui/fscollector.h"
 
-namespace pboman3::test {
+namespace pboman3::ui::test {
     TEST(FsCollectorTest, CollectFiles_Finds_Files_In_All_Folders) {
         const QString d1 = "f1";
         const QString d11 = d1 + QDir::separator() + "f11";

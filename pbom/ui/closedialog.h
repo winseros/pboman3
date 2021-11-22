@@ -8,7 +8,7 @@ namespace Ui {
     class CloseDialog;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
     class CloseDialog : public QDialog {
     Q_OBJECT
     public:

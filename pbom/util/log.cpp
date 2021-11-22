@@ -1,6 +1,6 @@
 #include "log.h"
 
-namespace pboman3 {
+namespace pboman3::util {
     LogWorker::LogWorker(QtMessageHandler implementation)
         : implementation_(implementation) {
     }

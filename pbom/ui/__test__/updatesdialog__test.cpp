@@ -2,7 +2,7 @@
 #include "ui/updatesdialog.h"
 #include <QApplication>
 
-namespace pboman3::test {
+namespace pboman3::ui::test {
     TEST(SemanticVersionTest, Ctor_Initializes_Without_Params) {
         const SemanticVersion ver;
         ASSERT_FALSE(ver.isValid());

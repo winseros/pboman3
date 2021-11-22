@@ -1,6 +1,6 @@
 #include "compressionchunk.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     CompressionChunk::CompressionChunk()
         : format_(0b00000000),
           length_(0) {

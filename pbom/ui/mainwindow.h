@@ -10,12 +10,14 @@ namespace Ui {
     class MainWindow;
 }
 
-namespace pboman3 {
+namespace pboman3::ui {
+    using namespace model;
+
     class MainWindow : public QMainWindow {
     Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget* parent, PboModel* model);
+        explicit MainWindow(QWidget* parent, model::PboModel* model);
 
         ~MainWindow() override;
 
@@ -64,7 +66,7 @@ namespace pboman3 {
 
         void setHasChanges(bool hasChanges);
 
-        void setLoaded(bool loaded) const;
+        void updateLoadedStatus(bool loaded) const;
 
         void updateWindowTitle();
 

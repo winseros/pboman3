@@ -1,9 +1,9 @@
 #pragma once
 
 #include "ui/fileviewer.h"
-#include "util/exception.h"
+#include "exception.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     class Win32FileViewerException : public AppException {
     public:
         Win32FileViewerException(QString message);

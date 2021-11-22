@@ -1,6 +1,6 @@
 #include "decompressioncontext.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     DecompressionContext::DecompressionContext(QFileDevice* pSource, QFileDevice* pTarget)
         : format(0),
         crc(0),

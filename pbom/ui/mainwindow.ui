@@ -50,7 +50,7 @@
      <number>3</number>
     </property>
     <item row="0" column="1">
-     <widget class="pboman3::TreeWidget" name="treeWidget">
+     <widget class="pboman3::ui::TreeWidget" name="treeWidget">
       <property name="dragEnabled">
        <bool>true</bool>
       </property>
@@ -153,7 +153,7 @@
    <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="pboman3::StatusBar" name="statusBar"/>
+  <widget class="pboman3::ui::StatusBar" name="statusBar"/>
   <action name="actionFileOpen">
    <property name="text">
     <string>Open..</string>
@@ -325,12 +325,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>pboman3::TreeWidget</class>
+   <class>pboman3::ui::TreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>treewidget/treewidget.h</header>
   </customwidget>
   <customwidget>
-   <class>pboman3::StatusBar</class>
+   <class>pboman3::ui::StatusBar</class>
    <extends>QStatusBar</extends>
    <header>statusbar.h</header>
   </customwidget>

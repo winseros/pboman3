@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "model/conflictsparcel.h"
 
-namespace pboman3::test {
+namespace pboman3::model::test {
     TEST(ConflictsParcelTest, GetResolution_Returns_Unset_If_Resolution_Was_Not_Set) {
         const ConflictsParcel conflicts;
         const ConflictResolution res = conflicts.getResolution(NodeDescriptor(nullptr, PboPath("some-path")));

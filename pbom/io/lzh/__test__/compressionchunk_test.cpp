@@ -2,7 +2,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(CompressionChunkTest, Compose_Fulfills_Packet) {
         QByteArray dummy;
         dummy.resize(100);

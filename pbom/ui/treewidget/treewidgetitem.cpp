@@ -3,7 +3,7 @@
 #include "ui/renamedialog.h"
 #include "ui/win32/win32iconmgr.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     TreeWidgetItem::TreeWidgetItem(PboNode* node)
         : TreeWidgetItem(node, QSharedPointer<IconMgr>(new Win32IconMgr)) {
     }

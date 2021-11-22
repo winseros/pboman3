@@ -3,7 +3,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(CompressionBufferTest, Add1_Adds_Buffer_Longer_Than_Space_Remaining) {
         QTemporaryFile t1;
         t1.open();

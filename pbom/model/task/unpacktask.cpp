@@ -1,17 +1,20 @@
 #include "unpacktask.h"
 #include <QDir>
 #include <QFile>
-#include "io/pboheaderreader.h"
-#include "io/pboioexception.h"
 #include "io/bb/unpacktaskbackend.h"
 #include "io/bs/pbobinarysource.h"
-#include "model/pboentry.h"
-#include "model/rootreader.h"
+#include "io/pbonodeentity.h"
+#include "domain/pbonode.h"
+#include "io/diskaccessexception.h"
+#include "io/documentreader.h"
+#include "io/pbofileformatexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/UnpackTask", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::model {
+    using namespace io;
+
     UnpackTask::UnpackTask(QString pboPath, const QString& outputDir)
         : pboPath_(std::move(pboPath)),
           outputDir_(outputDir) {
@@ -21,15 +24,17 @@ namespace pboman3 {
         LOG(info, "PBO file: ", pboPath_)
         LOG(info, "Output dir: ", outputDir_.absolutePath())
 
-        PboFileHeader header;
-        if (!tryReadPboHeader(&header))
+        QSharedPointer<PboDocument> document;
+        if (!tryReadPboHeader(&document))
             return;
         QDir pboDir;
         if (!tryCreatePboDir(&pboDir))
             return;
 
         constexpr qsizetype startProgress = 0;
-        emit taskInitialized(pboPath_, startProgress, static_cast<qint32>(header.entries.count()));
+        qint32 endProgress = 0;
+        countNodeFiles(document->root(), endProgress);
+        emit taskInitialized(pboPath_, startProgress, endProgress);
 
         std::function onError = [this](const QString& error) {
             emit taskMessage(error);
@@ -41,18 +46,15 @@ namespace pboman3 {
             emit taskProgress(progress);
         };
 
-        PboNode root("root", PboNodeType::Container, nullptr);
-        RootReader(&header, pboPath_).inflateRoot(&root);
-
         UnpackTaskBackend be(pboDir);
         be.setOnError(&onError);
         be.setOnProgress(&onProgress);
 
         QList<PboNode*> childNodes;
-        childNodes.reserve(root.count());
-        for (PboNode* node: root)
+        childNodes.reserve(document->root()->count());
+        for (PboNode* node : *document->root())
             childNodes.append(node);
-        be.unpackSync(&root, childNodes, cancel);
+        be.unpackSync(document->root(), childNodes, cancel);
 
         LOG(info, "Unpack complete")
     }
@@ -61,15 +63,18 @@ namespace pboman3 {
         return debug << "UnpackTask(PboPath=" << task.pboPath_ << ", OutputDir=" << task.outputDir_ << ")";
     }
 
-    bool UnpackTask::tryReadPboHeader(PboFileHeader* header) {
+    bool UnpackTask::tryReadPboHeader(QSharedPointer<PboDocument>* document) {
         try {
-            PboFile file(pboPath_);
-            file.open(QIODeviceBase::OpenModeFlag::ReadOnly);
-            *header = PboHeaderReader::readFileHeader(&file);
-            LOG(info, "The file header:", *header)
+            const DocumentReader reader(pboPath_);
+            *document = reader.read();
+            LOG(info, "The document:", *document)
             return true;
-        } catch (const PboIoException& ex) {
-            LOG(warning, "Got error while reading the file header:", ex)
+        } catch (const DiskAccessException& ex) {
+            LOG(warning, "Got error while opening the file:", ex)
+            emit taskMessage("Can not read the file | " + pboPath_);
+            return false;
+        } catch (const PboFileFormatException& ex) {
+            LOG(warning, "Got error while reading the file document:", ex)
             emit taskMessage("The file is not a PBO | " + pboPath_);
             return false;
         }
@@ -87,9 +92,9 @@ namespace pboman3 {
         return true;
     }
 
-    bool UnpackTask::tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboEntry>& entry) {
+    bool UnpackTask::tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry) {
         QDir local(pboDir);
-        PboPath path(entry->fileName());
+        PboPath path = entry->makePath();
         auto it = path.begin();
         const auto last = path.end() - 1;
 
@@ -104,5 +109,14 @@ namespace pboman3 {
         }
 
         return true;
+    }
+
+    void UnpackTask::countNodeFiles(const PboNode* node, qint32& count) {
+        if (node->nodeType() == PboNodeType::File) {
+            count++;
+        } else {
+            for (const PboNode* child : *node)
+                countNodeFiles(child, count);
+        }
     }
 }

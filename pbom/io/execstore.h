@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QDateTime>
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 #include "util/util.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     class ExecStore {
     public:
         explicit ExecStore(QString fileSystemPath);

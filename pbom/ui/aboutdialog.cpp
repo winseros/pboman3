@@ -3,7 +3,7 @@
 #include <QClipboard>
 #include "ui_aboutdialog.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     AboutDialog::AboutDialog(QWidget* parent)
         : QDialog(parent),
           ui_(new Ui::AboutDialog) {

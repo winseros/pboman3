@@ -1,11 +1,13 @@
 #include "nodefilesystem.h"
 #include "sanitizedstring.h"
-#include "io/pboioexception.h"
+#include "io/diskaccessexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("io/bb/NodeFileSystem", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
+
     NodeFileSystem::NodeFileSystem(const QDir& folder)
         : QObject(),
           folder_(folder) {
@@ -69,7 +71,7 @@ namespace pboman3 {
         for (const PboNode* par : parents) {
             SanitizedString title(par->title());
             if (!QDir(local.filePath(title)).exists() && !local.mkdir(title))
-                throw PboIoException("Could not create the folder.", local.filePath(title));
+                throw DiskAccessException("Could not create the folder.", local.filePath(title));
             local.cd(title);
         }
 

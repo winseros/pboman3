@@ -4,7 +4,7 @@
 
 #define LOG(...) LOGGER("ui/FsCollector", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     NodeDescriptors FsCollector::collectFiles(const QList<QUrl>& urls) {
         LOG(info, "Collecting the files at:", urls)
 

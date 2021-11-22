@@ -25,6 +25,8 @@ namespace pboman3::domain {
 
         void titleChanged(const QString& title);
 
+        friend QDebug& operator<<(QDebug& debug, const PboDocument& document);
+
     private:
         QSharedPointer<DocumentHeaders> headers_;
         QSharedPointer<PboNode> root_;

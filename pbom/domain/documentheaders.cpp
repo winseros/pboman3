@@ -1,6 +1,6 @@
 #include "documentheaders.h"
+#include <QDebug>
 #include "documentheaderstransaction.h"
-#include "exception.h"
 
 namespace pboman3::domain {
     DocumentHeaders::DocumentHeaders() = default;
@@ -62,5 +62,9 @@ namespace pboman3::domain {
         }
 
         return false;
+    }
+
+    QDebug& operator<<(QDebug& debug, const DocumentHeaders& headers) {
+        return debug << "DocumentHeaders(Count=" << headers.count() << ")";
     }
 }

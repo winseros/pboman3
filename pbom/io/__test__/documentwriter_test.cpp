@@ -94,7 +94,7 @@ namespace pboman3::io::test {
 
     class DocumentWriterTest : public testing::TestWithParam<int> {};
 
-    TEST_P(DocumentWriterTest, Write_Cleans_Files_On_Cancel) {
+    TEST_P(DocumentWriterTest, Write_Cleans_On_Cancel_When_Writing_New_File) {
         //mock files contents
         const QByteArray mockContent1(15, 1);
         QTemporaryFile e1;
@@ -122,7 +122,49 @@ namespace pboman3::io::test {
         ASSERT_FALSE(QFileInfo(filePath + ".b").exists());
     }
 
-    INSTANTIATE_TEST_SUITE_P(Write_Cleans_On_Cancel, DocumentWriterTest, testing::Range(1, 13));
+    INSTANTIATE_TEST_SUITE_P(Write_Cleans_On_Cancel_When_Writing_New_File, DocumentWriterTest, testing::Range(1, 16));
+
+    TEST_P(DocumentWriterTest, Write_Cleans_On_Cancel_When_Rewriting_Existing_File) {
+        //mock files contents
+        const QByteArray mockContent1(15, 1);
+        QTemporaryFile e1;
+        e1.open();
+        e1.write(mockContent1);
+        e1.close();
+
+        //existing pbo file
+        constexpr int origPboSize = 100;
+        const QByteArray origPboContent(origPboSize, '1');
+        const QTemporaryDir temp;
+        const QString filePath = temp.filePath("file.pbo");
+        QFile origPbo(filePath);
+        origPbo.open(QIODeviceBase::ReadWrite);
+        origPbo.write(origPboContent);
+        origPbo.close();
+
+        //pbo document with content
+        PboDocument document("file.pbo");
+        PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
+        n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
+        n1->binarySource->open();
+
+        //call the method
+        int count = 0;
+        int expectedHitCount = GetParam();//experimental way
+        DocumentWriter writer(filePath);
+        writer.write(&document, [&count, expectedHitCount]() { count++; return count > expectedHitCount - 1; });
+
+        ASSERT_FALSE(QFileInfo(filePath + ".b").exists());//no temp file
+
+        QFile prevPbo(filePath);
+        ASSERT_TRUE(prevPbo.exists());//the original file is in place and has its content
+        prevPbo.open(QIODeviceBase::ReadWrite);
+        const QByteArray prevPboContent = prevPbo.read(origPboSize);
+        prevPbo.close();
+        ASSERT_EQ(prevPboContent, origPboContent);
+    }
+
+    INSTANTIATE_TEST_SUITE_P(Write_Cleans_On_Cancel_When_Rewriting_Existing_File, DocumentWriterTest, testing::Range(1, 16));
 
     TEST(DocumentWriterTest, Write_Cleans_Temporary_Files_On_Write) {
         //mock files contents
@@ -179,7 +221,7 @@ namespace pboman3::io::test {
         ASSERT_TRUE(n1->binarySource->isOpen());
     }
 
-    INSTANTIATE_TEST_SUITE_P(Write_Leaves_Binary_Sources_Open_If_Cancelled, DocumentWriterTest, testing::Range(1, 13));
+    INSTANTIATE_TEST_SUITE_P(Write_Leaves_Binary_Sources_Open_If_Cancelled, DocumentWriterTest, testing::Range(1, 16));
 
     TEST(DocumentWriterTest, Write_Opens_Binary_Sources_After_Write) {
         //mock files contents

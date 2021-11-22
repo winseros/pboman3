@@ -26,8 +26,9 @@ namespace pboman3::model {
         const DocumentReader reader(path);
         try {
             document_ = reader.read();
+            LOG(info, "Read the document:", *document_);
         } catch (const AppException& ex) {
-            LOG(debug, "Could not load the file:", ex)
+            LOG(info, "Could not load the file:", ex)
             setLoadedPath(nullptr);
             throw;
         }
@@ -52,7 +53,10 @@ namespace pboman3::model {
         writer.write(document_.get(), cancel);
 
         if (!cancel()) {
+            LOG(info, "Write process complete")
             setLoadedPath(savePath);
+        } else {
+            LOG(info, "Write process cancelled")
         }
     }
 

@@ -14,7 +14,7 @@ namespace pboman3::domain {
     public:
         DocumentHeaders();
 
-        explicit DocumentHeaders(QList<QSharedPointer<DocumentHeader>> headers);//Repository Ctor
+        explicit DocumentHeaders(QList<QSharedPointer<DocumentHeader>> headers); //Repository Ctor
 
         qsizetype count() const;
 
@@ -32,6 +32,8 @@ namespace pboman3::domain {
 
         friend DocumentHeadersTransaction;
 
+        friend QDebug& operator<<(QDebug& debug, const DocumentHeaders& headers);
+        
     signals:
         void headersChanged();
 
@@ -40,6 +42,7 @@ namespace pboman3::domain {
 
         void setHeaders(QList<QSharedPointer<DocumentHeader>> headers);
 
-        static bool areDifferent(const QList<QSharedPointer<DocumentHeader>>& list1, const QList<QSharedPointer<DocumentHeader>>& list2);
+        static bool areDifferent(const QList<QSharedPointer<DocumentHeader>>& list1,
+                                 const QList<QSharedPointer<DocumentHeader>>& list2);
     };
 }

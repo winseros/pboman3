@@ -4,6 +4,9 @@
 #include "diskaccessexception.h"
 #include "pboheaderentity.h"
 #include "pboheaderio.h"
+#include "util/log.h"
+
+#define LOG(...) LOGGER("io/documentwriter", __VA_ARGS__)
 
 namespace pboman3::io {
     DocumentWriter::DocumentWriter(QString path)
@@ -14,58 +17,103 @@ namespace pboman3::io {
     void DocumentWriter::write(PboDocument* document, const Cancel& cancel) {
         assert(document && "Document must not be null");
 
-        const QString filePath = QFile::exists(path_) ? path_ + ".t" : path_;
+        LOG(info, "Writing the document to:", path_)
+        const bool shouldBackup = QFile::exists(path_);
+        const QString filePath = shouldBackup ? path_ + ".t" : path_;
+
         writeInternal(document, filePath, cancel);
 
+        if (cancel()) {
+            if (!shouldBackup)
+                QFile::remove(filePath); //don't assert as not critical
+            LOG(info, "Cancel - clean temp files and return")
+            return;
+        }
+
+        LOG(info, "Suspending binary sources")
         suspendBinarySources(document->root());
 
-        if (filePath != path_ && !cancel()) {
-            const QString backupPath = path_ + ".bak";
-            //LOG(info, "Cleaning up the temporary files")
+        bool backupMade = false;
+        const QString backupPath = path_ + ".bak";
+        if (shouldBackup && !cancel()) {
+            LOG(info, "Back up the original file as: ", backupPath)
             if (QFile::exists(backupPath) && !QFile::remove(backupPath)) {
-                //LOG(info, "Could not remove the prev backup file - throwing;", backupPath)
+                LOG(warning, "Could not remove the prev backup file - throwing;", backupPath)
                 resumeBinarySources(document->root());
                 throw DiskAccessException(
                     "Could not remove the file. Check you have enough permissions and the file is not locked by another process.",
                     backupPath);
             }
             if (!QFile::rename(path_, backupPath)) {
-                //LOG(info, "Could not replace the prev PBO file with a write copy - throwing;", loadedPath_)
+                LOG(info, "Could not replace the prev PBO file with a write copy - throwing:", path_)
                 resumeBinarySources(document->root());
                 throw DiskAccessException(
                     "Could not write to the file. Check you have enough permissions and the file is not locked by another process.",
                     path_);
             }
-            const bool renamed = QFile::rename(filePath, path_);
-            assert(renamed);
+            backupMade = QFile::rename(filePath, path_);
+            if (!backupMade) {
+                LOG(warning, "Could not rename file 1 to file 2 - throwing:", filePath, "|", path_)
+                throw DiskAccessException("Could not rename the file. Normally this must not happen.", filePath);
+            }
         }
 
         if (cancel()) {
+            LOG(info, "Cancel - removing the written files")
+            if (backupMade) {
+                if (!QFile::remove(path_)) {
+                    LOG(warning, "Could not remove the file - throwing", path_)
+                    throw DiskAccessException("Could not remove the file. Normally this must not happen.", path_);
+                }
+                LOG(info, "The original file has been already renamed - renaming back")
+                if (!QFile::rename(backupPath, path_)) {
+                    LOG(warning, "Could not rename file 1 to file 2 - throwing:", backupPath, "|", path_)
+                    throw DiskAccessException("Could not renames the file. Normally this must not happen.", backupPath);
+                }
+            } else {
+                if (!shouldBackup && !QFile::remove(path_)) {
+                    LOG(warning, "Could not remove the file - throwing", path_)
+                    throw DiskAccessException("Could not remove the file. Normally this must not happen.", path_);
+                }
+            }
+            LOG(info, "Resuming binary sources")
             resumeBinarySources(document->root());
         } else {
+            LOG(info, "Assigining binary sources")
             assignBinarySources(document->root());
         }
     }
 
     void DocumentWriter::writeInternal(PboDocument* document, const QString& path, const Cancel& cancel) {
+        LOG(info, "Writing to the file:", path)
+
         QTemporaryFile body;
         body.setFileName(path + ".b");
-        if (!body.open())
+        if (!body.open()) {
+            LOG(warning, "Could not open the body temp file - throwing:", body.fileName())
             throw DiskAccessException("Could not create the file.", body.fileName());
+        }
 
+        LOG(info, "Writing nodes")
         QList<QSharedPointer<PboNodeEntity>> entries;
         writeNode(&body, document->root(), entries, cancel);
 
-        if (cancel())
+        if (cancel()) {
+            LOG(info, "Cancel - return")
             return;
+        }
 
         PboFile pbo(path);
-        if (!pbo.open(QIODeviceBase::ReadWrite))
+        if (!pbo.open(QIODeviceBase::ReadWrite)) {
+            LOG(warning, "Could not open the file - throwing:", path)
             throw DiskAccessException("Could not create the file.", path);
+        }
 
+        LOG(info, "Writing headers")
         writeHeader(&pbo, document->headers(), entries, cancel);
 
         if (cancel()) {
+            LOG(info, "Cancel - clean temp files and return")
             pbo.close();
             pbo.remove();
             return;
@@ -74,11 +122,14 @@ namespace pboman3::io {
         const bool seek = body.seek(0);
         assert(seek);
 
+        LOG(info, "Copy body bytes")
         copyBody(&pbo, &body, cancel);
 
+        LOG(info, "Calc signature")
         writeSignature(&pbo, document, cancel);
 
         if (cancel()) {
+            LOG(info, "Cancel - clean temp files")
             pbo.close();
             pbo.remove();
         }
@@ -87,8 +138,10 @@ namespace pboman3::io {
     void DocumentWriter::writeNode(QFileDevice* file, PboNode* node, QList<QSharedPointer<PboNodeEntity>>& entries,
                                    const Cancel& cancel) {
         for (PboNode* child : *node) {
-            if (cancel())
+            if (cancel()) {
+                LOG(info, "Cancel - return")
                 return;
+            }
 
             if (child->nodeType() == PboNodeType::File) {
                 const qint64 before = file->pos();
@@ -136,6 +189,7 @@ namespace pboman3::io {
         }
 
         if (cancel()) {
+            LOG(info, "Cancel - return")
             return;
         }
 
@@ -143,12 +197,14 @@ namespace pboman3::io {
 
         for (const QSharedPointer<PboNodeEntity>& entry : entries) {
             if (cancel()) {
+                LOG(info, "Cancel - break")
                 break;
             }
             io.writeEntry(*entry);
         }
 
         if (cancel()) {
+            LOG(info, "Cancel - return")
             return;
         }
 
@@ -174,8 +230,10 @@ namespace pboman3::io {
             copiedBytes += read;
             emitCopyBytes(copiedBytes, totalBytes);
 
-            if (cancel())
+            if (cancel()) {
+                LOG(info, "Cancel - return")
                 return;
+            }
             read = body->read(data.data(), data.size());
         }
     }
@@ -199,8 +257,10 @@ namespace pboman3::io {
             emitCalcHash(processed, total);
         }
 
-        if (cancel())
+        if (cancel()) {
+            LOG(info, "Cancel - return")
             return;
+        }
 
         document->setSignature(sha1.result());
 
@@ -212,8 +272,7 @@ namespace pboman3::io {
         for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 child->binarySource->close();
-            }
-            else {
+            } else {
                 suspendBinarySources(child);
             }
         }
@@ -223,8 +282,7 @@ namespace pboman3::io {
         for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 child->binarySource->open();
-            }
-            else {
+            } else {
                 resumeBinarySources(child);
             }
         }
@@ -236,8 +294,7 @@ namespace pboman3::io {
                 const PboDataInfo& existing = binarySources_.take(child);
                 child->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(path_, existing));
                 child->binarySource->open();
-            }
-            else {
+            } else {
                 assignBinarySources(child);
             }
         }

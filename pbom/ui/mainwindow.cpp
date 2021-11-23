@@ -41,21 +41,23 @@ namespace pboman3::ui {
     }
 
     void MainWindow::loadFile(const QString& fileName) {
+        if (model_->isLoaded()) 
+            unloadFile();
+
         LOG(info, "Loading the file:", fileName)
         try {
             model_->loadFile(fileName);
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            if (model_->isLoaded()) unloadFile();
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            if (model_->isLoaded()) unloadFile();
         }
     }
 
     void MainWindow::unloadFile() {
+        LOG(info, "Unloading the current file")
         setHasChanges(false);
         model_->unloadFile();
     }

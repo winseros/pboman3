@@ -317,8 +317,6 @@ namespace pboman3::ui {
             ui_->actionSelectionExtractContainer->setEnabled(false);
             ui_->actionSelectionExtractContainer->setVisible(false);
         }
-
-
     }
 
     void MainWindow::saveFile(const QString& fileName) {
@@ -329,12 +327,16 @@ namespace pboman3::ui {
             promise.addResult(0);
         });
 
+        ui_->menubar->setEnabled(false);
+        ui_->treeWidget->setEnabled(false);
         ui_->statusBar->progressShow(static_cast<QFuture<void>>(future));
 
         saveWatcher_.setFuture(future);
     }
 
     void MainWindow::saveComplete() {
+        ui_->menubar->setEnabled(true);
+        ui_->treeWidget->setEnabled(true);
         ui_->statusBar->progressHide();
 
         QFuture<int> future = saveWatcher_.future();

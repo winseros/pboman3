@@ -18,4 +18,8 @@ namespace pboman3::io {
     const QString& DiskAccessException::file() const {
         return file_;
     }
+
+    QDebug operator<<(QDebug debug, const DiskAccessException& ex) {
+        return debug << "DiskAccessException(" << ex.message_ << ")";
+    }
 }

@@ -7,8 +7,10 @@ namespace pboman3::io {
     public:
         explicit PboFileFormatException(QString message);
 
-        friend QDebug operator<<(QDebug debug, const PboFileFormatException& ex);
+        void raise() const override;
 
         QException* clone() const override;
+
+        friend QDebug operator<<(QDebug debug, const PboFileFormatException& ex);
     };
 }

@@ -13,6 +13,8 @@ namespace pboman3::io {
 
         const QString& file() const;
 
+        friend QDebug operator<<(QDebug debug, const DiskAccessException& ex);
+
     private:
         QString file_;
     };

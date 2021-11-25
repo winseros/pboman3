@@ -41,7 +41,7 @@ namespace pboman3::ui {
     }
 
     void MainWindow::loadFile(const QString& fileName) {
-        if (model_->isLoaded()) 
+        if (model_->isLoaded())
             unloadFile();
 
         LOG(info, "Loading the file:", fileName)
@@ -408,7 +408,9 @@ namespace pboman3::ui {
     }
 
     QString MainWindow::makeExtractToTitle(const PboNode* node) const {
-        return "Extract to ./" + node->title()
+        return "Extract to ./" + (node->nodeType() == PboNodeType::Container
+                                      ? GetFileNameWithoutExtension(node->title())
+                                      : node->title())
             + (node->nodeType() == PboNodeType::File ? "" : "/");
     }
 }

@@ -1,6 +1,7 @@
 #include "pbonodetransaction.h"
 #include "validationexception.h"
 #include "exception.h"
+#include "domain/func.h"
 
 namespace pboman3::domain {
     PboNodeTransaction::PboNodeTransaction(PboNode* node)
@@ -39,7 +40,7 @@ namespace pboman3::domain {
             return "The value can not be empty";
         if (!node_->parentNode_)
             return "";
-        PboNode* existing = node_->parentNode_->findChild(title);
+        PboNode* existing = FindDirectChild(node_->parentNode_, title);
         return existing && existing != node_ ? "The item with this name already exists" : "";
     }
 }

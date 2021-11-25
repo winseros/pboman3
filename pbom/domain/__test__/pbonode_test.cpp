@@ -300,23 +300,6 @@ namespace pboman3::domain::test {
         ASSERT_EQ(count, 1);
     }
 
-    TEST(PboNodeTest, IsPathConflict_Functional) {
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        ASSERT_EQ(root.depth(), 0);
-
-        root.createHierarchy(PboPath("e1.txt"));
-        root.createHierarchy(PboPath("f2/e2.txt"));
-
-        ASSERT_TRUE(root.isPathConflict(PboPath("e1.txt")));
-        ASSERT_TRUE(root.isPathConflict(PboPath("f2")));
-        ASSERT_TRUE(root.isPathConflict(PboPath("f2/e2.txt")));
-        ASSERT_TRUE(root.isPathConflict(PboPath("f2/e2.txt/e4.txt")));
-
-        ASSERT_FALSE(root.isPathConflict(PboPath("e2.txt")));
-        ASSERT_FALSE(root.isPathConflict(PboPath("f2/e3.txt")));
-        ASSERT_FALSE(root.isPathConflict(PboPath("f3/e4.txt")));
-    }
-
     TEST(PboNodeTest, SetTitle_Wont_Emit_If_Title_Not_Changed) {
         PboNode root("file-name", PboNodeType::Container, nullptr);
 

@@ -5,6 +5,7 @@
 #include "io/bs/pbobinarysource.h"
 #include "io/pbonodeentity.h"
 #include "domain/pbonode.h"
+#include "domain/func.h"
 #include "io/diskaccessexception.h"
 #include "io/documentreader.h"
 #include "io/pbofileformatexception.h"
@@ -33,7 +34,7 @@ namespace pboman3::model {
 
         constexpr qsizetype startProgress = 0;
         qint32 endProgress = 0;
-        countNodeFiles(document->root(), endProgress);
+        CountFilesInTree(*document->root(), endProgress);
         emit taskInitialized(pboPath_, startProgress, endProgress);
 
         std::function onError = [this](const QString& error) {
@@ -109,14 +110,5 @@ namespace pboman3::model {
         }
 
         return true;
-    }
-
-    void UnpackTask::countNodeFiles(const PboNode* node, qint32& count) {
-        if (node->nodeType() == PboNodeType::File) {
-            count++;
-        } else {
-            for (const PboNode* child : *node)
-                countNodeFiles(child, count);
-        }
     }
 }

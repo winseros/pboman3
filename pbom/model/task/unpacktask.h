@@ -24,7 +24,5 @@ namespace pboman3::model {
         bool tryCreatePboDir(QDir* dir);
 
         bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry);
-
-        static void countNodeFiles(const PboNode* node, qint32& count);
     };
 }

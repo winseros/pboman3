@@ -3,6 +3,7 @@
 #include "exception.h"
 #include "validationexception.h"
 #include "pbonodetransaction.h"
+#include "func.h"
 
 namespace pboman3::domain {
     PboNode::PboNode(QString title, PboNodeType nodeType, PboNode* parentNode)
@@ -42,23 +43,6 @@ namespace pboman3::domain {
         p->emitHierarchyChanged();
     }
 
-    bool PboNode::isPathConflict(const PboPath& path) const {
-        const PboNode* node = this;
-        for (qsizetype i = 0; i < path.length() - 1; i++) {
-            const PboNode* folder = node->findChild(path.at(i));
-            if (folder) {
-                if (folder->nodeType_ == PboNodeType::File)
-                    return true;
-                node = folder;
-            } else {
-                return false;
-            }
-        }
-
-        const PboNode* file = node->findChild(path.last());
-        return file;
-    }
-
     const QString& PboNode::title() const {
         return title_;
     }
@@ -71,7 +55,7 @@ namespace pboman3::domain {
         PboNode* result = this;
         auto it = path.begin();
         while (it != path.end()) {
-            result = result->findChild(*it);
+            result = FindDirectChild(result, *it);
             if (!result)
                 return nullptr;
             ++it;
@@ -117,7 +101,7 @@ namespace pboman3::domain {
                                       bool emitEvents) {
         PboNode* node = this;
         for (qsizetype i = 0; i < entryPath.length() - 1; i++) {
-            PboNode* folder = node->findChild(entryPath.at(i));
+            PboNode* folder = FindDirectChild(node, entryPath.at(i));
             if (!folder) {
                 folder = node->createChild(entryPath.at(i), PboNodeType::Folder);
             } else if (folder->nodeType_ == PboNodeType::File) {
@@ -141,7 +125,7 @@ namespace pboman3::domain {
             node = folder;
         }
 
-        PboNode* file = node->findChild(entryPath.last());
+        PboNode* file = FindDirectChild(node, entryPath.last());
         if (!file) {
             file = node->createChild(entryPath.last(), PboNodeType::File);
             if (emitEvents)
@@ -168,14 +152,6 @@ namespace pboman3::domain {
         }
 
         return file;
-    }
-
-    PboNode* PboNode::findChild(const QString& title) const {
-        for (const QSharedPointer<PboNode>& child : children_) {
-            if (child->title_ == title)
-                return child.get();
-        }
-        return nullptr;
     }
 
     QString PboNode::pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const {

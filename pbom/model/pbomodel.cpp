@@ -1,5 +1,6 @@
 #include "pbomodel.h"
 #include "domain/pbonode.h"
+#include "domain/func.h"
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
@@ -125,7 +126,7 @@ namespace pboman3::model {
 
         ConflictsParcel conflicts;
         for (const NodeDescriptor& descriptor : descriptors) {
-            if (parent->isPathConflict(PboPath(descriptor.path()))) {
+            if (IsPathConflict(parent, PboPath(descriptor.path()))) {
                 LOG(info, "The descriptor is in conflict:", descriptor)
                 conflicts.setResolution(descriptor, ConflictResolution::Copy);
             }

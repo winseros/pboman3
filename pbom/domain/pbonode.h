@@ -24,8 +24,6 @@ namespace pboman3::domain {
 
         void removeFromHierarchy();
 
-        bool isPathConflict(const PboPath& path) const;
-
         const QString& title() const;
 
         PboNodeType nodeType() const;
@@ -56,8 +54,6 @@ namespace pboman3::domain {
         QString title_;
 
         PboNode* createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict, bool emitEvents);
-
-        PboNode* findChild(const QString& title) const;
 
         QString pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const;
 

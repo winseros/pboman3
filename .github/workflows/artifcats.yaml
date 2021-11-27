@@ -13,7 +13,7 @@ defaults:
 jobs:
   release:
     name: Make artifacts
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Set Short Sha
         run: |
@@ -33,7 +33,7 @@ jobs:
           echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
           echo "pbom_installer_version=0.0.${{github.run_number}}" >> $env:GITHUB_ENV
 
-      - name: Install MSVC 2019
+      - name: Install MSVC 2022
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
@@ -41,7 +41,7 @@ jobs:
       - name: Install Qt6
         uses: jurplel/install-qt-action@v2
         with:
-          version: '6.1.1'
+          version: '6.2.1'
           host: windows
           target: desktop
           arch: win64_msvc2019_64

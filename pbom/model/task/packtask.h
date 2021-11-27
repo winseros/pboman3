@@ -19,7 +19,7 @@ namespace pboman3::model {
         const QString folder_;
         const QString outputDir_;
 
-        qint32 collectDir(const QFileInfo& dirEntry, const QDir& rootDir, PboNode& rootNode, const Cancel& cancel) const;
+        qint32 collectDir(const QDir& dirEntry, const QDir& rootDir, PboNode& rootNode, const Cancel& cancel) const;
 
         qint32 collectFile(const QFileInfo& fileEntry, const QDir& rootDir, PboNode& rootNode) const;
     };

@@ -1,5 +1,4 @@
 #include "packtask.h"
-
 #include "io/diskaccessexception.h"
 #include "io/documentwriter.h"
 #include "util/log.h"
@@ -18,9 +17,8 @@ namespace pboman3::model {
         LOG(info, "Folder file: ", folder_)
         LOG(info, "Output dir: ", outputDir_)
 
-        const QFileInfo fi(folder_);
-
-        const QString pboFile = QDir(outputDir_).filePath(fi.fileName()).append(".pbo");
+        const QDir folder(folder_);
+        const QString pboFile = QDir(outputDir_).filePath(folder.dirName()).append(".pbo");
         LOG(info, "The pbo file name:", pboFile)
         if (QFileInfo(pboFile).exists()) {
             LOG(info, "The pbo file already exists")
@@ -28,17 +26,17 @@ namespace pboman3::model {
             return;
         }
 
-        emit taskThinking(fi.absoluteFilePath());
+        emit taskThinking(folder.absolutePath());
 
         PboDocument document("root");
-        const qint32 filesCount = collectDir(fi, fi.dir(), *document.root(), cancel);
+        const qint32 filesCount = collectDir(folder, folder, *document.root(), cancel);
 
         if (cancel())
             return;
 
         if (filesCount == 0) {
             LOG(info, "The Folder was empty")
-            emit taskMessage("Failure | The folder is empty | " + fi.absolutePath());
+            emit taskMessage("Failure | The folder is empty | " + folder.absolutePath());
             return;
         }
 
@@ -59,7 +57,7 @@ namespace pboman3::model {
 #define WT_BODY 2
 #define WT_SIGNATURE 7
 
-        emit taskInitialized(fi.absoluteFilePath(), 0, filesCount * (WT_ENTRIES + WT_BODY + WT_SIGNATURE));
+        emit taskInitialized(folder.absolutePath(), 0, filesCount * (WT_ENTRIES + WT_BODY + WT_SIGNATURE));
 
         qint32 progress = 0;
         connect(&writer, &DocumentWriter::progress, [this, &progress, filesCount](const DocumentWriter::ProgressEvent* evt) {
@@ -87,7 +85,7 @@ namespace pboman3::model {
             LOG(info, "Unpack complete")
         } catch (const DiskAccessException& ex) {
             LOG(warning, "Task failed with exception:", ex)
-            emit taskMessage("Failure | " + ex.message() + " | " + fi.absolutePath());
+            emit taskMessage("Failure | " + ex.message() + " | " + folder.absolutePath());
         }
     }
 
@@ -95,23 +93,21 @@ namespace pboman3::model {
         return debug << "PackTask(Folder=" << task.folder_ << ", OutputDir=" << task.outputDir_ << ")";
     }
 
-    qint32 PackTask::collectDir(const QFileInfo& dirEntry, const QDir& rootDir, PboNode& rootNode,
+    qint32 PackTask::collectDir(const QDir& dirEntry, const QDir& rootDir, PboNode& rootNode,
                                 const Cancel& cancel) const {
         LOG(debug, "Collecting the dir:", dirEntry)
 
         qint32 count = 0;
 
-        const QDir d(dirEntry.filePath() + QDir::separator());
-        const QFileInfoList entries = d.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+        const QFileInfoList entries = dirEntry.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
         for (const QFileInfo& entry : entries) {
             if (cancel())
                 return 0;
-
             if (!entry.isSymLink()) {
                 if (entry.isFile())
                     count += collectFile(entry, rootDir, rootNode);
                 else if (entry.isDir())
-                    count += collectDir(entry, rootDir, rootNode, cancel);
+                    count += collectDir(QDir(entry.filePath()), rootDir, rootNode, cancel);
             }
         }
 

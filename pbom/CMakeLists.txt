@@ -53,6 +53,9 @@ install(FILES
     ${QT_BINARIES_DIR}/plugins/styles/qwindowsvistastyle${QT_BINARIES_SUFFIX}.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR}/styles)
 install(FILES 
+    ${QT_BINARIES_DIR}/plugins/tls/qopensslbackend${QT_BINARIES_SUFFIX}.dll
+    DESTINATION ${CMAKE_INSTALL_BINDIR}/tls)
+install(FILES 
     ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libssl-1_1-x64.dll
     ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libcrypto-1_1-x64.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR})

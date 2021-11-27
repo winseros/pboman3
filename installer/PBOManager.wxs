@@ -61,6 +61,7 @@
             <Directory Id="D_ImageFormats" Name="ImageFormats" />
             <Directory Id="D_Platforms" Name="Platforms" />
             <Directory Id="D_Styles" Name="Styles" />
+            <Directory Id="D_Tls" Name="Tls" />
         </DirectoryRef>
 
         <ComponentGroup Id="CG_MainFiles">
@@ -75,6 +76,7 @@
             <ComponentRef Id="C_MainFiles__ImageFormats__qico.dll" />
             <ComponentRef Id="C_MainFiles__Platforms__qwindows.dll" />
             <ComponentRef Id="C_MainFiles__Styles__qwindowsvistastyle.dll" />
+            <ComponentRef Id="C_MainFiles__Tls__qopensslbackend.dll" />
         </ComponentGroup>
 
         <Feature Id="F_MainFiles" Title="Application" Level="1" InstallDefault="local" Absent="disallow"
@@ -192,6 +194,14 @@
                        Win64="yes">
                 <File Id="F_MainFiles__Styles__qwindowsvistastyle.dll" KeyPath="yes" Vital="yes"
                       Source="$(var.ArtifactsFolder)Styles\qwindowsvistastyle.dll" />
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="D_Tls">
+            <Component Id="C_MainFiles__Tls__qopensslbackend.dll" Guid="864E2C73-369B-42AF-88E4-989C858C04E2"
+                       Win64="yes">
+                <File Id="F_MainFiles__Tls__qopensslbackend.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Tls\qopensslbackend.dll" />
             </Component>
         </DirectoryRef>
     </Fragment>

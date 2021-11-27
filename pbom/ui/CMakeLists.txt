@@ -6,6 +6,7 @@ list(APPEND PROJECT_SOURCES
     "ui/treewidget/treewidgetitem.cpp"
     "ui/win32/win32iconmgr.cpp"
     "ui/win32/win32fileviewer.cpp"
+    "ui/win32/win32taskbarindicator.cpp"
     "ui/aboutdialog.cpp"
     "ui/aboutdialog.ui"
     "ui/closedialog.cpp"

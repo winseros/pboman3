@@ -3,6 +3,7 @@
 #include <QAbstractButton>
 #include <QMainWindow>
 #include <QPlainTextEdit>
+#include "taskbarindicator.h"
 #include "model/task/taskwindowmodel.h"
 #include "progresswidget/progresswidget.h"
 
@@ -25,12 +26,15 @@ namespace pboman3::ui {
         void start(const QSharedPointer<TaskWindowModel>& model);
 
     private:
+        class TaskbarIndicator;
+
         Ui::TaskWindow* ui_;
         QSharedPointer<TaskWindowModel> model_;
         int activeThreadCount_;
         QHash<ThreadId, ProgressWidget*> progressBars_;
         QPlainTextEdit* log_;
         QString doneText_;
+        QSharedPointer<TaskbarIndicator> taskbar_; 
 
         void threadStarted(ThreadId threadId);
 
@@ -45,5 +49,22 @@ namespace pboman3::ui {
         void threadMessage(ThreadId threadId, const QString& message);
 
         void buttonClicked(QAbstractButton* button);
+
+        class TaskbarIndicator {
+        public:
+            TaskbarIndicator(WId windowId);
+
+            void threadThinking() const;
+
+            void threadInitialized(qint64 maxProgress);
+
+            void threadProgress(ThreadId threadId, qint32 progress);
+
+        private:
+            qint64 maxValue_;
+            qint64 currentValue_;
+            QHash<ThreadId, qint32> threadValues_;
+            QSharedPointer<ui::TaskbarIndicator> taskbar_;
+        };
     };
 }

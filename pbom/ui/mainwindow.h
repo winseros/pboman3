@@ -30,7 +30,10 @@ namespace pboman3::ui {
         Ui::MainWindow* ui_;
         PboModel* model_;
         QFutureWatcher<int> saveWatcher_;
+        QFutureWatcher<int> loadWatcher_;
         bool hasChanges_;
+
+        void loadComplete();
 
         void unloadFile();
 
@@ -69,6 +72,10 @@ namespace pboman3::ui {
         void updateLoadedStatus(bool loaded) const;
 
         void updateWindowTitle();
+
+        void setIsLoading(QFuture<void> future, bool supportsCancellation) const;
+
+        void resetIsLoading() const;
 
         QString makeExtractToTitle(const PboNode* node) const;
     };

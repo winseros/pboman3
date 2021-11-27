@@ -44,9 +44,30 @@ namespace pboman3::ui {
         if (model_->isLoaded())
             unloadFile();
 
-        LOG(info, "Loading the file:", fileName)
-        try {
+        const QFuture<int> future = QtConcurrent::run([this, fileName](QPromise<int>& promise) {
+            LOG(info, "Loading the file:", fileName)
             model_->loadFile(fileName);
+            promise.addResult(0);
+        });
+
+        setIsLoading(static_cast<QFuture<void>>(future), false);
+        loadWatcher_.setFuture(future);
+    }
+
+    void MainWindow::loadComplete() {
+        resetIsLoading();
+
+        QFuture<int> future = loadWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "File loading was cancelled - exiting")
+            return;
+        }
+
+        try {
+            future.takeResult(); //to get exceptions rethrown
+            LOG(info, "File loading is complete")
+            setHasChanges(false);
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
@@ -71,11 +92,12 @@ namespace pboman3::ui {
     }
 
     void MainWindow::setupConnections() {
+        connect(&loadWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::loadComplete);
         connect(&saveWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::saveComplete);
 
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this](QFuture<void> f) {
             ui_->treeWidget->setEnabled(false);
-            ui_->statusBar->progressShow(f);
+            ui_->statusBar->progressShow(std::move(f), true);
         });
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() {
             ui_->treeWidget->setEnabled(true);
@@ -327,17 +349,13 @@ namespace pboman3::ui {
             promise.addResult(0);
         });
 
-        ui_->menubar->setEnabled(false);
-        ui_->treeWidget->setEnabled(false);
-        ui_->statusBar->progressShow(static_cast<QFuture<void>>(future));
+        setIsLoading(static_cast<QFuture<void>>(future), true);
 
         saveWatcher_.setFuture(future);
     }
 
     void MainWindow::saveComplete() {
-        ui_->menubar->setEnabled(true);
-        ui_->treeWidget->setEnabled(true);
-        ui_->statusBar->progressHide();
+        resetIsLoading();
 
         QFuture<int> future = saveWatcher_.future();
 
@@ -405,6 +423,18 @@ namespace pboman3::ui {
             LOG(info, "There is no loaded file - reset window title to the default")
             setWindowTitle(PBOM_PROJECT_NAME);
         }
+    }
+
+    void MainWindow::setIsLoading(QFuture<void> future, bool supportsCancellation) const {
+        ui_->menubar->setEnabled(false);
+        ui_->treeWidget->setEnabled(false);
+        ui_->statusBar->progressShow(std::move(future), supportsCancellation);
+    }
+
+    void MainWindow::resetIsLoading() const {
+        ui_->menubar->setEnabled(true);
+        ui_->treeWidget->setEnabled(true);
+        ui_->statusBar->progressHide();
     }
 
     QString MainWindow::makeExtractToTitle(const PboNode* node) const {

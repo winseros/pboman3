@@ -13,7 +13,7 @@ namespace pboman3::ui {
         StatusBar(QWidget* parent = nullptr);
 
     public slots:
-        void progressShow(QFuture<void> future);
+        void progressShow(QFuture<void> future, bool supportsCancellation = true);
 
         void progressHide() const;
 

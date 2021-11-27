@@ -1,6 +1,7 @@
 #include "statusbar.h"
 #include "exception.h"
 #include "util/log.h"
+#include "ui/win32/win32taskbarindicator.h"
 
 namespace pboman3::ui {
     StatusBar::StatusBar(QWidget* parent)
@@ -30,10 +31,17 @@ namespace pboman3::ui {
         progress_->setVisible(true);
         if (supportsCancellation)
             button_->setVisible(true);
+
+        taskbar_ = QSharedPointer<TaskbarIndicator>(new Win32TaskbarIndicator(effectiveWinId()));
+        taskbar_->setIndeterminate();
     }
 
-    void StatusBar::progressHide() const {
+    void StatusBar::progressHide() {
+        if (!progress_->isVisible())
+            throw InvalidOperationException("There is no background operation in progress");
+
         progress_->setVisible(false);
         button_->setVisible(false);
+        taskbar_.clear();
     }
 }

@@ -44,7 +44,7 @@ namespace pboman3::ui {
         if (model_->isLoaded())
             unloadFile();
 
-        const QFuture<int> future = QtConcurrent::run([this, fileName](QPromise<int>& promise) {
+        const QFuture<int> future = QtConcurrent::run([this, &fileName](QPromise<int>& promise) {
             LOG(info, "Loading the file:", fileName)
             model_->loadFile(fileName);
             promise.addResult(0);
@@ -344,7 +344,7 @@ namespace pboman3::ui {
     void MainWindow::saveFile(const QString& fileName) {
         LOG(info, "Saving the file")
 
-        const QFuture<int> future = QtConcurrent::run([this, fileName](QPromise<int>& promise) {
+        const QFuture<int> future = QtConcurrent::run([this, &fileName](QPromise<int>& promise) {
             model_->saveFile([&promise]() { return promise.isCanceled(); }, fileName);
             promise.addResult(0);
         });

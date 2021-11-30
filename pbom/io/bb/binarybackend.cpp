@@ -46,5 +46,7 @@ namespace pboman3::io {
     }
 
     void BinaryBackend::clear(const PboNode* node) const {
+        tempBackend_->clear(node);
+        execBackend_->clear(node);
     }
 }

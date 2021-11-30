@@ -22,6 +22,8 @@ namespace pboman3::ui {
         HWND window_;
         bool isErr_;
 
+        bool windowHasFocus() const;
+
         void flashWindow() const;
     };
 }

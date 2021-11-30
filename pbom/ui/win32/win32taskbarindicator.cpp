@@ -15,7 +15,7 @@ namespace pboman3::ui {
         if (progress_) {
             progress_->SetProgressState(window_, TBPF_NOPROGRESS);
             progress_->Release();
-            if (!isErr_)
+            if (!isErr_ && !windowHasFocus())
                 flashWindow();
         }
     }
@@ -40,6 +40,10 @@ namespace pboman3::ui {
             isErr_ = true;
             progress_->SetProgressState(window_, TBPF_ERROR);
         }
+    }
+
+    bool Win32TaskbarIndicator::windowHasFocus() const {
+        return GetActiveWindow() == window_;
     }
 
     void Win32TaskbarIndicator::flashWindow() const {

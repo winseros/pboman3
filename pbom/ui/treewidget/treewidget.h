@@ -65,6 +65,7 @@ namespace pboman3::ui {
         QFutureWatcher<InteractionParcel> cutCopyWatcher_;
         QFutureWatcher<QString> openWatcher_;
         QFutureWatcher<int> extractWatcher_;
+        QFutureWatcher<QSharedPointer<NodeDescriptors>> fsOpWatcher_;
         ActionState actionState_;
 
         void onDoubleClicked();
@@ -84,5 +85,7 @@ namespace pboman3::ui {
         void addFilesFromPbo(PboNode* target, const QMimeData* mimeData);
 
         void addFilesFromFilesystem(const QList<QUrl>& urls);
+
+        void addFilesFromFileSystemExecute();
     };
 }

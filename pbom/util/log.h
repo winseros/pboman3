@@ -32,9 +32,9 @@ USE THIS CODE FOR MACRO DEBUGGING
 #include <QScopedPointer>
 #include <QThread>
 
-#define ACTIVATE_ASYNC_LOG_SINK auto logging = QScopedPointer(new LoggingInfrastructure); logging->run();
+#define ACTIVATE_ASYNC_LOG_SINK auto logging = QScopedPointer(new util::LoggingInfrastructure); logging->run();
 
-namespace pboman3 {
+namespace pboman3::util {
     /*These two guys make standard QT logs be output on a non UI-thread*/
     /*as UI-thread output has too big UI responsiveness penalty*/
     class LogWorker : public QObject {

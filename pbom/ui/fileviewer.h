@@ -2,7 +2,7 @@
 
 #include <QString>
 
-namespace pboman3 {
+namespace pboman3::ui {
     class FileViewer {
     public:
         virtual void previewFile(const QString& path) = 0;

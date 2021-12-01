@@ -5,22 +5,23 @@
 #include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
-
 #include "aboutdialog.h"
 #include "closedialog.h"
 #include "errordialog.h"
 #include "headersdialog.h"
 #include "signaturedialog.h"
+#include "updatesdialog.h"
 #include "ui_mainwindow.h"
-#include "model/diskaccessexception.h"
-#include "model/pbofileformatexception.h"
+#include "io/diskaccessexception.h"
+#include "io/pbofileformatexception.h"
+#include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/MainWindow", __VA_ARGS__)
 
-namespace pboman3 {
-    MainWindow::MainWindow(QWidget* parent, PboModel* model)
+namespace pboman3::ui {
+    MainWindow::MainWindow(QWidget* parent, model::PboModel* model)
         : QMainWindow(parent),
           ui_(new Ui::MainWindow),
           model_(model),
@@ -40,24 +41,45 @@ namespace pboman3 {
     }
 
     void MainWindow::loadFile(const QString& fileName) {
-        LOG(info, "Loading the file:", fileName)
-        try {
+        if (model_->isLoaded())
+            unloadFile();
+
+        const QFuture<int> future = QtConcurrent::run([this, &fileName](QPromise<int>& promise) {
+            LOG(info, "Loading the file:", fileName)
             model_->loadFile(fileName);
-            setLoaded(true);
+            promise.addResult(0);
+        });
+
+        setIsLoading(static_cast<QFuture<void>>(future), false);
+        loadWatcher_.setFuture(future);
+    }
+
+    void MainWindow::loadComplete() {
+        resetIsLoading();
+
+        QFuture<int> future = loadWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "File loading was cancelled - exiting")
+            return;
+        }
+
+        try {
+            future.takeResult(); //to get exceptions rethrown
+            LOG(info, "File loading is complete")
+            setHasChanges(false);
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            unloadFile();
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-            unloadFile();
         }
     }
 
     void MainWindow::unloadFile() {
+        LOG(info, "Unloading the current file")
         setHasChanges(false);
-        setLoaded(false);
         model_->unloadFile();
     }
 
@@ -70,11 +92,12 @@ namespace pboman3 {
     }
 
     void MainWindow::setupConnections() {
+        connect(&loadWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::loadComplete);
         connect(&saveWatcher_, &QFutureWatcher<int>::finished, this, &MainWindow::saveComplete);
 
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStarted, this, [this](QFuture<void> f) {
             ui_->treeWidget->setEnabled(false);
-            ui_->statusBar->progressShow(f);
+            ui_->statusBar->progressShow(std::move(f), true);
         });
         connect(ui_->treeWidget, &TreeWidget::backgroundOpStopped, this, [this]() {
             ui_->treeWidget->setEnabled(true);
@@ -108,9 +131,11 @@ namespace pboman3 {
         connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
 
         connect(ui_->actionHelpAbout, &QAction::triggered, [this]() { AboutDialog(this).exec(); });
+        connect(ui_->actionCheckUpdates, &QAction::triggered, [this]() { UpdatesDialog(this).exec(); });
 
         connect(model_, &PboModel::modelChanged, this, [this]() { setHasChanges(true); });
         connect(model_, &PboModel::loadedPathChanged, this, &MainWindow::updateWindowTitle);
+        connect(model_, &PboModel::loadedStatusChanged, this, &MainWindow::updateLoadedStatus);
     }
 
     void MainWindow::onFileOpenClick() {
@@ -154,12 +179,12 @@ namespace pboman3 {
 
     void MainWindow::onViewHeadersClick() {
         LOG(info, "User clicked the ViewHeaders button")
-        HeadersDialog(model_->headers(), this).exec();
+        HeadersDialog(model_->document()->headers(), this).exec();
     }
 
     void MainWindow::onViewSignatureClick() {
         LOG(info, "User clicked the ViewSignature button")
-        SignatureDialog(model_->signature(), this).exec();
+        SignatureDialog(&model_->document()->signature(), this).exec();
     }
 
     void MainWindow::selectionExtractToClick() {
@@ -214,7 +239,7 @@ namespace pboman3 {
     void MainWindow::selectionExtractContainerClick() const {
         LOG(info, "User clicked the ExtractToContainer button")
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        const QString folderName = GetFileNameWithoutExtension(model_->rootEntry()->title());
+        const QString folderName = GetFileNameWithoutExtension(model_->document()->root()->title());
         const QString folderPath = dir.filePath(folderName);
         if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
             LOG(critical, "Could not create the dir:", folderPath)
@@ -223,7 +248,7 @@ namespace pboman3 {
         }
 
         LOG(info, "Extracting to:", folderPath)
-        ui_->treeWidget->selectionExtract(folderPath, model_->rootEntry());
+        ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
     }
 
     bool MainWindow::queryCloseUnsaved() {
@@ -314,25 +339,23 @@ namespace pboman3 {
             ui_->actionSelectionExtractContainer->setEnabled(false);
             ui_->actionSelectionExtractContainer->setVisible(false);
         }
-
-
     }
 
     void MainWindow::saveFile(const QString& fileName) {
         LOG(info, "Saving the file")
 
-        const QFuture<int> future = QtConcurrent::run([this, fileName](QPromise<int>& promise) {
+        const QFuture<int> future = QtConcurrent::run([this, &fileName](QPromise<int>& promise) {
             model_->saveFile([&promise]() { return promise.isCanceled(); }, fileName);
             promise.addResult(0);
         });
 
-        ui_->statusBar->progressShow(static_cast<QFuture<void>>(future));
+        setIsLoading(static_cast<QFuture<void>>(future), true);
 
         saveWatcher_.setFuture(future);
     }
 
     void MainWindow::saveComplete() {
-        ui_->statusBar->progressHide();
+        resetIsLoading();
 
         QFuture<int> future = saveWatcher_.future();
 
@@ -358,15 +381,15 @@ namespace pboman3 {
         updateWindowTitle();
     }
 
-    void MainWindow::setLoaded(bool loaded) const {
+    void MainWindow::updateLoadedStatus(bool loaded) const {
         LOG(info, "The Loaded status set to:", loaded)
 
         if (loaded) {
-            ui_->treeWidget->setRoot(model_->rootEntry());
+            ui_->treeWidget->setRoot(model_->document()->root());
             ui_->treeWidget->setDragDropMode(QAbstractItemView::DragDrop);
-            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
-            connect(model_->rootEntry(), &PboNode::titleChanged, [this]() {
-                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->rootEntry()));
+            ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->document()->root()));
+            connect(model_->document()->root(), &PboNode::titleChanged, [this]() {
+                ui_->actionSelectionExtractContainer->setText(makeExtractToTitle(model_->document()->root()));
             });
         } else {
             ui_->treeWidget->resetRoot();
@@ -388,11 +411,7 @@ namespace pboman3 {
     }
 
     void MainWindow::updateWindowTitle() {
-
-        if (model_->loadedPath().isNull()) {
-            LOG(info, "There is no loaded file - reset window title to the default")
-            setWindowTitle(PBOM_PROJECT_NAME);
-        } else {
+        if (model_->isLoaded()) {
             const QFileInfo fi(model_->loadedPath());
             const QString title = hasChanges_
                                       ? "*" + fi.fileName() + " - " + PBOM_PROJECT_NAME
@@ -400,11 +419,28 @@ namespace pboman3 {
             LOG(info, "Set window title to:", title)
 
             setWindowTitle(title);
+        } else {
+            LOG(info, "There is no loaded file - reset window title to the default")
+            setWindowTitle(PBOM_PROJECT_NAME);
         }
     }
 
+    void MainWindow::setIsLoading(QFuture<void> future, bool supportsCancellation) const {
+        ui_->menubar->setEnabled(false);
+        ui_->treeWidget->setEnabled(false);
+        ui_->statusBar->progressShow(std::move(future), supportsCancellation);
+    }
+
+    void MainWindow::resetIsLoading() const {
+        ui_->menubar->setEnabled(true);
+        ui_->treeWidget->setEnabled(true);
+        ui_->statusBar->progressHide();
+    }
+
     QString MainWindow::makeExtractToTitle(const PboNode* node) const {
-        return "Extract to ./" + node->title()
+        return "Extract to ./" + (node->nodeType() == PboNodeType::Container
+                                      ? GetFileNameWithoutExtension(node->title())
+                                      : node->title())
             + (node->nodeType() == PboNodeType::File ? "" : "/");
     }
 }

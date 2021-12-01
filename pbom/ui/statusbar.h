@@ -5,17 +5,18 @@
 #include <QPushButton>
 #include <QStatusBar>
 #include <QWidget>
+#include "ui/taskbarindicator.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     class StatusBar : public QStatusBar {
     Q_OBJECT
     public:
         StatusBar(QWidget* parent = nullptr);
 
     public slots:
-        void progressShow(QFuture<void> future);
+        void progressShow(QFuture<void> future, bool supportsCancellation = true);
 
-        void progressHide() const;
+        void progressHide();
 
     signals:
         void cancelRequested();
@@ -24,5 +25,6 @@ namespace pboman3 {
         QFuture<void> future_;
         QProgressBar* progress_;
         QPushButton* button_;
+        QSharedPointer<TaskbarIndicator> taskbar_;
     };
 }

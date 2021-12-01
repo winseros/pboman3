@@ -1,14 +1,14 @@
 #include "win32iconmgr.h"
 #include <QPixmap>
 #include <QImage>
-#include "util/exception.h"
+#include "exception.h"
 #include <Windows.h>
 #include <shellapi.h>
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/win32/Win32IconMgr", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     Win32IconMgr::Win32IconMgr() {
         cache_[""] = QIcon(":ifile.png");
         cache_[":folder-closed:"] = QIcon(":ifolderclosed.png");
@@ -19,12 +19,11 @@ namespace pboman3 {
         if (extension.startsWith("."))
             throw AppException("The extension must not start with a \".\" symbol");
 
-        LOG(debug, "Get icon for extension:", extension)
-
         if (cache_.contains(extension)) {
-            LOG(debug, "Retrieve from cache")
             return cache_[extension];
         }
+
+        LOG(info, "Get icon for extension:", extension)
 
         SHFILEINFOW info;
         const QString fn = "file." + extension;
@@ -35,7 +34,7 @@ namespace pboman3 {
             sizeof info,
             SHGFI_ICON | SHGFI_USEFILEATTRIBUTES);
 
-        LOG(debug, "Retrieve from the OS:", hr)
+        LOG(info, "Retrieve from the OS:", hr)
 
         if (SUCCEEDED(hr)) {
             cache_[extension] = QIcon(QPixmap::fromImage(QImage::fromHICON(info.hIcon)));
@@ -43,7 +42,7 @@ namespace pboman3 {
             return cache_[extension];
         }
 
-        LOG(debug, "Retrieve failed - fall back to the default", hr)
+        LOG(warning, "Retrieve failed - fall back to the default", hr)
 
         return cache_[""];
     }

@@ -5,7 +5,7 @@
 
 #define LOG(...) LOGGER("io/lzh/Lzh", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::io {
     void Lzh::decompress(QFileDevice* source, QFileDevice* target, int outputLength, const Cancel& cancel) {
         DecompressionContext ctx(source, target);
         const qint64 maxTargetOffset = target->pos() + outputLength;

@@ -3,7 +3,7 @@
 
 #define LOG(...) LOGGER("ui/treewidget/DeleteOp", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     void DeleteOp::schedule(QList<PboNode*> nodes) {
         LOG(info, "Schedule delete for", nodes.count(), "nodes")
         nodes_ = std::move(nodes);

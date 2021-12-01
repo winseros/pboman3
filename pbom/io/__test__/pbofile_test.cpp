@@ -2,7 +2,7 @@
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(PboFileTest, ReadCString_Reads_Zero_Terminated_String) {
         static const char* mockString1 = "some string value 11";
         static const char* mockString2 = "some string value 22";

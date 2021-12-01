@@ -2,9 +2,11 @@
 
 #include <QDir>
 #include "task.h"
-#include "io/pboheaderreader.h"
+#include "domain/pbodocument.h"
 
-namespace pboman3 {
+namespace pboman3::model {
+    using namespace domain;
+
     class UnpackTask : public Task {
     public:
         UnpackTask(QString pboPath, const QString& outputDir);
@@ -17,10 +19,10 @@ namespace pboman3 {
         const QString pboPath_;
         const QDir outputDir_;
 
-        bool tryReadPboHeader(PboFileHeader* header);
+        bool tryReadPboHeader(QSharedPointer<domain::PboDocument>* document);
 
         bool tryCreatePboDir(QDir* dir);
 
-        bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboEntry>& entry);
+        bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry);
     };
 }

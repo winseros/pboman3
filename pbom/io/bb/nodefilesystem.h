@@ -1,9 +1,11 @@
 #pragma once
 
 #include <QDir>
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
+
     class NodeFileSystem : public QObject {
     Q_OBJECT
     public:

@@ -3,7 +3,7 @@
 #include "util/util.h"
 #include <QDebug>
 
-namespace pboman3::test {
+namespace pboman3::util::test {
     struct GetFileExtensionParam {
         QString fileName;
         QString expectedResult;

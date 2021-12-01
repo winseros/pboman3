@@ -1,17 +1,17 @@
 #pragma once
 
+#include "domain/pbodocument.h"
 #include <QFuture>
 #include <QObject>
 #include "conflictsparcel.h"
-#include "headersmodel.h"
 #include "interactionparcel.h"
-#include "pbonode.h"
-#include "signaturemodel.h"
 #include "io/bb/binarybackend.h"
 
-namespace pboman3 {
+namespace pboman3::model {
+    using namespace domain;
+
     class PboModel : public QObject {
-    Q_OBJECT
+        Q_OBJECT
     public:
         void loadFile(const QString& path);
 
@@ -29,28 +29,26 @@ namespace pboman3 {
 
         void unpackNodesTo(const QDir& dest, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel) const;
 
-        PboNode* rootEntry() const;
-
-        HeadersModel* headers() const;
-
-        SignatureModel* signature() const;
+        PboDocument* document() const;
 
         const QString& loadedPath() const;
+
+        bool isLoaded() const;
 
     signals:
         void modelChanged();
 
         void loadedPathChanged();
 
+        void loadedStatusChanged(bool loaded);
+
     private:
         QString loadedPath_;
-        QSharedPointer<PboNode> rootEntry_;
-        QSharedPointer<HeadersModel> headers_;
-        QSharedPointer<SignatureModel> signature_;
+        QSharedPointer<PboDocument> document_;
         QSharedPointer<BinaryBackend> binaryBackend_;
 
         void setLoadedPath(const QString& loadedFile);
 
-        void rootTitleChanged();
+        void titleChanged();
     };
 }

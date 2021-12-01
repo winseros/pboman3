@@ -1,8 +1,8 @@
 #pragma once
 
-#include "binarysource.h"
+#include "abstractbinarysource.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     struct PboDataInfo {
         qint32 originalSize;
         qint32 dataSize;
@@ -11,7 +11,7 @@ namespace pboman3 {
         qint32 compressed;
     };
 
-    class PboBinarySource : public BinarySource {
+    class PboBinarySource : public AbstractBinarySource {
     public:
         PboBinarySource(const QString& path, const PboDataInfo& dataInfo, qsizetype bufferSize = 1024 * 1024);
 

@@ -2,9 +2,9 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QUuid>
-#include "io/pboioexception.h"
+#include "io/diskaccessexception.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     ExecBackend::ExecBackend(const QDir& folder)
         : folder_(folder) {
         if (!folder.exists())
@@ -85,11 +85,11 @@ namespace pboman3 {
         const QFileInfo fi(execPath);
 
         if (!folder_.mkpath(folder_.relativeFilePath(fi.dir().path())))
-            throw PboIoException("Could not create the folder.", fi.dir().path());
+            throw DiskAccessException("Could not create the folder.", fi.dir().path());
 
         QFile file(execPath);
         if (!file.open(QIODeviceBase::ReadWrite | QIODeviceBase::NewOnly))
-            throw PboIoException(
+            throw DiskAccessException(
                 "Could not open file. Check you have enough permissions and the file is not locked by another process.",
                 execPath);
 

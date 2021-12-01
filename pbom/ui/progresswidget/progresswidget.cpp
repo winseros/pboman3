@@ -2,7 +2,7 @@
 #include <QLayout>
 #include <qevent.h>
 
-namespace pboman3 {
+namespace pboman3::ui {
     ProgressWidget::ProgressWidget(QWidget* parent)
         : QWidget(parent) {
         progress_ = new QProgressBar(this);

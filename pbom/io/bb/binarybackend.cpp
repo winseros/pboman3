@@ -1,11 +1,12 @@
 #include "binarybackend.h"
 #include "unpackbackend.h"
-#include "io/pboioexception.h"
+#include "io/diskaccessexception.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("io/bb/BinaryBackend", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
 #define TEMP_PBOMAN "pboman3"
 
     BinaryBackend::BinaryBackend(const QString& name) {
@@ -20,9 +21,9 @@ namespace pboman3 {
         LOG(info, "Binary backend exec:", exec)
 
         if (!QDir::temp().mkpath(treePath))
-            throw PboIoException("Could not create the folder.", tree.path());
+            throw DiskAccessException("Could not create the folder.", tree.path());
         if (!QDir::temp().mkpath(execPath))
-            throw PboIoException("Could not create the folder.", exec.path());
+            throw DiskAccessException("Could not create the folder.", exec.path());
 
         tempBackend_ = QSharedPointer<TempBackend>(new TempBackend(tree));
         execBackend_ = QSharedPointer<ExecBackend>(new ExecBackend(exec));
@@ -45,5 +46,7 @@ namespace pboman3 {
     }
 
     void BinaryBackend::clear(const PboNode* node) const {
+        tempBackend_->clear(node);
+        execBackend_->clear(node);
     }
 }

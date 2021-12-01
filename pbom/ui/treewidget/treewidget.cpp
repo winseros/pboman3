@@ -5,16 +5,16 @@
 #include <QDrag>
 #include "ui/fscollector.h"
 #include "ui/insertdialog.h"
-#include "util/exception.h"
+#include "exception.h"
 #include <QDesktopServices>
-#include "model/diskaccessexception.h"
+#include "io/diskaccessexception.h"
 #include "ui/errordialog.h"
 #include "ui/win32/win32fileviewer.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/treewidget/TreeWidget", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
 #define MIME_TYPE_PBOMAN "application/pboman3"
 
     TreeWidget::TreeWidget(QWidget* parent)
@@ -26,6 +26,8 @@ namespace pboman3 {
         connect(&cutCopyWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::copyOrCutExecute);
         connect(&openWatcher_, &QFutureWatcher<QString>::finished, this, &TreeWidget::openExecute);
         connect(&extractWatcher_, &QFutureWatcher<int>::finished, this, &TreeWidget::extractExecute);
+        connect(&fsOpWatcher_, &QFutureWatcher<NodeDescriptors>::finished, this,
+                &TreeWidget::addFilesFromFileSystemExecute);
         connect(this, &TreeWidget::itemSelectionChanged, this, &TreeWidget::onSelectionChanged);
         connect(this, &TreeWidget::doubleClicked, this, &TreeWidget::onDoubleClicked);
     }
@@ -375,11 +377,33 @@ namespace pboman3 {
     void TreeWidget::addFilesFromFilesystem(const QList<QUrl>& urls) {
         LOG(info, "Add files from the file system:", urls)
 
-        NodeDescriptors files;
+        const QFuture<QSharedPointer<NodeDescriptors>> future = QtConcurrent::run([&urls](QPromise<QSharedPointer<NodeDescriptors>>& promise) {
+            QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(urls, [&promise]() { return promise.isCanceled(); });
+            promise.addResult(files);
+        });
+
+        emit backgroundOpStarted(static_cast<QFuture<void>>(future));
+
+        fsOpWatcher_.setFuture(future);
+    }
+
+    void TreeWidget::addFilesFromFileSystemExecute() {
+        LOG(info, "File collecting completed")
+
+        emit backgroundOpStopped();
+
+        const QFuture<QSharedPointer<NodeDescriptors>> future = fsOpWatcher_.future();
+
+        if (!future.isValid()) {
+            LOG(info, "The operation was cancelled - exitig")
+            return;
+        }
+
+        QSharedPointer<NodeDescriptors> files;
         try {
-            files = FsCollector::collectFiles(urls);
-            LOG(debug, "Collected descriptors:", files)
-        } catch (const PboIoException& ex) {
+            files = future.result();
+            LOG(debug, "Collected descriptors:", *files)
+        } catch (const DiskAccessException& ex) {
             LOG(info, "Error when collecting - show error modal:", ex)
             UI_HANDLE_ERROR_RET(ex)
         }
@@ -387,13 +411,13 @@ namespace pboman3 {
         PboNode* item = getCurrentFolder();
         LOG(info, "Selected node is:", *item)
 
-        ConflictsParcel conflicts = model_->checkConflicts(item, files);
+        ConflictsParcel conflicts = model_->checkConflicts(item, *files);
         LOG(debug, "The result of conflicts check:", conflicts)
 
-        InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, &files, &conflicts);
+        InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, files.get(), &conflicts);
         if (dialog.exec() == QDialog::DialogCode::Accepted) {
             LOG(info, "The user accepted the file insert dialog")
-            model_->createNodeSet(item, files, conflicts);
+            model_->createNodeSet(item, *files, conflicts);
         }
     }
 }

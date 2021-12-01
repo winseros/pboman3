@@ -2,7 +2,7 @@
 
 #include <QSharedPointer>
 
-namespace pboman3 {
+namespace pboman3::util {
     template <class T>
     class QPointerListIterator {
     public:

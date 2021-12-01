@@ -1,9 +1,9 @@
 #include "io/bb/nodefilesystem.h"
-#include "io/pboioexception.h"
+#include "exception.h"
 #include <QTemporaryDir>
 #include <gtest/gtest.h>
 
-namespace pboman3::test {
+namespace pboman3::io::test {
     TEST(NodeFileSystemTest, AllocatePath_Creates_And_Sanitizes_Path_For_Node) {
         const QTemporaryDir dir;
         const NodeFileSystem fs(QDir(dir.path()));

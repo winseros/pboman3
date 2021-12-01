@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QDialog>
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 #include "ui_renamedialog.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
+    using namespace domain;
+
     class RenameDialog : public QDialog {
     Q_OBJECT
 
@@ -20,13 +22,14 @@ namespace pboman3 {
 
     private:
         Ui::RenameDialog* ui_;
-        PboNode* node_;
+        QSharedPointer<PboNodeTransaction> transaction_;
+        QString initialTitle_;
         bool isDirty_;
 
-        bool setErrorState(const TitleError& err) const;
+        void setErrorState(const QString& err) const;
 
         void disableAccept(bool disable) const;
 
-        void setTextAndSelect() const;
+        void setTextAndSelect(const QString& title) const;
     };
 }

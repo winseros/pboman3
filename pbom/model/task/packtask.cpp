@@ -1,11 +1,13 @@
 #include "packtask.h"
-#include "io/pboioexception.h"
-#include "io/pbowriter.h"
+#include "io/diskaccessexception.h"
+#include "io/documentwriter.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/PackTask", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::model {
+    using namespace io;
+
     PackTask::PackTask(QString folder, QString outputDir)
         : folder_(std::move(folder)),
           outputDir_(std::move(outputDir)) {
@@ -15,9 +17,8 @@ namespace pboman3 {
         LOG(info, "Folder file: ", folder_)
         LOG(info, "Output dir: ", outputDir_)
 
-        const QFileInfo fi(folder_);
-
-        const QString pboFile = QDir(outputDir_).filePath(fi.fileName()).append(".pbo");
+        const QDir folder(folder_);
+        const QString pboFile = QDir(outputDir_).filePath(folder.dirName()).append(".pbo");
         LOG(info, "The pbo file name:", pboFile)
         if (QFileInfo(pboFile).exists()) {
             LOG(info, "The pbo file already exists")
@@ -25,25 +26,21 @@ namespace pboman3 {
             return;
         }
 
-        emit taskThinking(fi.absoluteFilePath());
+        emit taskThinking(folder.absolutePath());
 
-        PboNode root("root", PboNodeType::Container, nullptr);
-        const qint32 filesCount = collectDir(fi, fi.dir(), root, cancel);
+        PboDocument document("root");
+        const qint32 filesCount = collectDir(folder, folder, *document.root(), cancel);
 
         if (cancel())
             return;
 
         if (filesCount == 0) {
             LOG(info, "The Folder was empty")
-            emit taskMessage("Failure | The folder is empty | " + fi.absolutePath());
+            emit taskMessage("Failure | The folder is empty | " + folder.absolutePath());
             return;
         }
 
-        HeadersModel headers;
-        PboWriter writer;
-        writer.usePath(pboFile)
-            .useRoot(&root)
-            .useHeaders(&headers);
+        DocumentWriter writer(pboFile);
 
         //it is tricky to display real PBO pack progress as the process consists of four independent steps.
         //1. Scan the source folder and grab files. It might take time we can't estimate at all. So just show "indeterminate" progress indicator.
@@ -60,18 +57,18 @@ namespace pboman3 {
 #define WT_BODY 2
 #define WT_SIGNATURE 7
 
-        emit taskInitialized(fi.absoluteFilePath(), 0, filesCount * (WT_ENTRIES + WT_BODY + WT_SIGNATURE));
+        emit taskInitialized(folder.absolutePath(), 0, filesCount * (WT_ENTRIES + WT_BODY + WT_SIGNATURE));
 
         qint32 progress = 0;
-        connect(&writer, &PboWriter::progress, [this, &progress, filesCount](const PboWriter::ProgressEvent* evt) {
-            if (dynamic_cast<const PboWriter::WriteEntryEvent*>(evt)) {
+        connect(&writer, &DocumentWriter::progress, [this, &progress, filesCount](const DocumentWriter::ProgressEvent* evt) {
+            if (dynamic_cast<const DocumentWriter::WriteEntryEvent*>(evt)) {
                 //2nd step - just increment progress by 1 for each processed file
                 progress++;
-            } else if (const auto evt1 = dynamic_cast<const PboWriter::CopyBytesEvent*>(evt)) {
+            } else if (const auto evt1 = dynamic_cast<const DocumentWriter::CopyBytesEvent*>(evt)) {
                 //3rd step - see how many bytes copied and how it corresponds to the overall progress
                 progress = filesCount * WT_ENTRIES + static_cast<qint32>(1.0 * filesCount * WT_BODY
                     / static_cast<double>(evt1->total) * static_cast<double>(evt1->copied));
-            } else if (const auto evt2 = dynamic_cast<const PboWriter::CalcHashEvent*>(evt)) {
+            } else if (const auto evt2 = dynamic_cast<const DocumentWriter::CalcHashEvent*>(evt)) {
                 //4th step - see how many bytes were processed for signature and update the overall progress
                 //once all bytes processed - report 100% progress explicitly
                 progress = evt2->processed == evt2->total
@@ -84,11 +81,11 @@ namespace pboman3 {
         });
 
         try {
-            writer.write(cancel);
+            writer.write(&document, cancel);
             LOG(info, "Unpack complete")
-        } catch (const PboIoException& ex) {
+        } catch (const DiskAccessException& ex) {
             LOG(warning, "Task failed with exception:", ex)
-            emit taskMessage("Failure | " + ex.message() + " | " + fi.absolutePath());
+            emit taskMessage("Failure | " + ex.message() + " | " + folder.absolutePath());
         }
     }
 
@@ -96,23 +93,21 @@ namespace pboman3 {
         return debug << "PackTask(Folder=" << task.folder_ << ", OutputDir=" << task.outputDir_ << ")";
     }
 
-    qint32 PackTask::collectDir(const QFileInfo& dirEntry, const QDir& rootDir, PboNode& rootNode,
+    qint32 PackTask::collectDir(const QDir& dirEntry, const QDir& rootDir, PboNode& rootNode,
                                 const Cancel& cancel) const {
         LOG(debug, "Collecting the dir:", dirEntry)
 
         qint32 count = 0;
 
-        const QDir d(dirEntry.filePath() + QDir::separator());
-        const QFileInfoList entries = d.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+        const QFileInfoList entries = dirEntry.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
         for (const QFileInfo& entry : entries) {
             if (cancel())
                 return 0;
-
             if (!entry.isSymLink()) {
                 if (entry.isFile())
                     count += collectFile(entry, rootDir, rootNode);
                 else if (entry.isDir())
-                    count += collectDir(entry, rootDir, rootNode, cancel);
+                    count += collectDir(QDir(entry.filePath()), rootDir, rootNode, cancel);
             }
         }
 

@@ -2,7 +2,9 @@
 #include <QFileDialog>
 #include "model/task/packwindowmodel.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
+    using namespace model;
+
     PackWindow::PackWindow(QWidget* parent)
         : TaskWindow(parent) {
         QString title = "Pack PBO(s) - ";

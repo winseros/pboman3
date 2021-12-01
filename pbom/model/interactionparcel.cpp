@@ -1,9 +1,9 @@
 #include "interactionparcel.h"
 #include <QDataStream>
 #include <QSet>
-#include "util/exception.h"
+#include "exception.h"
 
-namespace pboman3 {
+namespace pboman3::model {
     const QSharedPointer<BinarySource>& NodeDescriptor::binarySource() const {
         return binarySource_;
     }
@@ -148,7 +148,7 @@ namespace pboman3 {
         return QSharedPointer<BinarySource>(new FsRawBinarySource(fsPath));
     }
 
-    NodeDescriptors NodeDescriptors::packNodes(const QList<PboNode*>& nodes) {
+    NodeDescriptors NodeDescriptors::packNodes(const QList<domain::PboNode*>& nodes) {
         NodeDescriptors descriptors;
         descriptors.reserve(nodes.length() * 2);
 

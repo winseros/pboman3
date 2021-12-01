@@ -4,7 +4,7 @@
 
 #define LOG(...) LOGGER("ui/InsertDialogButtons", __VA_ARGS__)
 
-namespace pboman3 {
+namespace pboman3::ui {
     InsertDialogButtons::InsertDialogButtons(QWidget* parent)
         : QDialogButtonBox(StandardButtons(Ok | Cancel), parent),
           btnNext_(nullptr),

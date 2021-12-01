@@ -4,9 +4,10 @@
 #include <QPushButton>
 #include "ui_taskwindow.h"
 #include "model/task/taskwindowmodel.h"
-#include "util/exception.h"
+#include "exception.h"
+#include "win32/win32taskbarindicator.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
     TaskWindow::TaskWindow(QWidget* parent)
         : QMainWindow(parent),
           ui_(new Ui::TaskWindow),
@@ -14,6 +15,7 @@ namespace pboman3 {
           log_(nullptr),
           doneText_("Done") {
         ui_->setupUi(this);
+        taskbar_ = QSharedPointer<TaskbarIndicator>(new TaskbarIndicator(winId()));
     }
 
     TaskWindow::~TaskWindow() {
@@ -49,6 +51,8 @@ namespace pboman3 {
     }
 
     void TaskWindow::threadThinking(ThreadId threadId, const QString& text) const {
+        taskbar_->threadThinking();
+
         const ProgressWidget* progress = progressBars_.value(threadId);
         progress->setIndeterminate(true);
         progress->setText(text);
@@ -56,6 +60,8 @@ namespace pboman3 {
 
     void TaskWindow::threadInitialized(ThreadId threadId, const QString& text, qint32 minProgress,
                                        qint32 maxProgress) const {
+        taskbar_->threadInitialized(maxProgress);
+
         const ProgressWidget* progress = progressBars_.value(threadId);
         progress->setMinimum(minProgress);
         progress->setMaximum(maxProgress);
@@ -64,6 +70,8 @@ namespace pboman3 {
     }
 
     void TaskWindow::threadProgress(ThreadId threadId, qint32 progress) const {
+        taskbar_->threadProgress(threadId, progress);
+
         const ProgressWidget* progressBar = progressBars_.value(threadId);
         progressBar->setValue(progress);
     }
@@ -75,6 +83,8 @@ namespace pboman3 {
 
         activeThreadCount_--;
         if (activeThreadCount_ == 0) {
+            taskbar_.clear();
+
             ui_->buttonBox->setEnabled(true);
             ui_->buttonBox->setStandardButtons(QDialogButtonBox::StandardButton::Close);
         }
@@ -101,5 +111,29 @@ namespace pboman3 {
         } else if (button == dynamic_cast<QAbstractButton*>(ui_->buttonBox->button(QDialogButtonBox::Close))) {
             close();
         }
+    }
+
+    TaskWindow::TaskbarIndicator::TaskbarIndicator(WId windowId)
+        : maxValue_(0),
+          currentValue_(0) {
+        taskbar_ = QSharedPointer<ui::TaskbarIndicator>(new Win32TaskbarIndicator(windowId));
+    }
+
+    void TaskWindow::TaskbarIndicator::threadThinking() const {
+        if (currentValue_ == 0)
+            taskbar_->setIndeterminate();
+    }
+
+    void TaskWindow::TaskbarIndicator::threadInitialized(qint64 maxProgress) {
+        maxValue_ += maxProgress;
+        taskbar_->setProgressValue(currentValue_, maxValue_);
+    }
+
+    void TaskWindow::TaskbarIndicator::threadProgress(ThreadId threadId, qint32 progress) {
+        const qint32 threadValue = threadValues_.value(threadId, 0);
+        const qint32 increment = progress - threadValue;
+        threadValues_.insert(threadId, progress);
+        currentValue_ += increment;
+        taskbar_->setProgressValue(currentValue_, maxValue_);
     }
 }

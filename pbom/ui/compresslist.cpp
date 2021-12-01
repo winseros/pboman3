@@ -3,7 +3,7 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 
-namespace pboman3 {
+namespace pboman3::ui {
     constexpr int colTitleIndex = 0;
     constexpr int colExtensionIndex = 1;
     constexpr int colCompressIndex = 2;

@@ -1,7 +1,7 @@
 #include "fslzhbinarysource.h"
 #include "io/lzh/lzh.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     FsLzhBinarySource::FsLzhBinarySource(QString path, qsizetype bufferSize)
         : FsRawBinarySource(std::move(path), bufferSize){
     }

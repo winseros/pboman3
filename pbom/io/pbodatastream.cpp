@@ -1,6 +1,6 @@
 #include "pbodatastream.h"
 
-namespace pboman3 {
+namespace pboman3::io {
     PboDataStream::PboDataStream(PboFile* file)
         : QDataStream(file),
           file_(file) {

@@ -2,9 +2,11 @@
 
 #include <QTreeWidget>
 #include "treewidgetitem.h"
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 
-namespace pboman3 {
+namespace pboman3::ui {
+    using namespace domain;
+
     class TreeWidgetBase : public QTreeWidget {
     Q_OBJECT
     public:

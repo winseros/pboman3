@@ -3,14 +3,14 @@
 
 #define LOG(...) LOGGER("ui/SignatureDialog", __VA_ARGS__)
 
-namespace pboman3 {
-    SignatureDialog::SignatureDialog(const SignatureModel* model, QWidget* parent)
+namespace pboman3::ui {
+    SignatureDialog::SignatureDialog(const QByteArray* signature, QWidget* parent)
         : QDialog(parent),
           ui_(new Ui::SignatureDialog) {
         ui_->setupUi(this);
 
-        QString sig = model->signatureString();
-        if (sig.isNull()) {
+        QString sig = signature->toHex(' ');
+        if (sig.isEmpty()) {
             sig = "/*The file has no signature*/";
         }
         LOG(info, "Show signature as:", sig)

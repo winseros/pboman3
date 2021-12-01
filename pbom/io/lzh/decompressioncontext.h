@@ -2,7 +2,7 @@
 
 #include <QFileDevice>
 
-namespace pboman3 {
+namespace pboman3::io {
     class DecompressionContext {
     public:
         int format;

@@ -1,6 +1,6 @@
 #include "util.h"
 
-namespace pboman3 {
+namespace pboman3::util {
     QString GetFileExtension(const QString& fileName) {
         const qsizetype extPos = fileName.lastIndexOf(".");
         QString ext = extPos >= 0 ? fileName.right(fileName.length() - extPos - 1) : "";

@@ -2,9 +2,11 @@
 
 #include "execbackend.h"
 #include "tempbackend.h"
-#include "model/pbonode.h"
+#include "domain/pbonode.h"
 
-namespace pboman3 {
+namespace pboman3::io {
+    using namespace domain;
+
     class BinaryBackend {
     public:
         BinaryBackend(const QString& name);

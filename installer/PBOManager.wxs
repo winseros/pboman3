@@ -254,6 +254,7 @@
             <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="{}">PbomInstallPer = "machine"</Publish>
             <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomMainFilesUserFolder]">PbomInstallPer = "user"</Publish>
             <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomMainFilesMachineFolder]">PbomInstallPer = "machine"</Publish>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Event="DoAction" Value="FindRelatedProducts" Order="10">1</Publish>
             <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="MachineOrUserDlg">1</Publish>
 
             <Dialog Id="MachineOrUserDlg" Width="370" Height="270" Title="!(loc.InstallScopeDlg_Title)"

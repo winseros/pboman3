@@ -6,6 +6,17 @@
 namespace pboman3::model::task {
     using namespace domain;
 
+    class PrefixEncodingException : public AppException {
+    public:
+        PrefixEncodingException(QString prefixFileName);
+
+        void raise() const override;
+
+        QException* clone() const override;
+
+        friend QDebug& operator<<(QDebug& debug, const PrefixEncodingException& ex);
+    };
+
     class PackConfiguration {
     public:
         explicit PackConfiguration(PboDocument* document);
@@ -36,6 +47,8 @@ namespace pboman3::model::task {
             QList<QRegularExpression> exclude;
         };
 
-        void applyFileContentAsHeader(const QString& prefix) const;
+        void applyNodeContentAsHeader(const PboNode* node, const QString& prefix) const;
+
+        static void throwIfBreaksPbo(const PboNode* node, const QByteArray& data);
     };
 }

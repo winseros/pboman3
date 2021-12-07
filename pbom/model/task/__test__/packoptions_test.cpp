@@ -45,4 +45,16 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(config.compress().include().count(), 0);
         ASSERT_EQ(config.compress().exclude().count(), 0);
     }
+
+    TEST(PackOptionsTest, Settle_Throws_If_Header_Name_Is_Empty) {
+        const QJsonDocument json = QJsonDocument::fromJson("{\"headers\":[{\"name\":\"\"}]}");
+
+        try {
+            PackOptions config;
+            config.settle(json.object(), "");
+            FAIL() << "Should have not reached this line";
+        } catch (const JsonStructureException& ex) {
+            ASSERT_EQ(".headers[0].name must not be an empty string", ex.message());
+        }
+    }
 }

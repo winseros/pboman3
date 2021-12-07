@@ -8,7 +8,7 @@
 namespace pboman3::model::task::test {
     using namespace domain;
 
-    TEST(PackConfigurationTest, Apply_Removes_PboJson_Node) {
+    TEST(PackConfigurationTest, Apply_Removes_All_Config_Nodes) {
         QTemporaryFile json;
         json.open();
         json.write(QByteArray("{}"));
@@ -18,11 +18,17 @@ namespace pboman3::model::task::test {
         document.root()->createHierarchy(PboPath({"f1.txt"}));
         PboNode* pboJson = document.root()->createHierarchy(PboPath({"pbo.json"}));
         pboJson->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prefix$"}));
+        prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$version$"}));
+        version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$product$"}));
+        product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
 
         const PackConfiguration packConfiguration(&document);
         packConfiguration.apply();
 
-        ASSERT_EQ(document.root()->count(), 1); //pbo.json removed
+        ASSERT_EQ(document.root()->count(), 1); //config files removed
         ASSERT_TRUE(document.root()->get(PboPath({"f1.txt"}))); //but others are in places
     }
 
@@ -34,8 +40,16 @@ namespace pboman3::model::task::test {
         json.close();
 
         PboDocument document("file.pbo");
+        //this must be applied
         PboNode* pboJson = document.root()->createHierarchy(PboPath({"pbo.json"}));
         pboJson->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        //these must not be applied
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prefix$"}));
+        prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$version$"}));
+        version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$product$"}));
+        product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
 
         const PackConfiguration packConfiguration(&document);
         packConfiguration.apply();
@@ -45,6 +59,42 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(document.headers()->at(0)->value(), "v1");
         ASSERT_EQ(document.headers()->at(1)->name(), "p2");
         ASSERT_EQ(document.headers()->at(1)->value(), "v2");
+    }
+
+    TEST(PackConfigurationTest, Apply_Sets_Headers_From_Prefix_Files) {
+        QTemporaryFile pref;
+        pref.open();
+        pref.write(QByteArray("pref1"));
+        pref.close();
+
+        QTemporaryFile prod;
+        prod.open();
+        prod.write(QByteArray("prod1"));
+        prod.close();
+
+        QTemporaryFile ver;
+        ver.open();
+        ver.write(QByteArray("ver1"));
+        ver.close();
+
+        PboDocument document("file.pbo");
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prEfix$"}));
+        prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(pref.fileName()));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$prOduct$"}));
+        product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(prod.fileName()));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$veRsion$"}));
+        version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(ver.fileName()));
+
+        const PackConfiguration packConfiguration(&document);
+        packConfiguration.apply();
+
+        ASSERT_EQ(document.headers()->count(), 3);
+        ASSERT_EQ(document.headers()->at(0)->name(), "prefix");
+        ASSERT_EQ(document.headers()->at(0)->value(), "pref1");
+        ASSERT_EQ(document.headers()->at(1)->name(), "product");
+        ASSERT_EQ(document.headers()->at(1)->value(), "prod1");
+        ASSERT_EQ(document.headers()->at(2)->name(), "version");
+        ASSERT_EQ(document.headers()->at(2)->value(), "ver1");
     }
 
     TEST(PackConfigurationTest, Apply_Compresses_Only_Included_Files) {
@@ -152,5 +202,25 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(document.headers()->at(0)->value(), "v1");
         ASSERT_EQ(document.headers()->at(1)->name(), "p2");
         ASSERT_EQ(document.headers()->at(1)->value(), "v2");
+    }
+
+    TEST(PackConfigurationTest, Apply_Throws_If_Prefix_Files_Non_Text) {
+        constexpr char data[]{0x01, 0x02, 0x03, 0x04, 0x00, 0x01};
+        QTemporaryFile pref;
+        pref.open();
+        pref.write(data, sizeof data);
+        pref.close();
+
+        PboDocument document("file.pbo");
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prefix$"}));
+        prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(pref.fileName()));
+
+        try {
+            const PackConfiguration packConfiguration(&document);
+            packConfiguration.apply();
+            FAIL() << "Should have not reached this line";
+        } catch (const PrefixEncodingException& ex) {
+            ASSERT_EQ(ex.message(), "$prefix$");
+        }
     }
 }

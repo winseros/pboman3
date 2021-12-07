@@ -1,4 +1,6 @@
 #include "packtask.h"
+
+#include "packconfiguration.h"
 #include "io/diskaccessexception.h"
 #include "io/documentwriter.h"
 #include "util/log.h"
@@ -37,6 +39,17 @@ namespace pboman3::model {
         if (filesCount == 0) {
             LOG(info, "The Folder was empty")
             emit taskMessage("Failure | The folder is empty | " + folder.absolutePath());
+            return;
+        }
+
+        try {
+            const task::PackConfiguration packConfiguration(&document);
+            packConfiguration.apply();
+        } catch (const JsonStructureException& ex) {
+            emit taskMessage("Failure | pbo.json malformed | " + ex.message());
+            return;
+        } catch (const task::PrefixEncodingException& ex) {
+            emit taskMessage("Failure | " + ex.message() + " | The file has unsupported encoding");
             return;
         }
 

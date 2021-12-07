@@ -28,6 +28,9 @@ namespace pboman3::model::task {
 
     void PackHeader::inflate(const QString& path, const QJsonObject& json) {
         name_ = JsonValue<QString>().settle(json, path, "name").value();
+        if (name_.isEmpty()) {
+            throw JsonStructureException(path + ".name must not be an empty string");
+        }
         value_ = JsonValue<QString>().settle(json, path, "value").value();
     }
 

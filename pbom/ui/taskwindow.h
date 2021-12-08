@@ -12,7 +12,7 @@ namespace Ui {
 }
 
 namespace pboman3::ui {
-    using namespace model;
+    using namespace model::task;
 
     class TaskWindow : public QMainWindow {
     Q_OBJECT

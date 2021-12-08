@@ -13,7 +13,7 @@
 
 #define LOG(...) LOGGER("model/task/UnpackTask", __VA_ARGS__)
 
-namespace pboman3::model {
+namespace pboman3::model::task {
     using namespace io;
 
     UnpackTask::UnpackTask(QString pboPath, const QString& outputDir)

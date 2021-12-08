@@ -32,7 +32,7 @@ namespace pboman3::model::task {
         : document_(document) {
     }
 
-#define APPLY_NODE_CONTENT_AS_HEADER(V,P) if (!P && V) { applyNodeContentAsHeader(V, #V); }
+#define APPLY_NODE_CONTENT_AS_HEADER(V,P) if (!(P) && (V)) { applyNodeContentAsHeader(V, #V); }
 #define CLEANUP_NODE(N) if (N) { (N)->removeFromHierarchy(); }
 
     void PackConfiguration::apply() const {
@@ -59,17 +59,17 @@ namespace pboman3::model::task {
     }
 
     void PackConfiguration::applyDocumentHeaders(const PackOptions& options) const {
-        if (options.headers().isEmpty()) {
+        if (options.headers.isEmpty()) {
             LOG(info, "No headers defined in the config")
             return;
         }
 
-        LOG(info, options.headers().count(), "headers defined in the config")
+        LOG(info, options.headers.count(), "headers defined in the config")
 
         const QSharedPointer<DocumentHeadersTransaction> tran = document_->headers()->beginTransaction();
-        for (const PackHeader& header : options.headers()) {
-            LOG(debug, "Header: ", header.name(), "|", header.value())
-            tran->add(header.name(), header.value());
+        for (const PackHeader& header : options.headers) {
+            LOG(debug, "Header: ", header.name, "|", header.value)
+            tran->add(header.name, header.value);
         }
 
         tran->commit();
@@ -111,9 +111,9 @@ namespace pboman3::model::task {
     PackConfiguration::CompressionRules PackConfiguration::buildCompressionRules(const PackOptions& options) {
         CompressionRules rules;
         LOG(info, "Building include rules")
-        convertToCompressionRules(options.compress().include(), &rules.include);
+        convertToCompressionRules(options.compress.include, &rules.include);
         LOG(info, "Building exclude rules")
-        convertToCompressionRules(options.compress().exclude(), &rules.exclude);
+        convertToCompressionRules(options.compress.exclude, &rules.exclude);
         return rules;
     }
 

@@ -4,47 +4,28 @@
 #include <QJsonObject>
 
 namespace pboman3::model::task {
-    const QList<QString>& CompressOptions::include() const {
-        return include_;
-    }
-
-    const QList<QString>& CompressOptions::exclude() const {
-        return exclude_;
-    }
-
     void CompressOptions::inflate(const QString& path, const QJsonObject& json) {
-        include_ = JsonArray<JsonValue<QString>>().settle(json, path, "include", JsonMandatory::No).data();
-        exclude_ = JsonArray<JsonValue<QString>>().settle(json, path, "exclude", JsonMandatory::No).data();
+        include = JsonArray<JsonValue<QString>>().settle(json, path, "include", JsonMandatory::No).data();
+        exclude = JsonArray<JsonValue<QString>>().settle(json, path, "exclude", JsonMandatory::No).data();
     }
 
+    PackHeader::PackHeader() = default;
 
-    const QString& PackHeader::name() const {
-        return name_;
-    }
-
-    const QString& PackHeader::value() const {
-        return value_;
+    PackHeader::PackHeader(QString name, QString value)
+        : name(std::move(name)),
+          value(std::move(value)) {
     }
 
     void PackHeader::inflate(const QString& path, const QJsonObject& json) {
-        name_ = JsonValue<QString>().settle(json, path, "name").value();
-        if (name_.isEmpty()) {
+        name = JsonValue<QString>().settle(json, path, "name").value();
+        if (name.isEmpty()) {
             throw JsonStructureException(path + ".name must not be an empty string");
         }
-        value_ = JsonValue<QString>().settle(json, path, "value").value();
-    }
-
-
-    const QList<PackHeader>& PackOptions::headers() const {
-        return headers_;
-    }
-
-    const CompressOptions& PackOptions::compress() const {
-        return compress_;
+        value = JsonValue<QString>().settle(json, path, "value").value();
     }
 
     void PackOptions::inflate(const QString& path, const QJsonObject& json) {
-        headers_ = JsonArray<PackHeader>().settle(json, path, "headers", JsonMandatory::No).data();
-        compress_.settle(json, path, "compress", JsonMandatory::No);
+        headers = JsonArray<PackHeader>().settle(json, path, "headers", JsonMandatory::No).data();
+        compress.settle(json, path, "compress", JsonMandatory::No);
     }
 }

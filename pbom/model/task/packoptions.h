@@ -7,43 +7,32 @@ namespace pboman3::model::task {
 
     class CompressOptions : public JsonObject {
     public:
-        const QList<QString>& include() const;
-
-        const QList<QString>& exclude() const;
+        QList<QString> include;
+        QList<QString> exclude;
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override;
-
-    private:
-        QList<QString> include_;
-        QList<QString> exclude_;
     };
 
     class PackHeader : public JsonObject {
     public:
-        const QString& name() const;
+        PackHeader();
 
-        const QString& value() const;
+        PackHeader(QString name, QString value);
+
+        QString name;
+        QString value;
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override;
-
-    private:
-        QString name_;
-        QString value_;
     };
 
     class PackOptions : public JsonObject {
     public:
-        const QList<PackHeader>& headers() const;
-
-        const CompressOptions& compress() const;
+        QList<PackHeader> headers;
+        CompressOptions compress;
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override;
-
-    private:
-        QList<PackHeader> headers_;
-        CompressOptions compress_;
     };
 }

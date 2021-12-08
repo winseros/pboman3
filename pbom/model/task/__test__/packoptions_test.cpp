@@ -10,18 +10,18 @@ namespace pboman3::model::task::test {
         PackOptions config;
         config.settle(json.object(), "");
 
-        ASSERT_EQ(config.headers().count(), 2);
-        ASSERT_EQ(config.headers().at(0).name(), "n1");
-        ASSERT_EQ(config.headers().at(0).value(), "v1");
-        ASSERT_EQ(config.headers().at(1).name(), "n2");
-        ASSERT_EQ(config.headers().at(1).value(), "v2");
+        ASSERT_EQ(config.headers.count(), 2);
+        ASSERT_EQ(config.headers.at(0).name, "n1");
+        ASSERT_EQ(config.headers.at(0).value, "v1");
+        ASSERT_EQ(config.headers.at(1).name, "n2");
+        ASSERT_EQ(config.headers.at(1).value, "v2");
 
-        ASSERT_EQ(config.compress().include().count(), 2);
-        ASSERT_EQ(config.compress().include().at(0), "i1");
-        ASSERT_EQ(config.compress().include().at(1), "i2");
-        ASSERT_EQ(config.compress().exclude().count(), 2);
-        ASSERT_EQ(config.compress().exclude().at(0), "e1");
-        ASSERT_EQ(config.compress().exclude().at(1), "e2");
+        ASSERT_EQ(config.compress.include.count(), 2);
+        ASSERT_EQ(config.compress.include.at(0), "i1");
+        ASSERT_EQ(config.compress.include.at(1), "i2");
+        ASSERT_EQ(config.compress.exclude.count(), 2);
+        ASSERT_EQ(config.compress.exclude.at(0), "e1");
+        ASSERT_EQ(config.compress.exclude.at(1), "e2");
     }
 
     TEST(PackOptionsTest, Settle_Reads_Empty_Configuration) {
@@ -30,9 +30,9 @@ namespace pboman3::model::task::test {
         PackOptions config;
         config.settle(json.object(), "");
 
-        ASSERT_EQ(config.headers().count(), 0);
-        ASSERT_EQ(config.compress().include().count(), 0);
-        ASSERT_EQ(config.compress().exclude().count(), 0);
+        ASSERT_EQ(config.headers.count(), 0);
+        ASSERT_EQ(config.compress.include.count(), 0);
+        ASSERT_EQ(config.compress.exclude.count(), 0);
     }
 
     TEST(PackOptionsTest, Settle_Reads_Empty_Compression) {
@@ -41,9 +41,9 @@ namespace pboman3::model::task::test {
         PackOptions config;
         config.settle(json.object(), "");
 
-        ASSERT_EQ(config.headers().count(), 0);
-        ASSERT_EQ(config.compress().include().count(), 0);
-        ASSERT_EQ(config.compress().exclude().count(), 0);
+        ASSERT_EQ(config.headers.count(), 0);
+        ASSERT_EQ(config.compress.include.count(), 0);
+        ASSERT_EQ(config.compress.exclude.count(), 0);
     }
 
     TEST(PackOptionsTest, Settle_Throws_If_Header_Name_Is_Empty) {

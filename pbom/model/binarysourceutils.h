@@ -27,4 +27,11 @@ namespace pboman3::model {
             }
         }
     }
+
+    inline bool IsCompressed(const QSharedPointer<BinarySource>& bs) {
+        if (const auto pboBs = dynamic_cast<PboBinarySource*>(bs.get())) {
+            return pboBs->isCompressed();
+        }
+        throw InvalidOperationException("Can't query compression status");
+    }
 }

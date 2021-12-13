@@ -57,4 +57,27 @@ namespace pboman3::model::task::test {
             ASSERT_EQ(".headers[0].name must not be an empty string", ex.message());
         }
     }
+
+    TEST(PackOptionsTest, MakeJson_Builds_Document) {
+        PackOptions options;
+        options.headers = QList{PackHeader("h1", "v1"), PackHeader("h2", "v2")};
+        options.compress.include = QList<QString>{"i1", "i2"};
+        options.compress.exclude = QList<QString>{"e1", "e2"};
+
+        const QJsonObject json = options.makeJson();
+
+        ASSERT_EQ(json["headers"].toArray().count(), 2);
+        ASSERT_EQ(json["headers"].toArray().at(0).toObject()["name"], "h1");
+        ASSERT_EQ(json["headers"].toArray().at(0).toObject()["value"], "v1");
+        ASSERT_EQ(json["headers"].toArray().at(1).toObject()["name"], "h2");
+        ASSERT_EQ(json["headers"].toArray().at(1).toObject()["value"], "v2");
+
+        ASSERT_EQ(json["compress"].toObject()["include"].toArray().count(), 2);
+        ASSERT_EQ(json["compress"].toObject()["include"].toArray().at(0).toString(), "i1");
+        ASSERT_EQ(json["compress"].toObject()["include"].toArray().at(1).toString(), "i2");
+        
+        ASSERT_EQ(json["compress"].toObject()["exclude"].toArray().count(), 2);
+        ASSERT_EQ(json["compress"].toObject()["exclude"].toArray().at(0).toString(), "e1");
+        ASSERT_EQ(json["compress"].toObject()["exclude"].toArray().at(1).toString(), "e2");
+    }
 }

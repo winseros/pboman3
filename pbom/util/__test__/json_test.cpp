@@ -58,11 +58,20 @@ namespace pboman3::util::test {
 
     class MockJsonObject : public JsonObject {
     public:
+        MockJsonObject() = default;
+
+        MockJsonObject(QString prop) : prop(std::move(prop)) {
+        };
+
         QString prop;
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override {
             prop = JsonValue<QString>().settle(json, path, "prop").value();
+        }
+
+        void serialize(QJsonObject& target) const override {
+            target["prop"] = QJsonValue(prop);
         }
     };
 
@@ -198,5 +207,24 @@ namespace pboman3::util::test {
         } catch (const JsonStructureException& ex) {
             ASSERT_EQ(ex.message(), ".obj[1] must be a {String}");
         }
+    }
+
+    TEST(JsonArrayTest, MakeJson_Writes_Array_Of_Strings) {
+        const QList<QString> data{"s1", "s2", "s3"};
+        const QJsonArray json = JsonArray<QString>::makeJson(data);
+
+        ASSERT_EQ(json.count(), 3);
+        ASSERT_EQ(json.at(0).toString(), "s1");
+        ASSERT_EQ(json.at(1).toString(), "s2");
+        ASSERT_EQ(json.at(2).toString(), "s3");
+    }
+
+    TEST(JsonArrayTest, MakeJson_Writes_Array_Of_Objects) {
+        const QList data{MockJsonObject("p1"), MockJsonObject("p2")};
+        const QJsonArray json = JsonArray<MockJsonObject>::makeJson(data);
+
+        ASSERT_EQ(json.count(), 2);
+        ASSERT_EQ(json.at(0).toObject()["prop"], "p1");
+        ASSERT_EQ(json.at(1).toObject()["prop"], "p2");
     }
 }

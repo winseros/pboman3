@@ -39,10 +39,17 @@ namespace pboman3::util {
         settle(parent[name], parentPath + "." + name);
     }
 
-    void JsonObject::settle(const QJsonValue& parent, const QString& parentPath, const QString& name, JsonMandatory mandatory) {
+    void JsonObject::settle(const QJsonValue& parent, const QString& parentPath, const QString& name,
+                            JsonMandatory mandatory) {
         if (!parent.isObject()) {
             throw JsonStructureException(parentPath + " must be an {Object}");
         }
         settle(parent.toObject(), parentPath, name, mandatory);
+    }
+
+    QJsonObject JsonObject::makeJson() const {
+        QJsonObject self;
+        serialize(self);
+        return self;
     }
 }

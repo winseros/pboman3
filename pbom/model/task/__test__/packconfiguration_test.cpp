@@ -18,11 +18,11 @@ namespace pboman3::model::task::test {
         document.root()->createHierarchy(PboPath({"f1.txt"}));
         PboNode* pboJson = document.root()->createHierarchy(PboPath({"pbo.json"}));
         pboJson->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
-        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prefix$"}));
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$pboprefix$"}));
         prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
-        PboNode* version = document.root()->createHierarchy(PboPath({"$version$"}));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$pboversion$"}));
         version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
-        PboNode* product = document.root()->createHierarchy(PboPath({"$product$"}));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$pboproduct$"}));
         product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
 
         const PackConfiguration packConfiguration(&document);
@@ -44,11 +44,11 @@ namespace pboman3::model::task::test {
         PboNode* pboJson = document.root()->createHierarchy(PboPath({"pbo.json"}));
         pboJson->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
         //these must not be applied
-        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prefix$"}));
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$pboprefix$"}));
         prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
-        PboNode* version = document.root()->createHierarchy(PboPath({"$version$"}));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$pboversion$"}));
         version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
-        PboNode* product = document.root()->createHierarchy(PboPath({"$product$"}));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$pboproduct$"}));
         product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
 
         const PackConfiguration packConfiguration(&document);
@@ -78,11 +78,11 @@ namespace pboman3::model::task::test {
         ver.close();
 
         PboDocument document("file.pbo");
-        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prEfix$"}));
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$pbOprEfix$"}));
         prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(pref.fileName()));
-        PboNode* product = document.root()->createHierarchy(PboPath({"$prOduct$"}));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$PboprOduct$"}));
         product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(prod.fileName()));
-        PboNode* version = document.root()->createHierarchy(PboPath({"$veRsion$"}));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$pBoveRsion$"}));
         version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(ver.fileName()));
 
         const PackConfiguration packConfiguration(&document);
@@ -212,7 +212,7 @@ namespace pboman3::model::task::test {
         pref.close();
 
         PboDocument document("file.pbo");
-        PboNode* prefix = document.root()->createHierarchy(PboPath({"$prefix$"}));
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$pboprefix$"}));
         prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(pref.fileName()));
 
         try {
@@ -220,7 +220,7 @@ namespace pboman3::model::task::test {
             packConfiguration.apply();
             FAIL() << "Should have not reached this line";
         } catch (const PrefixEncodingException& ex) {
-            ASSERT_EQ(ex.message(), "$prefix$");
+            ASSERT_EQ(ex.message(), "$pboprefix$");
         }
     }
 }

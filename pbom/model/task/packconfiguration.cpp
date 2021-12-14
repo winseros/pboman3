@@ -45,11 +45,11 @@ namespace pboman3::model::task {
             applyDocumentCompressionRules(document_->root(), compressionRules);
         }
 
-        PboNode* prefix = FindDirectChild(document_->root(), "$prefix$");
+        PboNode* prefix = FindDirectChild(document_->root(), "$pboprefix$");
         APPLY_NODE_CONTENT_AS_HEADER(prefix, pboJson)
-        PboNode* product = FindDirectChild(document_->root(), "$product$");
+        PboNode* product = FindDirectChild(document_->root(), "$pboproduct$");
         APPLY_NODE_CONTENT_AS_HEADER(product, pboJson)
-        PboNode* version = FindDirectChild(document_->root(), "$version$");
+        PboNode* version = FindDirectChild(document_->root(), "$pboversion$");
         APPLY_NODE_CONTENT_AS_HEADER(version, pboJson)
 
         CLEANUP_NODE(pboJson)

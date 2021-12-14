@@ -1,5 +1,9 @@
 #include "extractconfiguration.h"
+
+#include <QJsonDocument>
+
 #include "domain/func.h"
+#include "io/diskaccessexception.h"
 #include "model/binarysourceutils.h"
 
 namespace pboman3::model::task {
@@ -10,6 +14,19 @@ namespace pboman3::model::task {
         extractCompressionRules(document, options);
 
         return options;
+    }
+
+    void ExtractConfiguration::saveTo(const PackOptions& options, const QDir& dest) {
+        const QJsonObject json = options.makeJson();
+        const QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Indented);
+
+        const QString fileName = getConfigFileName(dest);
+        QFile file(fileName);
+        if (!file.open(QIODeviceBase::WriteOnly | QIODeviceBase::NewOnly)) {
+            throw DiskAccessException("Can not access the file. Check if it is used by other processes.", fileName);
+        }
+        file.write(bytes);
+        file.close();
     }
 
     void ExtractConfiguration::extractHeaders(const PboDocument& document, PackOptions& options) {
@@ -60,6 +77,25 @@ namespace pboman3::model::task {
 
     QString ExtractConfiguration::makeFileCompressionRule(const QString& fileName) {
         return "^" + fileName + "$";
+    }
+
+    QString ExtractConfiguration::getConfigFileName(const QDir& dir) {
+        const QString configName("pbo");
+        const QString configExt(".json");
+
+        QString configFile = configName + configExt;
+        if (!dir.exists(configFile)) {
+            return dir.absoluteFilePath(configFile);
+        }
+
+        for (int i = 1; i < std::numeric_limits<int>::max(); i++) {
+            configFile = configName + "-" + QString::number(i) + configExt;
+            if (!dir.exists(configFile)) {
+                return dir.absoluteFilePath(configFile);
+            }
+        }
+
+        throw AppException("The code must never reach this line");
     }
 
 }

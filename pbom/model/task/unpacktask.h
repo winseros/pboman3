@@ -19,10 +19,12 @@ namespace pboman3::model::task {
         const QString pboPath_;
         const QDir outputDir_;
 
-        bool tryReadPboHeader(QSharedPointer<domain::PboDocument>* document);
+        bool tryReadPboHeader(QSharedPointer<PboDocument>* document);
 
         bool tryCreatePboDir(QDir* dir);
 
         bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry);
+
+        void extractPboConfig(const PboDocument& document, const QDir& dir);
     };
 }

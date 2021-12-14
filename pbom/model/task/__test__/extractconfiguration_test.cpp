@@ -1,5 +1,6 @@
 #include "model/task/extractconfiguration.h"
 
+#include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 #include "domain/pbodocument.h"
@@ -108,5 +109,50 @@ namespace pboman3::model::task {
         ASSERT_EQ(options.compress.include.count(), 2);
         ASSERT_EQ(options.compress.include.at(0), "\\.sqf$");
         ASSERT_EQ(options.compress.include.at(1), "^mission.sqm$");
+    }
+
+    TEST(ExtractConfigurationTest, SaveTo_Writes_To_Directory) {
+        QTemporaryDir t;
+        const QDir target(t.path());
+
+        PackOptions options;
+        options.headers = QList{PackHeader("h1", "v1"), PackHeader("h2", "v2")};
+        options.compress.include = QList<QString>{"i1", "i2"};
+        options.compress.exclude = QList<QString>{"e1", "e2"};
+
+        ExtractConfiguration::saveTo(options, target);
+
+        QFile config(target.filePath("pbo.json"));
+        ASSERT_TRUE(config.exists());
+
+        ASSERT_TRUE(config.open(QIODeviceBase::ReadOnly));
+
+        const QByteArray bytes = config.readAll();
+        ASSERT_EQ(QString(bytes), QString("{\n    \"compress\": {\n        \"exclude\": [\n            \"e1\",\n            \"e2\"\n        ],\n        \"include\": [\n            \"i1\",\n            \"i2\"\n        ]\n    },\n    \"headers\": [\n        {\n            \"name\": \"h1\",\n            \"value\": \"v1\"\n        },\n        {\n            \"name\": \"h2\",\n            \"value\": \"v2\"\n        }\n    ]\n}\n"));
+    }
+
+    TEST(ExtractConfigurationTest, SaveTo_Picks_Non_Conflict_Name) {
+        QTemporaryDir t;
+        const QDir target(t.path());
+
+        //two placeholder files
+        QFile f1(target.filePath("pbo.json"));
+        f1.open(QIODeviceBase::NewOnly);
+        f1.close();
+        QFile f2(target.filePath("pbo-1.json"));
+        f2.open(QIODeviceBase::NewOnly);
+        f2.close();
+
+        const PackOptions options;
+        ExtractConfiguration::saveTo(options, target);
+
+        //the resulting file prevented conflicts
+        QFile config(target.filePath("pbo-2.json"));
+        ASSERT_TRUE(config.exists());
+
+        ASSERT_TRUE(config.open(QIODeviceBase::ReadOnly));
+
+        const QByteArray bytes = config.readAll();
+        ASSERT_EQ(QString(bytes), QString("{\n    \"compress\": {\n        \"exclude\": [\n        ],\n        \"include\": [\n        ]\n    },\n    \"headers\": [\n    ]\n}\n"));
     }
 }

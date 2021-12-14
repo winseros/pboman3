@@ -1,6 +1,9 @@
 #include "unpacktask.h"
 #include <QDir>
 #include <QFile>
+
+#include "extractconfiguration.h"
+#include "packoptions.h"
 #include "io/bb/unpacktaskbackend.h"
 #include "io/bs/pbobinarysource.h"
 #include "io/pbonodeentity.h"
@@ -57,6 +60,8 @@ namespace pboman3::model::task {
             childNodes.append(node);
         be.unpackSync(document->root(), childNodes, cancel);
 
+        extractPboConfig(*document, pboDir);
+
         LOG(info, "Unpack complete")
     }
 
@@ -110,5 +115,11 @@ namespace pboman3::model::task {
         }
 
         return true;
+    }
+
+    void UnpackTask::extractPboConfig(const PboDocument& document, const QDir& dir) {
+        const PackOptions options = ExtractConfiguration::extractFrom(document);
+        LOG(info, "Extracted the PBO pack config, Options=", options)
+        ExtractConfiguration::saveTo(options, dir);
     }
 }

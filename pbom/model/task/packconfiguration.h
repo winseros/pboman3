@@ -47,7 +47,9 @@ namespace pboman3::model::task {
             QList<QRegularExpression> exclude;
         };
 
-        void applyNodeContentAsHeader(const PboNode* node, const QString& prefix) const;
+        void processPrefixFile(const QString& header, const QString& fileName, const QString& altFileName, bool cleanupOnly) const;
+
+        void applyNodeContentAsHeader(const PboNode* node, const QString& header) const;
 
         static void throwIfBreaksPbo(const PboNode* node, const QByteArray& data);
     };

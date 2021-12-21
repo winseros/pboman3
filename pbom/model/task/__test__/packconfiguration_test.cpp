@@ -8,7 +8,7 @@
 namespace pboman3::model::task::test {
     using namespace domain;
 
-    TEST(PackConfigurationTest, Apply_Removes_All_Config_Nodes) {
+    TEST(PackConfigurationTest, Apply_Removes_All_Config_Nodes_If_PboJson) {
         QTemporaryFile json;
         json.open();
         json.write(QByteArray("{}"));
@@ -20,10 +20,44 @@ namespace pboman3::model::task::test {
         pboJson->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
         PboNode* prefix = document.root()->createHierarchy(PboPath({"$pboprefix$"}));
         prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* prefixTxt = document.root()->createHierarchy(PboPath({"pboprefix.txt"}));
+        prefixTxt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
         PboNode* version = document.root()->createHierarchy(PboPath({"$pboversion$"}));
         version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* versionTxt = document.root()->createHierarchy(PboPath({"pboversion.txt"}));
+        versionTxt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
         PboNode* product = document.root()->createHierarchy(PboPath({"$pboproduct$"}));
         product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* productTxt = document.root()->createHierarchy(PboPath({"pboproduct.txt"}));
+        productTxt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+
+        const PackConfiguration packConfiguration(&document);
+        packConfiguration.apply();
+
+        ASSERT_EQ(document.root()->count(), 1); //config files removed
+        ASSERT_TRUE(document.root()->get(PboPath({"f1.txt"}))); //but others are in places
+    }
+
+    TEST(PackConfigurationTest, Apply_Removes_All_Config_Nodes_If_No_PboJson) {
+        QTemporaryFile json;
+        json.open();
+        json.write(QByteArray("{}"));
+        json.close();
+
+        PboDocument document("file.pbo");
+        document.root()->createHierarchy(PboPath({"f1.txt"}));
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$pboprefix$"}));
+        prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* prefixTxt = document.root()->createHierarchy(PboPath({"pboprefix.txt"}));
+        prefixTxt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$pboversion$"}));
+        version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* versionTxt = document.root()->createHierarchy(PboPath({"pboversion.txt"}));
+        versionTxt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$pboproduct$"}));
+        product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
+        PboNode* productTxt = document.root()->createHierarchy(PboPath({"pboproduct.txt"}));
+        productTxt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(json.fileName()));
 
         const PackConfiguration packConfiguration(&document);
         packConfiguration.apply();
@@ -95,6 +129,64 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(document.headers()->at(1)->value(), "prod1");
         ASSERT_EQ(document.headers()->at(2)->name(), "version");
         ASSERT_EQ(document.headers()->at(2)->value(), "ver1");
+    }
+
+    TEST(PackConfigurationTest, Apply_Sets_Headers_From_Alternative_Prefix_Files) {
+        QTemporaryFile pref;
+        pref.open();
+        pref.write(QByteArray("pref1"));
+        pref.close();
+
+        QTemporaryFile prefAlt;
+        prefAlt.open();
+        prefAlt.write(QByteArray("pref1Alt"));
+        prefAlt.close();
+
+        QTemporaryFile prod;
+        prod.open();
+        prod.write(QByteArray("prod1"));
+        prod.close();
+
+        QTemporaryFile prodAlt;
+        prodAlt.open();
+        prodAlt.write(QByteArray("prod1Alt"));
+        prodAlt.close();
+
+        QTemporaryFile ver;
+        ver.open();
+        ver.write(QByteArray("ver1"));
+        ver.close();
+
+        QTemporaryFile verAlt;
+        verAlt.open();
+        verAlt.write(QByteArray("ver1Alt"));
+        verAlt.close();
+
+
+        PboDocument document("file.pbo");
+        PboNode* prefix = document.root()->createHierarchy(PboPath({"$pboprefix$"}));
+        prefix->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(pref.fileName()));
+        PboNode* prefixAlt = document.root()->createHierarchy(PboPath({"pboprefix.txt"}));
+        prefixAlt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(prefAlt.fileName()));
+        PboNode* product = document.root()->createHierarchy(PboPath({"$pboproduct$"}));
+        product->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(prod.fileName()));
+        PboNode* productAlt = document.root()->createHierarchy(PboPath({"pboproduct.txt"}));
+        productAlt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(prodAlt.fileName()));
+        PboNode* version = document.root()->createHierarchy(PboPath({"$pboversion$"}));
+        version->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(ver.fileName()));
+        PboNode* versionAlt = document.root()->createHierarchy(PboPath({"pboversion.txt"}));
+        versionAlt->binarySource = QSharedPointer<BinarySource>(new io::FsRawBinarySource(verAlt.fileName()));
+
+        const PackConfiguration packConfiguration(&document);
+        packConfiguration.apply();
+
+        ASSERT_EQ(document.headers()->count(), 3);
+        ASSERT_EQ(document.headers()->at(0)->name(), "prefix");
+        ASSERT_EQ(document.headers()->at(0)->value(), "pref1Alt");
+        ASSERT_EQ(document.headers()->at(1)->name(), "product");
+        ASSERT_EQ(document.headers()->at(1)->value(), "prod1Alt");
+        ASSERT_EQ(document.headers()->at(2)->name(), "version");
+        ASSERT_EQ(document.headers()->at(2)->value(), "ver1Alt");
     }
 
     TEST(PackConfigurationTest, Apply_Compresses_Only_Included_Files) {

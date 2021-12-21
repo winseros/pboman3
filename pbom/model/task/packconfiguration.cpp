@@ -32,10 +32,8 @@ namespace pboman3::model::task {
         : document_(document) {
     }
 
-#define APPLY_NODE_CONTENT_AS_HEADER(V,P) if (!(P) && (V)) { applyNodeContentAsHeader(V, #V); }
-#define CLEANUP_NODE(N) if (N) { (N)->removeFromHierarchy(); }
-
     void PackConfiguration::apply() const {
+        bool usedPboJson = false;
         PboNode* pboJson = FindDirectChild(document_->root(), "pbo.json");
         if (pboJson) {
             LOG(info, "Apply configuration from pbo.json")
@@ -43,19 +41,13 @@ namespace pboman3::model::task {
             applyDocumentHeaders(packOptions);
             const CompressionRules compressionRules = buildCompressionRules(packOptions);
             applyDocumentCompressionRules(document_->root(), compressionRules);
+            pboJson->removeFromHierarchy();
+            usedPboJson = true;
         }
 
-        PboNode* prefix = FindDirectChild(document_->root(), "$pboprefix$");
-        APPLY_NODE_CONTENT_AS_HEADER(prefix, pboJson)
-        PboNode* product = FindDirectChild(document_->root(), "$pboproduct$");
-        APPLY_NODE_CONTENT_AS_HEADER(product, pboJson)
-        PboNode* version = FindDirectChild(document_->root(), "$pboversion$");
-        APPLY_NODE_CONTENT_AS_HEADER(version, pboJson)
-
-        CLEANUP_NODE(pboJson)
-        CLEANUP_NODE(prefix)
-        CLEANUP_NODE(product)
-        CLEANUP_NODE(version)
+        processPrefixFile("prefix", "$pboprefix$", "pboprefix.txt", usedPboJson);
+        processPrefixFile("product", "$pboproduct$", "pboproduct.txt", usedPboJson);
+        processPrefixFile("version", "$pboversion$", "pboversion.txt", usedPboJson);
     }
 
     void PackConfiguration::applyDocumentHeaders(const PackOptions& options) const {
@@ -161,12 +153,31 @@ namespace pboman3::model::task {
         return data;
     }
 
-    void PackConfiguration::applyNodeContentAsHeader(const PboNode* node, const QString& prefix) const {
-        LOG(info, "Apply prefix:", prefix)
+    void PackConfiguration::processPrefixFile(const QString& header, const QString& fileName,
+                                              const QString& altFileName, bool cleanupOnly) const {
+        PboNode* file1 = FindDirectChild(document_->root(), fileName);
+        PboNode* file2 = FindDirectChild(document_->root(), altFileName);
+
+        if (!cleanupOnly) {
+            if (file2) {
+                applyNodeContentAsHeader(file2, header);
+            } else if (file1) {
+                applyNodeContentAsHeader(file1, header);
+            }
+        }
+
+        if (file1)
+            file1->removeFromHierarchy();
+        if (file2)
+            file2->removeFromHierarchy();
+    }
+
+    void PackConfiguration::applyNodeContentAsHeader(const PboNode* node, const QString& header) const {
+        LOG(info, "Apply prefix:", header)
         const QByteArray data = readNodeContent(node);
         throwIfBreaksPbo(node, data);
         const QSharedPointer<DocumentHeadersTransaction> tran = document_->headers()->beginTransaction();
-        tran->add(prefix, data);
+        tran->add(header, data);
         tran->commit();
     }
 

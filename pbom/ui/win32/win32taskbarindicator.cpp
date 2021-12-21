@@ -43,7 +43,7 @@ namespace pboman3::ui {
     }
 
     bool Win32TaskbarIndicator::windowHasFocus() const {
-        return GetActiveWindow() == window_;
+        return GetForegroundWindow() == window_;
     }
 
     void Win32TaskbarIndicator::flashWindow() const {

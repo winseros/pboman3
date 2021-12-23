@@ -7,6 +7,7 @@ A tool to open, pack and unpack ArmA PBO files.
  - Can preview files inside a PBO.
  - Can open mangled (by Mikero's tools) PBO.
  - Integrates with Windows Explorer.
+ - Supports PBO metadata provisioning through [pbo.json](doc/pbo_json.md) or [\$PBOPREFIX\$](doc/prefix_files.md) files.
 
 ## Screenshots
 

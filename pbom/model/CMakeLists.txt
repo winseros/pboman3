@@ -1,4 +1,7 @@
 list(APPEND PROJECT_SOURCES
+    "model/task/extractconfiguration.cpp"
+    "model/task/packconfiguration.cpp"
+    "model/task/packoptions.cpp"
     "model/task/packtask.cpp"
     "model/task/packwindowmodel.cpp"
     "model/task/task.h"
@@ -12,6 +15,9 @@ list(APPEND PROJECT_SOURCES
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
 list(APPEND TEST_SOURCES
+    "model/task/__test__/extractconfiguration_test.cpp"
+    "model/task/__test__/packconfiguration_test.cpp"
+    "model/task/__test__/packoptions_test.cpp"
     "model/__test__/conflictsparcel_test.cpp"
     "model/__test__/interactionparcel_test.cpp")
 

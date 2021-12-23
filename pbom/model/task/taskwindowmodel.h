@@ -6,7 +6,7 @@
 #include <QSharedPointer>
 #include "task.h"
 
-namespace pboman3::model {
+namespace pboman3::model::task {
     typedef qint32 ThreadId;
 
     class TaskWindowModel : public QObject {

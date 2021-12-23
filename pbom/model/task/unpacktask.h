@@ -4,7 +4,7 @@
 #include "task.h"
 #include "domain/pbodocument.h"
 
-namespace pboman3::model {
+namespace pboman3::model::task {
     using namespace domain;
 
     class UnpackTask : public Task {
@@ -19,10 +19,12 @@ namespace pboman3::model {
         const QString pboPath_;
         const QDir outputDir_;
 
-        bool tryReadPboHeader(QSharedPointer<domain::PboDocument>* document);
+        bool tryReadPboHeader(QSharedPointer<PboDocument>* document);
 
         bool tryCreatePboDir(QDir* dir);
 
         bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry);
+
+        void extractPboConfig(const PboDocument& document, const QDir& dir);
     };
 }

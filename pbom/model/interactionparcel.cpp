@@ -1,7 +1,7 @@
 #include "interactionparcel.h"
 #include <QDataStream>
 #include <QSet>
-#include "exception.h"
+#include "binarysourceutils.h"
 
 namespace pboman3::model {
     const QSharedPointer<BinarySource>& NodeDescriptor::binarySource() const {
@@ -13,21 +13,7 @@ namespace pboman3::model {
     }
 
     void NodeDescriptor::setCompressed(bool compressed) {
-        if (dynamic_cast<PboBinarySource*>(binarySource_.get())) {
-            throw InvalidOperationException("Can't query compression status");
-        }
-
-        if (compressed) {
-            if (dynamic_cast<FsRawBinarySource*>(binarySource_.get())) {
-                binarySource_ = QSharedPointer<BinarySource>(new FsLzhBinarySource(binarySource_->path()));
-                binarySource_->open();
-            }
-        } else {
-            if (dynamic_cast<FsLzhBinarySource*>(binarySource_.get())) {
-                binarySource_ = QSharedPointer<BinarySource>(new FsRawBinarySource(binarySource_->path()));
-                binarySource_->open();
-            }
-        }
+        ChangeBinarySourceCompressionMode(binarySource_, compressed);
     }
 
     QByteArray NodeDescriptors::serialize(const NodeDescriptors& data) {

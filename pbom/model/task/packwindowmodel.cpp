@@ -1,7 +1,7 @@
 #include "packwindowmodel.h"
 #include "packtask.h"
 
-namespace pboman3::model {
+namespace pboman3::model::task {
     PackWindowModel::PackWindowModel(const QStringList& folders, const QString& outputDir) {
         for (const QString& folder : folders) {
             QSharedPointer<Task> task(new PackTask(folder, outputDir));

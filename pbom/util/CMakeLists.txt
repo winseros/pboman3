@@ -1,10 +1,12 @@
 list(APPEND PROJECT_SOURCES
+    "util/json.cpp"
     "util/log.cpp"
     "util/util.cpp")
 
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
 list(APPEND TEST_SOURCES
+    "util/__test__/json_test.cpp"
     "util/__test__/qpointerlistiterator_test.cpp"
     "util/__test__/util_test.cpp")
 

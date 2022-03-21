@@ -26,8 +26,7 @@ namespace pboman3::util {
     }
 
     void LoggingInfrastructure::run() {
-        qSetMessagePattern(
-            "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
+        UseLoggingMessagePattern();
         worker_ = new LogWorker(qInstallMessageHandler(handleMessage));
         worker_->moveToThread(&thread_);
         thread_.start(QThread::LowPriority);
@@ -39,6 +38,12 @@ namespace pboman3::util {
                                               const QString& message) {
         assert(LoggingInfrastructure::logging_);
         emit logging_->messageReceived(type, context.file, message);
+    }
+
+    void UseLoggingMessagePattern() {
+        qSetMessagePattern(
+            "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
+
     }
 
     LoggingInfrastructure* LoggingInfrastructure::logging_ = nullptr;

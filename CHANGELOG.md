@@ -1,7 +1,12 @@
 # PBO Manager change log
 
-## Version 1.1.0
+## Version 1.3.0
+ - [Feature] Added the `--no-ui` command line flag for usage in scripts
 
+## Version 1.2.0
+ - [Feature] Support of PBO metadata provisioning through pbo.json or $PBOPREFIX$ files
+
+## Version 1.1.0
 - [Enhancement] UI no longer freezes when opening a PBO
 - [Enhancement] UI no longer freezes when pasting files into a PBO from the file system
 - [Enhancement] Progress operations are displayed in the Windows taskbar

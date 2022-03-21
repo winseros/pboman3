@@ -95,7 +95,7 @@ namespace pboman3::model::task {
 
         try {
             writer.write(&document, cancel);
-            LOG(info, "Unpack complete")
+            LOG(info, "Pack complete")
         } catch (const DiskAccessException& ex) {
             LOG(warning, "Task failed with exception:", ex)
             emit taskMessage("Failure | " + ex.message() + " | " + folder.absolutePath());

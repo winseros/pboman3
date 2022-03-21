@@ -10,6 +10,8 @@
 #include "ui/packwindow.h"
 #include "ui/unpackwindow.h"
 #include "exception.h"
+#include "model/task/packtask.h"
+#include "model/task/unpacktask.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
@@ -122,6 +124,26 @@ namespace pboman3 {
         return exitCode;
     }
 
+    int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
+        util::UseLoggingMessagePattern();
+        for (const QString& folder : folders) {
+            //don't parallelize to avoid mess in the console
+            model::task::PackTask task(folder, outputDir);
+            task.execute([] { return false; });
+        }
+        return 0;
+    }
+
+    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
+        util::UseLoggingMessagePattern();
+        for (const QString& folder : folders) {
+            //don't parallelize to avoid mess in the console
+            model::task::UnpackTask task(folder, outputDir);
+            task.execute([] { return false; });
+        }
+        return 0;
+    }
+
     int RunWithCliOptions(int argc, char* argv[]) {
         using namespace CLI;
         using namespace pboman3;
@@ -141,8 +163,6 @@ namespace pboman3 {
                 const QString file = CommandLine::toQt(commandLine->open.fileName);
                 exitCode = RunMainWindow(app, file);
             } else if (commandLine->pack.hasBeenSet()) {
-                const PboApplication app(argc, argv);
-
                 QString outputDir;
                 if (commandLine->pack.hasOutputPath())
                     outputDir = CommandLine::toQt(commandLine->pack.outputPath);
@@ -152,10 +172,14 @@ namespace pboman3 {
                     outputDir = QDir::currentPath();
 
                 const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
-                exitCode = RunPackWindow(app, folders, outputDir);
+                if (commandLine->pack.noUi()) {
+                    exitCode = RunConsolePackOperation(folders, outputDir);
+                }
+                else {
+                    const PboApplication app(argc, argv);
+                    exitCode = RunPackWindow(app, folders, outputDir);
+                }
             } else if (commandLine->unpack.hasBeenSet()) {
-                const PboApplication app(argc, argv);
-
                 QString outputDir;
                 if (commandLine->unpack.hasOutputPath())
                     outputDir = CommandLine::toQt(commandLine->unpack.outputPath);
@@ -165,7 +189,12 @@ namespace pboman3 {
                     outputDir = QDir::currentPath();
 
                 const QStringList files = CommandLine::toQt(commandLine->unpack.files);
-                exitCode = RunUnpackWindow(app, files, outputDir);
+                if (commandLine->unpack.noUi()) {
+                    exitCode = RunConsoleUnpackOperation(files, outputDir);   
+                } else {
+                    const PboApplication app(argc, argv);
+                    exitCode = RunUnpackWindow(app, files, outputDir);
+                }
             } else {
                 //should not normally get here; if did - CLI11 was misconfigured somewhere
                 cout << cli.help();
@@ -203,6 +232,8 @@ int main(int argc, char* argv[]) {
     try {
         const int res = pboman3::RunMain(argc, argv);
         return res;
-    } catch (...) {
+    } catch (const pboman3::AppException& ex) {
+        LOG(critical, "Unexpected exception has been thrown:", ex);
+        throw ex;
     }
 }

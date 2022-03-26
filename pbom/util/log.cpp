@@ -1,4 +1,5 @@
 #include "log.h"
+#include <QLoggingCategory>
 
 namespace pboman3::util {
     LogWorker::LogWorker(QtMessageHandler implementation)
@@ -43,6 +44,9 @@ namespace pboman3::util {
     void UseLoggingMessagePattern() {
         qSetMessagePattern(
             "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
+#ifdef NDEBUG  
+        QLoggingCategory::setFilterRules("*.debug=false");
+#endif
 
     }
 

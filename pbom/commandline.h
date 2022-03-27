@@ -34,12 +34,13 @@ namespace pboman3 {
         };
 
         struct PackCommandBase : Command {
-            PackCommandBase() : optOutputPath(nullptr), optPrompt(nullptr) {
+            PackCommandBase() : optOutputPath(nullptr), optPrompt(nullptr), optNoUi(nullptr) {
             }
 
             string outputPath;
             Option* optOutputPath;
             Option* optPrompt;
+            Option* optNoUi;
 
             bool hasOutputPath() const {
                 return !!*optOutputPath;
@@ -47,6 +48,10 @@ namespace pboman3 {
 
             bool prompt() const {
                 return !!*optPrompt;
+            }
+
+            bool noUi() const {
+                return !!*optNoUi;
             }
         };
 
@@ -67,6 +72,10 @@ namespace pboman3 {
                 optPrompt = command->add_flag("-p,--prompt",
                                               "Show a UI dialog for the output directory selection")
                                    ->excludes(optOutputPath);
+
+                optNoUi = command->add_flag("-u,--no-ui", "Run the application without the GUI")
+                    ->excludes(optPrompt);
+
             }
         };
 
@@ -85,8 +94,10 @@ namespace pboman3 {
                                        ->check(ExistingDirectory);
 
                 optPrompt = command->add_flag("-p,--prompt",
-                                              "Show a UI dialog for the output directory selection")
-                                   ->excludes(optOutputPath);
+                                              "Show a UI dialog for the output directory selection");
+
+                optNoUi = command->add_flag("-u,--no-ui", "Run the application without the GUI")
+                    ->excludes(optPrompt);
             }
         };
 

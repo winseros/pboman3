@@ -17,7 +17,7 @@ An example `pbo.json`:
         "value": "my-mod"
     }],
     "compress": {
-        "include": ["\.txt$", "\.sqf$", "\.ext"],
+        "include": ["\\.txt$", "\\.sqf$", "\\.ext"],
         "exclude": ["^description.ext$"]
     }
 }
@@ -82,7 +82,7 @@ There are lots of the services for regular expression debugging, such as https:/
 
 | What it will match                                | Example files                                                      | RegEx                  |
 | ------------------------------------------------- | ------------------------------------------------------------------ | ---------------------- |
-| All the `.sqf` files.                             | `my-script.sqf` or `Scripts/script.sqf`                            | `\.sqf$`               |
-| All the `.sqf` files in the `Scripts` root foler. | `Scripts/Client/Alpha/fn_run.sqf`                                  | `^scripts\/.+\.sqf$`   |
-| All the `.sqf` files in the `Alpha` subfolders.   | `Scripts/Client/Alpha/initClient.sqf` or `Scripts/Server/Alpha/initServer.sqf` | `\/.+\/Alpha\/.+\.sqf$` |
+| All the `.sqf` files.                             | `my-script.sqf` or `Scripts/script.sqf`                            | `\\.sqf$`               |
+| All the `.sqf` files in the `Scripts` root foler. | `Scripts/Client/Alpha/fn_run.sqf`                                  | `^scripts\/.+\\.sqf$`   |
+| All the `.sqf` files in the `Alpha` subfolders.   | `Scripts/Client/Alpha/initClient.sqf` or `Scripts/Server/Alpha/initServer.sqf` | `\/.+\/Alpha\/.+\\.sqf$` |
 | The `decription.ext` file in the root.            | `description.ext`                                                  | `^description.ext$`    |

@@ -21,7 +21,7 @@ namespace pboman3::io {
 
     void UnpackTaskBackend::unpackFileNode(const PboNode* rootNode, const PboNode* childNode,
                                            const Cancel& cancel) const {
-        LOG(info, "Unpack the node", childNode->title())
+        LOG(debug, "Unpack the node", childNode->title())
 
         QString filePath;
         try {
@@ -52,7 +52,7 @@ namespace pboman3::io {
             return;
         }
 
-        LOG(info, "Writing to file system")
+        LOG(debug, "Writing to file system")
         childNode->binarySource->writeToFs(&file, cancel);
 
         file.close();

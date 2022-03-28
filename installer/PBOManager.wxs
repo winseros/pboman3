@@ -67,6 +67,7 @@
         <ComponentGroup Id="CG_MainFiles">
             <ComponentRef Id="C_MainFiles__pboe.dll" />
             <ComponentRef Id="C_MainFiles__pbom.exe" />
+            <ComponentRef Id="C_MainFiles__pboc.exe" />
             <ComponentRef Id="C_MainFiles__Qt6Core.dll" />
             <ComponentRef Id="C_MainFiles__Qt6Gui.dll" />
             <ComponentRef Id="C_MainFiles__Qt6Widgets.dll" />
@@ -141,6 +142,11 @@
                               Argument="open &quot;%1&quot;" />
                     </Extension>
                 </ProgId>
+            </Component>
+
+            <Component Id="C_MainFiles__pboc.exe" Guid="E7F4C6E0-52EA-42DF-A47F-73B39FBFB36E" Win64="yes">
+                <File Id="F_MainFiles__pboc.exe" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)pboc.exe" />
             </Component>
 
             <Component Id="C_MainFiles__Qt6Core.dll" Guid="1D77E778-A132-44DA-BB2C-1A6D275DCB45" Win64="yes">

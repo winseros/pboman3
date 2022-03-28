@@ -73,7 +73,7 @@ namespace pboman3::model::task {
         try {
             const DocumentReader reader(pboPath_);
             *document = reader.read();
-            LOG(info, "The document:", *document)
+            LOG(debug, "The document:", *document)
             return true;
         } catch (const DiskAccessException& ex) {
             LOG(warning, "Got error while opening the file:", ex)

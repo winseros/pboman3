@@ -34,18 +34,26 @@ namespace pboman3 {
         };
 
         struct PackCommandBase : Command {
-            PackCommandBase() : optOutputPath(nullptr), optPrompt(nullptr), optNoUi(nullptr) {
+            PackCommandBase()
+                : optOutputPath(nullptr)
+#ifdef PBOM_GUI
+                  , optPrompt(nullptr)
+                  , optNoUi(nullptr)
+#endif
+            {
             }
 
             string outputPath;
             Option* optOutputPath;
+#ifdef PBOM_GUI
             Option* optPrompt;
             Option* optNoUi;
+#endif
 
             bool hasOutputPath() const {
                 return !!*optOutputPath;
             }
-
+#ifdef PBOM_GUI
             bool prompt() const {
                 return !!*optPrompt;
             }
@@ -53,6 +61,7 @@ namespace pboman3 {
             bool noUi() const {
                 return !!*optNoUi;
             }
+#endif
         };
 
         struct CommandPack : PackCommandBase {
@@ -69,13 +78,14 @@ namespace pboman3 {
                                                     "The directory to write the resulting PBO(s)")
                                        ->check(ExistingDirectory);
 
+#ifdef PBOM_GUI
                 optPrompt = command->add_flag("-p,--prompt",
                                               "Show a UI dialog for the output directory selection")
                                    ->excludes(optOutputPath);
 
                 optNoUi = command->add_flag("-u,--no-ui", "Run the application without the GUI")
-                    ->excludes(optPrompt);
-
+                                 ->excludes(optPrompt);
+#endif
             }
         };
 
@@ -92,17 +102,20 @@ namespace pboman3 {
                 optOutputPath = command->add_option("-o,--output-directory", outputPath,
                                                     "The directory to write the PBO(s) contents")
                                        ->check(ExistingDirectory);
-
+#ifdef PBOM_GUI
                 optPrompt = command->add_flag("-p,--prompt",
                                               "Show a UI dialog for the output directory selection");
 
                 optNoUi = command->add_flag("-u,--no-ui", "Run the application without the GUI")
-                    ->excludes(optPrompt);
+                                 ->excludes(optPrompt);
+#endif
             }
         };
 
         struct Result {
+#ifdef PBOM_GUI
             CommandOpen open;
+#endif
 
             CommandPack pack;
 
@@ -115,8 +128,9 @@ namespace pboman3 {
 
         shared_ptr<Result> build() const {
             auto result = make_shared<Result>();
-
+#ifdef PBOM_GUI
             result->open.configure(app_);
+#endif
             result->pack.configure(app_);
             result->unpack.configure(app_);
 

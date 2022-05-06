@@ -1,6 +1,6 @@
 [submodule "__lib__/googletest"]
 	path = __lib__/googletest
-	url = git@github.com:google/googletest.git
+	url = https://github.com/google/googletest.git
 [submodule "__lib__/cli11"]
 	path = __lib__/cli11
-	url = git@github.com:CLIUtils/CLI11.git
+	url = https://github.com/CLIUtils/CLI11.git

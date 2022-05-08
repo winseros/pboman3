@@ -9,18 +9,13 @@ namespace pboman3 {
 
     constexpr size_t additionalCharsReserve = 20;
 
-    std::shared_ptr<Executable> Executable::fromRegistry() {
-        std::string path = Registry::getExecutablePath();
-        return make_shared<Executable>(path);
-    }
-
-    Executable::Executable(std::string executablePath)
+    Executable::Executable(std::wstring executablePath)
         : executablePath_(std::move(executablePath)) {
     }
 
-    HRESULT Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files, const string& outputDir) const {
-        std::string argv;
-        reserveArgvSize(argv, files,  outputDir.size() + additionalCharsReserve);
+    HRESULT Executable::unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const {
+        std::wstring argv;
+        reserveArgvSize(argv, files,  outputDir.wstring().size() + additionalCharsReserve);
 
         appendUnpackCommand(argv);
         appendPaths(argv, files);
@@ -30,8 +25,8 @@ namespace pboman3 {
         return hr;
     }
 
-    HRESULT Executable::unpackFiles(const LPCSTR cwd, const vector<path>& files) const {
-        std::string argv;
+    HRESULT Executable::unpackFiles(const path& cwd, const vector<path>& files) const {
+        std::wstring argv;
         reserveArgvSize(argv, files, additionalCharsReserve);
 
         appendUnpackCommand(argv);
@@ -42,9 +37,9 @@ namespace pboman3 {
         return hr;
     }
 
-    HRESULT Executable::packFolders(const LPCSTR cwd, const vector<path>& folders, const string& outputDir) const {
-        std::string argv;
-        reserveArgvSize(argv, folders, outputDir.size() + additionalCharsReserve);
+    HRESULT Executable::packFolders(const path& cwd, const vector<path>& folders, const path& outputDir) const {
+        std::wstring argv;
+        reserveArgvSize(argv, folders, outputDir.wstring().size() + additionalCharsReserve);
 
         appendPackCommand(argv);
         appendPaths(argv, folders);
@@ -54,8 +49,8 @@ namespace pboman3 {
         return hr;
     }
 
-    HRESULT Executable::packFolders(const LPCSTR cwd, const vector<path>& folders) const {
-        std::string argv;
+    HRESULT Executable::packFolders(const path& cwd, const vector<path>& folders) const {
+        std::wstring argv;
         reserveArgvSize(argv, folders, additionalCharsReserve);
 
         appendPackCommand(argv);
@@ -71,7 +66,11 @@ namespace pboman3 {
             && is_regular_file(executablePath_);
     }
 
-    void Executable::reserveArgvSize(string& argv, vector<path> items, size_t additionalSymbols) {
+    const wstring& Executable::executablePath() const {
+        return executablePath_;
+    }
+
+    void Executable::reserveArgvSize(wstring& argv, vector<path> items, size_t additionalSymbols) {
         const auto reserve = std::accumulate(items.begin(), items.end(), static_cast<std::size_t>(0),
                                              [](ULONG64 sum, const path& p) {
                                                  //each item will need 3 additional symbols: 2 quotes and separating whitespace
@@ -80,8 +79,8 @@ namespace pboman3 {
         argv.reserve(reserve + additionalSymbols);
     }
 
-    HRESULT Executable::shellExecute(LPCSTR cwd, const std::string& argv) const {
-        HINSTANCE hinst = ShellExecute(nullptr, "open", executablePath_.c_str(), argv.c_str(), cwd, SW_SHOWNORMAL);
+    HRESULT Executable::shellExecute(const path& cwd, const wstring& argv) const {
+        HINSTANCE hinst = ShellExecute(nullptr, L"open", executablePath_.c_str(), argv.c_str(), cwd.c_str(), SW_SHOWNORMAL);
         if (reinterpret_cast<INT_PTR>(hinst) > 32) {
             return S_OK;
         }
@@ -90,24 +89,24 @@ namespace pboman3 {
         return err;
     }
 
-    void Executable::appendPaths(string& argv, const vector<path>& paths) {
+    void Executable::appendPaths(wstring& argv, const vector<path>& paths) {
         for (const path& item : paths)
-            argv.append(" \"").append(item.string()).append("\"");
+            argv.append(L" \"").append(item.wstring()).append(L"\"");
     }
 
-    void Executable::appendPackCommand(std::string& argv) {
-        argv.append("pack");
+    void Executable::appendPackCommand(wstring& argv) {
+        argv.append(L"pack");
     }
 
-    void Executable::appendUnpackCommand(std::string& argv) {
-        argv.append("unpack");
+    void Executable::appendUnpackCommand(wstring& argv) {
+        argv.append(L"unpack");
     }
 
-    void Executable::appendOutputDir(std::string& argv, const std::string& outputDir) {
-        argv.append(" -o \"").append(outputDir).append("\"");
+    void Executable::appendOutputDir(wstring& argv, const wstring& outputDir) {
+        argv.append(L" -o \"").append(outputDir).append(L"\"");
     }
 
-    void Executable::appendPrompt(std::string& argv) {
-        argv.append(" -p");
+    void Executable::appendPrompt(wstring& argv) {
+        argv.append(L" -p");
     }
 }

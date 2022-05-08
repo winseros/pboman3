@@ -1,10 +1,10 @@
 #include "registry.h"
-#include <Shlobj.h>
+#include <ShlObj.h>
 #include <Windows.h>
 #include "dllmain.h"
 
 namespace pboman3 {
-    HRESULT Registry::registerServer(const string& pathToExe, const string& pathToDll) {
+    HRESULT Registry::registerServer(const wstring& pathToExe, const wstring& pathToDll) {
         try {
             registerServerImpl(pathToExe, pathToDll);
             SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
@@ -23,45 +23,50 @@ namespace pboman3 {
         }
     }
 
-    string Registry::getExecutablePath() {
-        try {
-            string value = getRegistryKeyValue(PBOM_SHELL_PROGID, "Path");
-            return value;
-        } catch (const RegistryException&) {
-            return "";
-        }
-    }
-
-    void Registry::registerServerImpl(const string& pathToExe, const string& pathToDll) {
-        setRegistryKeyValue("Software\\Classes\\.pbo",
+    void Registry::registerServerImpl(const wstring& pathToExe, const wstring& pathToDll) {
+        setRegistryKeyValue(L"Software\\Classes\\.pbo",
                             PBOM_SHELL_PROGID);
-        setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID,
-                            PBOM_PROJECT_NAME);
-        setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID,
-                            pathToExe, "Path");
-        setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID "\\DefaultIcon",
-                            pathToExe + ",1");
-        setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\Open\\Command",
-                            "\"" + pathToExe + "\" open \"%1\"");
-        setRegistryKeyValue("Software\\Classes\\" PBOM_SHELL_PROGID "\\ShellEx\\ContextMenuHandlers\\pboman3",
-                            PBOM_SHELL_CLSID);
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID,
+                            L"" PBOM_PROJECT_NAME);
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID,
+                            pathToExe, L"Path");
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\DefaultIcon",
+                            pathToExe + L",1");
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\Open\\Command",
+                            L"\"" + pathToExe + L"\" open \"%1\"");
 
-        setRegistryKeyValue("Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
+                            PBOM_SHELL_CLSID, L"ExplorerCommandHandler");
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
+                            L"PBO Manager Context menu");
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
+                            L"", L"NeverDefault");
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
+                            pathToExe, L"Path");
+
+        setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
                             pathToDll);
-        setRegistryKeyValue("Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
-                            "Apartment",
-                            "ThreadingModel");
-        setRegistryKeyValue("Software\\Classes\\Directory\\ShellEx\\ContextMenuHandlers\\pboman3",
-                            PBOM_SHELL_CLSID);
+        setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
+                            L"Apartment",
+                            L"ThreadingModel");
+
+        setRegistryKeyValue(L"Software\\Classes\\Directory\\Shell\\pboman3.menu",
+                            PBOM_SHELL_CLSID, L"ExplorerCommandHandler");
+        setRegistryKeyValue(L"Software\\Classes\\Directory\\Shell\\pboman3.menu",
+                            L"PBO Manager Context menu");
+        setRegistryKeyValue(L"Software\\Classes\\Directory\\Shell\\pboman3.menu",
+                            L"", L"NeverDefault");
+        setRegistryKeyValue(L"Software\\Classes\\Directory\\Shell\\pboman3.menu",
+                            pathToExe, L"Path");
     }
 
     void Registry::unregisterServerImpl() {
-        removeRegistryKey("Software\\Classes\\Directory\\ShellEx\\ContextMenuHandlers\\pboman3");
-        removeRegistryKey("Software\\Classes\\" PBOM_SHELL_PROGID);
-        removeRegistryKey("Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID);
+        removeRegistryKey(L"Software\\Classes\\Directory\\shell\\pboman3.menu");
+        removeRegistryKey(L"Software\\Classes\\" PBOM_SHELL_PROGID);
+        removeRegistryKey(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID);
     }
 
-    void Registry::setRegistryKeyValue(const string& key, const string& value, const string& name) {
+    void Registry::setRegistryKeyValue(const wstring& key, const wstring& value, const wstring& name) {
         HKEY reg;
         LSTATUS ls = RegCreateKeyEx(HKEY_CURRENT_USER,
                                     key.data(),
@@ -77,14 +82,14 @@ namespace pboman3 {
             throw RegistryException::fromLStatus(key, ls);
 
         ls = RegSetKeyValue(reg, NULL, name.empty() ? NULL : name.data(), REG_SZ, value.data(),
-                            static_cast<DWORD>(value.length()));
+                            static_cast<DWORD>(value.length() * sizeof TCHAR));
         RegCloseKey(reg);
 
         if (ls != ERROR_SUCCESS)
             throw RegistryException::fromLStatus(key, ls);
     }
 
-    string Registry::getRegistryKeyValue(const string& key, const string& name) {
+    wstring Registry::getRegistryKeyValue(const wstring& key, const wstring& name) {
         HKEY reg;
         LSTATUS ls = RegOpenKeyEx(HKEY_CLASSES_ROOT,
                                   key.data(),
@@ -104,24 +109,24 @@ namespace pboman3 {
         if (ls != ERROR_SUCCESS)
             throw RegistryException::fromLStatus(key, ls);
 
-        return string(vData, cbData);
+        return wstring(vData, cbData);
     }
 
-    void Registry::removeRegistryKey(const string& key) {
+    void Registry::removeRegistryKey(const wstring& key) {
         const LSTATUS ls = RegDeleteTree(HKEY_CURRENT_USER, key.data());
 
         if (ls != ERROR_SUCCESS)
             throw RegistryException::fromLStatus(key, ls);
     }
 
-    Registry::RegistryException Registry::RegistryException::fromLStatus(const string& registryKey, LSTATUS status) {
+    Registry::RegistryException Registry::RegistryException::fromLStatus(const wstring& registryKey, LSTATUS status) {
         const string systemError = getSystemMessage(status);
         return RegistryException(registryKey, systemError, status);
     }
 
 
     Registry::RegistryException::
-    RegistryException(string registryKey, const string& systemError, LSTATUS status)
+    RegistryException(wstring registryKey, const string& systemError, LSTATUS status)
         : exception(systemError.data()),
           registryKey_(std::move(registryKey)),
           status_(status) {
@@ -131,21 +136,21 @@ namespace pboman3 {
         return status_;
     }
 
-    const string& Registry::RegistryException::registryKey() const {
+    const wstring& Registry::RegistryException::registryKey() const {
         return registryKey_;
     }
 
     string Registry::RegistryException::getSystemMessage(LSTATUS status) {
-        TCHAR buffer[2048];
-        const DWORD size = sizeof buffer / sizeof TCHAR;
+        CHAR buffer[2048];
+        const DWORD size = sizeof buffer / sizeof CHAR;
 
-        const DWORD number = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-                                           NULL,
-                                           status,
-                                           LANG_USER_DEFAULT,
-                                           buffer,
-                                           size,
-                                           NULL);
+        const DWORD number = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
+                                            NULL,
+                                            status,
+                                            LANG_USER_DEFAULT,
+                                            buffer,
+                                            size,
+                                            NULL);
         return string(buffer, number);
     }
 }

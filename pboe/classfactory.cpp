@@ -3,37 +3,9 @@
 #include <Shlwapi.h>
 #include "contextmenu.h"
 #include "dllmain.h"
+#include "commands/explorercommand.h"
 
 namespace pboman3 {
-    ClassFactory::ClassFactory()
-        : refCount_(1) {
-        DllAddRef();
-    }
-
-    ClassFactory::~ClassFactory() {
-        DllRelease();
-    }
-
-    HRESULT ClassFactory::QueryInterface(const IID& riid, void** ppvObject) {
-        static const QITAB qit[] =
-        {
-            QITABENT(ClassFactory, IClassFactory),
-            {0, 0}
-        };
-        return QISearch(this, qit, riid, ppvObject);
-    }
-
-    ULONG ClassFactory::AddRef() {
-        return InterlockedIncrement(&refCount_);
-    }
-
-    ULONG ClassFactory::Release() {
-        const ULONG count = InterlockedDecrement(&refCount_);
-        if (count == 0)
-            delete this;
-        return count;
-    }
-
     HRESULT ClassFactory::CreateInstance(IUnknown* pUnkOuter, const IID& riid, void** ppvObject) {
         *ppvObject = NULL;
 
@@ -41,7 +13,7 @@ namespace pboman3 {
             return CLASS_E_NOAGGREGATION;
 
         HRESULT hr = E_OUTOFMEMORY;
-        auto* obj = new(std::nothrow) ContextMenu();
+        auto* obj = new(std::nothrow) ExplorerCommand();
         if (obj) {
             hr = obj->QueryInterface(riid, ppvObject);
             obj->Release();
@@ -57,5 +29,5 @@ namespace pboman3 {
             DllRelease();
         return S_OK;
     }
-    
+
 }

@@ -18,7 +18,6 @@ namespace pboman3 {
     }
 }
 
-
 HINSTANCE HInstanceDll;
 
 STDAPI DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpReserved) {
@@ -27,26 +26,6 @@ STDAPI DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpReserved) {
         DisableThreadLibraryCalls(hinstDll);
     }
     return TRUE;
-}
-
-LSTATUS RegGetValueAtKey(HKEY hKey, LPCTSTR lpSubKey, PVOID pvData, LPDWORD pcbData) {
-    HKEY key;
-    LSTATUS ls = RegCreateKeyEx(hKey,
-                                lpSubKey,
-                                0,
-                                NULL,
-                                REG_OPTION_NON_VOLATILE,
-                                KEY_QUERY_VALUE | KEY_WOW64_64KEY,
-                                NULL,
-                                &key,
-                                NULL);
-
-    if (ls == ERROR_SUCCESS) {
-        ls = RegGetValue(key, NULL, NULL, RRF_RT_REG_SZ, NULL, pvData, pcbData);
-        RegCloseKey(key);
-    }
-
-    return ls;
 }
 
 STDAPI DllRegisterServer() {
@@ -59,7 +38,7 @@ STDAPI DllRegisterServer() {
         const path dllPath(buf);
         const path exePath = dllPath.parent_path().append(PBOM_EXECUTABLE);
         
-        hr = pboman3::Registry::registerServer(exePath.string(), dllPath.string());
+        hr = pboman3::Registry::registerServer(exePath.wstring(), dllPath.wstring());
     } else {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }
@@ -85,5 +64,5 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
 }
 
 STDAPI DllCanUnloadNow() {
-    return pboman3::DllRefCount == 0 ? S_FALSE : S_OK;
+    return pboman3::DllRefCount == 0 ? S_OK : S_FALSE;
 }

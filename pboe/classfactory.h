@@ -1,28 +1,16 @@
 #pragma once
 
 #include <Windows.h>
+#include "comobject.h"
 
 namespace pboman3 {
-    class ClassFactory final : public IClassFactory {
+    class ClassFactory final : public ComObject<ClassFactory, IClassFactory> {
     public:
-        ClassFactory();
+        //IClassFactory
 
-        //IUnknown
-        HRESULT QueryInterface(const IID& riid, void** ppvObject) override;
-
-        ULONG AddRef() override;
-
-        ULONG Release() override;
-
-        //IClassFactory 
         HRESULT CreateInstance(IUnknown* pUnkOuter, const IID& riid, void** ppvObject) override;
 
         HRESULT LockServer(BOOL fLock) override;
-
-    private:
-        ULONG refCount_;
-
-        ~ClassFactory();
     };
 
 }

@@ -1,3 +1,4 @@
+#include <wrl/implements.h>
 #include "fileselectionenumerator.h"
 #include "unpackascommand.h"
 #include "unpackincommand.h"
@@ -11,19 +12,17 @@ namespace pboman3 {
     }
 
 
-    IExplorerCommand* FileSelectionEnumerator::createForIndex(ULONG index) const {
-        IExplorerCommand* command = NULL;
-
+    ComPtr<IExplorerCommand> FileSelectionEnumerator::createForIndex(ULONG index) const {
         if (index == 0) {
-            command = new UnpackToCommand(executable_, selectedFiles_);
+            return Make<UnpackToCommand>(executable_, selectedFiles_);
         } else if (index == 1) {
             if (selectedFiles_->size() == 1)
-                command = new UnpackAsCommand(executable_, selectedFiles_->at(0));
+                return Make<UnpackAsCommand>(executable_, selectedFiles_->at(0));
             else
-                command = new UnpackInCommand(executable_, selectedFiles_);
+                return Make<UnpackInCommand>(executable_, selectedFiles_);
         }
 
-        return command;
+        return NULL;
     }
 
     ULONG FileSelectionEnumerator::numberOfItems() const {

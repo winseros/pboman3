@@ -8,13 +8,13 @@ namespace pboman3 {
     using namespace std;
     using namespace filesystem;
 
-    class FolderSelectionEnumerator final : public AbstractEnumerator<FolderSelectionEnumerator> {
+    class FolderSelectionEnumerator final : public AbstractEnumerator<> {
     public:
         FolderSelectionEnumerator(shared_ptr<Executable> executable,
                                   shared_ptr<vector<path>> selectedFolders);
 
     protected:
-        IExplorerCommand* createForIndex(ULONG index) const override;
+        ComPtr<IExplorerCommand> createForIndex(ULONG index) const override;
 
         ULONG numberOfItems() const override;
 

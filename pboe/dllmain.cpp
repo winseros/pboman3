@@ -3,22 +3,28 @@
 #include <new>
 #include "dllmain.h"
 #include "registry.h"
-#include "classfactory.h"
 #include <filesystem>
 
-namespace pboman3 {
-    ULONG DllRefCount = 0;
-
-    void DllAddRef() {
-        InterlockedIncrement(&DllRefCount);
-    }
-
-    void DllRelease() {
-        InterlockedDecrement(&DllRefCount);
-    }
-}
+#include <wrl/module.h>
+#include <wrl/implements.h>
+#include <wrl/client.h>
+#include <shobjidl_core.h>
 
 HINSTANCE HInstanceDll;
+
+namespace pboman3 {
+    wstring GetModuleExecutablePath() {
+        using namespace std::filesystem;
+
+        TCHAR buf[MAX_PATH];
+        if (GetModuleFileName(HInstanceDll, buf, MAX_PATH)) {
+            const path dllPath(buf);
+            const path exePath = dllPath.parent_path().append(PBOM_EXECUTABLE);
+            return exePath.wstring();
+        }
+        return wstring();
+    }
+}
 
 STDAPI DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpReserved) {
     if (fdwReason == DLL_PROCESS_ATTACH) {
@@ -51,18 +57,20 @@ STDAPI DllUnregisterServer() {
 }
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
-    *ppv = NULL;
-    HRESULT hr = E_OUTOFMEMORY;
+    using namespace Microsoft::WRL;
+    HRESULT hr = Module<InProc>::GetModule().GetClassObject(rclsid, riid, ppv);
+    return hr;
+}
 
-    auto* factory = new(std::nothrow) pboman3::ClassFactory();
-    if (factory) {
-        hr = factory->QueryInterface(riid, ppv);
-        factory->Release();
-    }
-
+STDAPI DllGetActivationFactory(_In_ HSTRING activatableClassId, _COM_Outptr_ IActivationFactory** factory)
+{
+    using namespace Microsoft::WRL;
+    HRESULT hr = Module<ModuleType::InProc>::GetModule().GetActivationFactory(activatableClassId, factory);
     return hr;
 }
 
 STDAPI DllCanUnloadNow() {
-    return pboman3::DllRefCount == 0 ? S_OK : S_FALSE;
+    using namespace Microsoft::WRL;
+    HRESULT hr = Module<InProc>::GetModule().GetObjectCount() == 0 ? S_OK : S_FALSE;
+    return hr;
 }

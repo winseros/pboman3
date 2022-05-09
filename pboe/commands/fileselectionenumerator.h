@@ -9,13 +9,13 @@ namespace pboman3 {
     using namespace std;
     using namespace filesystem;
 
-    class FileSelectionEnumerator : public AbstractEnumerator<FileSelectionEnumerator> {
+    class FileSelectionEnumerator : public AbstractEnumerator<> {
     public:
         FileSelectionEnumerator(shared_ptr<Executable> executable,
                                 shared_ptr<vector<path>> selectedFiles);
 
     protected:
-        IExplorerCommand* createForIndex(ULONG index) const override;
+        ComPtr<IExplorerCommand> createForIndex(ULONG index) const override;
 
         ULONG numberOfItems() const override;
 

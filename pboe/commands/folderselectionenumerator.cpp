@@ -1,6 +1,7 @@
+#include <wrl/implements.h>
+#include <filesystem>
 #include "folderselectionenumerator.h"
 #include "packtocommand.h"
-#include <filesystem>
 #include "packascommand.h"
 #include "packincommand.h"
 
@@ -11,19 +12,17 @@ namespace pboman3 {
           selectedFolders_(move(selectedFolders)) {
     }
 
-    IExplorerCommand* FolderSelectionEnumerator::createForIndex(ULONG index) const {
-        IExplorerCommand* command = NULL;
-
+    ComPtr<IExplorerCommand> FolderSelectionEnumerator::createForIndex(ULONG index) const {
         if (index == 0) {
-            command = new PackToCommand(executable_, selectedFolders_);
+            return Make<PackToCommand>(executable_, selectedFolders_);
         } else if (index == 1) {
             if (selectedFolders_->size() == 1)
-                command = new PackAsCommand(executable_, selectedFolders_->at(0));
+                return Make<PackAsCommand>(executable_, selectedFolders_->at(0));
             else
-                command = new PackInCommand(executable_, selectedFolders_);
+                return Make<PackInCommand>(executable_, selectedFolders_);
         }
 
-        return command;
+        return NULL;
     }
 
     ULONG FolderSelectionEnumerator::numberOfItems() const {

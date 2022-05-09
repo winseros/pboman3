@@ -9,7 +9,7 @@ namespace pboman3 {
     using namespace std;
     using namespace filesystem;
 
-    class ExplorerCommand final : public AbstractCommand<ExplorerCommand, IInitializeCommand, IObjectWithSelection> {
+    class __declspec(uuid("dd2a27fa-7c7f-4b50-9b54-836af42fb64d")) ExplorerCommand final : public AbstractCommand<> {
     public:
         ExplorerCommand();
 
@@ -24,16 +24,6 @@ namespace pboman3 {
         HRESULT GetFlags(EXPCMDFLAGS* pFlags) override;
 
         HRESULT EnumSubCommands(IEnumExplorerCommand** ppEnum) override;
-
-        //IInitializeCommand
-
-        HRESULT Initialize(LPCWSTR pszCommandName, IPropertyBag* ppb) override;
-
-        //IObjectWithSelection
-
-        HRESULT SetSelection(IShellItemArray* psia) override;
-
-        HRESULT GetSelection(const IID& riid, void** ppv) override;
 
     private:
         shared_ptr<Executable> executable_;

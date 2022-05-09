@@ -28,8 +28,6 @@ namespace pboman3 {
                             PBOM_SHELL_PROGID);
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID,
                             L"" PBOM_PROJECT_NAME);
-        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID,
-                            pathToExe, L"Path");
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\DefaultIcon",
                             pathToExe + L",1");
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\Open\\Command",
@@ -44,6 +42,8 @@ namespace pboman3 {
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
                             pathToExe, L"Path");
 
+        setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID,
+            L"" PBOM_PROJECT_NAME);
         setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
                             pathToDll);
         setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",

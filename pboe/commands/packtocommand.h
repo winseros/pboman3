@@ -6,7 +6,7 @@
 #include "../executable.h"
 
 namespace pboman3 {
-    class PackToCommand final: public AbstractCommand<PackToCommand> {
+    class PackToCommand final: public AbstractCommand<> {
     public:
         PackToCommand(shared_ptr<Executable> executable, shared_ptr<vector<path>> selectedFolders);
 

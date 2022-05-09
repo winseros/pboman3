@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ShObjIdl.h>
+#include <wrl/implements.h>
 #include "../comobject.h"
 
 namespace pboman3 {
-    template <class TImplementation, class... TInterface>
-    class AbstractEnumerator : public ComObject<TImplementation, IEnumExplorerCommand, TInterface...> {
+    using namespace Microsoft::WRL;
+
+    template <class... TInterface>
+    class AbstractEnumerator : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IEnumExplorerCommand, TInterface...> {
     public:
         AbstractEnumerator(): index_(0) {
         }
@@ -15,7 +18,8 @@ namespace pboman3 {
         HRESULT Next(ULONG celt, IExplorerCommand** pUICommand, ULONG* pceltFetched) override {
             ULONG itemsFetched = 0;
             while (hasNext() && itemsFetched < celt) {
-                pUICommand[itemsFetched] = createForIndex(index_);
+                ComPtr<IExplorerCommand> comPtr = createForIndex(index_);
+                comPtr.CopyTo(&pUICommand[itemsFetched]);
                 index_++;
                 itemsFetched++;
             }
@@ -39,7 +43,7 @@ namespace pboman3 {
         }
 
     protected:
-        virtual IExplorerCommand* createForIndex(ULONG index) const = 0;
+        virtual ComPtr<IExplorerCommand> createForIndex(ULONG index) const = 0;
 
         virtual ULONG numberOfItems() const = 0;
 

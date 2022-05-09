@@ -6,7 +6,7 @@
 #include "../executable.h"
 
 namespace pboman3 {
-    class UnpackInCommand final : public AbstractCommand<UnpackInCommand> {
+    class UnpackInCommand final : public AbstractCommand<> {
     public:
         UnpackInCommand(shared_ptr<Executable> executable, shared_ptr<vector<path>> selectedFiles);
 

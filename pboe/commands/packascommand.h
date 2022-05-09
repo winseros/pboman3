@@ -9,7 +9,7 @@ namespace pboman3 {
     using namespace std;
     using namespace filesystem;
 
-    class PackAsCommand final : public AbstractCommand<PackAsCommand> {
+    class PackAsCommand final : public AbstractCommand<> {
     public:
         PackAsCommand(shared_ptr<Executable> executable, path selectedFolder);
 

@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ShlObj.h>
+#include <wrl/implements.h>
 #include "../comobject.h"
 
 namespace pboman3 {
-    template <class TImplementation, class... TInterface>
-    class AbstractCommand : public ComObject<TImplementation, IExplorerCommand, TInterface...> {
+    using namespace Microsoft::WRL;
+
+    template <class... TInterface>
+    class AbstractCommand : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IExplorerCommand, TInterface...> {
     public:
         //IExplorerCommand
 
@@ -20,7 +23,8 @@ namespace pboman3 {
         }
 
         HRESULT GetCanonicalName(GUID* pguidCommandName) override {
-            return E_NOTIMPL;
+            *pguidCommandName = GUID_NULL;
+            return S_OK;
         }
 
         HRESULT GetState(IShellItemArray* psiItemArray, BOOL fOkToBeSlow, EXPCMDSTATE* pCmdState) override {

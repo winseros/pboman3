@@ -2,9 +2,9 @@
 #include "folderselectionenumerator.h"
 #include "fileselectionenumerator.h"
 #include <Shlwapi.h>
-#include <cassert>
+#include <wrl/implements.h>
+#include <wrl/module.h>
 #include <filesystem>
-#include <wingdi.h>
 #include <strsafe.h>
 #include "../helpers.h"
 
@@ -12,6 +12,10 @@ namespace pboman3 {
     ExplorerCommand::ExplorerCommand()
         : executable_(nullptr),
           selectionMode_(SelectionMode::None) {
+        //not the best idea to keep data in a moule-global vars
+        //but I could not find other options for the Win11 context menu
+        const wstring moduleExePath = GetModuleExecutablePath();
+        executable_ = make_shared<Executable>(moduleExePath);
     }
 
     //IExplorerCommand
@@ -31,6 +35,11 @@ namespace pboman3 {
     }
 
     HRESULT ExplorerCommand::GetState(IShellItemArray* psiItemArray, BOOL fOkToBeSlow, EXPCMDSTATE* pCmdState) {
+        //not the best place to init these fields
+        //but I'm unaware of other options for the Win11 context menu
+        selectedItems_ = make_shared<vector<path>>(GetSelectedItemsPaths(psiItemArray));
+        selectionMode_ = getSelectionMode();
+
         *pCmdState = executable_->isValid() && (selectionMode_ == SelectionMode::Files
                          || selectionMode_ == SelectionMode::Folders)
                          ? ECS_ENABLED
@@ -50,44 +59,19 @@ namespace pboman3 {
     HRESULT ExplorerCommand::EnumSubCommands(IEnumExplorerCommand** ppEnum) {
         switch (selectionMode_) {
             case SelectionMode::Files: {
-                *ppEnum = new FileSelectionEnumerator(executable_, selectedItems_);
+                auto enumerator = Make<FileSelectionEnumerator>(executable_, selectedItems_);
+                enumerator.CopyTo(ppEnum);
                 break;
             }
             case SelectionMode::Folders: {
-                *ppEnum = new FolderSelectionEnumerator(executable_, selectedItems_);
+                auto enumerator = Make<FolderSelectionEnumerator>(executable_, selectedItems_);
+                enumerator.CopyTo(ppEnum);
                 break;
             }
             default:
                 return S_FALSE;
         }
         return S_OK;
-    }
-
-    //IInitializeCommand
-
-    HRESULT ExplorerCommand::Initialize(LPCWSTR pszCommandName, IPropertyBag* ppb) {
-        VARIANT data{};
-        wstring path;
-        const auto hr = ppb->Read(L"Path", &data, NULL);
-        if (SUCCEEDED(hr)) {
-            path = wstring(data.bstrVal);
-        }
-        executable_ = make_shared<Executable>(path);
-
-        return S_OK;
-    }
-
-
-    HRESULT ExplorerCommand::SetSelection(IShellItemArray* psia) {
-        if (psia && selectionMode_ == SelectionMode::None) {
-            selectedItems_ = make_shared<vector<path>>(GetSelectedItemsPaths(psia));
-            selectionMode_ = getSelectionMode();
-        }
-        return S_OK;
-    }
-
-    HRESULT ExplorerCommand::GetSelection(const IID& riid, void** ppv) {
-        return E_NOTIMPL;
     }
 
     // private methods
@@ -115,4 +99,7 @@ namespace pboman3 {
 
         return res;
     }
+
+    CoCreatableClass(ExplorerCommand)
+    CoCreatableClassWrlCreatorMapInclude(ExplorerCommand)
 }

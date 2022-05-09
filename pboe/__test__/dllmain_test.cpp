@@ -21,17 +21,17 @@ namespace pboman3::test {
     //     DeleteDC(dc);
     // }
 
-    TEST(DllRegisterServerTest, RegistersDevelopmentApplication) {
-        using namespace std::filesystem;
+    //TEST(DllRegisterServerTest, RegistersDevelopmentApplication) {
+    //    using namespace std::filesystem;
 
-        path binaryDir(BINARY_DIR);
-        binaryDir = binaryDir.lexically_normal();
-        const wstring exe = binaryDir.parent_path().append("pbom").append("pbom.exe").wstring();
-        const wstring dll = binaryDir.append("pboe.dll").wstring();
+    //    path binaryDir(BINARY_DIR);
+    //    binaryDir = binaryDir.lexically_normal();
+    //    const wstring exe = binaryDir.parent_path().append("pbom").append("pbom.exe").wstring();
+    //    const wstring dll = binaryDir.append("pboe.dll").wstring();
 
-        const HRESULT hr = Registry::registerServer(exe, dll);
-        ASSERT_TRUE(SUCCEEDED(hr));
-    }
+    //    const HRESULT hr = Registry::registerServer(exe, dll);
+    //    ASSERT_TRUE(SUCCEEDED(hr));
+    //}
 
     TEST(DllRegisterServerTest, UnregistersDevelopmentApplication) {
         const HRESULT hr = Registry::unregisterServer();

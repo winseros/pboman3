@@ -11,7 +11,7 @@ namespace pboman3 {
     using namespace std::filesystem;
 
     class Executable {
-    public :
+    public:
         Executable(wstring executablePath);
 
         HRESULT unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const;

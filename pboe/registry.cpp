@@ -23,6 +23,15 @@ namespace pboman3 {
         }
     }
 
+    wstring Registry::getExecutablePath() {
+        try {
+            wstring value = getRegistryKeyValue(PBOM_SHELL_PROGID, L"Path");
+            return value;
+        } catch (const RegistryException&) {
+            return L"";
+        }
+    }
+
     void Registry::registerServerImpl(const wstring& pathToExe, const wstring& pathToDll) {
         setRegistryKeyValue(L"Software\\Classes\\.pbo",
                             PBOM_SHELL_PROGID);
@@ -32,6 +41,8 @@ namespace pboman3 {
                             pathToExe + L",1");
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\Open\\Command",
                             L"\"" + pathToExe + L"\" open \"%1\"");
+        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID,
+                            pathToExe, L"Path");
 
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
                             PBOM_SHELL_CLSID, L"ExplorerCommandHandler");
@@ -39,11 +50,9 @@ namespace pboman3 {
                             L"PBO Manager Context menu");
         setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
                             L"", L"NeverDefault");
-        setRegistryKeyValue(L"Software\\Classes\\" PBOM_SHELL_PROGID "\\Shell\\pboman3.menu",
-                            pathToExe, L"Path");
 
         setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID,
-            L"" PBOM_PROJECT_NAME);
+                            L"" PBOM_PROJECT_NAME);
         setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
                             pathToDll);
         setRegistryKeyValue(L"Software\\Classes\\CLSID\\" PBOM_SHELL_CLSID "\\InprocServer32",
@@ -56,8 +65,6 @@ namespace pboman3 {
                             L"PBO Manager Context menu");
         setRegistryKeyValue(L"Software\\Classes\\Directory\\Shell\\pboman3.menu",
                             L"", L"NeverDefault");
-        setRegistryKeyValue(L"Software\\Classes\\Directory\\Shell\\pboman3.menu",
-                            pathToExe, L"Path");
     }
 
     void Registry::unregisterServerImpl() {
@@ -109,7 +116,7 @@ namespace pboman3 {
         if (ls != ERROR_SUCCESS)
             throw RegistryException::fromLStatus(key, ls);
 
-        return wstring(vData, cbData);
+        return {vData, cbData};
     }
 
     void Registry::removeRegistryKey(const wstring& key) {
@@ -121,7 +128,7 @@ namespace pboman3 {
 
     Registry::RegistryException Registry::RegistryException::fromLStatus(const wstring& registryKey, LSTATUS status) {
         const string systemError = getSystemMessage(status);
-        return RegistryException(registryKey, systemError, status);
+        return {registryKey, systemError, status};
     }
 
 
@@ -151,6 +158,6 @@ namespace pboman3 {
                                             buffer,
                                             size,
                                             NULL);
-        return string(buffer, number);
+        return {buffer, number};
     }
 }

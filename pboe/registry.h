@@ -12,6 +12,8 @@ namespace pboman3 {
 
         static HRESULT unregisterServer();
 
+        static wstring getExecutablePath();
+
     private:
         static void registerServerImpl(const wstring& pathToExe, const wstring& pathToDll);
 

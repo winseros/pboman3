@@ -1,4 +1,5 @@
-#include "Packincommand.h"
+#include <Shlwapi.h>
+#include "packincommand.h"
 
 namespace pboman3 {
     PackInCommand::PackInCommand(shared_ptr<Executable> executable, shared_ptr<vector<path>> selectedFiles)

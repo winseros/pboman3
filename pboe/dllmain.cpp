@@ -1,14 +1,11 @@
 #include <Windows.h>
 #include <ShlObj.h>
-#include <new>
 #include "dllmain.h"
 #include "registry.h"
 #include <filesystem>
-
 #include <wrl/module.h>
 #include <wrl/implements.h>
 #include <wrl/client.h>
-#include <shobjidl_core.h>
 
 HINSTANCE HInstanceDll;
 
@@ -22,7 +19,7 @@ namespace pboman3 {
             const path exePath = dllPath.parent_path().append(PBOM_EXECUTABLE);
             return exePath.wstring();
         }
-        return wstring();
+        return {};
     }
 }
 
@@ -58,19 +55,19 @@ STDAPI DllUnregisterServer() {
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
     using namespace Microsoft::WRL;
-    HRESULT hr = Module<InProc>::GetModule().GetClassObject(rclsid, riid, ppv);
+    const HRESULT hr = Module<InProc>::GetModule().GetClassObject(rclsid, riid, ppv);
     return hr;
 }
 
 STDAPI DllGetActivationFactory(_In_ HSTRING activatableClassId, _COM_Outptr_ IActivationFactory** factory)
 {
     using namespace Microsoft::WRL;
-    HRESULT hr = Module<ModuleType::InProc>::GetModule().GetActivationFactory(activatableClassId, factory);
+    const HRESULT hr = Module<ModuleType::InProc>::GetModule().GetActivationFactory(activatableClassId, factory);
     return hr;
 }
 
 STDAPI DllCanUnloadNow() {
     using namespace Microsoft::WRL;
-    HRESULT hr = Module<InProc>::GetModule().GetObjectCount() == 0 ? S_OK : S_FALSE;
+    const HRESULT hr = Module<InProc>::GetModule().GetObjectCount() == 0 ? S_OK : S_FALSE;
     return hr;
 }

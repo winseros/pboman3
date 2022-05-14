@@ -1,4 +1,5 @@
 #include "unpackincommand.h"
+#include <Shlwapi.h>
 
 namespace pboman3 {
     UnpackInCommand::UnpackInCommand(shared_ptr<Executable> executable, shared_ptr<vector<path>> selectedFiles)

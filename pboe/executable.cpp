@@ -1,6 +1,7 @@
 #include "executable.h"
 #include <numeric>
 #include <filesystem>
+#include "dllmain.h"
 #include "registry.h"
 
 namespace pboman3 {
@@ -9,13 +10,20 @@ namespace pboman3 {
 
     constexpr size_t additionalCharsReserve = 20;
 
+    shared_ptr<Executable> Executable::fromRegistryOrLocal() {
+        wstring path = Registry::getExecutablePath(); //Classic Win32 installed app reads the EXE path from the registry
+        if (!isPathValid(path))
+            path = GetModuleExecutablePath(); //UWP app just expects the EXE to be at this path
+        return make_shared<Executable>(path);
+    }
+
     Executable::Executable(std::wstring executablePath)
         : executablePath_(std::move(executablePath)) {
     }
 
     HRESULT Executable::unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const {
         std::wstring argv;
-        reserveArgvSize(argv, files,  outputDir.wstring().size() + additionalCharsReserve);
+        reserveArgvSize(argv, files, outputDir.wstring().size() + additionalCharsReserve);
 
         appendUnpackCommand(argv);
         appendPaths(argv, files);
@@ -62,8 +70,8 @@ namespace pboman3 {
     }
 
     bool Executable::isValid() const {
-        return !executablePath_.empty()
-            && is_regular_file(executablePath_);
+        const bool valid = isPathValid(executablePath_);
+        return valid;
     }
 
     const wstring& Executable::executablePath() const {
@@ -80,7 +88,8 @@ namespace pboman3 {
     }
 
     HRESULT Executable::shellExecute(const path& cwd, const wstring& argv) const {
-        HINSTANCE hinst = ShellExecute(nullptr, L"open", executablePath_.c_str(), argv.c_str(), cwd.c_str(), SW_SHOWNORMAL);
+        HINSTANCE hinst = ShellExecute(nullptr, L"open", executablePath_.c_str(), argv.c_str(), cwd.c_str(),
+                                       SW_SHOWNORMAL);
         if (reinterpret_cast<INT_PTR>(hinst) > 32) {
             return S_OK;
         }
@@ -108,5 +117,10 @@ namespace pboman3 {
 
     void Executable::appendPrompt(wstring& argv) {
         argv.append(L" -p");
+    }
+
+    bool Executable::isPathValid(const wstring& path) {
+        return !path.empty()
+            && is_regular_file(path);
     }
 }

@@ -12,10 +12,7 @@ namespace pboman3 {
     ExplorerCommand::ExplorerCommand()
         : executable_(nullptr),
           selectionMode_(SelectionMode::None) {
-        //not the best idea to keep data in a moule-global vars
-        //but I could not find other options for the Win11 context menu
-        const wstring moduleExePath = GetModuleExecutablePath();
-        executable_ = make_shared<Executable>(moduleExePath);
+        executable_ = Executable::fromRegistryOrLocal();
     }
 
     //IExplorerCommand
@@ -35,10 +32,8 @@ namespace pboman3 {
     }
 
     HRESULT ExplorerCommand::GetState(IShellItemArray* psiItemArray, BOOL fOkToBeSlow, EXPCMDSTATE* pCmdState) {
-        //not the best place to init these fields
-        //but I'm unaware of other options for the Win11 context menu
-        selectedItems_ = make_shared<vector<path>>(GetSelectedItemsPaths(psiItemArray));
-        selectionMode_ = getSelectionMode();
+        //UWP initializes here
+        initSelection(psiItemArray);
 
         *pCmdState = executable_->isValid() && (selectionMode_ == SelectionMode::Files
                          || selectionMode_ == SelectionMode::Folders)
@@ -59,12 +54,12 @@ namespace pboman3 {
     HRESULT ExplorerCommand::EnumSubCommands(IEnumExplorerCommand** ppEnum) {
         switch (selectionMode_) {
             case SelectionMode::Files: {
-                auto enumerator = Make<FileSelectionEnumerator>(executable_, selectedItems_);
+                const auto enumerator = Make<FileSelectionEnumerator>(executable_, selectedItems_);
                 enumerator.CopyTo(ppEnum);
                 break;
             }
             case SelectionMode::Folders: {
-                auto enumerator = Make<FolderSelectionEnumerator>(executable_, selectedItems_);
+                const auto enumerator = Make<FolderSelectionEnumerator>(executable_, selectedItems_);
                 enumerator.CopyTo(ppEnum);
                 break;
             }
@@ -72,6 +67,18 @@ namespace pboman3 {
                 return S_FALSE;
         }
         return S_OK;
+    }
+
+    //IObjectWithSelection
+
+    HRESULT ExplorerCommand::SetSelection(IShellItemArray* psia) {
+        //Win32 app initializes here
+        initSelection(psia);
+        return S_OK;
+    }
+
+    HRESULT ExplorerCommand::GetSelection(const IID& riid, void** ppv) {
+        return E_NOTIMPL;
     }
 
     // private methods
@@ -98,6 +105,13 @@ namespace pboman3 {
         }
 
         return res;
+    }
+
+    void ExplorerCommand::initSelection(IShellItemArray* psia) {
+         if (psia && selectionMode_ == SelectionMode::None) {
+            selectedItems_ = make_shared<vector<path>>(GetSelectedItemsPaths(psia));
+            selectionMode_ = getSelectionMode();
+        }
     }
 
     CoCreatableClass(ExplorerCommand)

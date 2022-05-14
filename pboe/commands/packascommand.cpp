@@ -1,4 +1,5 @@
-#include "Packascommand.h"
+#include <Shlwapi.h>
+#include "packascommand.h"
 
 namespace pboman3 {
     PackAsCommand::PackAsCommand(shared_ptr<Executable> executable, path selectedFolder)

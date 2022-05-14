@@ -1,4 +1,5 @@
 #include "unpackascommand.h"
+#include <Shlwapi.h>
 
 namespace pboman3 {
     UnpackAsCommand::UnpackAsCommand(shared_ptr<Executable> executable, path selectedFile)

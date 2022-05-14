@@ -12,6 +12,8 @@ namespace pboman3 {
 
     class Executable {
     public:
+        static shared_ptr<Executable> fromRegistryOrLocal();
+
         Executable(wstring executablePath);
 
         HRESULT unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const;
@@ -42,5 +44,7 @@ namespace pboman3 {
         static void appendOutputDir(wstring& argv, const wstring& outputDir);
 
         static void appendPrompt(wstring& argv);
+
+        static bool isPathValid(const wstring& path);
     };
 }

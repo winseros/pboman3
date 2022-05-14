@@ -1,4 +1,5 @@
 #include "packtocommand.h"
+#include <Shlwapi.h>
 
 namespace pboman3 {
     PackToCommand::PackToCommand(shared_ptr<Executable> executable, shared_ptr<vector<path>> selectedFolders)

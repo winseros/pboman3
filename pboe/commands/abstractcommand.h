@@ -2,7 +2,6 @@
 
 #include <ShlObj.h>
 #include <wrl/implements.h>
-#include "../comobject.h"
 
 namespace pboman3 {
     using namespace Microsoft::WRL;

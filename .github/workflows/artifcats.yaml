@@ -25,6 +25,7 @@ jobs:
           echo "pbom_version=$('${{github.ref}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
           echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
           echo "pbom_installer_version=$('${{github.ref}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
+          echo "pbom_msix_version=$('${{github.ref}}.${{github.run_number}}' -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
 
       - name: Set Version Information - Branch
         if: ${{startsWith(github.ref, 'refs/heads/')}}
@@ -32,6 +33,7 @@ jobs:
           echo "pbom_version=$('${{github.ref}}' -replace 'refs/heads/','' -replace '[^\w\d]','_')" >> $env:GITHUB_ENV
           echo "pbom_build_number=${{github.run_number}} (${{env.git_sha}})" >> $env:GITHUB_ENV
           echo "pbom_installer_version=0.0.${{github.run_number}}" >> $env:GITHUB_ENV
+          echo "pbom_msix_version=0.0.0.${{github.run_number}}" >> $env:GITHUB_ENV
 
       - name: Install MSVC 2022
         uses: ilammy/msvc-dev-cmd@v1
@@ -88,3 +90,18 @@ jobs:
         with:
           name: PBOManager-installer-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi
+
+      - name: Build MSIX package
+        run: |
+            $env:PATH = $env:PATH + ";C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64"
+            cp -Path ${{github.workspace}}\code\msix\package\ -Destination ${{github.workspace}}\_msix\ -Recurse
+            makepri.exe new /of ${{github.workspace}}\_msix\resources.pri /mn ${{github.workspace}}\code\msix\AppxManifest.xml  /pr ${{github.workspace}}\_msix\ /cf ${{github.workspace}}\code\msix\priconfig.xml
+            (Get-Content ${{github.workspace}}\code\msix\AppxManifest.xml).Replace('Version="1.0.0.0"', 'Version="${{env.pbom_msix_version}}"') | Set-Content ${{github.workspace}}\_msix\AppxManifest.xml
+            cp -Path ${{github.workspace}}\_install\bin\* -Destination ${{github.workspace}}\_msix\ -Recurse
+            makeappx.exe pack /d ${{github.workspace}}\_msix\ /p ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix
+      
+      - name: Upload MSIX package
+        uses: actions/upload-artifact@v2
+        with:
+          name: PBOManager-msix-${{env.pbom_version}}-${{env.pbom_build_number}}
+          path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix

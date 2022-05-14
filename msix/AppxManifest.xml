@@ -18,7 +18,7 @@
     Name="PBOManager"
     Publisher="CN=nkobzev"
 	ProcessorArchitecture="x64" 
-    Version="1.0.1.0" />
+    Version="1.0.0.0" />
 
   <Properties>
     <DisplayName>PBO Manager</DisplayName>

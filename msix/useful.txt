@@ -10,7 +10,7 @@ pvk2pfx -pvk Cert.pvk -pi "12345" -spc Cert.cer -pfx Cert.pfx -f
 makepri.exe createconfig /cf ./ /dq en-us
 makepri.exe new /of resources.pri /mn .\AppxManifest.xml  /pr . /cf .\priconfig.xml /il index.xml
 
-makeappx.exe pack /nv /d .\misx\ /p pboman.msix
+makeappx.exe pack /d .\misx\ /p pboman.msix
 signtool sign /fd SHA256 /a /f Cert.pfx /p "12345" .\pboman.msix
 
 

@@ -99,7 +99,7 @@ namespace pboman3::ui {
 
     PboNode* TreeWidgetBase::getCurrentFolder() const {
         PboNode* result = nullptr;
-        auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
+        const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
         if (selected) {
             if (selected->node()->nodeType() == PboNodeType::Container || selected->node()->nodeType() ==
                 PboNodeType::Folder) {
@@ -114,7 +114,7 @@ namespace pboman3::ui {
 
     PboNode* TreeWidgetBase::getCurrentFile() const {
         PboNode* result = nullptr;
-        auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
+        const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
         if (selected) {
             if (selected->node()->nodeType() == PboNodeType::File) {
                 result = selected->node();

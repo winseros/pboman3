@@ -105,7 +105,7 @@ namespace pboman3::model {
         }
         bs->open();
 
-        return NodeDescriptor(bs, path);
+        return {bs, path};
     }
 
     QSharedPointer<BinarySource> NodeDescriptors::readPboBinarySource(QDataStream& stream) {

@@ -56,7 +56,7 @@ namespace pboman3::model::task {
             if (model_->isCancelled()) break;
 
             connect(task.get(), &Task::taskThinking, [this](const QString& text) {
-                emit model_->threadThinnking(threadId_, text);
+                emit model_->threadThinking(threadId_, text);
             });
             connect(task.get(), &Task::taskInitialized,
                     [this](const QString& text, qint32 minProgress, qint32 maxProgress) {

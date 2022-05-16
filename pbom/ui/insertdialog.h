@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QComboBox>
 #include "ui_insertdialog.h"
 #include "model/conflictsparcel.h"
 

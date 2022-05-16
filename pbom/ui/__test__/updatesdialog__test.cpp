@@ -51,8 +51,8 @@ namespace pboman3::ui::test {
     };
 
     TEST_P(OperatorLessTest, Operator_Less_Functional) {
-        SemanticVersion ver1(GetParam().ver1);
-        SemanticVersion ver2(GetParam().ver2);
+        const SemanticVersion ver1(GetParam().ver1);
+        const SemanticVersion ver2(GetParam().ver2);
         ASSERT_EQ(GetParam().expectedResult, ver1 < ver2);
     }
 

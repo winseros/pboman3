@@ -14,11 +14,11 @@ namespace pboman3 {
 
         //IEnumExplorerCommand
 
-        HRESULT Next(ULONG celt, IExplorerCommand** pUICommand, ULONG* pceltFetched) override {
+        HRESULT Next(ULONG celt, IExplorerCommand** pUiCommand, ULONG* pceltFetched) override {
             ULONG itemsFetched = 0;
             while (hasNext() && itemsFetched < celt) {
                 ComPtr<IExplorerCommand> comPtr = createForIndex(index_);
-                comPtr.CopyTo(&pUICommand[itemsFetched]);
+                comPtr.CopyTo(&pUiCommand[itemsFetched]);
                 index_++;
                 itemsFetched++;
             }

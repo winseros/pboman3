@@ -112,7 +112,7 @@ namespace pboman3::model::task {
     }
 
     TEST(ExtractConfigurationTest, SaveTo_Writes_To_Directory) {
-        QTemporaryDir t;
+        const QTemporaryDir t;
         const QDir target(t.path());
 
         PackOptions options;
@@ -132,7 +132,7 @@ namespace pboman3::model::task {
     }
 
     TEST(ExtractConfigurationTest, SaveTo_Picks_Non_Conflict_Name) {
-        QTemporaryDir t;
+        const QTemporaryDir t;
         const QDir target(t.path());
 
         //two placeholder files

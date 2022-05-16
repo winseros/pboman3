@@ -30,7 +30,7 @@ namespace pboman3::ui {
         connect(ui_->buttonBox, &QDialogButtonBox::clicked, this, &TaskWindow::buttonClicked);
 
         connect(model.get(), &TaskWindowModel::threadStarted, this, &TaskWindow::threadStarted);
-        connect(model.get(), &TaskWindowModel::threadThinnking, this, &TaskWindow::threadThinking);
+        connect(model.get(), &TaskWindowModel::threadThinking, this, &TaskWindow::threadThinking);
         connect(model.get(), &TaskWindowModel::threadInitialized, this, &TaskWindow::threadInitialized);
         connect(model.get(), &TaskWindowModel::threadProgress, this, &TaskWindow::threadProgress);
         connect(model.get(), &TaskWindowModel::threadCompleted, this, &TaskWindow::threadCompleted);
@@ -103,7 +103,7 @@ namespace pboman3::ui {
         log_->appendPlainText(message);
     }
 
-    void TaskWindow::buttonClicked(QAbstractButton* button) {
+    void TaskWindow::buttonClicked(const QAbstractButton* button) {
         if (button == dynamic_cast<QAbstractButton*>(ui_->buttonBox->button(QDialogButtonBox::Cancel))) {
             ui_->buttonBox->setEnabled(false);
             doneText_ = "Cancelled";

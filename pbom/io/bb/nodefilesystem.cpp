@@ -29,7 +29,7 @@ namespace pboman3::io {
         QList<const PboNode*> parents;
         parents.reserve(node->depth() - parent->depth());
 
-        PboNode* p = node->parentNode();
+        const PboNode* p = node->parentNode();
         while (p && p != parent) {
             parents.prepend(p);
             p = p->parentNode();

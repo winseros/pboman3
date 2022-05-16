@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
         const int res = pboman3::RunMain(argc, argv);
         return res;
     } catch (const pboman3::AppException& ex) {
-        LOG(critical, "Unexpected exception has been thrown:", ex);
-        throw ex;
+        LOG(critical, "Unexpected exception has been thrown:", ex)
+        throw;
     }
 }

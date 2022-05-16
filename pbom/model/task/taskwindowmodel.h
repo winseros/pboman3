@@ -20,7 +20,7 @@ namespace pboman3::model::task {
     signals:
         void threadStarted(ThreadId threadId);
 
-        void threadThinnking(ThreadId threadId, const QString& text);
+        void threadThinking(ThreadId threadId, const QString& text);
 
         void threadInitialized(ThreadId threadId, const QString& text, qint32 progressMin, qint32 progressMax);
 

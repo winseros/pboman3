@@ -6,7 +6,7 @@ namespace pboman3::util {
     template <class T>
     class QPointerListIterator {
     public:
-        QPointerListIterator(QSharedPointer<T>* ptr)
+        explicit QPointerListIterator(QSharedPointer<T>* ptr)
             : ptr_(ptr) {
         }
 
@@ -30,7 +30,7 @@ namespace pboman3::util {
         QPointerListIterator<T> operator++(int) {
             const auto n = ptr_;
             ++ptr_;
-            return n;
+            return QPointerListIterator<T>(n);
         }
 
         QPointerListIterator<T>& operator--() {
@@ -41,7 +41,7 @@ namespace pboman3::util {
         QPointerListIterator<T> operator--(int) {
             const auto n = ptr_;
             --ptr_;
-            return n;
+            return QPointerListIterator<T>(n);
         }
 
         QPointerListIterator<T>& operator+=(qsizetype j) {
@@ -67,7 +67,7 @@ namespace pboman3::util {
     template <class T>
     class QPointerListConstIterator {
     public:
-        QPointerListConstIterator(const QSharedPointer<T>* ptr)
+        explicit QPointerListConstIterator(const QSharedPointer<T>* ptr)
             : ptr_(ptr) {
         }
 
@@ -91,7 +91,7 @@ namespace pboman3::util {
         QPointerListConstIterator<T> operator++(int) {
             const auto n = ptr_;
             ++ptr_;
-            return n;
+            return QPointerListConstIterator(n);
         }
 
         QPointerListConstIterator<T>& operator--() {
@@ -102,7 +102,7 @@ namespace pboman3::util {
         QPointerListConstIterator<T> operator--(int) {
             const auto n = ptr_;
             --ptr_;
-            return n;
+            return QPointerListConstIterator(n);
         }
 
         QPointerListConstIterator<T>& operator+=(qsizetype j) {

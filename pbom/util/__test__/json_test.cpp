@@ -61,7 +61,7 @@ namespace pboman3::util::test {
         MockJsonObject() = default;
 
         MockJsonObject(QString prop) : prop(std::move(prop)) {
-        };
+        }
 
         QString prop;
 

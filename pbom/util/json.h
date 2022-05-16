@@ -26,6 +26,7 @@ namespace pboman3::util {
         struct JsonValueTrait {
             static constexpr auto typeName = "<Developer must override this>";
 
+            // ReSharper disable once CppFunctionIsNotImplemented
             static T read(const QJsonValue& value);
         };
 
@@ -117,7 +118,8 @@ namespace pboman3::util {
             using TypeOuter = T;
             using TypeInner = JsonValue<T>;
             static TypeOuter& getValue(TypeInner& t) { return t.value(); }
-            static QJsonValue makeJson(const TypeOuter& t); //not implemented
+            // ReSharper disable once CppFunctionIsNotImplemented
+            static QJsonValue makeJson(const TypeOuter& t);
         };
     }
 

@@ -1,4 +1,4 @@
-list(APPEND PROJECT_SOURCES
+list(APPEND PROJECT_SOURCES_UI
     "ui/progresswidget/progresswidget.cpp"
     "ui/treewidget/deleteop.cpp"
     "ui/treewidget/treewidget.cpp"
@@ -36,7 +36,7 @@ list(APPEND PROJECT_SOURCES
     "ui/updatesdialog.ui"
     "ui/updatesdialog.cpp")
 
-set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
+set(PROJECT_SOURCES_UI ${PROJECT_SOURCES_UI} PARENT_SCOPE)
 
 list(APPEND TEST_SOURCES
     "ui/__test__/fscollector__test.cpp"

@@ -85,5 +85,5 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
 }
 
 STDAPI DllCanUnloadNow() {
-    return pboman3::DllRefCount == 0 ? S_FALSE : S_OK;
+    return pboman3::DllRefCount == 0 ? S_OK : S_FALSE;
 }

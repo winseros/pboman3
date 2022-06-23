@@ -59,7 +59,7 @@ STDAPI DllRegisterServer() {
         const path dllPath(buf);
         const path exePath = dllPath.parent_path().append(PBOM_EXECUTABLE);
         
-        hr = pboman3::Registry::registerServer(exePath.string(), dllPath.string());
+        hr = pboman3::Registry::registerServer(exePath.wstring(), dllPath.wstring());
     } else {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }

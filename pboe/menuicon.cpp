@@ -3,12 +3,12 @@
 #include <cassert>
 
 namespace pboman3 {
-    MenuIcon::MenuIcon(LPCSTR exePath)
+    MenuIcon::MenuIcon(const wstring& exePath)
         : icon_(nullptr) {
         HICON icon;
-        if (ExtractIconEx(exePath, 0, &icon, NULL, 1)) {
+        if (ExtractIconEx(exePath.data(), 0, &icon, NULL, 1)) {
             // ReSharper disable CppLocalVariableMayBeConst
-            HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+            HDC hdc = CreateDC(L"DISPLAY", NULL, NULL, NULL);
 
             HDC dc = CreateCompatibleDC(hdc);
 

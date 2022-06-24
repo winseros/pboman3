@@ -16,13 +16,13 @@ namespace pboman3 {
 
         Executable(wstring executablePath);
 
-        HRESULT unpackFiles(const wstring& cwd, const vector<path>& files, const wstring& outputDir) const;
+        HRESULT unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const;
 
-        HRESULT unpackFiles(const wstring& cwd, const vector<path>& files) const;
+        HRESULT unpackFiles(const path& cwd, const vector<path>& files) const;
 
-        HRESULT packFolders(const wstring& cwd, const vector<path>& folders, const wstring& outputDir) const;
+        HRESULT packFolders(const path& cwd, const vector<path>& folders, const path& outputDir) const;
 
-        HRESULT packFolders(const wstring& cwd, const vector<path>& folders) const;
+        HRESULT packFolders(const path& cwd, const vector<path>& folders) const;
 
         bool isValid() const;
 
@@ -31,7 +31,7 @@ namespace pboman3 {
 
         static void reserveArgvSize(wstring& argv, vector<path> items, size_t additionalSymbols);
 
-        HRESULT shellExecute(const wstring& cwd, const wstring& argv) const;
+        HRESULT shellExecute(const path& cwd, const wstring& argv) const;
 
         static void appendPaths(wstring& argv, const vector<path>& paths);
 
@@ -39,7 +39,7 @@ namespace pboman3 {
 
         static void appendUnpackCommand(wstring& argv);
 
-        static void appendOutputDir(wstring& argv, const wstring& outputDir);
+        static void appendOutputDir(wstring& argv, const path& outputDir);
 
         static void appendPrompt(wstring& argv);
     };

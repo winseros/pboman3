@@ -18,9 +18,9 @@ namespace pboman3 {
         : executablePath_(std::move(executablePath)) {
     }
 
-    HRESULT Executable::unpackFiles(const wstring& cwd, const vector<path>& files, const wstring& outputDir) const {
+    HRESULT Executable::unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const {
         wstring argv;
-        reserveArgvSize(argv, files, outputDir.size() + additionalCharsReserve);
+        reserveArgvSize(argv, files, outputDir.wstring().length() + additionalCharsReserve);
 
         appendUnpackCommand(argv);
         appendPaths(argv, files);
@@ -30,7 +30,7 @@ namespace pboman3 {
         return hr;
     }
 
-    HRESULT Executable::unpackFiles(const wstring& cwd, const vector<path>& files) const {
+    HRESULT Executable::unpackFiles(const path& cwd, const vector<path>& files) const {
         wstring argv;
         reserveArgvSize(argv, files, additionalCharsReserve);
 
@@ -42,9 +42,9 @@ namespace pboman3 {
         return hr;
     }
 
-    HRESULT Executable::packFolders(const wstring& cwd, const vector<path>& folders, const wstring& outputDir) const {
+    HRESULT Executable::packFolders(const path& cwd, const vector<path>& folders, const path& outputDir) const {
         wstring argv;
-        reserveArgvSize(argv, folders, outputDir.size() + additionalCharsReserve);
+        reserveArgvSize(argv, folders, outputDir.wstring().length() + additionalCharsReserve);
 
         appendPackCommand(argv);
         appendPaths(argv, folders);
@@ -54,7 +54,7 @@ namespace pboman3 {
         return hr;
     }
 
-    HRESULT Executable::packFolders(const wstring& cwd, const vector<path>& folders) const {
+    HRESULT Executable::packFolders(const path& cwd, const vector<path>& folders) const {
         wstring argv;
         reserveArgvSize(argv, folders, additionalCharsReserve);
 
@@ -80,7 +80,7 @@ namespace pboman3 {
         argv.reserve(reserve + additionalSymbols);
     }
 
-    HRESULT Executable::shellExecute(const wstring& cwd, const wstring& argv) const {
+    HRESULT Executable::shellExecute(const path& cwd, const wstring& argv) const {
         const HINSTANCE hinst = ShellExecute(nullptr, L"open", executablePath_.c_str(), argv.c_str(), cwd.c_str(),
                                              SW_SHOWNORMAL);
         if (reinterpret_cast<INT_PTR>(hinst) > 32) {
@@ -104,8 +104,14 @@ namespace pboman3 {
         argv.append(L"unpack");
     }
 
-    void Executable::appendOutputDir(wstring& argv, const wstring& outputDir) {
-        argv.append(L" -o \"").append(outputDir).append(L"\"");
+    void Executable::appendOutputDir(wstring& argv, const path& outputDir) {
+        const bool needEscaping = outputDir != outputDir.root_path();
+        argv.append(L" -o ");
+        if (needEscaping)
+            argv.append(L"\"");
+        argv.append(outputDir);
+        if (needEscaping)
+            argv.append(L"\"");
     }
 
     void Executable::appendPrompt(wstring& argv) {

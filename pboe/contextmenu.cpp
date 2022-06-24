@@ -114,29 +114,50 @@ namespace pboman3 {
 
         HRESULT hr = E_FAIL;
 
-        if (pici->cbSize == sizeof CMINVOKECOMMANDINFOEX
-            && pici->fMask & CMIC_MASK_UNICODE) {
+        UWORD idCmd = -1;
+        path directory;
+        if (pici->cbSize == sizeof CMINVOKECOMMANDINFOEX && pici->fMask & CMIC_MASK_UNICODE) {
             const auto piciw = reinterpret_cast<CMINVOKECOMMANDINFOEX*>(pici);
+            //click on a Desktop item or on an item in Explorer right pane
             if (HIWORD(piciw->lpVerbW) == 0) {
+                //means piciw contains idCmd, otherwise would mean pici contains a verb
+                idCmd = LOWORD(piciw->lpVerb);
+                directory.append(wstring(piciw->lpDirectoryW, lstrlen(piciw->lpDirectoryW)));
+            }
+        } else {
+            //click on a folder in Explorer left pane
+            if (HIWORD(pici->lpVerb) == 0) {
                 //means pici contains idCmd, otherwise would mean pici contains a verb
-                const auto idCmd = LOWORD(pici->lpVerb);
-                switch (idCmd) {
-                    case idUnpackWithPrompt:
-                        hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_);
-                        break;
-                    case idUnpackToCwd:
-                        hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
-                        break;
-                    case idPackWithPrompt:
-                        hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_);
-                        break;
-                    case idPackToCwd:
-                        hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
-                        break;
-                    default:
-                        break;
+                idCmd = LOWORD(pici->lpVerb);
+                if (pici->lpDirectory) {
+                    directory.append(string(pici->lpDirectory, strlen(pici->lpDirectory)));
+                } else {
+                    if (selectedPaths_->size() == 1
+                        && is_directory(selectedPaths_->at(0))
+                        && selectedPaths_->at(0).has_parent_path()) {
+                        directory = selectedPaths_->at(0).parent_path();
+                    } else {
+                        idCmd = -1;
+                    }
                 }
             }
+        }
+
+        switch (idCmd) {
+            case idUnpackWithPrompt:
+                hr = executable_->unpackFiles(directory, *selectedPaths_);
+                break;
+            case idUnpackToCwd:
+                hr = executable_->unpackFiles(directory, *selectedPaths_, directory);
+                break;
+            case idPackWithPrompt:
+                hr = executable_->packFolders(directory, *selectedPaths_);
+                break;
+            case idPackToCwd:
+                hr = executable_->packFolders(directory, *selectedPaths_, directory);
+                break;
+            default:
+                break;
         }
 
         return hr;

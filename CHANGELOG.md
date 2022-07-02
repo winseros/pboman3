@@ -1,6 +1,9 @@
 # PBO Manager change log
 
 ## Version 1.4.0
+ - [Fix] Sometimes the explorer context menu was crasing explorer.exe
+
+## Version 1.4.0
  - [Feature] Dedicated executable `pboc.exe` for usage in scripts
 
 ## Version 1.3.0

@@ -8,35 +8,35 @@ namespace pboman3 {
 
     class Registry {
     public:
-        static HRESULT registerServer(const string& pathToExe, const string& pathToDll);
+        static HRESULT registerServer(const wstring& pathToExe, const wstring& pathToDll);
 
         static HRESULT unregisterServer();
 
-        static string getExecutablePath();
+        static wstring getExecutablePath();
 
     private:
-        static void registerServerImpl(const string& pathToExe, const string& pathToDll);
+        static void registerServerImpl(const wstring& pathToExe, const wstring& pathToDll);
 
         static void unregisterServerImpl();
 
-        static void setRegistryKeyValue(const string& key, const string& value, const string& name = "");
+        static void setRegistryKeyValue(const wstring& key, const wstring& value, const wstring& name = L"");
 
-        static string getRegistryKeyValue(const string& key, const string& name = "");
+        static wstring getRegistryKeyValue(const wstring& key, const wstring& name = L"");
 
-        static void removeRegistryKey(const string& key);
+        static void removeRegistryKey(const wstring& key);
 
         class RegistryException : public exception {
         public:
-            static RegistryException fromLStatus(const string& registryKey, LSTATUS status);
+            static RegistryException fromLStatus(const wstring& registryKey, LSTATUS status);
 
-            RegistryException(string registryKey, const string& systemError, LSTATUS status);
+            RegistryException(wstring registryKey, const string& systemError, LSTATUS status);
 
             LSTATUS status() const;
 
-            const string& registryKey() const;
+            const wstring& registryKey() const;
 
         private:
-            string registryKey_;
+            wstring registryKey_;
             LSTATUS status_;
 
             static string getSystemMessage(LSTATUS status);

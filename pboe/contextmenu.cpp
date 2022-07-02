@@ -65,17 +65,19 @@ namespace pboman3 {
 
             if (sel == SelectionMode::Files) {
                 if (selectedPaths_->size() == 1) {
-                    TCHAR textItem1[] = "Unpack to...";
+                    TCHAR textItem1[] = L"Unpack to...";
                     insertMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
 
-                    string textItem2 = "Unpack as \"" + selectedPaths_->at(0)
-                                                                      .filename().replace_extension().string() + "\"";
+                    wstring textItem2 = L"Unpack as \"" + selectedPaths_->at(0)
+                                                                        .filename().replace_extension().wstring() +
+                        L"\"";
                     insertMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                 } else {
-                    TCHAR textItem1[] = "Unpack to...";
+                    TCHAR textItem1[] = L"Unpack to...";
                     insertMenuItem(idCmdFirst + idUnpackWithPrompt, textItem1);
 
-                    string textItem2 = "Unpack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "\"";
+                    wstring textItem2 = L"Unpack in \"" + selectedPaths_->at(0).parent_path().filename().wstring() +
+                        L"\"";
                     insertMenuItem(idCmdFirst + idUnpackToCwd, textItem2.data());
                 }
 
@@ -84,16 +86,17 @@ namespace pboman3 {
                 hr = MAKE_HRESULT(SEVERITY_SUCCESS, 0, static_cast<USHORT>(lastUsedMenuIndex + 1));
             } else if (sel == SelectionMode::Folders) {
                 if (selectedPaths_->size() == 1) {
-                    TCHAR textItem1[] = "Pack to...";
+                    TCHAR textItem1[] = L"Pack to...";
                     insertMenuItem(idCmdFirst + idPackWithPrompt, textItem1);
 
-                    string textItem2 = "Pack as \"" + selectedPaths_->at(0).filename().string() + ".pbo\"";
+                    wstring textItem2 = L"Pack as \"" + selectedPaths_->at(0).filename().wstring() + L".pbo\"";
                     insertMenuItem(idCmdFirst + idPackToCwd, textItem2.data());
                 } else {
-                    TCHAR textItem3[] = "Pack to...";
+                    TCHAR textItem3[] = L"Pack to...";
                     insertMenuItem(idCmdFirst + idPackWithPrompt, textItem3);
 
-                    string textItem4 = "Pack in \"" + selectedPaths_->at(0).parent_path().filename().string() + "\"";
+                    wstring textItem4 = L"Pack in \"" + selectedPaths_->at(0).parent_path().filename().wstring() +
+                        L"\"";
                     insertMenuItem(idCmdFirst + idPackToCwd, textItem4.data());
                 }
 
@@ -111,29 +114,50 @@ namespace pboman3 {
 
         HRESULT hr = E_FAIL;
 
-        if (pici->cbSize == sizeof CMINVOKECOMMANDINFOEX
-            && pici->fMask & CMIC_MASK_UNICODE) {
+        UWORD idCmd = -1;
+        path directory;
+        if (pici->cbSize == sizeof CMINVOKECOMMANDINFOEX && pici->fMask & CMIC_MASK_UNICODE) {
             const auto piciw = reinterpret_cast<CMINVOKECOMMANDINFOEX*>(pici);
+            //click on a Desktop item or on an item in Explorer right pane
             if (HIWORD(piciw->lpVerbW) == 0) {
+                //means piciw contains idCmd, otherwise would mean pici contains a verb
+                idCmd = LOWORD(piciw->lpVerb);
+                directory.append(wstring(piciw->lpDirectoryW, lstrlen(piciw->lpDirectoryW)));
+            }
+        } else {
+            //click on a folder in Explorer left pane
+            if (HIWORD(pici->lpVerb) == 0) {
                 //means pici contains idCmd, otherwise would mean pici contains a verb
-                const auto idCmd = LOWORD(pici->lpVerb);
-                switch (idCmd) {
-                    case idUnpackWithPrompt:
-                        hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_);
-                        break;
-                    case idUnpackToCwd:
-                        hr = executable_->unpackFiles(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
-                        break;
-                    case idPackWithPrompt:
-                        hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_);
-                        break;
-                    case idPackToCwd:
-                        hr = executable_->packFolders(pici->lpDirectory, *selectedPaths_, pici->lpDirectory);
-                        break;
-                    default:
-                        break;
+                idCmd = LOWORD(pici->lpVerb);
+                if (pici->lpDirectory) {
+                    directory.append(string(pici->lpDirectory, strlen(pici->lpDirectory)));
+                } else {
+                    if (selectedPaths_->size() == 1
+                        && is_directory(selectedPaths_->at(0))
+                        && selectedPaths_->at(0).has_parent_path()) {
+                        directory = selectedPaths_->at(0).parent_path();
+                    } else {
+                        idCmd = -1;
+                    }
                 }
             }
+        }
+
+        switch (idCmd) {
+            case idUnpackWithPrompt:
+                hr = executable_->unpackFiles(directory, *selectedPaths_);
+                break;
+            case idUnpackToCwd:
+                hr = executable_->unpackFiles(directory, *selectedPaths_, directory);
+                break;
+            case idPackWithPrompt:
+                hr = executable_->packFolders(directory, *selectedPaths_);
+                break;
+            case idPackToCwd:
+                hr = executable_->packFolders(directory, *selectedPaths_, directory);
+                break;
+            default:
+                break;
         }
 
         return hr;
@@ -229,15 +253,15 @@ namespace pboman3 {
     }
 
     void ContextMenu::insertRootItem(HMENU hmenu, UINT indexMenu) const {
-        const MENUITEMINFO menu = makeRootItem(PBOM_PROJECT_NAME, subMenu_);
+        const MENUITEMINFO menu = makeRootItem(W(PBOM_PROJECT_NAME), subMenu_);
         InsertMenuItem(hmenu, indexMenu, TRUE, &menu);
     }
 
     shared_ptr<MenuIcon> ContextMenu::loadRootIcon() const {
-        const string exePath = Registry::getExecutablePath();
+        const wstring exePath = Registry::getExecutablePath();
         if (exePath.empty() || !is_regular_file(exePath))
             return nullptr;
 
-        return make_shared<MenuIcon>(exePath.data());
+        return make_shared<MenuIcon>(exePath);
     }
 }

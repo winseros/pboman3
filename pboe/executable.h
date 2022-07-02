@@ -14,33 +14,33 @@ namespace pboman3 {
     public :
         static shared_ptr<Executable> fromRegistry();
 
-        Executable(string executablePath);
+        Executable(wstring executablePath);
 
-        HRESULT unpackFiles(LPCSTR cwd, const vector<path>& files, const string& outputDir) const;
+        HRESULT unpackFiles(const path& cwd, const vector<path>& files, const path& outputDir) const;
 
-        HRESULT unpackFiles(LPCSTR cwd, const vector<path>& files) const;
+        HRESULT unpackFiles(const path& cwd, const vector<path>& files) const;
 
-        HRESULT packFolders(LPCSTR cwd, const vector<path>& folders, const string& outputDir) const;
+        HRESULT packFolders(const path& cwd, const vector<path>& folders, const path& outputDir) const;
 
-        HRESULT packFolders(LPCSTR cwd, const vector<path>& folders) const;
+        HRESULT packFolders(const path& cwd, const vector<path>& folders) const;
 
         bool isValid() const;
 
     private:
-        const string executablePath_;
+        const wstring executablePath_;
 
-        static void reserveArgvSize(string& argv, vector<path> items, size_t additionalSymbols);
+        static void reserveArgvSize(wstring& argv, vector<path> items, size_t additionalSymbols);
 
-        HRESULT shellExecute(LPCSTR cwd, const string& argv) const;
+        HRESULT shellExecute(const path& cwd, const wstring& argv) const;
 
-        static void appendPaths(string& argv, const vector<path>& paths);
+        static void appendPaths(wstring& argv, const vector<path>& paths);
 
-        static void appendPackCommand(string& argv);
+        static void appendPackCommand(wstring& argv);
 
-        static void appendUnpackCommand(string& argv);
+        static void appendUnpackCommand(wstring& argv);
 
-        static void appendOutputDir(string& argv, const string& outputDir);
+        static void appendOutputDir(wstring& argv, const path& outputDir);
 
-        static void appendPrompt(string& argv);
+        static void appendPrompt(wstring& argv);
     };
 }

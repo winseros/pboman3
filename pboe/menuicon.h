@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ShlObj.h>
+#include <string>
 
 namespace pboman3 {
+    using namespace std;
+
     class MenuIcon {
     public:
-        explicit MenuIcon(LPCSTR exePath);
+        explicit MenuIcon(const wstring& exePath);
 
         MenuIcon(const MenuIcon&) = delete;
 

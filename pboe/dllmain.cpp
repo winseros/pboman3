@@ -59,7 +59,7 @@ STDAPI DllRegisterServer() {
         const path dllPath(buf);
         const path exePath = dllPath.parent_path().append(PBOM_EXECUTABLE);
         
-        hr = pboman3::Registry::registerServer(exePath.string(), dllPath.string());
+        hr = pboman3::Registry::registerServer(exePath.wstring(), dllPath.wstring());
     } else {
         hr = HRESULT_FROM_WIN32(GetLastError());
     }
@@ -85,5 +85,5 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
 }
 
 STDAPI DllCanUnloadNow() {
-    return pboman3::DllRefCount == 0 ? S_FALSE : S_OK;
+    return pboman3::DllRefCount == 0 ? S_OK : S_FALSE;
 }

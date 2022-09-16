@@ -79,8 +79,7 @@ CMakeSettings.json
 
 # CLion
 .idea/
-cmake-build-debug/
-cmake-build-release/
+cmake-build-*/
 
 # QtCreator
 CMakeLists.txt.user

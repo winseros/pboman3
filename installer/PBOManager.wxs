@@ -118,8 +118,16 @@
                 </Class>
 
                 <RegistryValue Root="HKCR"
-                               Key="$(var.RegProgId)\ShellEx\ContextMenuHandlers\$(var.RegAppId)"
-                               Value="$(var.RegClsId)" Type="string" />
+                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
+                               Value="$(var.RegClsId)" Name="ExplorerCommandHandler" Type="string" />
+
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
+                               Value="$(var.AppName)" Type="string" />
+
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
+                               Value="" Name="NeverDefault" Type="string" />
 
                 <RegistryValue Root="HKCR"
                                Key="$(var.RegProgId)"
@@ -127,8 +135,16 @@
                                Value="[INSTALLFOLDER]pbom.exe" Type="string" />
 
                 <RegistryValue Root="HKCR"
-                               Key="Folder\ShellEx\ContextMenuHandlers\$(var.RegAppId)"
-                               Value="$(var.RegClsId)" Type="string" />
+                               Key="Folder\Shell\$(var.RegAppId).menu"
+                               Value="$(var.RegClsId)" Name="ExplorerCommandHandler" Type="string" />
+                
+                <RegistryValue Root="HKCR"
+                               Key="Folder\Shell\$(var.RegAppId).menu"
+                               Value="$(var.AppName)" Type="string" />
+
+                <RegistryValue Root="HKCR"
+                               Key="Folder\Shell\$(var.RegAppId).menu"
+                               Value="" Name="NeverDefault" Type="string" />
             </Component>
 
             <Component Id="C_MainFiles__pbom.exe" Guid="7FC3F37E-AE6D-4BA0-8677-3C056F13519C" Win64="yes">

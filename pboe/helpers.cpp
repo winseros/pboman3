@@ -5,7 +5,7 @@ namespace pboman3 {
         vector<path> result;
 
         DWORD count;
-        const HRESULT hr = shellItems->GetCount(&count);
+        HRESULT hr = shellItems->GetCount(&count);
         if (FAILED(hr) || count == 0)
             return result;
 
@@ -16,8 +16,9 @@ namespace pboman3 {
             shellItems->GetItemAt(i, &item);
 
             LPWSTR buffer;
-            item->GetDisplayName(SIGDN_FILESYSPATH, &buffer);
-            result.emplace_back(buffer);
+            hr = item->GetDisplayName(SIGDN_FILESYSPATH, &buffer);
+            if (SUCCEEDED(hr))
+                result.emplace_back(buffer);
 
             item->Release();
             CoTaskMemFree(buffer);

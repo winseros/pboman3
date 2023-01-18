@@ -21,7 +21,7 @@ add_subdirectory(ui)
 add_subdirectory(util)
 
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
-qt_add_executable(pbom ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} exception.cpp main.cpp res/winapp.rc)
+qt_add_executable(pbom ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} exception.cpp win32com.cpp main.cpp res/winapp.rc)
 qt_add_executable(pboc ${PROJECT_SOURCES} exception.cpp console.cpp res/console.rc)
 
 target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network CLI11)

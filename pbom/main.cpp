@@ -1,7 +1,6 @@
 #include <QApplication>
 #include <QScopedPointer>
 #include <QTimer>
-#include <Windows.h>
 #include <CLI/CLI.hpp>
 #include "commandline.h"
 #include "model/pbomodel.h"
@@ -13,6 +12,10 @@
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
 #include "util/log.h"
+
+#ifdef WIN32
+#include "win32com.h"
+#endif
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
 
@@ -35,23 +38,6 @@ namespace pboman3 {
         }
     };
 
-    void ActivateCom(const QApplication& a) {
-        auto* timer = new QTimer(new QTimer());
-        timer->moveToThread(a.thread());
-        timer->setSingleShot(true);
-        QObject::connect(timer, &QTimer::timeout, [timer]() {
-            LOG(info, "Initializing COM")
-
-            const HRESULT hr = CoInitialize(nullptr);
-
-            LOG(info, "COM init status:", hr)
-
-            assert(SUCCEEDED(hr));
-            timer->deleteLater();
-        });
-        timer->start();
-    }
-
     int RunMainWindow(const QApplication& app, const QString& pboFile) {
         using namespace pboman3;
 
@@ -59,7 +45,9 @@ namespace pboman3 {
 
         LOG(info, "Starting the app")
 
-        ActivateCom(app);
+#ifdef WIN32
+        Win32Com _(&app);
+#endif
 
         LOG(info, "Display the main window")
         const auto model = QScopedPointer(new model::PboModel());
@@ -85,7 +73,9 @@ namespace pboman3 {
 
         LOG(info, "Starting the app")
 
-        ActivateCom(app);
+#ifdef WIN32
+        Win32Com _(&app);
+#endif
 
         int exitCode;
         ui::PackWindow w(nullptr);
@@ -108,7 +98,9 @@ namespace pboman3 {
 
         LOG(info, "Starting the app")
 
-        ActivateCom(app);
+#ifdef WIN32
+        Win32Com _(&app);
+#endif
 
         int exitCode;
         ui::UnpackWindow w(nullptr);
@@ -174,8 +166,7 @@ namespace pboman3 {
                 const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
                 if (commandLine->pack.noUi()) {
                     exitCode = RunConsolePackOperation(folders, outputDir);
-                }
-                else {
+                } else {
                     const PboApplication app(argc, argv);
                     exitCode = RunPackWindow(app, folders, outputDir);
                 }
@@ -190,7 +181,7 @@ namespace pboman3 {
 
                 const QStringList files = CommandLine::toQt(commandLine->unpack.files);
                 if (commandLine->unpack.noUi()) {
-                    exitCode = RunConsoleUnpackOperation(files, outputDir);   
+                    exitCode = RunConsoleUnpackOperation(files, outputDir);
                 } else {
                     const PboApplication app(argc, argv);
                     exitCode = RunUnpackWindow(app, files, outputDir);

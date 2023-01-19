@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QUrl>
+#include <QStringList>
+#include <QDebug>
 
 namespace pboman3::domain {
     class PboPath : public QList<QString> {
@@ -20,6 +22,13 @@ namespace pboman3::domain {
         QString toString() const;
 
         friend QDebug operator <<(QDebug debug, const PboPath& p);
+
+    private:
+        static QStringList SplitOntoSegments(const QString& source);
+
+        static bool IsDirectorySeparatorChar(const QChar& chr);
+
+        static QString::const_reverse_iterator PeekNext(QString::const_reverse_iterator chr);
     };
 
     inline bool operator ==(const PboPath& p1, const PboPath& p2) {

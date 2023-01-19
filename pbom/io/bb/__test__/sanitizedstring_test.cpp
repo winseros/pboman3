@@ -20,6 +20,7 @@ namespace pboman3::io::test {
                                  CtorParam{"\t1\t", "%091%09"},
                                  CtorParam{"?1?", "%3F1%3F"},
                                  CtorParam{"*1*", "%2A1%2A"},
-                                 CtorParam{"1.", "1%2E"}
+                                 CtorParam{"1///", "1%2F%2F%2F"},
+                                 CtorParam{"\\2", "%5C2"}
                              ));
 }

@@ -1,5 +1,5 @@
 #include "pbopath.h"
-#include <QRegularExpression>
+#include <QStack>
 
 namespace pboman3::domain {
     PboPath::PboPath()
@@ -11,7 +11,7 @@ namespace pboman3::domain {
     }
 
     PboPath::PboPath(const QString& source)
-        : QList(source.split(QRegularExpression("\\\\|/"), Qt::SkipEmptyParts)) {
+        : QList(SplitOntoSegments(source)) {
     }
 
     PboPath PboPath::makeParent() const {
@@ -26,7 +26,6 @@ namespace pboman3::domain {
         }
         return result;
     }
-
 
     PboPath PboPath::makeChild(const QString& child) const {
         PboPath result;
@@ -56,6 +55,40 @@ namespace pboman3::domain {
             return path;
         }
         return "";
+    }
+
+    QStringList PboPath::SplitOntoSegments(const QString& source) {
+        QStringList result;
+        QString word;
+        auto chr = source.rbegin();
+        while (chr != source.rend()) {
+            if (IsDirectorySeparatorChar(*chr)) {
+                if (word.size() > 0) {
+                    const auto next = PeekNext(chr);
+                    if (next == source.rend() || IsDirectorySeparatorChar(*next)) {
+                        word.prepend(*chr);
+                    } else {
+                        result.prepend(word);
+                        word.clear();
+                    }
+                } else {
+                    word.prepend(*chr);
+                }
+            } else {
+                word.prepend(*chr);
+            }
+            ++chr;
+        }
+        result.prepend(word);
+        return result;
+    }
+
+    bool PboPath::IsDirectorySeparatorChar(const QChar& chr) {
+        return chr == '/' || chr == '\\';
+    }
+
+    QString::const_reverse_iterator PboPath::PeekNext(QString::const_reverse_iterator chr) {
+        return ++chr;
     }
 
     QDebug operator<<(QDebug debug, const PboPath& p) {

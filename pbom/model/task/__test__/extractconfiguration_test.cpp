@@ -48,11 +48,9 @@ namespace pboman3::model::task {
         ASSERT_EQ(options.compress.include.at(0), "\\." + GetFileExtension(GetParam().fileWithExt).toLower() + "$");
     }
 
-    INSTANTIATE_TEST_SUITE_P(ExtractConfigurationTest, ExtractConfigurationExtensionTest, testing::Values(
-                                 ExtractConfigurationExtParam{"file1.sqf"},
-                                 ExtractConfigurationExtParam{"folder1/file1.sqf"},
-                                 ExtractConfigurationExtParam{"file1.sqs"},
+    INSTANTIATE_TEST_SUITE_P(ExtractConfigurationTest, ExtractConfigurationExtensionTest, testing::Values(                                 
                                  ExtractConfigurationExtParam{"file1.txt"},
+                                 ExtractConfigurationExtParam{"folder1/file1.txt"},
                                  ExtractConfigurationExtParam{"file1.Xml"},
                                  ExtractConfigurationExtParam{"file1.cSv"}
                              ));
@@ -102,12 +100,12 @@ namespace pboman3::model::task {
         node->binarySource = QSharedPointer<BinarySource>(
             new io::PboBinarySource(file.fileName(), io::PboDataInfo{10, 10, 0, 0, true}));
 
-        document.root()->createHierarchy(PboPath("script.sqf"));
+        document.root()->createHierarchy(PboPath("readme.txt"));
 
         const PackOptions options = ExtractConfiguration::extractFrom(document);
 
         ASSERT_EQ(options.compress.include.count(), 2);
-        ASSERT_EQ(options.compress.include.at(0), "\\.sqf$");
+        ASSERT_EQ(options.compress.include.at(0), "\\.txt$");
         ASSERT_EQ(options.compress.include.at(1), "^mission.sqm$");
     }
 

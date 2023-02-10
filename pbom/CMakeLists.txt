@@ -11,8 +11,7 @@ endif()
 set(WIN32_VER 0x0A00) #https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160
 
 set(CMAKE_FIND_DEBUG_MODE FALSE)
-find_package(QT NAMES Qt6 COMPONENTS Widgets Network Test REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network Test REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Network Test REQUIRED)
 
 add_subdirectory(domain)
 add_subdirectory(io)
@@ -24,15 +23,15 @@ qt_add_resources(PROJECT_SOURCES res/res.qrc)
 qt_add_executable(pbom ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} exception.cpp win32com.cpp main.cpp res/winapp.rc)
 qt_add_executable(pboc ${PROJECT_SOURCES} exception.cpp console.cpp res/console.rc)
 
-target_link_libraries(pbom PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network CLI11)
+target_link_libraries(pbom PRIVATE Qt6::Widgets Qt6::Network CLI11)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(pbom PRIVATE WINVER=${WIN32_VER} NOMINMAX PBOM_GUI)
 
-target_link_libraries(pboc PRIVATE Qt${QT_VERSION_MAJOR}::Core CLI11)
+target_link_libraries(pboc PRIVATE Qt6::Core CLI11)
 target_include_directories(pboc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(pboc PRIVATE NOMINMAX)
 
-SET(QT_BINARIES_DIR ${Qt${QT_VERSION_MAJOR}_DIR}/../../..)
+SET(QT_BINARIES_DIR ${Qt6_DIR}/../../..)
 if(CMAKE_BUILD_TYPE MATCHES Release)
     set(QT_BINARIES_SUFFIX)
     set_target_properties(pbom PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -68,7 +67,7 @@ install(FILES
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} ${TEST_SOURCES} exception.cpp testmain.cpp)
 add_test(NAME pbom_test COMMAND pbom_test)
-target_link_libraries(pbom_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network gtest gmock)
+target_link_libraries(pbom_test PRIVATE Qt6::Widgets Qt6::Network gtest gmock)
 target_include_directories(pbom_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_definitions(pbom_test PRIVATE 

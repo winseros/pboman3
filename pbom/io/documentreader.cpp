@@ -5,8 +5,9 @@
 #include "bs/pbobinarysource.h"
 
 namespace pboman3::io {
-    DocumentReader::DocumentReader(QString path)
-        : path_(std::move(path)) {
+    DocumentReader::DocumentReader(QString path, QSharedPointer<JunkFilter> junkFilter)
+        : path_(std::move(path)),
+          junkFilter_(std::move(junkFilter)) {
     }
 
     QSharedPointer<PboDocument> DocumentReader::read() const {
@@ -19,13 +20,17 @@ namespace pboman3::io {
         QList<QSharedPointer<DocumentHeader>> headers;
         headers.reserve(header.headers.count());
         for (const QSharedPointer<PboHeaderEntity>& h : header.headers)
-            headers.append(QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeader::InternalData{ h->name, h->value })));
+            headers.append(
+                QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeader::InternalData{h->name, h->value})));
 
         const QFileInfo fi(path_);
-        QSharedPointer<PboDocument> document(new PboDocument(fi.fileName(), std::move(headers), std::move(header.signature)));
-
+        QSharedPointer<PboDocument> document(
+            new PboDocument(fi.fileName(), std::move(headers), std::move(header.signature)));
+        
         qsizetype entryDataOffset = header.dataBlockStart;
         for (const QSharedPointer<PboNodeEntity>& e : header.entries) {
+            if (junkFilter_->IsJunk(e.data()))
+                continue;
             PboNode* node = document->root()->createHierarchy(e->makePath());
             PboDataInfo dataInfo{0, 0, 0, 0, 0};
             dataInfo.originalSize = e->originalSize();

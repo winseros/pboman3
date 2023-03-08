@@ -4,8 +4,8 @@
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
-#include "io/documentreader.h"
 #include "io/documentwriter.h"
+#include "io/defaultdocumentreaderfactory.h"
 #include "exception.h"
 #include "util/log.h"
 
@@ -24,7 +24,7 @@ namespace pboman3::model {
 
         setLoadedPath(path);
 
-        const DocumentReader reader(path);
+        const DocumentReader reader = DefaultDocumentReaderFactory::createDocumentReader(path);
         try {
             document_ = reader.read();
             LOG(info, "Read the document:", *document_)

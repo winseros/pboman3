@@ -15,17 +15,7 @@ namespace pboman3::model::task {
         : AppException(std::move(prefixFileName)) {
     }
 
-    void PrefixEncodingException::raise() const {
-        throw *this;
-    }
-
-    QException* PrefixEncodingException::clone() const {
-        return new PrefixEncodingException(*this);
-    }
-
-    QDebug& operator<<(QDebug& debug, const PrefixEncodingException& ex) {
-        return debug << "PrefixEncodingException(Message=" << ex.message_ << ")";
-    }
+    PBOMAN_EX_IMPL_DEFAULT(PrefixEncodingException)
 
 
     PackConfiguration::PackConfiguration(PboDocument* document)

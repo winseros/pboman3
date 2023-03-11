@@ -7,19 +7,9 @@ namespace pboman3::io {
           file_(std::move(file)) {
     }
 
-    void DiskAccessException::raise() const {
-        throw *this;
-    }
-
-    QException* DiskAccessException::clone() const {
-        return new DiskAccessException(*this);
-    }
+    PBOMAN_EX_IMPL_DEFAULT(DiskAccessException)
 
     const QString& DiskAccessException::file() const {
         return file_;
-    }
-
-    QDebug operator<<(QDebug debug, const DiskAccessException& ex) {
-        return debug << "DiskAccessException(" << ex.message_ << ")";
     }
 }

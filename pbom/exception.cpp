@@ -11,8 +11,12 @@ namespace pboman3 {
         return message_;
     }
 
-    QDebug operator<<(QDebug debug, const AppException& ex) {
-        return debug << "AppException(" << ex.message_ << ")";
+    QDebug& operator<<(QDebug& debug, const AppException& ex) {
+        return ex.dump(debug);
+    }
+
+    QDebug& AppException::dump(QDebug& debug) const {
+        return debug << "AppException(" << message_ << ")";
     }
 
     void AppException::raise() const {
@@ -28,15 +32,5 @@ namespace pboman3 {
         : AppException(std::move(message)) {
     }
 
-    QDebug operator<<(QDebug debug, const InvalidOperationException& ex) {
-        return debug << "InvalidOperationException(" << ex.message_ << ")";
-    }
-
-    void InvalidOperationException::raise() const {
-        throw* this;
-    }
-
-    QException* InvalidOperationException::clone() const {
-        return new InvalidOperationException(*this);
-    }
+    PBOMAN_EX_IMPL_DEFAULT(InvalidOperationException)
 }

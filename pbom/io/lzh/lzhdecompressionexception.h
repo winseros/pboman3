@@ -7,10 +7,6 @@ namespace pboman3::io {
     public:
         LzhDecompressionException(QString message);
 
-        friend QDebug operator<<(QDebug debug, const LzhDecompressionException& ex);
-
-        void raise() const override;
-
-        QException* clone() const override;
+        PBOMAN_EX_HEADER(LzhDecompressionException)
     };
 }

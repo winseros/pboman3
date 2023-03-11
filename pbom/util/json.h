@@ -14,11 +14,7 @@ namespace pboman3::util {
     public:
         JsonStructureException(QString message);
 
-        friend QDebug operator<<(QDebug debug, const JsonStructureException& ex);
-
-        void raise() const override;
-
-        QException* clone() const override;
+        PBOMAN_EX_HEADER(JsonStructureException)
     };
 
     namespace json {

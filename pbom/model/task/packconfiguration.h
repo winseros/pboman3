@@ -10,11 +10,7 @@ namespace pboman3::model::task {
     public:
         PrefixEncodingException(QString prefixFileName);
 
-        void raise() const override;
-
-        QException* clone() const override;
-
-        friend QDebug& operator<<(QDebug& debug, const PrefixEncodingException& ex);
+        PBOMAN_EX_HEADER(PrefixEncodingException)
     };
 
     class PackConfiguration {

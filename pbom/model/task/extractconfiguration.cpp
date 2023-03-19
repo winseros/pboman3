@@ -35,7 +35,7 @@ namespace pboman3::model::task {
         }
     }
 
-    constexpr const char* extensions[] = {"sqf", "sqs", "txt", "xml", "csv"};
+    constexpr const char* extensions[] = {"txt", "xml", "csv"};
     constexpr const char* files[] = {"mission.sqm", "description.ext"};
 
     void ExtractConfiguration::extractCompressionRules(const PboDocument& document, PackOptions& options) {

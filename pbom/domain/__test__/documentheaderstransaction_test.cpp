@@ -97,7 +97,7 @@ namespace pboman3::domain::test {
     TEST(DocumentHeadersTransactionTest, Transaction_RollsBack) {
         DocumentHeaders headers;
 
-        QSharedPointer<DocumentHeadersTransaction> tran = headers.beginTransaction();
+        const QSharedPointer<DocumentHeadersTransaction> tran = headers.beginTransaction();
         tran->add("h1", "v1");
         tran->add("h2", "v2");
 

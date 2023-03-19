@@ -8,6 +8,8 @@ namespace pboman3::io {
 		replaceAll(sanitized, '\t', "%09");
 		replaceAll(sanitized, '?', "%3F");
 		replaceAll(sanitized, '*', "%2A");
+		replaceAll(sanitized, '/', "%2F");
+		replaceAll(sanitized, '\\', "%5C");
 		replaceEnd(sanitized, '.', "%2E");
 
         if (sanitized.isEmpty())

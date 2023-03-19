@@ -40,7 +40,7 @@ namespace pboman3::domain {
             return "The value can not be empty";
         if (!node_->parentNode_)
             return "";
-        PboNode* existing = FindDirectChild(node_->parentNode_, title);
+        const PboNode* existing = FindDirectChild(node_->parentNode_, title);
         return existing && existing != node_ ? "The item with this name already exists" : "";
     }
 }

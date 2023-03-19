@@ -11,13 +11,7 @@ namespace pboman3::ui {
         : AppException(std::move(message)) {
     }
 
-    QDebug operator<<(QDebug debug, const Win32FileViewerException& ex) {
-        return debug << "Win32FileViewerException:" << ex.message();
-    }
-
-    QException* Win32FileViewerException::clone() const {
-        return new Win32FileViewerException(*this);
-    }
+    PBOMAN_EX_IMPL_DEFAULT(Win32FileViewerException)
 
     void Win32FileViewer::previewFile(const QString& path) {
         LOG(info, "Launching preview for:", path)

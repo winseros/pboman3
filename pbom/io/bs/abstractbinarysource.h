@@ -11,9 +11,9 @@ namespace pboman3::io {
 
         virtual ~AbstractBinarySource();
 
-        virtual void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) = 0;
+        void writeToPbo(QFileDevice* targetFile, const Cancel& cancel) override = 0;
 
-        virtual void writeToFs(QFileDevice* targetFile, const Cancel& cancel) = 0;
+        void writeToFs(QFileDevice* targetFile, const Cancel& cancel) override = 0;
 
         void open() const override;
 

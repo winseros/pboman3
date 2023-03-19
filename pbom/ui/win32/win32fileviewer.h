@@ -8,9 +8,7 @@ namespace pboman3::ui {
     public:
         Win32FileViewerException(QString message);
 
-        friend QDebug operator<<(QDebug debug, const Win32FileViewerException& ex);
-
-        QException* clone() const override;
+        PBOMAN_EX_HEADER(Win32FileViewerException)
     };
 
     class Win32FileViewer : public FileViewer {

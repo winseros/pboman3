@@ -42,7 +42,7 @@ A tool to open, pack and unpack ArmA PBO files.
 
    | Variable | Description                                                       | Example                         |
    |----------|-------------------------------------------------------------------|---------------------------------|
-   | QT_DIR   | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.1.1\msvc2019_64         |
+   | Qt6_ROOT | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.3.3\msvc2019_64         |
 
 
 2. Run the script:
@@ -62,8 +62,8 @@ Also, see [how CI builds](.github/workflows/artifcats.yaml).
 
    | Variable | Description                                                       | Example                         |
    |----------|-------------------------------------------------------------------|---------------------------------|
-   | QT_DIR   | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.1.1\msvc2019_64         |
-   | PATH     | Where QT binaries are located. Needed for the IDE to run/debug.   | G:\Qt\6.1.1\msvc2019_64\bin     |
+   | Qt6_ROOT | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.3.0\msvc2019_64         |
+   | PATH     | Where QT binaries are located. Needed for the IDE to run/debug.   | G:\Qt\6.3.0\msvc2019_64\bin     |
    | PATH     | Where OpenSSL binaries are located. Needed for IDE to run/debug.  | G:\Qt\Tools\OpenSSL\Win_x64\bin |
 
 2. Open the the root folder in IDE

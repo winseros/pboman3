@@ -4,8 +4,8 @@
 #include <QDir>
 #include <QUrl>
 #include <QUuid>
-#include "io/documentreader.h"
 #include "io/documentwriter.h"
+#include "io/defaultdocumentreaderfactory.h"
 #include "exception.h"
 #include "util/log.h"
 
@@ -24,10 +24,10 @@ namespace pboman3::model {
 
         setLoadedPath(path);
 
-        const DocumentReader reader(path);
+        const DocumentReader reader = DefaultDocumentReaderFactory::createDocumentReader(path);
         try {
             document_ = reader.read();
-            LOG(info, "Read the document:", *document_);
+            LOG(info, "Read the document:", *document_)
         } catch (const AppException& ex) {
             LOG(info, "Could not load the file:", ex)
             setLoadedPath(nullptr);
@@ -105,7 +105,7 @@ namespace pboman3::model {
         NodeDescriptors descriptors = NodeDescriptors::packNodes(nodes);
         LOG(info, "Got descriptors:", descriptors)
 
-        return InteractionParcel(std::move(files), std::move(descriptors));
+        return {std::move(files), std::move(descriptors)};
     }
 
     QString PboModel::execPrepare(const PboNode* node, const Cancel& cancel) const {

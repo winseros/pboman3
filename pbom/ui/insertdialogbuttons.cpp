@@ -21,7 +21,7 @@ namespace pboman3::ui {
         btnBack_->hide();
     }
 
-    void InsertDialogButtons::onButtonClicked(QAbstractButton* btn) {
+    void InsertDialogButtons::onButtonClicked(const QAbstractButton* btn) {
         if (btn == btnNext_) {
             LOG(info, "User clicked the Next button")
             button(Ok)->show();

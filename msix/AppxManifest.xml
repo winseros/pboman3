@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4"
+  xmlns:uap8="http://schemas.microsoft.com/appx/manifest/uap/windows10/8"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap uap2 uap3 rescap desktop desktop4 desktop5 uap10 com">
+  
+  <Identity
+    Name="PBOManager"
+    Publisher="CN=nkobzev"
+	ProcessorArchitecture="x64" 
+    Version="1.0.0.0" />
+
+  <Properties>
+    <DisplayName>PBO Manager</DisplayName>
+    <PublisherDisplayName>Nikita Kobzev</PublisherDisplayName>
+    <Logo>Assets\storelogo.png</Logo>
+  </Properties>
+  
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.18950.0" MaxVersionTested="10.0.19000.0" />
+	<PackageDependency Name="Microsoft.VCLibs.140.00.UWPDesktop" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" MinVersion="14.0.30704.0"/>
+  </Dependencies>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+  <Applications>
+    <Application Id="PBOManager" 
+	  Executable="pbom.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="PBO Manager"
+        Description="The GUI tool to work with ArmA PBO files"
+        BackgroundColor="transparent" 
+		Square150x150Logo="Assets\pbom\Square150x150Logo.png" 
+		Square44x44Logo="Assets\pbom\Square44x44Logo.png">
+        <uap:DefaultTile Square71x71Logo="Assets\pbom\SmallTile.png" 
+			Wide310x150Logo="Assets\pbom\Wide310x150Logo.png" 
+			Square310x310Logo="Assets\pbom\LargeTile.png"/>
+        <uap:SplashScreen Image="Assets\pbom\SplashScreen.png"/>
+        <uap:LockScreen BadgeLogo="Assets\pbom\BadgeLogo.png" Notification="badge"/>
+      </uap:VisualElements>
+      <Extensions>
+	    <uap:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="pboman3pbo">
+			<uap:DisplayName>ArmA PBO file</uap:DisplayName>
+			<uap:InfoTip>ArmA PBO file</uap:InfoTip>
+            <uap:SupportedFileTypes>
+				<uap:FileType>.pbo</uap:FileType>
+            </uap:SupportedFileTypes>
+			<uap:Logo>Assets/pbo256.png</uap:Logo>
+			<uap2:SupportedVerbs>
+				<uap3:Verb Id="Open" Parameters="open &quot;%1&quot;">"Open"</uap3:Verb>
+			</uap2:SupportedVerbs>
+			<uap4:KindMap>
+				<uap4:Kind Value="document"/>
+			</uap4:KindMap>
+          </uap3:FileTypeAssociation>
+        </uap:Extension>
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop5:ItemType Type="Directory">
+              <desktop5:Verb Id="Command1" Clsid="dd2a27fa-7c7f-4b50-9b54-836af42fb64d" />
+            </desktop5:ItemType>
+			<desktop5:ItemType Type=".pbo">
+              <desktop5:Verb Id="Command2" Clsid="dd2a27fa-7c7f-4b50-9b54-836af42fb64d" />
+            </desktop5:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+			<com:SurrogateServer  DisplayName="PBO Manager Context Menu">
+              <com:Class Id="dd2a27fa-7c7f-4b50-9b54-836af42fb64d" Path="pboe.dll" ThreadingModel="STA"/>
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+	<Application Id="PBOManagerConsole" 
+	  Executable="pboc.exe"
+      EntryPoint="Windows.FullTrustApplication">
+		  <uap:VisualElements
+			DisplayName="PBO Manager Console"
+			Description="The console tool to work with ArmA PBO files"
+			BackgroundColor="transparent" 
+			Square150x150Logo="Assets\pboc\Square150x150Logo.png" 
+			Square44x44Logo="Assets\pboc\Square44x44Logo.png"
+			AppListEntry="none">
+			<uap:DefaultTile Square71x71Logo="Assets\pboc\SmallTile.png" 
+				Wide310x150Logo="Assets\pboc\Wide310x150Logo.png" 
+				Square310x310Logo="Assets\pboc\LargeTile.png"/>
+			<uap:SplashScreen Image="Assets\pboc\SplashScreen.png"/>
+			<uap:LockScreen BadgeLogo="Assets\pboc\BadgeLogo.png" Notification="badge"/>
+		  </uap:VisualElements>
+		  <Extensions>
+			<uap3:Extension Category="windows.appExecutionAlias">
+				<uap3:AppExecutionAlias>
+					<uap8:ExecutionAlias Alias="pboc.exe"></uap8:ExecutionAlias>
+				</uap3:AppExecutionAlias>
+			</uap3:Extension>
+		  </Extensions>
+	  </Application>
+  </Applications>
+</Package>

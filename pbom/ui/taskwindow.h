@@ -48,7 +48,7 @@ namespace pboman3::ui {
 
         void threadMessage(ThreadId threadId, const QString& message);
 
-        void buttonClicked(QAbstractButton* button);
+        void buttonClicked(const QAbstractButton* button);
 
         class TaskbarIndicator {
         public:

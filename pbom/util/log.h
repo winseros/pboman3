@@ -68,6 +68,7 @@ namespace pboman3::util {
 
         QThread thread_;
         LogWorker* worker_;
+        QtMessageHandler defaultHandler_;
     };
 
     void UseLoggingMessagePattern();

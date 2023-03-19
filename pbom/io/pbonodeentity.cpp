@@ -3,11 +3,11 @@
 
 namespace pboman3::io {
     PboNodeEntity PboNodeEntity::makeSignature() {
-        return PboNodeEntity("", PboPackingMethod::Product, 0, 0, 0, 0);
+        return {"", PboPackingMethod::Product, 0, 0, 0, 0};
     }
 
     PboNodeEntity PboNodeEntity::makeBoundary() {
-        return PboNodeEntity("", PboPackingMethod::Uncompressed, 0, 0, 0, 0);
+        return {"", PboPackingMethod::Uncompressed, 0, 0, 0, 0};
     }
 
     PboNodeEntity::PboNodeEntity(QString fileName, PboPackingMethod packingMethod,

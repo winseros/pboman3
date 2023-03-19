@@ -7,13 +7,9 @@ namespace pboman3::io {
     public:
         DiskAccessException(QString message, QString file);
 
-        void raise() const override;
-
-        QException* clone() const override;
-
         const QString& file() const;
 
-        friend QDebug operator<<(QDebug debug, const DiskAccessException& ex);
+        PBOMAN_EX_HEADER(DiskAccessException)
 
     private:
         QString file_;

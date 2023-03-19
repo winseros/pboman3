@@ -89,7 +89,7 @@ namespace pboman3::ui {
         for (QTreeWidgetItem* item : selected) {
             item->setText(colResolutionIndex, resolutionToText(resolution));
 
-            auto* selectedItem = dynamic_cast<ConflictsListItem*>(item);
+            const auto* selectedItem = dynamic_cast<ConflictsListItem*>(item);
             assert(selectedItem && "Must not be null");
             const NodeDescriptor& descriptor = descriptors_->at(selectedItem->id());
             conflicts_->setResolution(descriptor, resolution);

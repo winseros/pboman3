@@ -11,7 +11,8 @@ namespace pboman3::util {
     }
 
     LoggingInfrastructure::LoggingInfrastructure()
-        : worker_(nullptr) {
+        : worker_(nullptr),
+          defaultHandler_(nullptr) {
         assert(!LoggingInfrastructure::logging_);
         logging_ = this;
     }
@@ -24,11 +25,18 @@ namespace pboman3::util {
         thread_.wait();
 
         delete worker_;
+
+        if (defaultHandler_)
+            qInstallMessageHandler(defaultHandler_);
     }
 
     void LoggingInfrastructure::run() {
+        assert(!defaultHandler_ && !worker_);
+
         UseLoggingMessagePattern();
-        worker_ = new LogWorker(qInstallMessageHandler(handleMessage));
+
+        defaultHandler_ = qInstallMessageHandler(handleMessage);
+        worker_ = new LogWorker(defaultHandler_);
         worker_->moveToThread(&thread_);
         thread_.start(QThread::LowPriority);
         connect(this, &LoggingInfrastructure::messageReceived, worker_, &LogWorker::handleMessage);
@@ -44,10 +52,9 @@ namespace pboman3::util {
     void UseLoggingMessagePattern() {
         qSetMessagePattern(
             "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
-#ifdef NDEBUG  
+#ifdef NDEBUG
         QLoggingCategory::setFilterRules("*.debug=false");
 #endif
-
     }
 
     LoggingInfrastructure* LoggingInfrastructure::logging_ = nullptr;

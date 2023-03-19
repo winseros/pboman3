@@ -6,17 +6,7 @@ namespace pboman3::util {
         : AppException(std::move(message)) {
     }
 
-    QDebug operator<<(QDebug debug, const JsonStructureException& ex) {
-        return debug << "JsonStructureException(Message=" << ex.message_ << ")";
-    }
-
-    void JsonStructureException::raise() const {
-        throw *this;
-    }
-
-    QException* JsonStructureException::clone() const {
-        return new JsonStructureException(*this);
-    }
+    PBOMAN_EX_IMPL_DEFAULT(JsonStructureException)
 
     void JsonObject::settle(const QJsonObject& json, const QString& path) {
         inflate(path, json);

@@ -75,7 +75,7 @@ namespace pboman3::ui {
 
     void CompressList::onItemChanged(QTreeWidgetItem* item, int column) const {
         if (column == colCompressIndex) {
-            auto* changed = dynamic_cast<CompressListItem*>(item);
+            const auto* changed = dynamic_cast<CompressListItem*>(item);
             assert(changed && "Must not be null");
             NodeDescriptor& descriptor = (*descriptors_)[changed->id()];
             descriptor.setCompressed(item->checkState(column) == Qt::Checked);

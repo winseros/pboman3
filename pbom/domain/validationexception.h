@@ -8,10 +8,6 @@ namespace pboman3::domain {
     public:
         ValidationException(QString message);
 
-        friend QDebug operator<<(QDebug debug, const ValidationException& ex);
-
-        void raise() const override;
-
-        QException* clone() const override;
+        PBOMAN_EX_HEADER(ValidationException)
     };
 }

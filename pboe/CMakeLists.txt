@@ -1,21 +1,30 @@
 set(PROJECT_SOURCES
+    commands/explorercommand.cpp
+    commands/fileselectionenumerator.cpp
+    commands/folderselectionenumerator.cpp
+    commands/packascommand.cpp
+    commands/packincommand.cpp
+    commands/packtocommand.cpp
+    commands/unpackascommand.cpp
+    commands/unpackincommand.cpp
+    commands/unpacktocommand.cpp
     dllmain.cpp
-    classfactory.cpp
-    contextmenu.cpp
     executable.cpp
-    menuicon.cpp
+    helpers.cpp
     registry.cpp
 )
 
 add_library(pboe MODULE ${PROJECT_SOURCES})
-target_link_libraries(pboe PRIVATE shlwapi)
+target_link_libraries(pboe PRIVATE shlwapi RuntimeObject)
 target_compile_definitions(pboe PRIVATE
-    PBOM_EXECUTABLE="pbom.exe")
+    PBOM_EXECUTABLE="pbom.exe"
+    UNICODE)
 
 add_library(pboe_s STATIC ${PROJECT_SOURCES})
-target_link_libraries(pboe_s PRIVATE shlwapi)
+target_link_libraries(pboe_s PRIVATE shlwapi RuntimeObject)
 target_compile_definitions(pboe_s PRIVATE
-    PBOM_EXECUTABLE="pbom.exe")
+    PBOM_EXECUTABLE="pbom.exe"
+    UNICODE)
 
 if(MSVC)
   set(CMAKE_STATIC_LINKER_FLAGS

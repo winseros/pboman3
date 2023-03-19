@@ -6,15 +6,5 @@ namespace pboman3::io {
         AppException(std::move(message)) {
     }
 
-    QDebug operator<<(QDebug debug, const LzhDecompressionException& ex) {
-        return debug << "LzhDecompressionException(" << ex.message() << ")";
-    }
-
-    void LzhDecompressionException::raise() const {
-        throw* this;
-    }
-
-    QException* LzhDecompressionException::clone() const {
-        return new LzhDecompressionException(*this);
-    }
+    PBOMAN_EX_IMPL_DEFAULT(LzhDecompressionException)
 }

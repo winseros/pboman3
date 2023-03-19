@@ -2,7 +2,7 @@
 
 namespace pboman3::io {
     PboHeaderEntity PboHeaderEntity::makeBoundary() {
-        return PboHeaderEntity(QString(), QString());
+        return {QString(), QString()};
     }
 
     PboHeaderEntity::PboHeaderEntity(QString name, QString value)

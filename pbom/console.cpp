@@ -75,13 +75,23 @@ namespace pboman3 {
     }
 }
 
+void HandleEptr(const std::exception_ptr& ptr) try {
+    if (ptr)
+        std::rethrow_exception(ptr);
+} catch (const std::exception& ex) {
+    LOG(critical, "Uncaught exception has been thrown:", ex.what())
+}
 
 int main(int argc, char* argv[]) {
     try {
         const int res = pboman3::RunMain(argc, argv);
         return res;
     } catch (const pboman3::AppException& ex) {
-        LOG(critical, "Unexpected exception has been thrown:", ex);
-        throw ex;
+        LOG(critical, "Unexpected exception has been thrown:", ex)
+        throw;
+    } catch (...) {
+        LOG(critical, "Unexpected exception has been thrown")
+        const auto ex = std::current_exception();
+        HandleEptr(ex);
     }
 }

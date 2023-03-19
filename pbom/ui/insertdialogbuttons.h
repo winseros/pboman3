@@ -20,6 +20,6 @@ namespace pboman3::ui {
         QPushButton* btnNext_;
         QPushButton* btnBack_;
 
-        void onButtonClicked(QAbstractButton* btn);
+        void onButtonClicked(const QAbstractButton* btn);
     };
 }

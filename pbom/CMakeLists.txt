@@ -19,9 +19,13 @@ add_subdirectory(model)
 add_subdirectory(ui)
 add_subdirectory(util)
 
+if (WIN32)
+    set(PROJECT_SOURES_WIN32 win32com.cpp)
+endif()
+
 qt_add_resources(PROJECT_SOURCES res/res.qrc)
-qt_add_executable(pbom ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} exception.cpp win32com.cpp main.cpp res/winapp.rc)
-qt_add_executable(pboc ${PROJECT_SOURCES} exception.cpp console.cpp res/console.rc)
+qt_add_executable(pbom ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} ${PROJECT_SOURES_WIN32} exception.cpp  main.cpp res/winapp.rc)
+qt_add_executable(pboc ${PROJECT_SOURCES} ${PROJECT_SOURES_WIN32} exception.cpp console.cpp res/console.rc)
 
 target_link_libraries(pbom PRIVATE Qt6::Widgets Qt6::Network CLI11)
 target_include_directories(pbom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

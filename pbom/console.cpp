@@ -1,4 +1,3 @@
-#include <QScopedPointer>
 #include <QTimer>
 #include <CLI/CLI.hpp>
 #include "commandline.h"

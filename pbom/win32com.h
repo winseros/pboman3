@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QApplication>
+#include <atomic>
 
 namespace pboman3 {
     class Win32Com {

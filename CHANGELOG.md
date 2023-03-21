@@ -1,5 +1,13 @@
 # PBO Manager change log
 
+## Version 1.5.0
+ - [Feature] Windows Explorer integration now supports Windows 11 immersive menu (via the dedicated installer)
+ - [Feature] The app tries to filter out the most obvious junk from mangled PBOs
+ - [Fix] Now not compressing scripts by default
+
+## Version 1.4.1
+ - [Fix] Sometimes the explorer context menu was crasing explorer.exe
+
 ## Version 1.4.0
  - [Feature] Dedicated executable `pboc.exe` for usage in scripts
 

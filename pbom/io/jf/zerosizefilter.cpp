@@ -2,6 +2,6 @@
 
 namespace pboman3::io {
     bool ZeroSizeFilter::IsJunk(const PboNodeEntity* entry) const {
-        return entry->dataSize() <= 0 || entry->originalSize() <= 0;
+        return entry->dataSize() <= 0;
     }
 }

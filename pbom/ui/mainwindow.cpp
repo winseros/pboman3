@@ -11,6 +11,7 @@
 #include "headersdialog.h"
 #include "signaturedialog.h"
 #include "updatesdialog.h"
+#include "settingsdialog.h"
 #include "ui_mainwindow.h"
 #include "io/diskaccessexception.h"
 #include "io/pbofileformatexception.h"
@@ -129,6 +130,8 @@ namespace pboman3::ui {
         connect(ui_->actionSelectionCut, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionCut);
         connect(ui_->actionSelectionRename, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRename);
         connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
+
+        connect(ui_->actionSettings, &QAction::triggered, [this](){ SettingsDialog(this).exec(); });
 
         connect(ui_->actionHelpAbout, &QAction::triggered, [this]() { AboutDialog(this).exec(); });
         connect(ui_->actionCheckUpdates, &QAction::triggered, [this]() { UpdatesDialog(this).exec(); });

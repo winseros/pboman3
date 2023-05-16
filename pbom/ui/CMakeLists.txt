@@ -26,6 +26,8 @@ list(APPEND PROJECT_SOURCES_UI
     "ui/mainwindow.cpp"
     "ui/mainwindow.ui"
     "ui/packwindow.cpp"
+    "ui/settingsdialog.cpp"
+    "ui/settingsdialog.ui"
     "ui/signaturedialog.cpp"
     "ui/signaturedialog.ui"
     "ui/statusbar.cpp"

@@ -1,7 +1,7 @@
 #include "settingsdialog.h"
 #include "util/log.h"
-#include "infrastructure/localstorageapplicationsettingsfacility.h"
-#include "infrastructure/fileconflictresolutionmode.h"
+#include "io/settings/localstorageapplicationsettingsfacility.h"
+#include "io/settings/fileconflictresolutionmode.h"
 
 #define LOG(...) LOGGER("ui/SettingsDialog", __VA_ARGS__)
 
@@ -19,7 +19,7 @@ namespace pboman3::ui {
     }
 
     void SettingsDialog::accept() {
-        using namespace infrastructure;
+        using namespace io;
 
         const auto packConflictResolutionMode = getRadioButtonValue<
             FileConflictResolutionMode::Enum>(ui_->groupBoxPack);
@@ -38,12 +38,12 @@ namespace pboman3::ui {
     }
 
     void SettingsDialog::loadSettings() const {
-        using namespace infrastructure;
+        using namespace io;
         const LocalStorageApplicationSettingsFacility facility;
         const auto settings = facility.readSettings();
 
         setRadioButtonValue(ui_->groupBoxPack, settings->packConflictResolutionMode);
-        setRadioButtonValue(ui_->groupBoxUnpack, settings->packConflictResolutionMode);
+        setRadioButtonValue(ui_->groupBoxUnpack, settings->unpackConflictResolutionMode);
         setRadioButtonValue(ui_->groupBoxOpComplete, settings->packUnpackOperationCompleteBehavior);
     }
 }

@@ -3,7 +3,7 @@
 #include <QVariant>
 #include "util/enum.h"
 
-namespace pboman3::infrastructure {
+namespace pboman3::io {
     struct OperationCompleteBehavior {
         enum class Enum {
             KeepWindow = 0,

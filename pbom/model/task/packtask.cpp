@@ -3,6 +3,7 @@
 #include "packconfiguration.h"
 #include "io/diskaccessexception.h"
 #include "io/documentwriter.h"
+#include "io/bs/fsrawbinarysource.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/PackTask", __VA_ARGS__)

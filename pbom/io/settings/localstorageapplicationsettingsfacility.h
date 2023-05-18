@@ -2,7 +2,7 @@
 
 #include "applicationsettingsfacility.h"
 
-namespace pboman3::infrastructure {
+namespace pboman3::io {
     class LocalStorageApplicationSettingsFacility : public ApplicationSettingsFacility {
     public:
         void purge();

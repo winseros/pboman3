@@ -13,7 +13,6 @@ set(WIN32_VER 0x0A00) #https://docs.microsoft.com/en-us/cpp/porting/modifying-wi
 set(CMAKE_FIND_DEBUG_MODE FALSE)
 find_package(Qt6 COMPONENTS Widgets Network Test REQUIRED)
 
-add_subdirectory(infrastructure)
 add_subdirectory(domain)
 add_subdirectory(io)
 add_subdirectory(model)

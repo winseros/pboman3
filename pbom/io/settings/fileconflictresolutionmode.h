@@ -3,7 +3,7 @@
 #include "util/enum.h"
 #include <QVariant>
 
-namespace pboman3::infrastructure {
+namespace pboman3::io {
     struct FileConflictResolutionMode {
         enum class Enum {
             Abort = 0,

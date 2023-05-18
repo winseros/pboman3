@@ -3,7 +3,7 @@
 #include <QSharedPointer>
 #include "applicationsettings.h"
 
-namespace pboman3::infrastructure {
+namespace pboman3::io {
     class ApplicationSettingsFacility {
     public:
         virtual ~ApplicationSettingsFacility() = default;

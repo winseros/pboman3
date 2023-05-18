@@ -8,7 +8,7 @@
 #define KEY_UNPACK_CONFLICT_RESOLUTION_MODE "unpack_conflict_resolution_mode"
 #define KEY_PACK_UNPACK_OPERATION_COMPLETE_BEHAVIOR "pack_unpack_operation_complete_behavior"
 
-namespace pboman3::infrastructure {
+namespace pboman3::io {
     void LocalStorageApplicationSettingsFacility::purge() {
         QSETTINGS(storage)
         storage.clear();

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../localstorageapplicationsettingsfacility.h"
 
-namespace pboman3::infrastructure::test {
+namespace pboman3::io::test {
     class LocalStorageApplicationSettingsFacilityTest : public ::testing::Test {
     protected:
         void SetUp() override {

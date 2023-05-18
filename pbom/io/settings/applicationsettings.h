@@ -3,7 +3,7 @@
 #include "fileconflictresolutionmode.h"
 #include "operationcompletebehavior.h"
 
-namespace pboman3::infrastructure {
+namespace pboman3::io {
     struct ApplicationSettings {
         FileConflictResolutionMode::Enum packConflictResolutionMode;
 

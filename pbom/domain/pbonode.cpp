@@ -4,6 +4,7 @@
 #include "validationexception.h"
 #include "pbonodetransaction.h"
 #include "func.h"
+#include "util/filenames.h"
 
 namespace pboman3::domain {
     PboNode::PboNode(QString title, PboNodeType nodeType, PboNode* parentNode)
@@ -85,9 +86,9 @@ namespace pboman3::domain {
                 return title_ < node.title_; //folders alphabetically
             }
             QString name1, ext1;
-            SplitByNameAndExtension(title_, name1, ext1);
+            FileNames::splitByNameAndExtension(title_, name1, ext1);
             QString name2, ext2;
-            SplitByNameAndExtension(node.title_, name2, ext2);
+            FileNames::splitByNameAndExtension(node.title_, name2, ext2);
             if (name1 == name2) {
                 return ext1 < ext2; //files alphabetically by extension
             }
@@ -156,12 +157,12 @@ namespace pboman3::domain {
 
     QString PboNode::pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const {
         int index = 1;
-        QString attemptTitle = formatFolderTitleCopy(expectedTitle, index);
+        QString attemptTitle = FileNames::getCopyFolderName(expectedTitle, index);
         auto it = parent->children_.constBegin();
         while (it != parent->children_.constEnd()) {
             if ((*it)->title() == attemptTitle && (*it)->nodeType_ == PboNodeType::File) {
                 index++;
-                attemptTitle = formatFolderTitleCopy(expectedTitle, index);
+                attemptTitle = FileNames::getCopyFolderName(expectedTitle, index);
                 it = parent->children_.constBegin();
             } else {
                 ++it;
@@ -172,28 +173,18 @@ namespace pboman3::domain {
 
     QString PboNode::pickFileTitle(const PboNode* parent, const QString& expectedTitle) const {
         int index = 1;
-        QString attemptTitle = formatFileTitleCopy(expectedTitle, index);
+        QString attemptTitle = FileNames::getCopyFileName(expectedTitle, index);
         auto it = parent->children_.constBegin();
         while (it < parent->children_.constEnd()) {
             if ((*it)->title() == attemptTitle) {
                 index++;
-                attemptTitle = formatFileTitleCopy(expectedTitle, index);
+                attemptTitle = FileNames::getCopyFileName(expectedTitle, index);
                 it = parent->children_.constBegin();
             } else {
                 ++it;
             }
         }
         return attemptTitle;
-    }
-
-    QString PboNode::formatFolderTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const {
-        return expectedTitle + "(" + QString::number(copyIndex) + ")";
-    }
-
-    QString PboNode::formatFileTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const {
-        QString expectedName, expectedExt;
-        SplitByNameAndExtension(expectedTitle, expectedName, expectedExt);
-        return expectedName + "(" + QString::number(copyIndex) + ")." + expectedExt;
     }
 
     PboNode* PboNode::createChild(const QString& title, PboNodeType nodeType) {

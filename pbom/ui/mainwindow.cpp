@@ -18,6 +18,7 @@
 #include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
+#include "util/filenames.h"
 
 #define LOG(...) LOGGER("ui/MainWindow", __VA_ARGS__)
 
@@ -242,7 +243,7 @@ namespace pboman3::ui {
     void MainWindow::selectionExtractContainerClick() const {
         LOG(info, "User clicked the ExtractToContainer button")
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        const QString folderName = GetFileNameWithoutExtension(model_->document()->root()->title());
+        const QString folderName = FileNames::getFileNameWithoutExtension(model_->document()->root()->title());
         const QString folderPath = dir.filePath(folderName);
         if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
             LOG(critical, "Could not create the dir:", folderPath)
@@ -442,7 +443,7 @@ namespace pboman3::ui {
 
     QString MainWindow::makeExtractToTitle(const PboNode* node) const {
         return "Extract to ./" + (node->nodeType() == PboNodeType::Container
-                                      ? GetFileNameWithoutExtension(node->title())
+                                      ? FileNames::getFileNameWithoutExtension(node->title())
                                       : node->title())
             + (node->nodeType() == PboNodeType::File ? "" : "/");
     }

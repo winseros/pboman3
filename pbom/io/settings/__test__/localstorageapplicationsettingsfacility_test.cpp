@@ -23,13 +23,13 @@ namespace pboman3::io::test {
             FileConflictResolutionMode::Enum::Overwrite,
             OperationCompleteBehavior::Enum::KeepWindow
         };
-        facility.writeSettings(&savedSettings);
+        facility.writeSettings(savedSettings);
 
         const auto readSettings = facility.readSettings();
 
-        ASSERT_EQ(readSettings->packConflictResolutionMode, FileConflictResolutionMode::Enum::Copy);
-        ASSERT_EQ(readSettings->unpackConflictResolutionMode, FileConflictResolutionMode::Enum::Overwrite);
-        ASSERT_EQ(readSettings->packUnpackOperationCompleteBehavior, OperationCompleteBehavior::Enum::KeepWindow);
+        ASSERT_EQ(readSettings.packConflictResolutionMode, FileConflictResolutionMode::Enum::Copy);
+        ASSERT_EQ(readSettings.unpackConflictResolutionMode, FileConflictResolutionMode::Enum::Overwrite);
+        ASSERT_EQ(readSettings.packUnpackOperationCompleteBehavior, OperationCompleteBehavior::Enum::KeepWindow);
     }
 
     TEST_F(LocalStorageApplicationSettingsFacilityTest, ReadSettings_Reads_Defaults) {
@@ -37,8 +37,8 @@ namespace pboman3::io::test {
 
         const auto readSettings = facility.readSettings();
 
-        ASSERT_EQ(readSettings->packConflictResolutionMode, FileConflictResolutionMode::Enum::Abort);
-        ASSERT_EQ(readSettings->unpackConflictResolutionMode, FileConflictResolutionMode::Enum::Abort);
-        ASSERT_EQ(readSettings->packUnpackOperationCompleteBehavior, OperationCompleteBehavior::Enum::KeepWindow);
+        ASSERT_EQ(readSettings.packConflictResolutionMode, FileConflictResolutionMode::Enum::Abort);
+        ASSERT_EQ(readSettings.unpackConflictResolutionMode, FileConflictResolutionMode::Enum::Abort);
+        ASSERT_EQ(readSettings.packUnpackOperationCompleteBehavior, OperationCompleteBehavior::Enum::KeepWindow);
     }
 }

@@ -1,10 +1,9 @@
 #include "extractconfiguration.h"
-
 #include <QJsonDocument>
-
 #include "domain/func.h"
 #include "io/diskaccessexception.h"
 #include "model/binarysourceutils.h"
+#include "util/filenames.h"
 
 namespace pboman3::model::task {
     PackOptions ExtractConfiguration::extractFrom(const PboDocument& document) {
@@ -62,7 +61,7 @@ namespace pboman3::model::task {
     void ExtractConfiguration::collectValuableArtifacts(const PboNode* node, QSet<QString>& results) {
         const QString title = node->title().toLower();
         if (node->nodeType() == PboNodeType::File) {
-            const QString ext = GetFileExtension(title);
+            const QString ext = FileNames::getFileExtension(title);
             results.insert(ext);
         } else {
             for (const PboNode* child : *node) {

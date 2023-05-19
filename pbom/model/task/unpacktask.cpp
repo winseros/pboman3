@@ -13,6 +13,7 @@
 #include "io/defaultdocumentreaderfactory.h"
 #include "io/pbofileformatexception.h"
 #include "util/log.h"
+#include "util/filenames.h"
 
 #define LOG(...) LOGGER("model/task/UnpackTask", __VA_ARGS__)
 
@@ -87,7 +88,7 @@ namespace pboman3::model::task {
     }
 
     bool UnpackTask::tryCreatePboDir(QDir* dir) {
-        const QString fileNameWithoutExt = GetFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
+        const QString fileNameWithoutExt = FileNames::getFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
         const QString absPath = outputDir_.absoluteFilePath(fileNameWithoutExt);
         if (!outputDir_.exists(fileNameWithoutExt) && !outputDir_.mkdir(fileNameWithoutExt)) {
             LOG(warning, "Could not create the directory:", absPath)

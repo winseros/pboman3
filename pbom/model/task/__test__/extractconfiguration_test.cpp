@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include "domain/pbodocument.h"
 #include "io/bs/pbobinarysource.h"
+#include "util/filenames.h"
 
 namespace pboman3::model::task {
     using namespace domain;
@@ -45,7 +46,7 @@ namespace pboman3::model::task {
         const PackOptions options = ExtractConfiguration::extractFrom(document);
 
         ASSERT_EQ(options.compress.include.count(), 1);
-        ASSERT_EQ(options.compress.include.at(0), "\\." + GetFileExtension(GetParam().fileWithExt).toLower() + "$");
+        ASSERT_EQ(options.compress.include.at(0), "\\." + FileNames::getFileExtension(GetParam().fileWithExt).toLower() + "$");
     }
 
     INSTANTIATE_TEST_SUITE_P(ExtractConfigurationTest, ExtractConfigurationExtensionTest, testing::Values(                                 

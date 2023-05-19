@@ -1,6 +1,5 @@
 #include "localstorageapplicationsettingsfacility.h"
 #include "fileconflictresolutionmode.h"
-#include "util/enum.h"
 #include <QSettings>
 
 #define QSETTINGS(VAR_NAME) QSettings VAR_NAME(QSettings::Format::NativeFormat, QSettings::Scope::UserScope, "pboman3", "settings");
@@ -14,7 +13,7 @@ namespace pboman3::io {
         storage.clear();
     }
 
-    QSharedPointer<ApplicationSettings> LocalStorageApplicationSettingsFacility::readSettings() const {
+    ApplicationSettings LocalStorageApplicationSettingsFacility::readSettings() const {
         QSETTINGS(const storage)
 
         const QVariant vPackConflictResolutionMode = storage.value(KEY_PACK_CONFLICT_RESOLUTION_MODE);
@@ -34,25 +33,24 @@ namespace pboman3::io {
                                                 packUnpackOperationCompleteBehavior))
             packUnpackOperationCompleteBehavior = OperationCompleteBehavior::Enum::KeepWindow;
 
-        return QSharedPointer<ApplicationSettings>(
-            new ApplicationSettings{
-                packConflictResolutionMode,
-                unpackConflictResolutionMode,
-                packUnpackOperationCompleteBehavior
-            });
+        return ApplicationSettings{
+            packConflictResolutionMode,
+            unpackConflictResolutionMode,
+            packUnpackOperationCompleteBehavior
+        };
     }
 
-    void LocalStorageApplicationSettingsFacility::writeSettings(const ApplicationSettings* settings) {
+    void LocalStorageApplicationSettingsFacility::writeSettings(const ApplicationSettings& settings) {
         QSETTINGS(storage)
 
         storage.setValue(
             KEY_PACK_CONFLICT_RESOLUTION_MODE,
-            QVariant(static_cast<int>(settings->packConflictResolutionMode)));
+            QVariant(static_cast<int>(settings.packConflictResolutionMode)));
         storage.setValue(
             KEY_UNPACK_CONFLICT_RESOLUTION_MODE,
-            QVariant(static_cast<int>(settings->unpackConflictResolutionMode)));
+            QVariant(static_cast<int>(settings.unpackConflictResolutionMode)));
         storage.setValue(
             KEY_PACK_UNPACK_OPERATION_COMPLETE_BEHAVIOR,
-            QVariant(static_cast<int>(settings->packUnpackOperationCompleteBehavior)));
+            QVariant(static_cast<int>(settings.packUnpackOperationCompleteBehavior)));
     }
 }

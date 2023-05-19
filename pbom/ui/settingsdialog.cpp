@@ -34,7 +34,9 @@ namespace pboman3::ui {
             packUnpackOperationCompleteBehavior
         };
         LocalStorageApplicationSettingsFacility facility;
-        facility.writeSettings(&settings);
+        facility.writeSettings(settings);
+
+        close();
     }
 
     void SettingsDialog::loadSettings() const {
@@ -42,8 +44,8 @@ namespace pboman3::ui {
         const LocalStorageApplicationSettingsFacility facility;
         const auto settings = facility.readSettings();
 
-        setRadioButtonValue(ui_->groupBoxPack, settings->packConflictResolutionMode);
-        setRadioButtonValue(ui_->groupBoxUnpack, settings->unpackConflictResolutionMode);
-        setRadioButtonValue(ui_->groupBoxOpComplete, settings->packUnpackOperationCompleteBehavior);
+        setRadioButtonValue(ui_->groupBoxPack, settings.packConflictResolutionMode);
+        setRadioButtonValue(ui_->groupBoxUnpack, settings.unpackConflictResolutionMode);
+        setRadioButtonValue(ui_->groupBoxOpComplete, settings.packUnpackOperationCompleteBehavior);
     }
 }

@@ -7,8 +7,8 @@ namespace pboman3::io {
     public:
         void purge();
 
-        QSharedPointer<ApplicationSettings> readSettings() const override;
+        ApplicationSettings readSettings() const override;
 
-        void writeSettings(const ApplicationSettings* settings) override;
+        void writeSettings(const ApplicationSettings& settings) override;
     };
 }

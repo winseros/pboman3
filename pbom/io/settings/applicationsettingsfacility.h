@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QSharedPointer>
 #include "applicationsettings.h"
 
 namespace pboman3::io {
@@ -8,8 +7,8 @@ namespace pboman3::io {
     public:
         virtual ~ApplicationSettingsFacility() = default;
 
-        virtual QSharedPointer<ApplicationSettings> readSettings() const = 0;
+        virtual ApplicationSettings readSettings() const = 0;
 
-        virtual void writeSettings(const ApplicationSettings* settings) = 0;
+        virtual void writeSettings(const ApplicationSettings& settings) = 0;
     };
 }

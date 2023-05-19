@@ -4,6 +4,8 @@
 #include "io/diskaccessexception.h"
 #include "io/documentwriter.h"
 #include "io/bs/fsrawbinarysource.h"
+#include "io/filefactory.h"
+#include "io/settings/localstorageapplicationsettingsfacility.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/PackTask", __VA_ARGS__)
@@ -21,16 +23,22 @@ namespace pboman3::model::task {
         LOG(info, "Output dir: ", outputDir_)
 
         const QDir folder(folder_);
-        const QString pboFile = QDir(outputDir_).filePath(folder.dirName()).append(".pbo");
-        LOG(info, "The pbo file name:", pboFile)
-        if (QFileInfo(pboFile).exists()) {
-            LOG(info, "The pbo file already exists")
-            emit taskMessage("Failure | File already exists | " + pboFile);
+        emit taskThinking(folder.absolutePath());
+
+        const LocalStorageApplicationSettingsFacility settingsFacility;
+        const auto settings = settingsFacility.readSettings();
+
+        const FileFactory ff(settings.packConflictResolutionMode);
+        QString pboFile;
+        try {
+            pboFile = ff.resolvePath(QDir(outputDir_).filePath(folder.dirName()).append(".pbo"));
+        } catch (const DiskAccessException& ex) {
+            LOG(info, ex.message())
+            emit taskMessage("Failure | " + ex.message() + " | " + ex.file());
             return;
         }
 
-        emit taskThinking(folder.absolutePath());
-
+        LOG(info, "The pbo file name:", pboFile)
         PboDocument document("root");
         const qint32 filesCount = collectDir(folder, folder, *document.root(), cancel);
 

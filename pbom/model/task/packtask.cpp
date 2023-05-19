@@ -4,7 +4,7 @@
 #include "io/diskaccessexception.h"
 #include "io/documentwriter.h"
 #include "io/bs/fsrawbinarysource.h"
-#include "io/filefactory.h"
+#include "io/fileconflictresolutionpolicy.h"
 #include "io/settings/localstorageapplicationsettingsfacility.h"
 #include "util/log.h"
 
@@ -28,13 +28,15 @@ namespace pboman3::model::task {
         const LocalStorageApplicationSettingsFacility settingsFacility;
         const auto settings = settingsFacility.readSettings();
 
-        const FileFactory ff(settings.packConflictResolutionMode);
+        const FileConflictResolutionPolicy conflictResolutionPolicy(settings.packConflictResolutionMode);
         QString pboFile;
         try {
-            pboFile = ff.resolvePath(QDir(outputDir_).filePath(folder.dirName()).append(".pbo"));
+            pboFile = conflictResolutionPolicy.resolvePotentialConflicts(
+                QDir(outputDir_).filePath(folder.dirName()).append(".pbo"));
         } catch (const DiskAccessException& ex) {
             LOG(info, ex.message())
-            emit taskMessage("Failure | " + ex.message() + " | " + ex.file());
+            //remove the "." symbol from the end
+            emit taskMessage("Failure | " + ex.message().left(ex.message().length() - 1) + " | " + ex.file());
             return;
         }
 

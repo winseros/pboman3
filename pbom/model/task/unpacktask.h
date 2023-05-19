@@ -3,6 +3,7 @@
 #include <QDir>
 #include "task.h"
 #include "domain/pbodocument.h"
+#include "io/settings/fileconflictresolutionmode.h"
 
 namespace pboman3::model::task {
     using namespace domain;
@@ -25,6 +26,6 @@ namespace pboman3::model::task {
 
         bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry);
 
-        void extractPboConfig(const PboDocument& document, const QDir& dir);
+        void extractPboConfig(const PboDocument& document, const QDir& dir, io::FileConflictResolutionMode::Enum conflictResolutionMode);
     };
 }

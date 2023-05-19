@@ -1,12 +1,15 @@
 #pragma once
 
 #include "unpackbackend.h"
+#include "io/settings/fileconflictresolutionmode.h"
+#include "io/fileconflictresolutionpolicy.h"
+#include <QSharedPointer>
 
 namespace pboman3::io {
     class UnpackTaskBackend : public UnpackBackend {
 
     public:
-        UnpackTaskBackend(const QDir& folder);
+        UnpackTaskBackend(const QDir& folder, FileConflictResolutionMode::Enum conflictResolutionMode);
 
         void setOnError(std::function<void(const QString&)>* callback);
 
@@ -18,6 +21,7 @@ namespace pboman3::io {
     private:
         std::function<void(const QString&)>* onError_;
         std::function<void()>* onProgress_;
+        QSharedPointer<FileConflictResolutionPolicy> conflictResolutionPolicy_;
 
         void error(const QString& error) const;
 

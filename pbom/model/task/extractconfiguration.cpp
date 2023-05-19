@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include "domain/func.h"
 #include "io/diskaccessexception.h"
+#include "io/fileconflictresolutionpolicy.h"
 #include "model/binarysourceutils.h"
 #include "util/filenames.h"
 
@@ -15,13 +16,13 @@ namespace pboman3::model::task {
         return options;
     }
 
-    void ExtractConfiguration::saveTo(const PackOptions& options, const QDir& dest) {
+    void ExtractConfiguration::saveTo(const PackOptions& options, const QDir& dest, FileConflictResolutionMode::Enum conflictResolutionMode) {
         const QJsonObject json = options.makeJson();
         const QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Indented);
 
-        const QString fileName = getConfigFileName(dest);
+        const QString fileName = getConfigFileName(dest, conflictResolutionMode);
         QFile file(fileName);
-        if (!file.open(QIODeviceBase::WriteOnly | QIODeviceBase::NewOnly)) {
+        if (!file.open(QIODeviceBase::WriteOnly)) {
             throw DiskAccessException("Can not access the file. Check if it is used by other processes.", fileName);
         }
         file.write(bytes);
@@ -78,23 +79,15 @@ namespace pboman3::model::task {
         return "^" + fileName + "$";
     }
 
-    QString ExtractConfiguration::getConfigFileName(const QDir& dir) {
+    QString ExtractConfiguration::getConfigFileName(const QDir& dir, FileConflictResolutionMode::Enum conflictResolutionMode) {
         const QString configName("pbo");
         const QString configExt(".json");
 
-        QString configFile = configName + configExt;
-        if (!dir.exists(configFile)) {
-            return dir.absoluteFilePath(configFile);
-        }
+        QString path = dir.absoluteFilePath(configName + configExt);
+        const FileConflictResolutionPolicy policy(conflictResolutionMode);
+        path = policy.resolvePotentialConflicts(path);
 
-        for (int i = 1; i < std::numeric_limits<int>::max(); i++) {
-            configFile = configName + "-" + QString::number(i) + configExt;
-            if (!dir.exists(configFile)) {
-                return dir.absoluteFilePath(configFile);
-            }
-        }
-
-        throw AppException("The code must never reach this line");
+        return path;
     }
 
 }

@@ -135,15 +135,15 @@
                                Value="[INSTALLFOLDER]pbom.exe" Type="string" />
 
                 <RegistryValue Root="HKCR"
-                               Key="Folder\Shell\$(var.RegAppId).menu"
+                               Key="Directory\Shell\$(var.RegAppId).menu"
                                Value="$(var.RegClsId)" Name="ExplorerCommandHandler" Type="string" />
                 
                 <RegistryValue Root="HKCR"
-                               Key="Folder\Shell\$(var.RegAppId).menu"
+                               Key="Directory\Shell\$(var.RegAppId).menu"
                                Value="$(var.AppName)" Type="string" />
 
                 <RegistryValue Root="HKCR"
-                               Key="Folder\Shell\$(var.RegAppId).menu"
+                               Key="Directory\Shell\$(var.RegAppId).menu"
                                Value="" Name="NeverDefault" Type="string" />
             </Component>
 

@@ -50,6 +50,10 @@ namespace pboman3::ui {
 
         void buttonClicked(const QAbstractButton* button);
 
+        bool anyMessagesInTheLog() const;
+
+        void closeWindowIfNeeded();
+
         class TaskbarIndicator {
         public:
             TaskbarIndicator(WId windowId);

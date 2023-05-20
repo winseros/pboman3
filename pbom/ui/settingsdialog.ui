@@ -26,8 +26,8 @@
    <string>Settings</string>
   </property>
   <property name="windowIcon">
-   <iconset theme=":app.ico">
-    <normaloff>C:/Users/winse/.designer/backup</normaloff>C:/Users/winse/.designer/backup</iconset>
+   <iconset>
+    <normaloff>:app.ico</normaloff>:app.ico</iconset>
   </property>
   <property name="modal">
    <bool>true</bool>

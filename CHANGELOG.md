@@ -1,5 +1,10 @@
 # PBO Manager change log
 
+# Version 1.6.0
+- [Feature] Added the `Options` menu for the application behavior tweaks
+- [Fix] The junk filter from `1.5.0` made less agressive
+- [Fix] Spelling errors fixed
+
 ## Version 1.5.0
  - [Feature] Windows Explorer integration now supports Windows 11 immersive menu (via the dedicated installer)
  - [Feature] The app tries to filter out the most obvious junk from mangled PBOs

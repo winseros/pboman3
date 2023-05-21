@@ -12,7 +12,9 @@
 #include "io/diskaccessexception.h"
 #include "io/defaultdocumentreaderfactory.h"
 #include "io/pbofileformatexception.h"
+#include "io/settings/localstorageapplicationsettingsfacility.h"
 #include "util/log.h"
+#include "util/filenames.h"
 
 #define LOG(...) LOGGER("model/task/UnpackTask", __VA_ARGS__)
 
@@ -27,6 +29,11 @@ namespace pboman3::model::task {
     void UnpackTask::execute(const Cancel& cancel) {
         LOG(info, "PBO file: ", pboPath_)
         LOG(info, "Output dir: ", outputDir_.absolutePath())
+
+        emit taskThinking("Preparing to extract the file: " + pboPath_);
+
+        const LocalStorageApplicationSettingsFacility settingsFacility;
+        const auto settings = settingsFacility.readSettings();
 
         QSharedPointer<PboDocument> document;
         if (!tryReadPboHeader(&document))
@@ -50,7 +57,7 @@ namespace pboman3::model::task {
             emit taskProgress(progress);
         };
 
-        UnpackTaskBackend be(pboDir);
+        UnpackTaskBackend be(pboDir, settings.unpackConflictResolutionMode);
         be.setOnError(&onError);
         be.setOnProgress(&onProgress);
 
@@ -60,7 +67,7 @@ namespace pboman3::model::task {
             childNodes.append(node);
         be.unpackSync(document->root(), childNodes, cancel);
 
-        extractPboConfig(*document, pboDir);
+        extractPboConfig(*document, pboDir, settings.unpackConflictResolutionMode);
 
         LOG(info, "Unpack complete")
     }
@@ -87,7 +94,7 @@ namespace pboman3::model::task {
     }
 
     bool UnpackTask::tryCreatePboDir(QDir* dir) {
-        const QString fileNameWithoutExt = GetFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
+        const QString fileNameWithoutExt = FileNames::getFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
         const QString absPath = outputDir_.absoluteFilePath(fileNameWithoutExt);
         if (!outputDir_.exists(fileNameWithoutExt) && !outputDir_.mkdir(fileNameWithoutExt)) {
             LOG(warning, "Could not create the directory:", absPath)
@@ -117,9 +124,15 @@ namespace pboman3::model::task {
         return true;
     }
 
-    void UnpackTask::extractPboConfig(const PboDocument& document, const QDir& dir) {
+    void UnpackTask::extractPboConfig(const PboDocument& document, const QDir& dir, FileConflictResolutionMode::Enum conflictResolutionMode) {
         const PackOptions options = ExtractConfiguration::extractFrom(document);
         LOG(info, "Extracted the PBO pack config, Options=", options)
-        ExtractConfiguration::saveTo(options, dir);
+        try {
+            ExtractConfiguration::saveTo(options, dir, conflictResolutionMode);
+        } catch (const DiskAccessException& ex) {
+            LOG(info, ex.message())
+            //remove the "." symbol from the end
+            emit taskMessage(ex.message().left(ex.message().length() - 1) + " | " + ex.file());
+        }
     }
 }

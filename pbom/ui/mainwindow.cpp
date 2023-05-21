@@ -11,12 +11,14 @@
 #include "headersdialog.h"
 #include "signaturedialog.h"
 #include "updatesdialog.h"
+#include "settingsdialog.h"
 #include "ui_mainwindow.h"
 #include "io/diskaccessexception.h"
 #include "io/pbofileformatexception.h"
 #include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
+#include "util/filenames.h"
 
 #define LOG(...) LOGGER("ui/MainWindow", __VA_ARGS__)
 
@@ -130,6 +132,8 @@ namespace pboman3::ui {
         connect(ui_->actionSelectionRename, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRename);
         connect(ui_->actionSelectionDelete, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionRemove);
 
+        connect(ui_->actionSettings, &QAction::triggered, [this](){ SettingsDialog(this).exec(); });
+
         connect(ui_->actionHelpAbout, &QAction::triggered, [this]() { AboutDialog(this).exec(); });
         connect(ui_->actionCheckUpdates, &QAction::triggered, [this]() { UpdatesDialog(this).exec(); });
 
@@ -239,7 +243,7 @@ namespace pboman3::ui {
     void MainWindow::selectionExtractContainerClick() const {
         LOG(info, "User clicked the ExtractToContainer button")
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        const QString folderName = GetFileNameWithoutExtension(model_->document()->root()->title());
+        const QString folderName = FileNames::getFileNameWithoutExtension(model_->document()->root()->title());
         const QString folderPath = dir.filePath(folderName);
         if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
             LOG(critical, "Could not create the dir:", folderPath)
@@ -439,7 +443,7 @@ namespace pboman3::ui {
 
     QString MainWindow::makeExtractToTitle(const PboNode* node) const {
         return "Extract to ./" + (node->nodeType() == PboNodeType::Container
-                                      ? GetFileNameWithoutExtension(node->title())
+                                      ? FileNames::getFileNameWithoutExtension(node->title())
                                       : node->title())
             + (node->nodeType() == PboNodeType::File ? "" : "/");
     }

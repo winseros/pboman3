@@ -6,6 +6,7 @@
 #include "model/task/taskwindowmodel.h"
 #include "exception.h"
 #include "win32/win32taskbarindicator.h"
+#include "io/settings/localstorageapplicationsettingsfacility.h"
 
 namespace pboman3::ui {
     TaskWindow::TaskWindow(QWidget* parent)
@@ -87,6 +88,9 @@ namespace pboman3::ui {
 
             ui_->buttonBox->setEnabled(true);
             ui_->buttonBox->setStandardButtons(QDialogButtonBox::StandardButton::Close);
+
+            if (!anyMessagesInTheLog())
+                closeWindowIfNeeded();
         }
     }
 
@@ -111,6 +115,20 @@ namespace pboman3::ui {
         } else if (button == dynamic_cast<QAbstractButton*>(ui_->buttonBox->button(QDialogButtonBox::Close))) {
             close();
         }
+    }
+
+    bool TaskWindow::anyMessagesInTheLog() const {
+        return log_;
+    }
+
+    void TaskWindow::closeWindowIfNeeded() {
+        using namespace io;
+
+        const LocalStorageApplicationSettingsFacility settingsFacility;
+        const auto settings = settingsFacility.readSettings();
+
+        if (settings.packUnpackOperationCompleteBehavior == OperationCompleteBehavior::Enum::CloseWindow)
+            close();
     }
 
     TaskWindow::TaskbarIndicator::TaskbarIndicator(WId windowId)

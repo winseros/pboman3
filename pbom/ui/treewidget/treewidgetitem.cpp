@@ -2,6 +2,7 @@
 #include <QFileInfo>
 #include "ui/renamedialog.h"
 #include "ui/win32/win32iconmgr.h"
+#include "util/filenames.h"
 
 namespace pboman3::ui {
     TreeWidgetItem::TreeWidgetItem(PboNode* node)
@@ -15,7 +16,7 @@ namespace pboman3::ui {
           icons_(icons) {
         setText(0, node_->title());
         setIcon(0, node->nodeType() == PboNodeType::File
-                       ? icons_->getIconForExtension(GetFileExtension(node_->title()))
+                       ? icons_->getIconForExtension(FileNames::getFileExtension(node_->title()))
                        : icons_->getFolderClosedIcon());
 
         initCreateChildren();
@@ -53,7 +54,7 @@ namespace pboman3::ui {
     void TreeWidgetItem::onNodeTitleChanged(const QString& title) {
         setText(0, title);
         if (node_->nodeType() == PboNodeType::File) {
-            setIcon(0, icons_->getIconForExtension(GetFileExtension(node_->title())));
+            setIcon(0, icons_->getIconForExtension(FileNames::getFileExtension(node_->title())));
         }
     }
 

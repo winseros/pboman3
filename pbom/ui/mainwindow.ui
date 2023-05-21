@@ -148,9 +148,16 @@
     <addaction name="actionViewHeaders"/>
     <addaction name="actionViewSignature"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionSettings"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="pboman3::ui::StatusBar" name="statusBar"/>
@@ -287,7 +294,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Signatrue</string>
+    <string>Signature</string>
    </property>
   </action>
   <action name="actionSelectionExtractTo">
@@ -320,6 +327,11 @@
   <action name="actionCheckUpdates">
    <property name="text">
     <string>Check for updates</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings...</string>
    </property>
   </action>
  </widget>

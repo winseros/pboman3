@@ -1,14 +1,17 @@
 #include "unpacktaskbackend.h"
 #include "io/diskaccessexception.h"
+#include "io/fileconflictresolutionpolicy.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("io/bb/UnpackTaskBackend", __VA_ARGS__)
 
 namespace pboman3::io {
-    UnpackTaskBackend::UnpackTaskBackend(const QDir& folder)
+    UnpackTaskBackend::UnpackTaskBackend(const QDir& folder, FileConflictResolutionMode::Enum conflictResolutionMode)
         : UnpackBackend(folder),
           onError_(nullptr),
           onProgress_(nullptr) {
+        conflictResolutionPolicy_ = QSharedPointer<FileConflictResolutionPolicy>(
+            new FileConflictResolutionPolicy(conflictResolutionMode));
     }
 
     void UnpackTaskBackend::setOnError(std::function<void(const QString&)>* callback) {
@@ -26,6 +29,7 @@ namespace pboman3::io {
         QString filePath;
         try {
             filePath = nodeFileSystem_->allocatePath(rootNode, childNode);
+            filePath = conflictResolutionPolicy_->resolvePotentialConflicts(filePath);
         } catch (const DiskAccessException& ex) {
             LOG(warning, ex)
             //remove the "." symbol from the end
@@ -37,15 +41,9 @@ namespace pboman3::io {
         if (cancel())
             return;
 
-        QFile file(filePath); //WriteOnly won't work for LZH unpacking
-        if (file.exists()) {
-            LOG(info, "File already exists:", file.fileName())
-            error("File already exists | " + file.fileName());
-            progress();
-            return;
-        }
-
+        QFile file(filePath);
         if (!file.open(QIODeviceBase::ReadWrite)) {
+            //WriteOnly won't work for LZH unpacking
             LOG(warning, "Can not access the file:", file.fileName())
             error("Can could not write to the file | " + file.fileName());
             progress();
@@ -71,5 +69,4 @@ namespace pboman3::io {
             (*onProgress_)();
         }
     }
-
 }

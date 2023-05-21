@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include "domain/pbodocument.h"
 #include "io/bs/pbobinarysource.h"
+#include "util/filenames.h"
 
 namespace pboman3::model::task {
     using namespace domain;
@@ -45,7 +46,7 @@ namespace pboman3::model::task {
         const PackOptions options = ExtractConfiguration::extractFrom(document);
 
         ASSERT_EQ(options.compress.include.count(), 1);
-        ASSERT_EQ(options.compress.include.at(0), "\\." + GetFileExtension(GetParam().fileWithExt).toLower() + "$");
+        ASSERT_EQ(options.compress.include.at(0), "\\." + FileNames::getFileExtension(GetParam().fileWithExt).toLower() + "$");
     }
 
     INSTANTIATE_TEST_SUITE_P(ExtractConfigurationTest, ExtractConfigurationExtensionTest, testing::Values(                                 
@@ -118,7 +119,7 @@ namespace pboman3::model::task {
         options.compress.include = QList<QString>{"i1", "i2"};
         options.compress.exclude = QList<QString>{"e1", "e2"};
 
-        ExtractConfiguration::saveTo(options, target);
+        ExtractConfiguration::saveTo(options, target, FileConflictResolutionMode::Enum::Abort);
 
         QFile config(target.filePath("pbo.json"));
         ASSERT_TRUE(config.exists());
@@ -137,15 +138,15 @@ namespace pboman3::model::task {
         QFile f1(target.filePath("pbo.json"));
         f1.open(QIODeviceBase::NewOnly);
         f1.close();
-        QFile f2(target.filePath("pbo-1.json"));
+        QFile f2(target.filePath("pbo(1).json"));
         f2.open(QIODeviceBase::NewOnly);
         f2.close();
 
         const PackOptions options;
-        ExtractConfiguration::saveTo(options, target);
+        ExtractConfiguration::saveTo(options, target, FileConflictResolutionMode::Enum::Copy);
 
         //the resulting file prevented conflicts
-        QFile config(target.filePath("pbo-2.json"));
+        QFile config(target.filePath("pbo(2).json"));
         ASSERT_TRUE(config.exists());
 
         ASSERT_TRUE(config.open(QIODeviceBase::ReadOnly));

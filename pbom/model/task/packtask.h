@@ -2,7 +2,7 @@
 
 #include <QDir>
 #include "task.h"
-#include "model/interactionparcel.h"
+#include "domain/pbonode.h"
 
 namespace pboman3::model::task {
     using namespace domain;

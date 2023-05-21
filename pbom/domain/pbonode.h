@@ -59,10 +59,6 @@ namespace pboman3::domain {
 
         QString pickFileTitle(const PboNode* parent, const QString& expectedTitle) const;
 
-        QString formatFolderTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const;
-
-        QString formatFileTitleCopy(const QString& expectedTitle, qsizetype copyIndex) const;
-
         PboNode* createChild(const QString& title, PboNodeType nodeType);
 
         qsizetype getChildListIndex(const PboNode* node) const;

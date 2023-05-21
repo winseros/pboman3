@@ -294,7 +294,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Signatrue</string>
+    <string>Signature</string>
    </property>
   </action>
   <action name="actionSelectionExtractTo">

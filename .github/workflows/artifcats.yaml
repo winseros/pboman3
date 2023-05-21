@@ -74,7 +74,7 @@ jobs:
             mv -Path ${{github.workspace}}\_artifacts\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager"
      
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: PBOManager-binaries-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\
@@ -86,7 +86,7 @@ jobs:
          light.exe -ext WixUIExtension -dWixUILicenseRtf=${{github.workspace}}\code\LICENSE.rtf -out ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi ${{github.workspace}}\_artifacts\PBOManager.wixobj
 
       - name: Upload installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: PBOManager-installer-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi

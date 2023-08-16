@@ -12,7 +12,6 @@
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
 #include "util/log.h"
-#include <type_traits>
 
 #ifdef WIN32
 #include "win32com.h"

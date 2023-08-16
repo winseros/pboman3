@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "util/qpointerlistiterator.h"
 #include "io/pboheaderentity.h"
+#include <QList>
+#include <QSharedPointer>
 
 namespace pboman3::util::test {
     using namespace io;

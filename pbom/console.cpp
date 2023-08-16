@@ -98,5 +98,6 @@ int main(int argc, char* argv[]) {
         LOG(critical, "Unexpected exception has been thrown")
         const auto ex = std::current_exception();
         HandleEptr(ex);
+        return 1;
     }
 }

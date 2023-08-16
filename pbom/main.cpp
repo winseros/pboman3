@@ -15,6 +15,8 @@
 
 #ifdef WIN32
 #include "win32com.h"
+#include "argv8bit.h"
+#include "argv16bit.h"
 #endif
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
@@ -40,8 +42,6 @@ namespace pboman3 {
     };
 
 #ifdef WIN32
-#include "argv8bit.h"
-
     template <>
     class PboApplication<wchar_t> : public QApplication {
     public:
@@ -259,12 +259,8 @@ void HandleEptr(const std::exception_ptr& ptr) try {
     LOG(critical, "Uncaught exception has been thrown:", ex.what())
 }
 
-#ifdef WIN32
-int wmain(int argc, wchar_t* argv[]) {
-#else
-int main(int argc, char* argv[]) {
-#endif
-
+template <typename TChr>
+int MainImpl(int argc, TChr* argv[]) {
     try {
         const int res = pboman3::RunMain(argc, argv);
         return res;
@@ -275,5 +271,15 @@ int main(int argc, char* argv[]) {
         LOG(critical, "Unexpected exception has been thrown")
         const auto ex = std::current_exception();
         HandleEptr(ex);
+        return 1;
     }
+}
+
+int main(int argc, char* argv[]) {
+#ifdef WIN32
+    const pboman3::Argv16Bit arg;
+    MainImpl(arg.argc, arg.argv);
+#else
+    MainImpl(argc, argv);
+#endif
 }

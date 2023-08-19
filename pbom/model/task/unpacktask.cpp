@@ -1,7 +1,6 @@
 #include "unpacktask.h"
 #include <QDir>
 #include <QFile>
-
 #include "extractconfiguration.h"
 #include "packoptions.h"
 #include "io/bb/unpacktaskbackend.h"
@@ -12,7 +11,6 @@
 #include "io/diskaccessexception.h"
 #include "io/defaultdocumentreaderfactory.h"
 #include "io/pbofileformatexception.h"
-#include "io/settings/localstorageapplicationsettingsfacility.h"
 #include "util/log.h"
 #include "util/filenames.h"
 
@@ -21,9 +19,11 @@
 namespace pboman3::model::task {
     using namespace io;
 
-    UnpackTask::UnpackTask(QString pboPath, const QString& outputDir)
+    UnpackTask::UnpackTask(QString pboPath, const QString& outputDir,
+                           FileConflictResolutionMode::Enum fileConflictResolutionMode)
         : pboPath_(std::move(pboPath)),
-          outputDir_(outputDir) {
+          outputDir_(outputDir),
+          fileConflictResolutionMode_(fileConflictResolutionMode) {
     }
 
     void UnpackTask::execute(const Cancel& cancel) {
@@ -31,9 +31,6 @@ namespace pboman3::model::task {
         LOG(info, "Output dir: ", outputDir_.absolutePath())
 
         emit taskThinking("Preparing to extract the file: " + pboPath_);
-
-        const LocalStorageApplicationSettingsFacility settingsFacility;
-        const auto settings = settingsFacility.readSettings();
 
         QSharedPointer<PboDocument> document;
         if (!tryReadPboHeader(&document))
@@ -57,7 +54,7 @@ namespace pboman3::model::task {
             emit taskProgress(progress);
         };
 
-        UnpackTaskBackend be(pboDir, settings.unpackConflictResolutionMode);
+        UnpackTaskBackend be(pboDir, fileConflictResolutionMode_);
         be.setOnError(&onError);
         be.setOnProgress(&onProgress);
 
@@ -67,7 +64,7 @@ namespace pboman3::model::task {
             childNodes.append(node);
         be.unpackSync(document->root(), childNodes, cancel);
 
-        extractPboConfig(*document, pboDir, settings.unpackConflictResolutionMode);
+        extractPboConfig(*document, pboDir);
 
         LOG(info, "Unpack complete")
     }
@@ -124,11 +121,11 @@ namespace pboman3::model::task {
         return true;
     }
 
-    void UnpackTask::extractPboConfig(const PboDocument& document, const QDir& dir, FileConflictResolutionMode::Enum conflictResolutionMode) {
+    void UnpackTask::extractPboConfig(const PboDocument& document, const QDir& dir) {
         const PackOptions options = ExtractConfiguration::extractFrom(document);
         LOG(info, "Extracted the PBO pack config, Options=", options)
         try {
-            ExtractConfiguration::saveTo(options, dir, conflictResolutionMode);
+            ExtractConfiguration::saveTo(options, dir, fileConflictResolutionMode_);
         } catch (const DiskAccessException& ex) {
             LOG(info, ex.message())
             //remove the "." symbol from the end

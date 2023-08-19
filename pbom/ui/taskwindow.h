@@ -18,23 +18,24 @@ namespace pboman3::ui {
     Q_OBJECT
 
     public:
-        TaskWindow(QWidget* parent);
+        TaskWindow(QWidget* parent, TaskWindowModel* model);
 
         ~TaskWindow() override;
 
-    protected:
-        void start(const QSharedPointer<TaskWindowModel>& model);
+        void showAndRunTasks();
 
     private:
         class TaskbarIndicator;
 
         Ui::TaskWindow* ui_;
-        QSharedPointer<TaskWindowModel> model_;
+        TaskWindowModel* model_;
         int activeThreadCount_;
         QHash<ThreadId, ProgressWidget*> progressBars_;
         QPlainTextEdit* log_;
         QString doneText_;
         QSharedPointer<TaskbarIndicator> taskbar_; 
+
+        void setupConnections();
 
         void threadStarted(ThreadId threadId);
 

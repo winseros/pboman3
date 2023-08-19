@@ -5,6 +5,7 @@
 #include "exception.h"
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
+#include "io/settings/localstorageapplicationsettingsfacility.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
@@ -12,11 +13,17 @@
 using namespace std;
 
 namespace pboman3 {
+    QSharedPointer<io::ApplicationSettingsFacility> GetSettingsFacility() {
+        return QSharedPointer<io::ApplicationSettingsFacility>(new io::LocalStorageApplicationSettingsFacility);
+    }
+
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
+        
+        const auto settings = GetSettingsFacility()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::PackTask task(folder, outputDir);
+            model::task::PackTask task(folder, outputDir, settings.packConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
@@ -24,9 +31,10 @@ namespace pboman3 {
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
+        const auto settings = GetSettingsFacility()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::UnpackTask task(folder, outputDir);
+            model::task::UnpackTask task(folder, outputDir, settings.unpackConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;

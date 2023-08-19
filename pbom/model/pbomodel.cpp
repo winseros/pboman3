@@ -3,9 +3,9 @@
 #include "domain/func.h"
 #include <QDir>
 #include <QUrl>
-#include <QUuid>
 #include "io/documentwriter.h"
 #include "io/defaultdocumentreaderfactory.h"
+#include "task/extractconfiguration.h"
 #include "exception.h"
 #include "util/log.h"
 
@@ -13,6 +13,10 @@
 
 namespace pboman3::model {
     using namespace io;
+
+    PboModel::PboModel(QSharedPointer<ApplicationSettingsFacility> settingsFacility)
+        : settingsFacility_(std::move(settingsFacility)) {
+    }
 
     void PboModel::loadFile(const QString& path) {
         LOG(info, "Loading the file:", path)

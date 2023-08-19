@@ -12,6 +12,7 @@
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
 #include "util/log.h"
+#include "io/settings/localstorageapplicationsettingsfacility.h"
 
 #ifdef WIN32
 #include "win32com.h"
@@ -38,6 +39,10 @@ namespace pboman3 {
         }
     };
 
+    QSharedPointer<io::ApplicationSettingsFacility> GetSettingsFacility() {
+        return QSharedPointer<io::ApplicationSettingsFacility>(new io::LocalStorageApplicationSettingsFacility);
+    }
+
     int RunMainWindow(const QApplication& app, const QString& pboFile) {
         using namespace pboman3;
 
@@ -50,7 +55,8 @@ namespace pboman3 {
 #endif
 
         LOG(info, "Display the main window")
-        const auto model = QScopedPointer(new model::PboModel());
+        const auto settingsFacility = GetSettingsFacility();
+        const auto model = QScopedPointer(new model::PboModel(settingsFacility));
         ui::MainWindow w(nullptr, model.get());
         w.show();
 
@@ -68,6 +74,7 @@ namespace pboman3 {
 
     int RunPackWindow(const QApplication& app, const QStringList& folders, const QString& outputDir) {
         using namespace pboman3;
+        using namespace pboman3::model::task;
 
         ACTIVATE_ASYNC_LOG_SINK
 
@@ -77,14 +84,19 @@ namespace pboman3 {
         Win32Com _(&app);
 #endif
 
-        int exitCode;
-        ui::PackWindow w(nullptr);
-        if (outputDir.isEmpty()) {
-            exitCode = w.tryPackFoldersWithPrompt(folders) ? QApplication::exec() : 0;
-        } else {
-            w.packFoldersToOutputDir(folders, outputDir);
-            exitCode = QApplication::exec();
+        QString outDir = outputDir;
+        if (outDir.isEmpty() && !ui::PackWindow::tryRequestTargetFolder(outDir)) {
+            LOG(info, "The user refused to select the pack folder - exit now")
+            return 0;
         }
+
+        const auto settingsFacility = GetSettingsFacility();
+        const auto settings = settingsFacility->readSettings();
+
+        const QScopedPointer model(new PackWindowModel(folders, outDir, settings.packConflictResolutionMode));
+        ui::PackWindow w(nullptr, model.get());
+        w.showAndRunTasks();
+        const auto exitCode = QApplication::exec();
 
         LOG(info, "The app exiting with the code:", exitCode)
 
@@ -93,6 +105,7 @@ namespace pboman3 {
 
     int RunUnpackWindow(const QApplication& app, const QStringList& files, const QString& outputDir) {
         using namespace pboman3;
+        using namespace pboman3::model::task;
 
         ACTIVATE_ASYNC_LOG_SINK
 
@@ -102,14 +115,19 @@ namespace pboman3 {
         Win32Com _(&app);
 #endif
 
-        int exitCode;
-        ui::UnpackWindow w(nullptr);
-        if (outputDir.isEmpty()) {
-            exitCode = w.tryUnpackFilesWithPrompt(files) ? QApplication::exec() : 0;
-        } else {
-            w.unpackFilesToOutputDir(files, outputDir);
-            exitCode = QApplication::exec();
+        QString outDir = outputDir;
+        if (outDir.isEmpty() && !ui::UnpackWindow::tryRequestTargetFolder(outDir)) {
+            LOG(info, "The user refused to select the unpack folder - exit now")
+            return 0;
         }
+
+        const auto settingsFacility = GetSettingsFacility();
+        const auto settings = settingsFacility->readSettings();
+
+        const QScopedPointer model(new UnpackWindowModel(files, outDir, settings.unpackConflictResolutionMode));
+        ui::UnpackWindow w(nullptr, model.get());
+        w.showAndRunTasks();
+        const auto exitCode = QApplication::exec();
 
         LOG(info, "The app exiting with the code:", exitCode)
 
@@ -118,9 +136,11 @@ namespace pboman3 {
 
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
+        const auto settingsFacility = GetSettingsFacility();
+        const auto settings = settingsFacility->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::PackTask task(folder, outputDir);
+            model::task::PackTask task(folder, outputDir, settings.packConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
@@ -128,9 +148,11 @@ namespace pboman3 {
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
+        const auto settingsFacility = GetSettingsFacility();
+        const auto settings = settingsFacility->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::UnpackTask task(folder, outputDir);
+            model::task::UnpackTask task(folder, outputDir, settings.unpackConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;

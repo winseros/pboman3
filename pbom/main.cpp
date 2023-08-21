@@ -16,6 +16,8 @@
 
 #ifdef WIN32
 #include "win32com.h"
+#include "argv8bit.h"
+#include "argv16bit.h"
 #endif
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
@@ -23,9 +25,10 @@
 using namespace std;
 
 namespace pboman3 {
+    template <typename TChr>
     class PboApplication : public QApplication {
     public:
-        PboApplication(int& argc, char** argv)
+        PboApplication(int& argc, TChr* argv[])
             : QApplication(argc, argv) {
         }
 
@@ -38,6 +41,20 @@ namespace pboman3 {
             }
         }
     };
+
+#ifdef WIN32
+    template <>
+    class PboApplication<wchar_t> : public QApplication {
+    public:
+        PboApplication(int& argc, wchar_t* argv[])
+            : QApplication(argc, pboman3::Argv8Bit::acquire(argc, argv)) {
+        }
+
+        ~PboApplication() override {
+            pboman3::Argv8Bit::release();
+        }
+    };
+#endif
 
     QSharedPointer<io::ApplicationSettingsFacility> GetSettingsFacility() {
         return QSharedPointer<io::ApplicationSettingsFacility>(new io::LocalStorageApplicationSettingsFacility);
@@ -158,22 +175,23 @@ namespace pboman3 {
         return 0;
     }
 
-    int RunWithCliOptions(int argc, char* argv[]) {
+    template <typename TChr>
+    int RunWithCliOptions(int argc, TChr* argv[]) {
         using namespace CLI;
         using namespace pboman3;
 
         int exitCode;
         if (argc == 1) {
-            const PboApplication app(argc, argv);
+            const PboApplication<TChr> app(argc, argv);
             exitCode = RunMainWindow(app, "");
         } else {
             App cli;
             const CommandLine cmd(&cli);
-            const shared_ptr<CommandLine::Result> commandLine = cmd.build();
+            const shared_ptr<CommandLine::Result<TChr>> commandLine = cmd.build<TChr>();
             CLI11_PARSE(cli, argc, argv)
 
             if (commandLine->open.hasBeenSet()) {
-                const PboApplication app(argc, argv);
+                const PboApplication<TChr> app(argc, argv);
                 const QString file = CommandLine::toQt(commandLine->open.fileName);
                 exitCode = RunMainWindow(app, file);
             } else if (commandLine->pack.hasBeenSet()) {
@@ -189,7 +207,7 @@ namespace pboman3 {
                 if (commandLine->pack.noUi()) {
                     exitCode = RunConsolePackOperation(folders, outputDir);
                 } else {
-                    const PboApplication app(argc, argv);
+                    const PboApplication<TChr> app(argc, argv);
                     exitCode = RunPackWindow(app, folders, outputDir);
                 }
             } else if (commandLine->unpack.hasBeenSet()) {
@@ -205,7 +223,7 @@ namespace pboman3 {
                 if (commandLine->unpack.noUi()) {
                     exitCode = RunConsoleUnpackOperation(files, outputDir);
                 } else {
-                    const PboApplication app(argc, argv);
+                    const PboApplication<TChr> app(argc, argv);
                     exitCode = RunUnpackWindow(app, files, outputDir);
                 }
             } else {
@@ -217,13 +235,29 @@ namespace pboman3 {
         return exitCode;
     }
 
-    int RunMain(int argc, char* argv[]) {
+    template <typename TChr>
+    QString ReadFileName(TChr* argv[]) {
+        return QString(argv[1]);
+    }
+
+#ifdef WIN32
+    template <>
+    QString ReadFileName(wchar_t* argv[]) {
+        return QString::fromWCharArray(argv[1]);
+    }
+#endif
+
+
+    template <typename TChr>
+    int RunMain(int argc, TChr* argv[]) {
         int exitCode;
         if (argc == 2) {
             //an escape hatch for those who won't install the app via the installer
             //and use it in "Open with" operating system feature
             //in that case the OS would call the app as "pbom <file>"
-            const QString file = QString(argv[1]);
+
+            const QString file = ReadFileName(argv);
+
             const QFileInfo fi(file);
             if (fi.isFile() && !fi.isSymLink()) {
                 const PboApplication app(argc, argv);
@@ -247,7 +281,8 @@ void HandleEptr(const std::exception_ptr& ptr) try {
     LOG(critical, "Uncaught exception has been thrown:", ex.what())
 }
 
-int main(int argc, char* argv[]) {
+template <typename TChr>
+int MainImpl(int argc, TChr* argv[]) {
     try {
         const int res = pboman3::RunMain(argc, argv);
         return res;
@@ -258,5 +293,15 @@ int main(int argc, char* argv[]) {
         LOG(critical, "Unexpected exception has been thrown")
         const auto ex = std::current_exception();
         HandleEptr(ex);
+        return 1;
     }
+}
+
+int main(int argc, char* argv[]) {
+#ifdef WIN32
+    const pboman3::Argv16Bit arg;
+    MainImpl(arg.argc, arg.argv);
+#else
+    MainImpl(argc, argv);
+#endif
 }

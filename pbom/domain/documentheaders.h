@@ -2,6 +2,7 @@
 
 #include "documentheader.h"
 #include "util/qpointerlistiterator.h"
+#include <QObject>
 
 namespace pboman3::domain {
     using namespace util;

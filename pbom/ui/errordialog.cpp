@@ -22,9 +22,23 @@ namespace pboman3::ui {
         ui_->label->setText(ex.message());
     }
 
+#ifdef WIN32
+    ErrorDialog::ErrorDialog(const Win32FileViewerException& ex, QWidget* parent)
+        : QDialog(parent),
+          ui_(new Ui::ErrorDialog) {
+        ui_->setupUi(this);
+        ui_->label->setTextFormat(Qt::RichText);
+        ui_->label->setText(ex.message()
+            + "<br><br>Error code: " + QString::number(ex.systemErrorCode())
+            + "<br>Error text: " + ex.systemErrorDescription()
+            + "<br><br>" + ex.filePath());
+    }
+#endif
+
+
     ErrorDialog::ErrorDialog(const QString& text, QWidget* parent)
         : QDialog(parent),
-        ui_(new Ui::ErrorDialog) {
+          ui_(new Ui::ErrorDialog) {
         ui_->setupUi(this);
         ui_->label->setText(text);
     }

@@ -1,8 +1,8 @@
 #include "unpacktask.h"
 #include <QDir>
 #include <QFile>
-#include "extractconfiguration.h"
-#include "packoptions.h"
+#include "pbojsonhelper.h"
+#include "pbojson.h"
 #include "io/bb/unpacktaskbackend.h"
 #include "io/bs/pbobinarysource.h"
 #include "io/pbonodeentity.h"
@@ -122,10 +122,11 @@ namespace pboman3::model::task {
     }
 
     void UnpackTask::extractPboConfig(const PboDocument& document, const QDir& dir) {
-        const PackOptions options = ExtractConfiguration::extractFrom(document);
+        const PboJson options = PboJsonHelper::extractFrom(document);
         LOG(info, "Extracted the PBO pack config, Options=", options)
         try {
-            ExtractConfiguration::saveTo(options, dir, fileConflictResolutionMode_);
+            const QString configFilePath = PboJsonHelper::getConfigFilePath(dir, fileConflictResolutionMode_);
+            PboJsonHelper::saveTo(options, configFilePath);
         } catch (const DiskAccessException& ex) {
             LOG(info, ex.message())
             //remove the "." symbol from the end

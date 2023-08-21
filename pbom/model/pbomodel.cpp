@@ -5,7 +5,7 @@
 #include <QUrl>
 #include "io/documentwriter.h"
 #include "io/defaultdocumentreaderfactory.h"
-#include "task/extractconfiguration.h"
+#include "task/pbojsonhelper.h"
 #include "exception.h"
 #include "util/log.h"
 

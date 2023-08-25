@@ -152,14 +152,16 @@ namespace pboman3::ui {
     void TreeWidget::dragStarted(const QList<PboNode*>& items) {
         LOG(info, "Drag operation has started for", items.length(), "items")
 
+        const PboNode* selectionRoot = getSelectionRoot();
+
         const QFuture<InteractionParcel> future = QtConcurrent::run(
-            [this](QPromise<InteractionParcel>& promise, const QList<PboNode*>& selection) {
+            [this](QPromise<InteractionParcel>& promise, const PboNode* rootNode, const QList<PboNode*>& selection) {
                 LOG(info, "Extracting the selected items to the drive")
                 InteractionParcel data = model_->interactionPrepare(
-                    selection, [&promise]() { return promise.isCanceled(); });
+                    rootNode, selection, [&promise]() { return promise.isCanceled(); });
                 LOG(info, "Extraction complete:", data)
                 promise.addResult(data);
-            }, items);
+            }, selectionRoot, items);
 
         emit backgroundOpStarted(static_cast<QFuture<void>>(future));
 
@@ -221,17 +223,19 @@ namespace pboman3::ui {
     QList<PboNode*> TreeWidget::selectionCopyImpl() {
         LOG(info, "Perform Cut/Copy operation")
 
+        const PboNode* selectionRoot = getSelectionRoot();
+
         QList<PboNode*> nodes = getSelectedHierarchies();
         LOG(info, nodes.count(), "hierarchy items selected")
 
         const QFuture<InteractionParcel> future = QtConcurrent::run(
-            [this](QPromise<InteractionParcel>& promise, const QList<PboNode*>& selection) {
+            [this](QPromise<InteractionParcel>& promise, const PboNode* rootNode, const QList<PboNode*>& selection) {
                 LOG(info, "Extracting the selected items to the drive")
                 InteractionParcel data = model_->interactionPrepare(
-                    selection, [&promise]() { return promise.isCanceled(); });
+                    rootNode, selection, [&promise]() { return promise.isCanceled(); });
                 LOG(info, "Extraction complete:", data)
                 promise.addResult(data);
-            }, nodes);
+            }, selectionRoot, nodes);
 
         emit backgroundOpStarted(static_cast<QFuture<void>>(future));
 
@@ -409,15 +413,17 @@ namespace pboman3::ui {
         }
 
         PboNode* item = getCurrentFolder();
-        LOG(info, "Selected node is:", *item)
+        if (item) {
+            LOG(info, "Selected node is:", *item)
 
-        ConflictsParcel conflicts = model_->checkConflicts(item, *files);
-        LOG(debug, "The result of conflicts check:", conflicts)
+            ConflictsParcel conflicts = model_->checkConflicts(item, *files);
+            LOG(debug, "The result of conflicts check:", conflicts)
 
-        InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, files.get(), &conflicts);
-        if (dialog.exec() == QDialog::DialogCode::Accepted) {
-            LOG(info, "The user accepted the file insert dialog")
-            model_->createNodeSet(item, *files, conflicts);
+            InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, files.get(), &conflicts);
+            if (dialog.exec() == QDialog::DialogCode::Accepted) {
+                LOG(info, "The user accepted the file insert dialog")
+                model_->createNodeSet(item, *files, conflicts);
+            }   
         }
     }
 }

@@ -72,8 +72,8 @@ namespace pboman3 {
 #endif
 
         LOG(info, "Display the main window")
-        const auto settingsFacility = GetSettingsFacility();
-        const auto model = QScopedPointer(new model::PboModel(settingsFacility));
+        
+        const auto model = QScopedPointer(new model::PboModel());
         ui::MainWindow w(nullptr, model.get());
         w.show();
 

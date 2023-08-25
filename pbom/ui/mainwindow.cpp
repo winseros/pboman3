@@ -201,7 +201,9 @@ namespace pboman3::ui {
             if (selectionRoot->nodeType() == PboNodeType::File) {
                 selectionRoot = selectionRoot->parentNode();
             } else {
-                const QString& folderName = selectionRoot->title();
+                QString folderName = selectionRoot->title();
+                if (selectionRoot->nodeType() == PboNodeType::Container)
+                    folderName = FileNames::getFileNameWithoutExtension(folderName);
                 const QDir dir(folderPath);
                 folderPath = dir.filePath(folderName);
                 if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {

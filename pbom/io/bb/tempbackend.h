@@ -3,6 +3,7 @@
 #include "nodefilesystem.h"
 #include "domain/pbonode.h"
 #include "util/util.h"
+#include <QDir>
 
 namespace pboman3::io {
     using namespace domain;

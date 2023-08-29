@@ -29,6 +29,8 @@ namespace pboman3::model {
 
         void unpackNodesTo(const QDir& dest, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel) const;
 
+        void extractConfigurationTo(const QDir& dest) const;
+
         PboDocument* document() const;
 
         const QString& loadedPath() const;
@@ -52,8 +54,6 @@ namespace pboman3::model {
         bool isExtractingContainer(const PboNode* rootNode, const QList<PboNode*>& childNodes) const;
 
         QUrl extractConfigurationToTempDir() const;
-
-        void extractConfigurationTo(const QDir& dest) const;
 
         void titleChanged();
     };

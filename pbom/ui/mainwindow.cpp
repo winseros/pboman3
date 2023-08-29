@@ -120,6 +120,7 @@ namespace pboman3::ui {
         connect(ui_->actionSelectionExtractFolder, &QAction::triggered, this, &MainWindow::selectionExtractFolderClick);
         connect(ui_->actionSelectionExtractContainer, &QAction::triggered, this,
                 &MainWindow::selectionExtractContainerClick);
+        connect(ui_->actionExportPboJson, &QAction::triggered, this, &MainWindow::exportPboJsonClick);
 
         connect(ui_->actionSelectionOpen, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionOpen);
         ui_->actionSelectionOpen->setShortcuts(QList<QKeySequence>({
@@ -257,6 +258,17 @@ namespace pboman3::ui {
         ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
     }
 
+    void MainWindow::exportPboJsonClick() {
+        LOG(info, "User clicked the ExportPboJson button - showing dialog")
+
+        const QString folderPath = QFileDialog::getExistingDirectory(this, "Select the directory");
+
+        if (!folderPath.isEmpty()) {
+            LOG(info, "User selected the path:", folderPath)
+            model_->extractConfigurationTo(QDir(folderPath));
+        }
+    }
+
     bool MainWindow::queryCloseUnsaved() {
         LOG(info, "Check if there are changes unsaved")
         bool proceed = true;
@@ -310,6 +322,13 @@ namespace pboman3::ui {
             LOG(debug, "actionSelectionDelete - enabled")
             menu.addSeparator();
             menu.addAction(ui_->actionSelectionDelete);
+        }
+
+        const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+        if (selectionRoot && selectionRoot->nodeType() == PboNodeType::Container) {
+            LOG(debug, "container node - selected")
+            menu.addSeparator();
+            menu.addAction(ui_->actionExportPboJson);
         }
 
         LOG(debug, "Creating the context menu")

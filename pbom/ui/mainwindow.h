@@ -57,6 +57,8 @@ namespace pboman3::ui {
 
         void selectionExtractContainerClick() const;
 
+        void exportPboJsonClick();
+
         bool queryCloseUnsaved();
 
         void treeContextMenuRequested(const QPoint& point) const;

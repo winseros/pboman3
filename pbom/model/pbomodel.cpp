@@ -154,6 +154,14 @@ namespace pboman3::model {
         }
     }
 
+    void PboModel::extractConfigurationTo(const QDir& dest) const {
+        using namespace task;
+
+        const PboJson options = PboJsonHelper::extractFrom(*document_);
+        const QString configPath = PboJsonHelper::getConfigFilePath(dest, FileConflictResolutionMode::Enum::Overwrite);
+        PboJsonHelper::saveTo(options, configPath);
+    }
+
     PboDocument* PboModel::document() const {
         return document_.get();
     }
@@ -199,14 +207,6 @@ namespace pboman3::model {
         const QString configPath = PboJsonHelper::getConfigFilePath(temp, FileConflictResolutionMode::Enum::Overwrite);
         PboJsonHelper::saveTo(options, configPath);
         return QUrl::fromLocalFile(configPath);
-    }
-
-    void PboModel::extractConfigurationTo(const QDir& dest) const {
-        using namespace task;
-
-        const PboJson options = PboJsonHelper::extractFrom(*document_);
-        const QString configPath = PboJsonHelper::getConfigFilePath(dest, FileConflictResolutionMode::Enum::Overwrite);
-        PboJsonHelper::saveTo(options, configPath);
     }
 
     void PboModel::titleChanged() {

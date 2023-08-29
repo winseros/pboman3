@@ -261,11 +261,11 @@ namespace pboman3::ui {
     void MainWindow::exportPboJsonClick() {
         LOG(info, "User clicked the ExportPboJson button - showing dialog")
 
-        const QString folderPath = QFileDialog::getExistingDirectory(this, "Select the directory");
+        const QString configPath = QFileDialog::getSaveFileName(this, "Select the file", "pbo.json", "pbo.json;;Any file (*)");
 
-        if (!folderPath.isEmpty()) {
-            LOG(info, "User selected the path:", folderPath)
-            model_->extractConfigurationTo(QDir(folderPath));
+        if (!configPath.isEmpty()) {
+            LOG(info, "User selected the path:", configPath)
+            model_->extractConfigurationTo(configPath);
         }
     }
 

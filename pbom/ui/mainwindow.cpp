@@ -120,6 +120,7 @@ namespace pboman3::ui {
         connect(ui_->actionSelectionExtractFolder, &QAction::triggered, this, &MainWindow::selectionExtractFolderClick);
         connect(ui_->actionSelectionExtractContainer, &QAction::triggered, this,
                 &MainWindow::selectionExtractContainerClick);
+        connect(ui_->actionExportPboJson, &QAction::triggered, this, &MainWindow::exportPboJsonClick);
 
         connect(ui_->actionSelectionOpen, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionOpen);
         ui_->actionSelectionOpen->setShortcuts(QList<QKeySequence>({
@@ -201,7 +202,9 @@ namespace pboman3::ui {
             if (selectionRoot->nodeType() == PboNodeType::File) {
                 selectionRoot = selectionRoot->parentNode();
             } else {
-                const QString& folderName = selectionRoot->title();
+                QString folderName = selectionRoot->title();
+                if (selectionRoot->nodeType() == PboNodeType::Container)
+                    folderName = FileNames::getFileNameWithoutExtension(folderName);
                 const QDir dir(folderPath);
                 folderPath = dir.filePath(folderName);
                 if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
@@ -253,6 +256,17 @@ namespace pboman3::ui {
 
         LOG(info, "Extracting to:", folderPath)
         ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
+    }
+
+    void MainWindow::exportPboJsonClick() {
+        LOG(info, "User clicked the ExportPboJson button - showing dialog")
+
+        const QString configPath = QFileDialog::getSaveFileName(this, "Select the file", "pbo.json", "pbo.json;;Any file (*)");
+
+        if (!configPath.isEmpty()) {
+            LOG(info, "User selected the path:", configPath)
+            model_->extractConfigurationTo(configPath);
+        }
     }
 
     bool MainWindow::queryCloseUnsaved() {
@@ -308,6 +322,13 @@ namespace pboman3::ui {
             LOG(debug, "actionSelectionDelete - enabled")
             menu.addSeparator();
             menu.addAction(ui_->actionSelectionDelete);
+        }
+
+        const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
+        if (selectionRoot && selectionRoot->nodeType() == PboNodeType::Container) {
+            LOG(debug, "container node - selected")
+            menu.addSeparator();
+            menu.addAction(ui_->actionExportPboJson);
         }
 
         LOG(debug, "Creating the context menu")

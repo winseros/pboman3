@@ -1,14 +1,13 @@
 #pragma once
 
 #include "taskwindow.h"
+#include "model/task/packwindowmodel.h"
 
 namespace pboman3::ui {
     class PackWindow : public TaskWindow {
     public:
-        PackWindow(QWidget* parent);
+        PackWindow(QWidget* parent, PackWindowModel* model);
 
-        void packFoldersToOutputDir(const QStringList& folders, const QString& outputDir);
-
-        bool tryPackFoldersWithPrompt(const QStringList& folders);
+        static bool tryRequestTargetFolder(QString& output);
     };
 }

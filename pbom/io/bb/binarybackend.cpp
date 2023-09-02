@@ -25,6 +25,8 @@ namespace pboman3::io {
         if (!QDir::temp().mkpath(execPath))
             throw DiskAccessException("Could not create the folder.", exec.path());
 
+        tempPath_ = QDir::temp().filePath(treePath);
+
         tempBackend_ = QSharedPointer<TempBackend>(new TempBackend(tree));
         execBackend_ = QSharedPointer<ExecBackend>(new ExecBackend(exec));
     }
@@ -48,5 +50,9 @@ namespace pboman3::io {
     void BinaryBackend::clear(const PboNode* node) const {
         tempBackend_->clear(node);
         execBackend_->clear(node);
+    }
+
+    QDir BinaryBackend::getTempDir() const {
+         return {tempPath_};
     }
 }

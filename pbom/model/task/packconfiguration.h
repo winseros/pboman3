@@ -1,7 +1,7 @@
 #pragma once
 
 #include "domain/pbodocument.h"
-#include "packoptions.h"
+#include "pbojson.h"
 
 namespace pboman3::model::task {
     using namespace domain;
@@ -24,17 +24,17 @@ namespace pboman3::model::task {
 
         PboDocument* document_;
 
-        void applyDocumentHeaders(const PackOptions& options) const;
+        void applyDocumentHeaders(const PboJson& options) const;
 
         void applyDocumentCompressionRules(PboNode* node, const CompressionRules& rules) const;
 
         static bool shouldCompress(const PboNode* node, const CompressionRules& rules);
 
-        static CompressionRules buildCompressionRules(const PackOptions& options);
+        static CompressionRules buildCompressionRules(const PboJson& options);
 
         static void convertToCompressionRules(const QList<QString>& source, QList<QRegularExpression>* dest);
 
-        static PackOptions readPackOptions(const PboNode* node);
+        static PboJson readPackOptions(const PboNode* node);
 
         static QByteArray readNodeContent(const PboNode* node);
 

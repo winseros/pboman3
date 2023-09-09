@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QUrl>
 #include "io/documentwriter.h"
-#include "io/defaultdocumentreaderfactory.h"
+#include "io/createdocumentreader.h"
 #include "task/pbojsonhelper.h"
 #include "exception.h"
 #include "util/log.h"
@@ -24,7 +24,7 @@ namespace pboman3::model {
 
         setLoadedPath(path);
 
-        const DocumentReader reader = DefaultDocumentReaderFactory::createDocumentReader(path);
+        const DocumentReader reader = CreateDocumentReader(path);
         try {
             document_ = reader.read();
             LOG(info, "Read the document:", *document_)

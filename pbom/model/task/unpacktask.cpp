@@ -9,7 +9,7 @@
 #include "domain/pbonode.h"
 #include "domain/func.h"
 #include "io/diskaccessexception.h"
-#include "io/defaultdocumentreaderfactory.h"
+#include "io/createdocumentreader.h"
 #include "io/pbofileformatexception.h"
 #include "util/log.h"
 #include "util/filenames.h"
@@ -75,7 +75,7 @@ namespace pboman3::model::task {
 
     bool UnpackTask::tryReadPboHeader(QSharedPointer<PboDocument>* document) {
         try {
-            const DocumentReader reader = DefaultDocumentReaderFactory::createDocumentReader(pboPath_);
+            const DocumentReader reader = CreateDocumentReader(pboPath_);
             *document = reader.read();
             LOG(debug, "The document:", *document)
             return true;

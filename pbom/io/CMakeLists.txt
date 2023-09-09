@@ -20,7 +20,7 @@ list(APPEND PROJECT_SOURCES
     "io/lzh/lzhdecompressionexception.cpp"
     "io/settings/getsettingsfacility.cpp"
     "io/settings/localstorageapplicationsettingsfacility.cpp"
-    "io/defaultdocumentreaderfactory.cpp"
+    "io/createdocumentreader.cpp"
     "io/diskaccessexception.cpp"
     "io/documentreader.cpp"
     "io/documentwriter.cpp"

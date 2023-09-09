@@ -3,7 +3,7 @@
 #include "junkfilter.h"
 
 namespace pboman3::io {
-    class ZeroSizeFilter : public JunkFilter {
+    class DummyFilter : public JunkFilter {
     public:
         bool isJunk(const PboNodeEntity* entry) const override;
     };

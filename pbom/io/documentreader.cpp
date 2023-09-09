@@ -29,7 +29,7 @@ namespace pboman3::io {
         
         qsizetype entryDataOffset = header.dataBlockStart;
         for (const QSharedPointer<PboNodeEntity>& e : header.entries) {
-            if (junkFilter_->IsJunk(e.data()))
+            if (junkFilter_->isJunk(e.data()))
                 continue;
             PboNode* node = document->root()->createHierarchy(e->makePath());
             PboDataInfo dataInfo{0, 0, 0, 0, 0};

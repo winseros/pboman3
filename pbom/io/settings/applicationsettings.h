@@ -10,5 +10,7 @@ namespace pboman3::io {
         FileConflictResolutionMode::Enum unpackConflictResolutionMode;
 
         OperationCompleteBehavior::Enum packUnpackOperationCompleteBehavior;
+
+        bool junkFilterEnable;
     };
 }

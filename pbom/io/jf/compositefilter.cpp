@@ -6,10 +6,10 @@ namespace pboman3::io {
         : filters_(filters) {
     }
 
-    bool CompositeFilter::IsJunk(const PboNodeEntity* entry) const {
+    bool CompositeFilter::isJunk(const PboNodeEntity* entry) const {
         const auto isJunk = std::any_of(filters_.begin(), filters_.end(),
                                         [entry](const QSharedPointer<JunkFilter>& filter) {
-                                            return filter->IsJunk(entry);
+                                            return filter->isJunk(entry);
                                         });
         return isJunk;
     }

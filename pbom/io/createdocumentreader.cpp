@@ -1,11 +1,11 @@
-#include "defaultdocumentreaderfactory.h"
+#include "createdocumentreader.h"
 #include "jf/compositefilter.h"
 #include "jf/dummyfilter.h"
 #include "jf/zerosizefilter.h"
 #include "settings/getsettingsfacility.h"
 
 namespace pboman3::io {
-    DocumentReader DefaultDocumentReaderFactory::createDocumentReader(QString path) {
+    DocumentReader CreateDocumentReader(QString path) {
         const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
         const auto settings = settingsFacility->readSettings();
 

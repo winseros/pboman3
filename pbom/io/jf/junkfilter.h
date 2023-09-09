@@ -7,6 +7,6 @@ namespace pboman3::io {
     public:
         virtual ~JunkFilter() = default;
 
-        virtual bool IsJunk(const PboNodeEntity* entry) const = 0;
+        virtual bool isJunk(const PboNodeEntity* entry) const = 0;
     };
 }

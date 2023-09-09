@@ -26,7 +26,7 @@ namespace pboman3::io::test {
         EXPECT_CALL(mock2, IsJunk(&entry))
         .WillOnce(testing::Return(false));
 
-        const auto isJunk = filter.IsJunk(&entry);
+        const auto isJunk = filter.isJunk(&entry);
         ASSERT_FALSE(isJunk);
     }
 
@@ -48,7 +48,7 @@ namespace pboman3::io::test {
         EXPECT_CALL(mock2, IsJunk(testing::_))
         .Times(0);
 
-        const auto isJunk = filter.IsJunk(&entry);
+        const auto isJunk = filter.isJunk(&entry);
         ASSERT_TRUE(isJunk);
     }
 }

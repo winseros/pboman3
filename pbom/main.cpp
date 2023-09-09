@@ -12,7 +12,7 @@
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
 #include "util/log.h"
-#include "io/settings/localstorageapplicationsettingsfacility.h"
+#include "io/settings/getsettingsfacility.h"
 
 #ifdef WIN32
 #include "win32com.h"
@@ -55,10 +55,6 @@ namespace pboman3 {
         }
     };
 #endif
-
-    QSharedPointer<io::ApplicationSettingsFacility> GetSettingsFacility() {
-        return QSharedPointer<io::ApplicationSettingsFacility>(new io::LocalStorageApplicationSettingsFacility);
-    }
 
     int RunMainWindow(const QApplication& app, const QString& pboFile) {
         using namespace pboman3;
@@ -107,7 +103,7 @@ namespace pboman3 {
             return 0;
         }
 
-        const auto settingsFacility = GetSettingsFacility();
+        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
         const auto settings = settingsFacility->readSettings();
 
         const QScopedPointer model(new PackWindowModel(folders, outDir, settings.packConflictResolutionMode));
@@ -138,7 +134,7 @@ namespace pboman3 {
             return 0;
         }
 
-        const auto settingsFacility = GetSettingsFacility();
+        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
         const auto settings = settingsFacility->readSettings();
 
         const QScopedPointer model(new UnpackWindowModel(files, outDir, settings.unpackConflictResolutionMode));
@@ -153,7 +149,7 @@ namespace pboman3 {
 
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
-        const auto settingsFacility = GetSettingsFacility();
+        const QSharedPointer<io::ApplicationSettingsFacility> settingsFacility = io::GetSettingsFacility();
         const auto settings = settingsFacility->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
@@ -165,7 +161,7 @@ namespace pboman3 {
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
-        const auto settingsFacility = GetSettingsFacility();
+        const QSharedPointer<io::ApplicationSettingsFacility> settingsFacility = io::GetSettingsFacility();
         const auto settings = settingsFacility->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console

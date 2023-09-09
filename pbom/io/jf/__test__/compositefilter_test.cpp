@@ -5,7 +5,7 @@
 namespace pboman3::io::test {
     class MockFilter : public JunkFilter {
     public:
-        MOCK_METHOD(bool, IsJunk, (const PboNodeEntity* entry), (const, override));
+        MOCK_METHOD(bool, isJunk, (const PboNodeEntity* entry), (const, override));
     };
 
     TEST(CompositeFilterTest, IsJunk_Returns_False) {
@@ -20,10 +20,10 @@ namespace pboman3::io::test {
             })
         });
 
-        EXPECT_CALL(mock1, IsJunk(&entry))
+        EXPECT_CALL(mock1, isJunk(&entry))
         .WillOnce(testing::Return(false));
 
-        EXPECT_CALL(mock2, IsJunk(&entry))
+        EXPECT_CALL(mock2, isJunk(&entry))
         .WillOnce(testing::Return(false));
 
         const auto isJunk = filter.isJunk(&entry);
@@ -42,10 +42,10 @@ namespace pboman3::io::test {
             })
         });
 
-        EXPECT_CALL(mock1, IsJunk(&entry))
+        EXPECT_CALL(mock1, isJunk(&entry))
         .WillOnce(testing::Return(true));
 
-        EXPECT_CALL(mock2, IsJunk(testing::_))
+        EXPECT_CALL(mock2, isJunk(testing::_))
         .Times(0);
 
         const auto isJunk = filter.isJunk(&entry);

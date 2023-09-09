@@ -56,7 +56,7 @@
       <item>
        <widget class="QRadioButton" name="rbPackOption3">
         <property name="text">
-         <string>Owerwrite the existing file</string>
+         <string>Overwrite the existing file</string>
         </property>
        </widget>
       </item>

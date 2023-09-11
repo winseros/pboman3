@@ -82,7 +82,7 @@ namespace pboman3 {
         const auto reserve = std::accumulate(items.begin(), items.end(), static_cast<std::size_t>(0),
                                              [](ULONG64 sum, const path& p) {
                                                  //each item will need 3 additional symbols: 2 quotes and separating whitespace
-                                                 return sum + p.string().size() + static_cast<std::size_t>(3);
+                                                 return sum + p.wstring().size() + static_cast<std::size_t>(3);
                                              });
         argv.reserve(reserve + additionalSymbols);
     }

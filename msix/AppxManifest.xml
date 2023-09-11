@@ -16,7 +16,7 @@
   
   <Identity
     Name="PBOManager"
-    Publisher="CN=nkobzev"
+    Publisher="CN=PBO Manager, O=Nikita Kobzev"
 	ProcessorArchitecture="x64" 
     Version="1.0.0.0" />
 

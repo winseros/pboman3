@@ -59,13 +59,19 @@ namespace pboman3::ui {
         void dragDropped(PboNode* target, const QMimeData* mimeData) override;
 
     private:
+        struct FsOpParcel
+        {
+            PboNode* target;
+            QSharedPointer<NodeDescriptors> files;
+        };
+
         PboModel* model_;
         DeleteOp delete_;
         QFutureWatcher<InteractionParcel> dragDropWatcher_;
         QFutureWatcher<InteractionParcel> cutCopyWatcher_;
         QFutureWatcher<QString> openWatcher_;
         QFutureWatcher<int> extractWatcher_;
-        QFutureWatcher<QSharedPointer<NodeDescriptors>> fsOpWatcher_;
+        QFutureWatcher<FsOpParcel> fsOpWatcher_;
         ActionState actionState_;
 
         void onDoubleClicked();
@@ -84,7 +90,7 @@ namespace pboman3::ui {
 
         void addFilesFromPbo(PboNode* target, const QMimeData* mimeData);
 
-        void addFilesFromFilesystem(const QList<QUrl>& urls);
+        void addFilesFromFilesystem(PboNode* target, const QList<QUrl>& urls);
 
         void addFilesFromFileSystemExecute();
     };

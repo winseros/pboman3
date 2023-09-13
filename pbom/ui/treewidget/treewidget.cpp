@@ -21,12 +21,11 @@ namespace pboman3::ui {
         : TreeWidgetBase(parent),
           model_(nullptr),
           actionState_() {
-
         connect(&dragDropWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::dragStartExecute);
         connect(&cutCopyWatcher_, &QFutureWatcher<InteractionParcel>::finished, this, &TreeWidget::copyOrCutExecute);
         connect(&openWatcher_, &QFutureWatcher<QString>::finished, this, &TreeWidget::openExecute);
         connect(&extractWatcher_, &QFutureWatcher<int>::finished, this, &TreeWidget::extractExecute);
-        connect(&fsOpWatcher_, &QFutureWatcher<NodeDescriptors>::finished, this,
+        connect(&fsOpWatcher_, &QFutureWatcher<FsOpParcel>::finished, this,
                 &TreeWidget::addFilesFromFileSystemExecute);
         connect(this, &TreeWidget::itemSelectionChanged, this, &TreeWidget::onSelectionChanged);
         connect(this, &TreeWidget::doubleClicked, this, &TreeWidget::onDoubleClicked);
@@ -115,7 +114,7 @@ namespace pboman3::ui {
                 addFilesFromPbo(item, mimeData);
             } else if (mimeData->hasUrls()) {
                 LOG(info, "Clipboard contained URLs")
-                addFilesFromFilesystem(mimeData->urls());
+                addFilesFromFilesystem(item, mimeData->urls());
             }
         }
     }
@@ -176,7 +175,7 @@ namespace pboman3::ui {
             addFilesFromPbo(target, mimeData);
         } else if (mimeData->hasUrls()) {
             LOG(info, "Clipboard contained URLs")
-            addFilesFromFilesystem(mimeData->urls());
+            addFilesFromFilesystem(target, mimeData->urls());
         }
     }
 
@@ -378,13 +377,15 @@ namespace pboman3::ui {
         }
     }
 
-    void TreeWidget::addFilesFromFilesystem(const QList<QUrl>& urls) {
+    void TreeWidget::addFilesFromFilesystem(PboNode* target, const QList<QUrl>& urls) {
         LOG(info, "Add files from the file system:", urls)
 
-        const QFuture<QSharedPointer<NodeDescriptors>> future = QtConcurrent::run([](QPromise<QSharedPointer<NodeDescriptors>>& promise, const QList<QUrl>& fileUrls) {
-            QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(fileUrls, [&promise]() { return promise.isCanceled(); });
-            promise.addResult(files);
-        }, urls);
+        const QFuture<FsOpParcel> future = QtConcurrent::run(
+            [](QPromise<FsOpParcel>& promise, PboNode* targetNode, const QList<QUrl>& fileUrls) {
+                QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(
+                    fileUrls, [&promise]() { return promise.isCanceled(); });
+                promise.addResult(FsOpParcel{targetNode, std::move(files)});
+            }, target, urls);
 
         emit backgroundOpStarted(static_cast<QFuture<void>>(future));
 
@@ -396,34 +397,31 @@ namespace pboman3::ui {
 
         emit backgroundOpStopped();
 
-        const QFuture<QSharedPointer<NodeDescriptors>> future = fsOpWatcher_.future();
+        const QFuture<FsOpParcel> future = fsOpWatcher_.future();
 
         if (!future.isValid()) {
             LOG(info, "The operation was cancelled - exitig")
             return;
         }
 
-        QSharedPointer<NodeDescriptors> files;
+        FsOpParcel parcel;
         try {
-            files = future.result();
-            LOG(debug, "Collected descriptors:", *files)
+            parcel = future.result();
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when collecting - show error modal:", ex)
             UI_HANDLE_ERROR_RET(ex)
         }
 
-        PboNode* item = getCurrentFolder();
-        if (item) {
-            LOG(info, "Selected node is:", *item)
+        LOG(debug, "Collected descriptors:", parcel.files)
+        LOG(info, "Selected node is:", *parcel.target)
 
-            ConflictsParcel conflicts = model_->checkConflicts(item, *files);
-            LOG(debug, "The result of conflicts check:", conflicts)
+        ConflictsParcel conflicts = model_->checkConflicts(parcel.target, *parcel.files);
+        LOG(debug, "The result of conflicts check:", conflicts)
 
-            InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, files.get(), &conflicts);
-            if (dialog.exec() == QDialog::DialogCode::Accepted) {
-                LOG(info, "The user accepted the file insert dialog")
-                model_->createNodeSet(item, *files, conflicts);
-            }   
+        InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, parcel.files.get(), &conflicts);
+        if (dialog.exec() == QDialog::DialogCode::Accepted) {
+            LOG(info, "The user accepted the file insert dialog")
+            model_->createNodeSet(parcel.target, *parcel.files, conflicts);
         }
     }
 }

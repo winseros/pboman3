@@ -433,6 +433,7 @@ namespace pboman3::ui {
         ui_->actionFileClose->setEnabled(loaded);
         ui_->actionViewHeaders->setEnabled(loaded);
         ui_->actionViewSignature->setEnabled(loaded);
+        ui_->actionExportPboJson->setEnabled(loaded);
     }
 
     void MainWindow::updateWindowTitle() {

@@ -337,6 +337,9 @@
    </property>
   </action>
   <action name="actionExportPboJson">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Export pbo.json</string>
    </property>

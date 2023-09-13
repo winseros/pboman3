@@ -381,10 +381,10 @@ namespace pboman3::ui {
     void TreeWidget::addFilesFromFilesystem(const QList<QUrl>& urls) {
         LOG(info, "Add files from the file system:", urls)
 
-        const QFuture<QSharedPointer<NodeDescriptors>> future = QtConcurrent::run([&urls](QPromise<QSharedPointer<NodeDescriptors>>& promise) {
-            QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(urls, [&promise]() { return promise.isCanceled(); });
+        const QFuture<QSharedPointer<NodeDescriptors>> future = QtConcurrent::run([](QPromise<QSharedPointer<NodeDescriptors>>& promise, const QList<QUrl>& fileUrls) {
+            QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(fileUrls, [&promise]() { return promise.isCanceled(); });
             promise.addResult(files);
-        });
+        }, urls);
 
         emit backgroundOpStarted(static_cast<QFuture<void>>(future));
 

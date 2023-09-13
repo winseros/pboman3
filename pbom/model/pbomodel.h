@@ -21,13 +21,15 @@ namespace pboman3::model {
 
         void createNodeSet(PboNode* parent, const QList<NodeDescriptor>& descriptors, const ConflictsParcel& conflicts) const;
 
-        InteractionParcel interactionPrepare(const QList<PboNode*>& nodes, const Cancel& cancel) const;
+        InteractionParcel interactionPrepare(const PboNode* rootNode, const QList<PboNode*>& nodes, const Cancel& cancel) const;
 
         QString execPrepare(const PboNode* node, const Cancel& cancel) const;
 
         ConflictsParcel checkConflicts(const PboNode* parent, const QList<NodeDescriptor>& descriptors) const;
 
         void unpackNodesTo(const QDir& dest, const PboNode* rootNode, const QList<PboNode*>& childNodes, const Cancel& cancel) const;
+
+        void extractConfigurationTo(const QString& dest) const;
 
         PboDocument* document() const;
 
@@ -48,6 +50,12 @@ namespace pboman3::model {
         QSharedPointer<BinaryBackend> binaryBackend_;
 
         void setLoadedPath(const QString& loadedFile);
+
+        bool isExtractingContainer(const PboNode* rootNode, const QList<PboNode*>& childNodes) const;
+
+        void extractConfigurationTo(const QDir& dest) const;
+
+        QUrl extractConfigurationToTempDir() const;
 
         void titleChanged();
     };

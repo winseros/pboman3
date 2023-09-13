@@ -4,40 +4,40 @@
 #include <QPushButton>
 #include "ui_taskwindow.h"
 #include "model/task/taskwindowmodel.h"
-#include "exception.h"
 #include "win32/win32taskbarindicator.h"
-#include "io/settings/localstorageapplicationsettingsfacility.h"
+#include "io/settings/getsettingsfacility.h"
 
 namespace pboman3::ui {
-    TaskWindow::TaskWindow(QWidget* parent)
+    TaskWindow::TaskWindow(QWidget* parent, TaskWindowModel* model)
         : QMainWindow(parent),
           ui_(new Ui::TaskWindow),
+          model_(model),
           activeThreadCount_(0),
           log_(nullptr),
           doneText_("Done") {
         ui_->setupUi(this);
         taskbar_ = QSharedPointer<TaskbarIndicator>(new TaskbarIndicator(winId()));
+        setupConnections();
     }
 
     TaskWindow::~TaskWindow() {
         delete ui_;
     }
 
-    void TaskWindow::start(const QSharedPointer<TaskWindowModel>& model) {
-        if (model_)
-            throw AppException("The tasks have already started");
-        model_ = model;
+    void TaskWindow::showAndRunTasks() {
+        show();
+        model_->start();
+    }
 
+    void TaskWindow::setupConnections() {
         connect(ui_->buttonBox, &QDialogButtonBox::clicked, this, &TaskWindow::buttonClicked);
 
-        connect(model.get(), &TaskWindowModel::threadStarted, this, &TaskWindow::threadStarted);
-        connect(model.get(), &TaskWindowModel::threadThinking, this, &TaskWindow::threadThinking);
-        connect(model.get(), &TaskWindowModel::threadInitialized, this, &TaskWindow::threadInitialized);
-        connect(model.get(), &TaskWindowModel::threadProgress, this, &TaskWindow::threadProgress);
-        connect(model.get(), &TaskWindowModel::threadCompleted, this, &TaskWindow::threadCompleted);
-        connect(model.get(), &TaskWindowModel::threadMessage, this, &TaskWindow::threadMessage);
-
-        model_->start();
+        connect(model_, &TaskWindowModel::threadStarted, this, &TaskWindow::threadStarted);
+        connect(model_, &TaskWindowModel::threadThinking, this, &TaskWindow::threadThinking);
+        connect(model_, &TaskWindowModel::threadInitialized, this, &TaskWindow::threadInitialized);
+        connect(model_, &TaskWindowModel::threadProgress, this, &TaskWindow::threadProgress);
+        connect(model_, &TaskWindowModel::threadCompleted, this, &TaskWindow::threadCompleted);
+        connect(model_, &TaskWindowModel::threadMessage, this, &TaskWindow::threadMessage);
     }
 
     void TaskWindow::threadStarted(ThreadId threadId) {
@@ -124,8 +124,8 @@ namespace pboman3::ui {
     void TaskWindow::closeWindowIfNeeded() {
         using namespace io;
 
-        const LocalStorageApplicationSettingsFacility settingsFacility;
-        const auto settings = settingsFacility.readSettings();
+        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
+        const auto settings = settingsFacility->readSettings();
 
         if (settings.packUnpackOperationCompleteBehavior == OperationCompleteBehavior::Enum::CloseWindow)
             close();

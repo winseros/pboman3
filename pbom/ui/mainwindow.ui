@@ -140,6 +140,8 @@
     <addaction name="actionSelectionPaste"/>
     <addaction name="separator"/>
     <addaction name="actionSelectionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportPboJson"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -332,6 +334,14 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings...</string>
+   </property>
+  </action>
+  <action name="actionExportPboJson">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export pbo.json</string>
    </property>
   </action>
  </widget>

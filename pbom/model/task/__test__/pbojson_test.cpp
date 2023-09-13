@@ -1,13 +1,13 @@
-#include "model/task/packoptions.h"
+#include "model/task/pbojson.h"
 #include <gtest/gtest.h>
 #include <QJsonDocument>
 
 namespace pboman3::model::task::test {
-    TEST(PackOptionsTest, Settle_Reads_Json_With_All_Fields) {
+    TEST(PboJsonTest, Settle_Reads_Json_With_All_Fields) {
         const QJsonDocument json = QJsonDocument::fromJson(
             "{\"headers\":[{\"name\":\"n1\",\"value\":\"v1\"},{\"name\":\"n2\",\"value\":\"v2\"}], \"compress\":{\"include\":[\"i1\",\"i2\"],\"exclude\":[\"e1\",\"e2\"]}}");
 
-        PackOptions config;
+        PboJson config;
         config.settle(json.object(), "");
 
         ASSERT_EQ(config.headers.count(), 2);
@@ -24,10 +24,10 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(config.compress.exclude.at(1), "e2");
     }
 
-    TEST(PackOptionsTest, Settle_Reads_Empty_Configuration) {
+    TEST(PboJsonTest, Settle_Reads_Empty_Configuration) {
         const QJsonDocument json = QJsonDocument::fromJson("{}");
 
-        PackOptions config;
+        PboJson config;
         config.settle(json.object(), "");
 
         ASSERT_EQ(config.headers.count(), 0);
@@ -35,10 +35,10 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(config.compress.exclude.count(), 0);
     }
 
-    TEST(PackOptionsTest, Settle_Reads_Empty_Compression) {
+    TEST(PboJsonTest, Settle_Reads_Empty_Compression) {
         const QJsonDocument json = QJsonDocument::fromJson("{\"compression\":{}}");
 
-        PackOptions config;
+        PboJson config;
         config.settle(json.object(), "");
 
         ASSERT_EQ(config.headers.count(), 0);
@@ -46,11 +46,11 @@ namespace pboman3::model::task::test {
         ASSERT_EQ(config.compress.exclude.count(), 0);
     }
 
-    TEST(PackOptionsTest, Settle_Throws_If_Header_Name_Is_Empty) {
+    TEST(PboJsonTest, Settle_Throws_If_Header_Name_Is_Empty) {
         const QJsonDocument json = QJsonDocument::fromJson("{\"headers\":[{\"name\":\"\"}]}");
 
         try {
-            PackOptions config;
+            PboJson config;
             config.settle(json.object(), "");
             FAIL() << "Should have not reached this line";
         } catch (const JsonStructureException& ex) {
@@ -58,9 +58,9 @@ namespace pboman3::model::task::test {
         }
     }
 
-    TEST(PackOptionsTest, MakeJson_Builds_Document) {
-        PackOptions options;
-        options.headers = QList{PackHeader("h1", "v1"), PackHeader("h2", "v2")};
+    TEST(PboJsonTest, MakeJson_Builds_Document) {
+        PboJson options;
+        options.headers = QList{PboJsonHeader("h1", "v1"), PboJsonHeader("h2", "v2")};
         options.compress.include = QList<QString>{"i1", "i2"};
         options.compress.exclude = QList<QString>{"e1", "e2"};
 

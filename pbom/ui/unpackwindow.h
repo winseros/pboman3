@@ -1,14 +1,13 @@
 #pragma once
 
 #include "taskwindow.h"
+#include "model/task/unpackwindowmodel.h"
 
 namespace pboman3::ui {
     class UnpackWindow : public TaskWindow {
     public:
-        UnpackWindow(QWidget* parent);
+        UnpackWindow(QWidget* parent, UnpackWindowModel* model);
 
-        void unpackFilesToOutputDir(const QStringList& files, const QString& outputDir);
-
-        bool tryUnpackFilesWithPrompt(const QStringList& files);
+        static bool tryRequestTargetFolder(QString& output);
     };
 }

@@ -1,6 +1,6 @@
 #include "settingsdialog.h"
 #include "util/log.h"
-#include "io/settings/localstorageapplicationsettingsfacility.h"
+#include "io/settings/getsettingsfacility.h"
 #include "io/settings/fileconflictresolutionmode.h"
 
 #define LOG(...) LOGGER("ui/SettingsDialog", __VA_ARGS__)
@@ -27,25 +27,29 @@ namespace pboman3::ui {
             ui_->groupBoxUnpack);
         const auto packUnpackOperationCompleteBehavior = getRadioButtonValue<OperationCompleteBehavior::Enum>(
             ui_->groupBoxOpComplete);
+        const auto filterJunkFiles = ui_->cbJunkFilterEnable->isChecked();
 
         const ApplicationSettings settings{
             packConflictResolutionMode,
             unpackConflictResolutionMode,
-            packUnpackOperationCompleteBehavior
+            packUnpackOperationCompleteBehavior,
+            filterJunkFiles
         };
-        LocalStorageApplicationSettingsFacility facility;
-        facility.writeSettings(settings);
+
+        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
+        settingsFacility->writeSettings(settings);
 
         close();
     }
 
     void SettingsDialog::loadSettings() const {
         using namespace io;
-        const LocalStorageApplicationSettingsFacility facility;
-        const auto settings = facility.readSettings();
+        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
+        const auto settings = settingsFacility->readSettings();
 
         setRadioButtonValue(ui_->groupBoxPack, settings.packConflictResolutionMode);
         setRadioButtonValue(ui_->groupBoxUnpack, settings.unpackConflictResolutionMode);
         setRadioButtonValue(ui_->groupBoxOpComplete, settings.packUnpackOperationCompleteBehavior);
+        ui_->cbJunkFilterEnable->setChecked(settings.junkFilterEnable);
     }
 }

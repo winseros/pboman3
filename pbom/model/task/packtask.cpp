@@ -1,11 +1,9 @@
 #include "packtask.h"
-
 #include "packconfiguration.h"
 #include "io/diskaccessexception.h"
 #include "io/documentwriter.h"
 #include "io/bs/fsrawbinarysource.h"
 #include "io/fileconflictresolutionpolicy.h"
-#include "io/settings/localstorageapplicationsettingsfacility.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("model/task/PackTask", __VA_ARGS__)
@@ -13,9 +11,10 @@
 namespace pboman3::model::task {
     using namespace io;
 
-    PackTask::PackTask(QString folder, QString outputDir)
+    PackTask::PackTask(QString folder, QString outputDir, FileConflictResolutionMode::Enum fileConflictResolutionMode)
         : folder_(std::move(folder)),
-          outputDir_(std::move(outputDir)) {
+          outputDir_(std::move(outputDir)),
+          fileConflictResolutionMode_(fileConflictResolutionMode) {
     }
 
     void PackTask::execute(const Cancel& cancel) {
@@ -25,10 +24,7 @@ namespace pboman3::model::task {
         const QDir folder(folder_);
         emit taskThinking(folder.absolutePath());
 
-        const LocalStorageApplicationSettingsFacility settingsFacility;
-        const auto settings = settingsFacility.readSettings();
-
-        const FileConflictResolutionPolicy conflictResolutionPolicy(settings.packConflictResolutionMode);
+        const FileConflictResolutionPolicy conflictResolutionPolicy(fileConflictResolutionMode_);
         QString pboFile;
         try {
             pboFile = conflictResolutionPolicy.resolvePotentialConflicts(

@@ -1,5 +1,12 @@
 # PBO Manager change log
 
+# Version 1.7.0
+- [Feature] The junk filter can be disabled in the `Options->Settings` menu.
+- [Feature] The `pbo.json` can now be extracted from the user interface.
+- [Feature] The `pbo.json` file now extracts automatically when copying or moving files to the filesystem from the main window.
+- [Workaround] Signed the MSIX installation package with a self-signed certificate. With the certificate in the system, MSIX can be installed.
+- [Fix] Typos in the user interface.
+
 # Version 1.6.0
 - [Feature] Added the `Options` menu for the application behavior tweaks
 - [Fix] The junk filter from `1.5.0` made less agressive

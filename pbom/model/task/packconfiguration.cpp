@@ -27,7 +27,7 @@ namespace pboman3::model::task {
         PboNode* pboJson = FindDirectChild(document_->root(), "pbo.json");
         if (pboJson) {
             LOG(info, "Apply configuration from pbo.json")
-            const PackOptions packOptions = readPackOptions(pboJson);
+            const PboJson packOptions = readPackOptions(pboJson);
             applyDocumentHeaders(packOptions);
             const CompressionRules compressionRules = buildCompressionRules(packOptions);
             applyDocumentCompressionRules(document_->root(), compressionRules);
@@ -40,7 +40,7 @@ namespace pboman3::model::task {
         processPrefixFile("version", "$pboversion$", "pboversion.txt", usedPboJson);
     }
 
-    void PackConfiguration::applyDocumentHeaders(const PackOptions& options) const {
+    void PackConfiguration::applyDocumentHeaders(const PboJson& options) const {
         if (options.headers.isEmpty()) {
             LOG(info, "No headers defined in the config")
             return;
@@ -49,7 +49,7 @@ namespace pboman3::model::task {
         LOG(info, options.headers.count(), "headers defined in the config")
 
         const QSharedPointer<DocumentHeadersTransaction> tran = document_->headers()->beginTransaction();
-        for (const PackHeader& header : options.headers) {
+        for (const PboJsonHeader& header : options.headers) {
             LOG(debug, "Header: ", header.name, "|", header.value)
             tran->add(header.name, header.value);
         }
@@ -90,7 +90,7 @@ namespace pboman3::model::task {
         return include;
     }
 
-    PackConfiguration::CompressionRules PackConfiguration::buildCompressionRules(const PackOptions& options) {
+    PackConfiguration::CompressionRules PackConfiguration::buildCompressionRules(const PboJson& options) {
         CompressionRules rules;
         LOG(info, "Building include rules")
         convertToCompressionRules(options.compress.include, &rules.include);
@@ -114,7 +114,7 @@ namespace pboman3::model::task {
         }
     }
 
-    PackOptions PackConfiguration::readPackOptions(const PboNode* node) {
+    PboJson PackConfiguration::readPackOptions(const PboNode* node) {
         const QByteArray data = readNodeContent(node);
         QJsonParseError err;
         const QJsonDocument json = QJsonDocument::fromJson(data, &err);
@@ -127,7 +127,7 @@ namespace pboman3::model::task {
             throw JsonStructureException("The json must contain an object");
         }
 
-        PackOptions opts;
+        PboJson opts;
         opts.settle(json.object(), "");
         return opts;
     }

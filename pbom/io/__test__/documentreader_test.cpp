@@ -14,7 +14,7 @@ namespace pboman3::io::test {
             : predicate_(std::move(predicate)) {
         }
 
-        bool IsJunk(const PboNodeEntity* entry) const override {
+        bool isJunk(const PboNodeEntity* entry) const override {
             return predicate_(entry);
         }
 

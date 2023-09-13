@@ -3,9 +3,9 @@
 #include "domain/func.h"
 #include <QDir>
 #include <QUrl>
-#include <QUuid>
 #include "io/documentwriter.h"
-#include "io/defaultdocumentreaderfactory.h"
+#include "io/createdocumentreader.h"
+#include "task/pbojsonhelper.h"
 #include "exception.h"
 #include "util/log.h"
 
@@ -24,7 +24,7 @@ namespace pboman3::model {
 
         setLoadedPath(path);
 
-        const DocumentReader reader = DefaultDocumentReaderFactory::createDocumentReader(path);
+        const DocumentReader reader = CreateDocumentReader(path);
         try {
             document_ = reader.read();
             LOG(info, "Read the document:", *document_)
@@ -96,11 +96,18 @@ namespace pboman3::model {
         }
     }
 
-    InteractionParcel PboModel::interactionPrepare(const QList<PboNode*>& nodes, const Cancel& cancel) const {
+    InteractionParcel PboModel::interactionPrepare(const PboNode* rootNode, const QList<PboNode*>& nodes, const Cancel& cancel) const {
         LOG(info, "Preparing the interaction for", nodes.count(), "nodes")
 
         QList<QUrl> files = binaryBackend_->hddSync(nodes, cancel);
         LOG(info, "Got files:", files)
+
+        if (isExtractingContainer(rootNode, nodes)) {
+            LOG(info, "Container extraction, so extracting pbo.json")
+            QUrl configUrl = extractConfigurationToTempDir();
+            LOG(info, "Config url:", configUrl)
+            files.append(std::move(configUrl));
+        }
 
         NodeDescriptors descriptors = NodeDescriptors::packNodes(nodes);
         LOG(info, "Got descriptors:", descriptors)
@@ -140,6 +147,18 @@ namespace pboman3::model {
                                       const Cancel& cancel) const {
         LOG(info, "Unpack", childNodes.count(), "nodes to", dest)
         binaryBackend_->unpackSync(dest, rootNode, childNodes, cancel);
+
+        if (isExtractingContainer(rootNode, childNodes)) {
+            LOG(info, "Container extraction, so extracting pbo.json")
+            extractConfigurationTo(dest);
+        }
+    }
+
+    void PboModel::extractConfigurationTo(const QString& dest) const {
+        using namespace task;
+
+        const PboJson options = PboJsonHelper::extractFrom(*document_);
+        PboJsonHelper::saveTo(options, dest);
     }
 
     PboDocument* PboModel::document() const {
@@ -160,6 +179,41 @@ namespace pboman3::model {
             loadedPath_ = loadedFile;
             emit loadedPathChanged();
         }
+    }
+
+    bool PboModel::isExtractingContainer(const PboNode* rootNode, const QList<PboNode*>& childNodes) const {
+        //true, if user extracts the root pbo node (Container)
+        bool result = childNodes.count() == 1 && childNodes.at(0)->nodeType() == PboNodeType::Container;
+        if (!result && rootNode->nodeType() == PboNodeType::Container) {
+            //fallback logic when user extracts not the root container node, but all its children without the root node itself
+            int countLevel1Nodes = 0;
+            auto it = childNodes.constBegin();
+            while (it != childNodes.constEnd()) {
+                if ((*it)->depth() == 1)
+                    countLevel1Nodes++;
+                ++it;
+            }
+            result = rootNode->count() == countLevel1Nodes;
+        }
+        return result;
+    }
+
+    void PboModel::extractConfigurationTo(const QDir& dest) const {
+        using namespace task;
+
+        const QString configPath = PboJsonHelper::getConfigFilePath(dest, FileConflictResolutionMode::Enum::Overwrite);
+        extractConfigurationTo(configPath);
+    }
+
+    QUrl PboModel::extractConfigurationToTempDir() const {
+        using namespace task;
+
+        const QDir temp = binaryBackend_->getTempDir();
+        const QString configPath = PboJsonHelper::getConfigFilePath(temp, FileConflictResolutionMode::Enum::Overwrite);
+
+        extractConfigurationTo(configPath);
+
+        return QUrl::fromLocalFile(configPath);
     }
 
     void PboModel::titleChanged() {

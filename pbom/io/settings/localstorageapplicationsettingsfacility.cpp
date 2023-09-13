@@ -6,6 +6,7 @@
 #define KEY_PACK_CONFLICT_RESOLUTION_MODE "pack_conflict_resolution_mode"
 #define KEY_UNPACK_CONFLICT_RESOLUTION_MODE "unpack_conflict_resolution_mode"
 #define KEY_PACK_UNPACK_OPERATION_COMPLETE_BEHAVIOR "pack_unpack_operation_complete_behavior"
+#define KEY_JUNK_FILTER_ENABLE "junk_filter_enable"
 
 namespace pboman3::io {
     void LocalStorageApplicationSettingsFacility::purge() {
@@ -20,6 +21,7 @@ namespace pboman3::io {
         const QVariant vUnpackConflictResolutionMode = storage.value(KEY_UNPACK_CONFLICT_RESOLUTION_MODE);
         const QVariant vPackUnpackOperationCompleteBehavior = storage.
             value(KEY_PACK_UNPACK_OPERATION_COMPLETE_BEHAVIOR);
+        const QVariant vJunkFilterEnable = storage.value(KEY_JUNK_FILTER_ENABLE);
 
         FileConflictResolutionMode::Enum packConflictResolutionMode;
         FileConflictResolutionMode::Enum unpackConflictResolutionMode;
@@ -36,7 +38,8 @@ namespace pboman3::io {
         return ApplicationSettings{
             packConflictResolutionMode,
             unpackConflictResolutionMode,
-            packUnpackOperationCompleteBehavior
+            packUnpackOperationCompleteBehavior,
+            vJunkFilterEnable.isNull() ? true : vJunkFilterEnable.toBool()
         };
     }
 
@@ -52,5 +55,6 @@ namespace pboman3::io {
         storage.setValue(
             KEY_PACK_UNPACK_OPERATION_COMPLETE_BEHAVIOR,
             QVariant(static_cast<int>(settings.packUnpackOperationCompleteBehavior)));
+        storage.setValue(KEY_JUNK_FILTER_ENABLE, QVariant(settings.junkFilterEnable));
     }
 }

@@ -6,7 +6,7 @@ namespace pboman3::io::test {
         const ZeroSizeFilter filter;
 
         const PboNodeEntity e1 {"f1", PboPackingMethod::Uncompressed, 0, 0, 0, 1};
-        const auto isJunk = filter.IsJunk(&e1);
+        const auto isJunk = filter.isJunk(&e1);
         ASSERT_FALSE(isJunk);
     }
 
@@ -15,7 +15,7 @@ namespace pboman3::io::test {
 
         const PboNodeEntity e1 {"f1", PboPackingMethod::Uncompressed, 1, 0, 0, 0};
 
-        const auto isJunk = filter.IsJunk(&e1);
+        const auto isJunk = filter.isJunk(&e1);
         ASSERT_TRUE(isJunk);
     }
 }

@@ -5,12 +5,12 @@
 namespace pboman3::model::task {
     using namespace util;
 
-    class CompressOptions : public JsonObject {
+    class PboJsonCompressOptions : public JsonObject {
     public:
         QList<QString> include;
         QList<QString> exclude;
 
-        friend QDebug operator<<(QDebug debug, const CompressOptions& options);
+        friend QDebug operator<<(QDebug debug, const PboJsonCompressOptions& options);
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override;
@@ -18,16 +18,16 @@ namespace pboman3::model::task {
         void serialize(QJsonObject& target) const override;
     };
 
-    class PackHeader : public JsonObject {
+    class PboJsonHeader : public JsonObject {
     public:
-        PackHeader();
+        PboJsonHeader();
 
-        PackHeader(QString name, QString value);
+        PboJsonHeader(QString name, QString value);
 
         QString name;
         QString value;
 
-        friend QDebug operator<<(QDebug debug, const PackHeader& header);
+        friend QDebug operator<<(QDebug debug, const PboJsonHeader& header);
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override;
@@ -35,12 +35,12 @@ namespace pboman3::model::task {
         void serialize(QJsonObject& target) const override;
     };
 
-    class PackOptions : public JsonObject {
+    class PboJson : public JsonObject {
     public:
-        QList<PackHeader> headers;
-        CompressOptions compress;
+        QList<PboJsonHeader> headers;
+        PboJsonCompressOptions compress;
 
-        friend QDebug operator<<(QDebug debug, const PackOptions& options);
+        friend QDebug operator<<(QDebug debug, const PboJson& options);
 
     protected:
         void inflate(const QString& path, const QJsonObject& json) override;

@@ -9,7 +9,7 @@ namespace pboman3::io {
     public:
         explicit CompositeFilter(std::initializer_list<QSharedPointer<JunkFilter>> filters);
 
-        bool IsJunk(const PboNodeEntity* entry) const override;
+        bool isJunk(const PboNodeEntity* entry) const override;
 
     private:
         QList<QSharedPointer<JunkFilter>> filters_;

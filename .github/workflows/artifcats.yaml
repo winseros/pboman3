@@ -101,7 +101,7 @@ jobs:
             makeappx.exe pack /d ${{github.workspace}}\_msix\ /p ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix
       
       - name: Upload MSIX package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: PBOManager-msix-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix

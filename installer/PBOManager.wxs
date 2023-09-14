@@ -77,7 +77,9 @@
             <ComponentRef Id="C_MainFiles__ImageFormats__qico.dll" />
             <ComponentRef Id="C_MainFiles__Platforms__qwindows.dll" />
             <ComponentRef Id="C_MainFiles__Styles__qwindowsvistastyle.dll" />
+            <ComponentRef Id="C_MainFiles__Tls__qcertonlybackend.dll" />
             <ComponentRef Id="C_MainFiles__Tls__qopensslbackend.dll" />
+            <ComponentRef Id="C_MainFiles__Tls__qschannelbackend.dll" />
         </ComponentGroup>
 
         <Feature Id="F_MainFiles" Title="Application" Level="1" InstallDefault="local" Absent="disallow"
@@ -218,12 +220,22 @@
                       Source="$(var.ArtifactsFolder)Styles\qwindowsvistastyle.dll" />
             </Component>
         </DirectoryRef>
-
+        
         <DirectoryRef Id="D_Tls">
+            <Component Id="C_MainFiles__Tls__qcertonlybackend.dll" Guid="0A8B6A2B-8704-454F-81F7-19812CC980DB"
+                       Win64="yes">
+                <File Id="F_MainFiles__Tls__qcertonlybackend.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Tls\qcertonlybackend.dll" />
+            </Component>
             <Component Id="C_MainFiles__Tls__qopensslbackend.dll" Guid="864E2C73-369B-42AF-88E4-989C858C04E2"
                        Win64="yes">
                 <File Id="F_MainFiles__Tls__qopensslbackend.dll" KeyPath="yes" Vital="yes"
                       Source="$(var.ArtifactsFolder)Tls\qopensslbackend.dll" />
+            </Component>
+            <Component Id="C_MainFiles__Tls__qschannelbackend.dll" Guid="9DC559C3-3109-4EFE-8C42-87F0B9678E9C"
+                       Win64="yes">
+                <File Id="F_MainFiles__Tls__qschannelbackend.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Tls\qschannelbackend.dll" />
             </Component>
         </DirectoryRef>
     </Fragment>

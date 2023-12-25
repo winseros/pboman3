@@ -41,7 +41,6 @@ namespace pboman3::io {
             entryDataOffset += dataInfo.dataSize;
             node->binarySource = QSharedPointer<PboBinarySource>(
                 new PboBinarySource(path_, dataInfo));
-            node->binarySource->open();
         }
 
         return document;

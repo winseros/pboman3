@@ -30,23 +30,18 @@ namespace pboman3::io {
             return;
         }
 
-        LOG(info, "Suspending binary sources")
-        suspendBinarySources(document->root());
-
         bool backupMade = false;
         const QString backupPath = path_ + ".bak";
         if (shouldBackup && !cancel()) {
             LOG(info, "Back up the original file as: ", backupPath)
             if (QFile::exists(backupPath) && !QFile::remove(backupPath)) {
                 LOG(warning, "Could not remove the prev backup file - throwing;", backupPath)
-                resumeBinarySources(document->root());
                 throw DiskAccessException(
                     "Could not remove the file. Check you have enough permissions and the file is not locked by another process.",
                     backupPath);
             }
             if (!QFile::rename(path_, backupPath)) {
                 LOG(info, "Could not replace the prev PBO file with a write copy - throwing:", path_)
-                resumeBinarySources(document->root());
                 throw DiskAccessException(
                     "Could not write to the file. Check you have enough permissions and the file is not locked by another process.",
                     path_);
@@ -76,8 +71,6 @@ namespace pboman3::io {
                     throw DiskAccessException("Could not remove the file. Normally this must not happen.", path_);
                 }
             }
-            LOG(info, "Resuming binary sources")
-            resumeBinarySources(document->root());
         } else {
             LOG(info, "Assigining binary sources")
             assignBinarySources(document->root());
@@ -145,7 +138,11 @@ namespace pboman3::io {
 
             if (child->nodeType() == PboNodeType::File) {
                 const qint64 before = file->pos();
+
+                const auto bsClose = qScopeGuard([&child] { if (child->binarySource->isOpen()) child->binarySource->close(); });
+                child->binarySource->open();
                 child->binarySource->writeToPbo(file, cancel);
+
                 const qint64 after = file->pos();
 
                 const qint32 originalSize = child->binarySource->readOriginalSize();
@@ -268,32 +265,11 @@ namespace pboman3::io {
         pbo->write(document->signature(), document->signature().count());
     }
 
-    void DocumentWriter::suspendBinarySources(PboNode* node) const {
-        for (PboNode* child : *node) {
-            if (child->nodeType() == PboNodeType::File) {
-                child->binarySource->close();
-            } else {
-                suspendBinarySources(child);
-            }
-        }
-    }
-
-    void DocumentWriter::resumeBinarySources(PboNode* node) const {
-        for (PboNode* child : *node) {
-            if (child->nodeType() == PboNodeType::File) {
-                child->binarySource->open();
-            } else {
-                resumeBinarySources(child);
-            }
-        }
-    }
-
     void DocumentWriter::assignBinarySources(PboNode* node) {
         for (PboNode* child : *node) {
             if (child->nodeType() == PboNodeType::File) {
                 const PboDataInfo& existing = binarySources_.take(child);
                 child->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(path_, existing));
-                child->binarySource->open();
             } else {
                 assignBinarySources(child);
             }

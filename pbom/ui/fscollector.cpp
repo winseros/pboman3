@@ -58,8 +58,6 @@ namespace pboman3::ui {
             const QString pboPath = parent.relativeFilePath(fi.canonicalFilePath());
 
             const auto bs = QSharedPointer<BinarySource>(new FsRawBinarySource(std::move(fsPath)));
-            bs->open();
-
             descriptors->append(NodeDescriptor(bs, PboPath(pboPath)));
 
             LOG(debug, "File collected")

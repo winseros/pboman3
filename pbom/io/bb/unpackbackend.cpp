@@ -65,6 +65,8 @@ namespace pboman3::io {
         }
 
         LOG(info, "Writing to file system")
+        const auto bsClose = qScopeGuard([&childNode] { if (childNode->binarySource->isOpen()) childNode->binarySource->close(); });
+        childNode->binarySource->open();
         childNode->binarySource->writeToFs(&file, cancel);
 
         file.close();

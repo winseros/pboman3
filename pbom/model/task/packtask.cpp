@@ -105,7 +105,7 @@ namespace pboman3::model::task {
             LOG(info, "Pack complete")
         } catch (const DiskAccessException& ex) {
             LOG(warning, "Task failed with exception:", ex)
-            emit taskMessage("Failure | " + ex.message() + " | " + folder.absolutePath());
+            emit taskMessage("Failure | " + ex.message() + " | " + ex.file());
         }
     }
 
@@ -143,7 +143,6 @@ namespace pboman3::model::task {
             const QString pboPath = rootDir.relativeFilePath(fileEntry.canonicalFilePath());
             PboNode* node = rootNode.createHierarchy(PboPath(pboPath));
             node->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(std::move(fsPath)));
-            node->binarySource->open();
 
             LOG(debug, "File collected")
 

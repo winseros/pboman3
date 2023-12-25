@@ -13,11 +13,17 @@ namespace pboman3::io {
     }
 
     void AbstractBinarySource::open() const {
+        if (isOpen())
+            throw InvalidOperationException("The source is already opened");
+
         if (!file_->open(QIODeviceBase::ReadOnly))
-            throw DiskAccessException("Can not open the file. Check you have enough permissions and the file is not locked by another process.", path_);
+            throw DiskAccessException("Can not open the file. Check you have enough permissions, the file exists and is not locked by another process.", path_);
     }
 
     void AbstractBinarySource::close() const {
+        if (!isOpen())
+            throw InvalidOperationException("The source is not opened");
+
         file_->close();
     }
 

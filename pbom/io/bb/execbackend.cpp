@@ -93,6 +93,8 @@ namespace pboman3::io {
                 "Could not open file. Check you have enough permissions and the file is not locked by another process.",
                 execPath);
 
+        const auto bsClose = qScopeGuard([&node] { if (node->binarySource->isOpen()) node->binarySource->close(); });
+        node->binarySource->open();
         node->binarySource->writeToFs(&file, cancel);
 
         file.close();

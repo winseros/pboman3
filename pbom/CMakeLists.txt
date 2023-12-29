@@ -67,8 +67,8 @@ install(FILES
     ${QT_BINARIES_DIR}/plugins/tls/qschannelbackend${QT_BINARIES_SUFFIX}.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR}/tls)
 install(FILES 
-    ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libssl-1_1-x64.dll
-    ${QT_BINARIES_DIR}/../../Tools/OpenSSL/Win_x64/bin/libcrypto-1_1-x64.dll
+    ${QT_BINARIES_DIR}/../../Tools/OpenSSLv3/Win_x64/bin/libssl-3-x64.dll
+    ${QT_BINARIES_DIR}/../../Tools/OpenSSLv3/Win_x64/bin/libcrypto-3-x64.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(pbom_test ${PROJECT_SOURCES} ${PROJECT_SOURCES_UI} ${TEST_SOURCES} exception.cpp testmain.cpp)

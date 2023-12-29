@@ -3,125 +3,125 @@
 #include <QSharedPointer>
 
 namespace pboman3::util {
-    template <class T>
+    template <typename TElem, typename TIt = typename QList<QSharedPointer<TElem>>::iterator>
     class QPointerListIterator {
     public:
-        explicit QPointerListIterator(QSharedPointer<T>* ptr)
-            : ptr_(ptr) {
+        explicit QPointerListIterator(TIt it)
+            : it_(std::move(it)) {
         }
 
-        T* operator*() const { return ptr_->get(); }
-        T* operator->() const { return ptr_->get(); }
-        T& operator[](qsizetype j) const { return *(ptr_->get() + j); }
-        bool operator==(QPointerListIterator<T> o) const { return ptr_ == o.ptr_; }
-        bool operator!=(QPointerListIterator<T> o) const { return ptr_ != o.ptr_; }
-        bool operator<(QPointerListIterator<T> other) const { return ptr_ < other.ptr_; }
-        bool operator<=(QPointerListIterator<T> other) const { return ptr_ <= other.ptr_; }
-        bool operator>(QPointerListIterator<T> other) const { return ptr_ > other.ptr_; }
-        bool operator>=(QPointerListIterator<T> other) const { return ptr_ >= other.ptr_; }
-        bool operator==(T* p) const { return ptr_->get() == p; }
-        bool operator!=(T* p) const { return ptr_->get() != p; }
+        TElem* operator*() const { return it_->get(); }
+        TElem* operator->() const { return it_->get(); }
+        TElem& operator[](qsizetype j) const { return (it_ + j)->get(); }
+        bool operator==(QPointerListIterator<TElem, TIt> o) const { return it_ == o.it_; }
+        bool operator!=(QPointerListIterator<TElem, TIt> o) const { return it_ != o.it_; }
+        bool operator<(QPointerListIterator<TElem, TIt> other) const { return it_ < other.it_; }
+        bool operator<=(QPointerListIterator<TElem, TIt> other) const { return it_ <= other.it_; }
+        bool operator>(QPointerListIterator<TElem, TIt> other) const { return it_ > other.it_; }
+        bool operator>=(QPointerListIterator<TElem, TIt> other) const { return it_ >= other.it_; }
+        bool operator==(TElem* p) const { return it_->get() == p; }
+        bool operator!=(TElem* p) const { return it_->get() != p; }
 
-        QPointerListIterator<T>& operator++() {
-            ++ptr_;
+        QPointerListIterator<TElem, TIt>& operator++() {
+            ++it_;
             return *this;
         }
 
-        QPointerListIterator<T> operator++(int) {
-            const auto n = ptr_;
-            ++ptr_;
-            return QPointerListIterator<T>(n);
+        QPointerListIterator<TElem, TIt> operator++(int) {
+            const auto n = it_;
+            ++it_;
+            return QPointerListIterator<TElem, TIt>(n);
         }
 
-        QPointerListIterator<T>& operator--() {
-            --ptr_;
+        QPointerListIterator<TElem, TIt>& operator--() {
+            --it_;
             return *this;
         }
 
-        QPointerListIterator<T> operator--(int) {
-            const auto n = ptr_;
-            --ptr_;
-            return QPointerListIterator<T>(n);
+        QPointerListIterator<TElem, TIt> operator--(int) {
+            const auto n = it_;
+            --it_;
+            return QPointerListIterator<TElem, TIt>(n);
         }
 
-        QPointerListIterator<T>& operator+=(qsizetype j) {
-            ptr_ += j;
+        QPointerListIterator<TElem, TIt>& operator+=(qsizetype j) {
+            it_ += j;
             return *this;
         }
 
-        QPointerListIterator<T>& operator-=(qsizetype j) {
-            ptr_ -= j;
+        QPointerListIterator<TElem, TIt>& operator-=(qsizetype j) {
+            it_ -= j;
             return *this;
         }
 
-        QPointerListIterator<T> operator+(qsizetype j) const { return QPointerListIterator<T>(ptr_ + j); }
-        QPointerListIterator<T> operator-(qsizetype j) const { return QPointerListIterator<T>(ptr_ - j); }
-        friend QPointerListIterator<T> operator+(qsizetype j, QPointerListIterator<T> k) { return k + j; }
-        qsizetype operator-(QPointerListIterator<T> j) const { return ptr_->get() - j.ptr_->get(); }
-        operator T*() const { return ptr_->get(); }
+        QPointerListIterator<TElem, TIt> operator+(qsizetype j) const { return QPointerListIterator<TElem, TIt>(it_ + j); }
+        QPointerListIterator<TElem, TIt> operator-(qsizetype j) const { return QPointerListIterator<TElem, TIt>(it_ - j); }
+        friend QPointerListIterator<TElem, TIt> operator+(qsizetype j, QPointerListIterator<TElem, TIt> k) { return k + j; }
+        qsizetype operator-(QPointerListIterator<TElem, TIt> j) const { return it_->get() - j.it_->get(); }
+        operator TElem*() const { return it_->get(); }
 
     private:
-        QSharedPointer<T>* ptr_;
+        TIt it_;
     };
 
-    template <class T>
+    template <typename TElem, typename TIt = typename QList<QSharedPointer<TElem>>::const_iterator>
     class QPointerListConstIterator {
     public:
-        explicit QPointerListConstIterator(const QSharedPointer<T>* ptr)
-            : ptr_(ptr) {
+        explicit QPointerListConstIterator(TIt it)
+            : it_(std::move(it)) {
         }
 
-        const T* operator*() const { return ptr_->get(); }
-        const T* operator->() const { return ptr_->get(); }
-        const T& operator[](qsizetype j) const { return *(ptr_->get() + j); }
-        bool operator==(QPointerListConstIterator<T> o) const { return ptr_ == o.ptr_; }
-        bool operator!=(QPointerListConstIterator<T> o) const { return ptr_ != o.ptr_; }
-        bool operator<(QPointerListConstIterator<T> other) const { return ptr_ < other.ptr_; }
-        bool operator<=(QPointerListConstIterator<T> other) const { return ptr_ <= other.ptr_; }
-        bool operator>(QPointerListConstIterator<T> other) const { return ptr_ > other.ptr_; }
-        bool operator>=(QPointerListConstIterator<T> other) const { return ptr_ >= other.ptr_; }
-        bool operator==(T* p) const { return ptr_->get() == p; }
-        bool operator!=(T* p) const { return ptr_->get() != p; }
+        const TElem* operator*() const { return it_->get(); }
+        const TElem* operator->() const { return it_->get(); }
+        const TElem& operator[](qsizetype j) const { return (it_ + j)->get(); }
+        bool operator==(QPointerListConstIterator<TElem, TIt> o) const { return it_ == o.it_; }
+        bool operator!=(QPointerListConstIterator<TElem, TIt> o) const { return it_ != o.it_; }
+        bool operator<(QPointerListConstIterator<TElem, TIt> other) const { return it_ < other.it_; }
+        bool operator<=(QPointerListConstIterator<TElem, TIt> other) const { return it_ <= other.it_; }
+        bool operator>(QPointerListConstIterator<TElem, TIt> other) const { return it_ > other.it_; }
+        bool operator>=(QPointerListConstIterator<TElem, TIt> other) const { return it_ >= other.it_; }
+        bool operator==(TElem* p) const { return it_->get() == p; }
+        bool operator!=(TElem* p) const { return it_->get() != p; }
 
-        QPointerListConstIterator<T>& operator++() {
-            ++ptr_;
+        QPointerListConstIterator<TElem, TIt>& operator++() {
+            ++it_;
             return *this;
         }
 
-        QPointerListConstIterator<T> operator++(int) {
-            const auto n = ptr_;
-            ++ptr_;
+        QPointerListConstIterator<TElem, TIt> operator++(int) {
+            const auto n = it_;
+            ++it_;
             return QPointerListConstIterator(n);
         }
 
-        QPointerListConstIterator<T>& operator--() {
-            --ptr_;
+        QPointerListConstIterator<TElem, TIt>& operator--() {
+            --it_;
             return *this;
         }
 
-        QPointerListConstIterator<T> operator--(int) {
-            const auto n = ptr_;
-            --ptr_;
+        QPointerListConstIterator<TElem, TIt> operator--(int) {
+            const auto n = it_;
+            --it_;
             return QPointerListConstIterator(n);
         }
 
-        QPointerListConstIterator<T>& operator+=(qsizetype j) {
-            ptr_ += j;
+        QPointerListConstIterator<TElem, TIt>& operator+=(qsizetype j) {
+            it_ += j;
             return *this;
         }
 
-        QPointerListConstIterator<T>& operator-=(qsizetype j) {
-            ptr_ -= j;
+        QPointerListConstIterator<TElem, TIt>& operator-=(qsizetype j) {
+            it_ -= j;
             return *this;
         }
 
-        QPointerListConstIterator<T> operator+(qsizetype j) const { return QPointerListConstIterator<T>(ptr_ + j); }
-        QPointerListConstIterator<T> operator-(qsizetype j) const { return QPointerListConstIterator<T>(ptr_ - j); }
-        friend QPointerListConstIterator<T> operator+(qsizetype j, QPointerListConstIterator<T> k) { return k + j; }
-        qsizetype operator-(QPointerListConstIterator<T> j) const { return ptr_->get() - j.ptr_->get(); }
-        operator const T*() const { return ptr_->get(); }
+        QPointerListConstIterator<TElem, TIt> operator+(qsizetype j) const { return QPointerListConstIterator<TElem, TIt>(it_ + j); }
+        QPointerListConstIterator<TElem, TIt> operator-(qsizetype j) const { return QPointerListConstIterator<TElem, TIt>(it_ - j); }
+        friend QPointerListConstIterator<TElem, TIt> operator+(qsizetype j, QPointerListConstIterator<TElem, TIt> k) { return k + j; }
+        qsizetype operator-(QPointerListConstIterator<TElem, TIt> j) const { return it_->get() - j.it_->get(); }
+        operator const TElem*() const { return it_->get(); }
 
     private:
-        const QSharedPointer<T>* ptr_;
+        TIt it_;
     };
 }

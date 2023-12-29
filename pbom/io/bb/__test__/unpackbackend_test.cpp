@@ -32,24 +32,24 @@ namespace pboman3::io::test {
         t4.close();
 
         //should be extracted
-        PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
-        PboNode* e1 = tree.createHierarchy(PboPath("e1.txt"));
+        const auto tree = QSharedPointer<PboNode>::create(QString("tree.pbo"), PboNodeType::Container, nullptr);
+        PboNode* e1 = tree->createHierarchy(PboPath("e1.txt"));
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t1.fileName()));
-        PboNode* e2 = tree.createHierarchy(PboPath("f1/e2.txt"));
+        PboNode* e2 = tree->createHierarchy(PboPath("f1/e2.txt"));
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t2.fileName()));
-        PboNode* e3 = tree.createHierarchy(PboPath("f1/e3.txt"));
+        PboNode* e3 = tree->createHierarchy(PboPath("f1/e3.txt"));
         e3->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t3.fileName()));
-        PboNode* e4 = tree.createHierarchy(PboPath("f2/e4.txt"));
+        PboNode* e4 = tree->createHierarchy(PboPath("f2/e4.txt"));
         e4->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t4.fileName()));
 
         //should not be extracted
-        tree.createHierarchy(PboPath("e0.txt"));
-        tree.createHierarchy(PboPath("f2/e0.txt"));
+        tree->createHierarchy(PboPath("e0.txt"));
+        tree->createHierarchy(PboPath("f2/e0.txt"));
 
-        const QList list({e1, e4, tree.get(PboPath("f1"))});
+        const QList list({e1, e4, tree->get(PboPath("f1"))});
 
         UnpackBackend unpack(QDir(dir.path()));
-        unpack.unpackSync(&tree, list, []() { return false; });
+        unpack.unpackSync(tree.get(), list, []() { return false; });
 
         constexpr auto f = QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files;
         constexpr auto s = QDir::DirsFirst | QDir::Name;
@@ -75,12 +75,12 @@ namespace pboman3::io::test {
         t1.write(QByteArray(10, 1));
         t1.close();
 
-        PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
-        PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
+        const auto tree = QSharedPointer<PboNode>::create("tree.pbo", PboNodeType::Container, nullptr);
+        PboNode* e1 = tree->createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t1.fileName()));
 
         UnpackBackend unpack(QDir(dir.path()));
-        unpack.unpackSync(tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
+        unpack.unpackSync(tree->get(PboPath("f1/f2")), QList({e1}), []() { return false; });
 
         const QString filePath = dir.filePath("f3/f4/f5/e1.txt");
         ASSERT_TRUE(QFile::exists(filePath));
@@ -101,13 +101,13 @@ namespace pboman3::io::test {
             "eset\x10\x02ind?ustry.\xFC\x1B\x00\x00", 84));
         t1.close();
 
-        PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
-        PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
+        const auto tree = QSharedPointer<PboNode>::create("tree.pbo", PboNodeType::Container, nullptr);
+        PboNode* e1 = tree->createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
         constexpr PboDataInfo dataInfo{74, 84, 0, 0, true}; //the file is marked as compressed
         e1->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(t1.fileName(), dataInfo));
 
         UnpackBackend unpack(QDir(dir.path()));
-        unpack.unpackSync(tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
+        unpack.unpackSync(tree->get(PboPath("f1/f2")), QList({e1}), []() { return false; });
 
         const QString filePath = dir.filePath("f3/f4/f5/e1.txt");
         ASSERT_TRUE(QFile::exists(filePath));
@@ -121,12 +121,12 @@ namespace pboman3::io::test {
     TEST(UnpackBackendTest, UnpackSync_Throws_If_Root_Is_Invalid) {
         const QTemporaryDir dir;
 
-        PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
-        PboNode* e1 = tree.createHierarchy(PboPath("f1/e1.txt"));
-        tree.createHierarchy(PboPath("f2/e2.txt"));
+        const auto tree = QSharedPointer<PboNode>::create("tree.pbo", PboNodeType::Container, nullptr);
+        PboNode* e1 = tree->createHierarchy(PboPath("f1/e1.txt"));
+        tree->createHierarchy(PboPath("f2/e2.txt"));
 
         UnpackBackend unpack(QDir(dir.path()));
-        ASSERT_THROW(unpack.unpackSync(tree.get(PboPath("f2")), QList({ e1 }), []() { return false; }),
+        ASSERT_THROW(unpack.unpackSync(tree->get(PboPath("f2")), QList({ e1 }), []() { return false; }),
                      InvalidOperationException);
     }
 }

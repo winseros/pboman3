@@ -48,7 +48,7 @@ jobs:
           target: desktop
           arch: win64_msvc2019_64
           dir: ${{github.workspace}}
-          tools: tools_openssl_x64
+          tools: tools_opensslv3_x64
       
       - name: Checkout
         uses: actions/checkout@v3

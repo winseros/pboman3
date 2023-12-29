@@ -125,23 +125,4 @@ namespace pboman3::model::test {
         ASSERT_TRUE(cs3);
         ASSERT_EQ(cs3->path(), bs3->path());
     }
-
-    TEST(NodeDescriptorsTest, Deserialization_Opens_Binary_Sources) {
-        QTemporaryFile t1;
-        t1.open();
-        t1.close();
-
-        const auto bs1 = QSharedPointer<FsRawBinarySource>(new FsRawBinarySource(t1.fileName()));
-
-        NodeDescriptors source;
-        source.append(NodeDescriptor(bs1, PboPath("pbo/entry/path1")));
-        const QByteArray serialized = NodeDescriptors::serialize(source);
-
-        const NodeDescriptors copy = NodeDescriptors::deserialize(serialized);
-        ASSERT_EQ(copy.length(), 1);
-
-        auto* cs1 = dynamic_cast<FsRawBinarySource*>(copy.at(0).binarySource().get());
-        ASSERT_TRUE(cs1);
-        ASSERT_TRUE(cs1->isOpen());
-    }
 }

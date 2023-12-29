@@ -22,7 +22,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -53,7 +52,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -77,7 +75,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -108,7 +105,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -184,7 +180,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -219,7 +214,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -243,7 +237,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("e1/file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;

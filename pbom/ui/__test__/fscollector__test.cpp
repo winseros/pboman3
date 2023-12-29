@@ -47,7 +47,7 @@ namespace pboman3::ui::test {
 
         ASSERT_EQ(files->at(0).path(), PboPath("f1/f11/f3.txt"));
         ASSERT_EQ(files->at(0).binarySource()->path(), f3.fileName());
-        ASSERT_TRUE(files->at(0).binarySource()->isOpen());
+        ASSERT_FALSE(files->at(0).binarySource()->isOpen());
 
         ASSERT_EQ(files->at(1).path(), PboPath("f1/f11/f4.txt"));
         ASSERT_EQ(files->at(1).binarySource()->path(), f4.fileName());

@@ -35,16 +35,12 @@ namespace pboman3::io::test {
         PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
         PboNode* e1 = tree.createHierarchy(PboPath("e1.txt"));
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t1.fileName()));
-        e1->binarySource->open();
         PboNode* e2 = tree.createHierarchy(PboPath("f1/e2.txt"));
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t2.fileName()));
-        e2->binarySource->open();
         PboNode* e3 = tree.createHierarchy(PboPath("f1/e3.txt"));
         e3->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t3.fileName()));
-        e3->binarySource->open();
         PboNode* e4 = tree.createHierarchy(PboPath("f2/e4.txt"));
         e4->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t4.fileName()));
-        e4->binarySource->open();
 
         //should not be extracted
         tree.createHierarchy(PboPath("e0.txt"));
@@ -82,7 +78,6 @@ namespace pboman3::io::test {
         PboNode tree("tree.pbo", PboNodeType::Container, nullptr);
         PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t1.fileName()));
-        e1->binarySource->open();
 
         UnpackBackend unpack(QDir(dir.path()));
         unpack.unpackSync(tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });
@@ -110,7 +105,6 @@ namespace pboman3::io::test {
         PboNode* e1 = tree.createHierarchy(PboPath("f1/f2/f3/f4/f5/e1.txt"));
         constexpr PboDataInfo dataInfo{74, 84, 0, 0, true}; //the file is marked as compressed
         e1->binarySource = QSharedPointer<BinarySource>(new PboBinarySource(t1.fileName(), dataInfo));
-        e1->binarySource->open();
 
         UnpackBackend unpack(QDir(dir.path()));
         unpack.unpackSync(tree.get(PboPath("f1/f2")), QList({e1}), []() { return false; });

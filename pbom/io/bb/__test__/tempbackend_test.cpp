@@ -26,9 +26,7 @@ namespace pboman3::io::test {
         PboNode* e2 = root.createHierarchy(PboPath("folder1/file2.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f2.fileName()));
-        e2->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -72,9 +70,7 @@ namespace pboman3::io::test {
         PboNode* e2 = root.createHierarchy(PboPath("folder1/file2.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f2.fileName()));
-        e2->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -99,7 +95,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;

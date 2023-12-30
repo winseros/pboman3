@@ -61,9 +61,9 @@ namespace pboman3::domain {
 
         QString pickFileTitle(const QString& expectedTitle) const;
 
-        PboNode* createNode(const QString& title, PboNodeType nodeType);
+        PboNode* createNode(const QString& title, PboNodeType nodeType, bool emitEvents);
 
-        void removeNode(const QSharedPointer<PboNode>& node);
+        void removeNode(const QSharedPointer<PboNode>& node, bool emitEvents);
 
         void emitHierarchyChanged();
 

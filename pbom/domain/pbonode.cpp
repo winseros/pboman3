@@ -35,7 +35,7 @@ namespace pboman3::domain {
 
         PboNode* p = node->parentNode_;
         assert(p && "Must not be null");
-        p->removeNode(node->sharedFromThis());
+        p->removeNode(node->sharedFromThis(), true);
         p->emitHierarchyChanged();
     }
 
@@ -99,18 +99,18 @@ namespace pboman3::domain {
         while (it != last) {
             PboNode* folder = node->getChild(*it).get();
             if (!folder) {
-                folder = node->createNode(*it, PboNodeType::Folder);
+                folder = node->createNode(*it, PboNodeType::Folder, emitEvents);
             } else if (folder->nodeType_ == PboNodeType::File) {
                 switch (onConflict) {
                     case ConflictResolution::Replace: {
                         const auto p = folder->parentNode_;
-                        p->removeNode(folder->sharedFromThis());
-                        folder = p->createNode(*it, PboNodeType::Folder);
+                        p->removeNode(folder->sharedFromThis(), emitEvents);
+                        folder = p->createNode(*it, PboNodeType::Folder, emitEvents);
                         break;
                     }
                     case ConflictResolution::Copy: {
                         const QString folderTitle = node->pickFolderTitle(*it);
-                        folder = node->createNode(folderTitle, PboNodeType::Folder);
+                        folder = node->createNode(folderTitle, PboNodeType::Folder, emitEvents);
                         break;
                     }
                     default:
@@ -123,21 +123,21 @@ namespace pboman3::domain {
 
         PboNode* file = node->getChild(*last).get();
         if (!file) {
-            file = node->createNode(*last, PboNodeType::File);
+            file = node->createNode(*last, PboNodeType::File, emitEvents);
             if (emitEvents)
                 emitHierarchyChanged();
         } else {
             switch (onConflict) {
                 case ConflictResolution::Replace: {
-                    node->removeNode(file->sharedFromThis());
-                    file = node->createNode(*last, PboNodeType::File);
+                    node->removeNode(file->sharedFromThis(), emitEvents);
+                    file = node->createNode(*last, PboNodeType::File, emitEvents);
                     if (emitEvents)
                         emitHierarchyChanged();
                     break;
                 }
                 case ConflictResolution::Copy: {
                     const QString fileTitle = node->pickFileTitle(*last);
-                    file = node->createNode(fileTitle, PboNodeType::File);
+                    file = node->createNode(fileTitle, PboNodeType::File, emitEvents);
                     if (emitEvents)
                         emitHierarchyChanged();
                     break;
@@ -170,16 +170,20 @@ namespace pboman3::domain {
         return attemptTitle;
     }
 
-    PboNode* PboNode::createNode(const QString& title, PboNodeType nodeType) {
+    PboNode* PboNode::createNode(const QString& title, PboNodeType nodeType, bool emitEvents) {
         const QSharedPointer<PboNode> child(new PboNode(title, nodeType, this));
         const qsizetype insertedIndex = addChild(child);
-        emit childCreated(child.get(), insertedIndex);
+
+        if (emitEvents)
+            emit childCreated(child.get(), insertedIndex);
+
         return child.get();
     }
 
-    void PboNode::removeNode(const QSharedPointer<PboNode>& node) {
+    void PboNode::removeNode(const QSharedPointer<PboNode>& node, bool emitEvents) {
         const qsizetype index = removeChild(node);
-        emit childRemoved(index);
+        if (emitEvents)
+            emit childRemoved(index);
     }
 
     void PboNode::emitHierarchyChanged() {

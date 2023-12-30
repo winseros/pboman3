@@ -66,18 +66,16 @@ namespace pboman3::ui::test {
     TEST(TreeWidgetBaseTest, GetSelectedHierarchies_Returns_Correct_Results_When_Multiple_Items_Selected) {
         QTAPP
 
-        //build the mock tree
-        const auto iconMgr = QSharedPointer<IconMgr>(new MockTreeWidgetBaseIconMgr);
-        const auto node = QScopedPointer(new PboNode("file.pbo", PboNodeType::Container, nullptr));
-        const auto item = new TreeWidgetItem(node.get(), iconMgr);
-
         //create tree nodes
+        const auto node = QSharedPointer<PboNode>::create(QString("file.pbo"), PboNodeType::Container, nullptr);
         node->createHierarchy(PboPath("e1/e2/f1.txt"));
         node->createHierarchy(PboPath("e1/e2/f2.txt"));
         node->createHierarchy(PboPath("e1/e3/f3.txt"));
         node->createHierarchy(PboPath("e1/e3/f4.txt"));
 
-        //att tree to the widget
+        //build the mock tree
+        const auto iconMgr = QSharedPointer<MockTreeWidgetBaseIconMgr>::create();
+        const auto item = new TreeWidgetItem(node.get(), iconMgr);
         MockTreeWidgetBase tree;
         tree.addTopLevelItem(item);
 
@@ -103,7 +101,7 @@ namespace pboman3::ui::test {
     TEST(TreeWidgetBaseTest, GetSelectionRoot_Returns_When_Single_Node_Selected) {
         QTAPP
 
-        const auto node = QScopedPointer(new PboNode("file.pbo", PboNodeType::Container, nullptr));
+        const auto node = QSharedPointer<PboNode>::create(QString("file.pbo"), PboNodeType::Container, nullptr);
         const auto item = new TreeWidgetItem(node.get());
 
         MockTreeWidgetBase tree;
@@ -117,16 +115,14 @@ namespace pboman3::ui::test {
     TEST(TreeWidgetBaseTest, GetSelectionRoot_Returns_Correct_Results_When_Multiple_Items_Selected) {
         QTAPP
 
-        //build the mock tree
-        const auto iconMgr = QSharedPointer<IconMgr>(new MockTreeWidgetBaseIconMgr);
-        const auto node = QScopedPointer(new PboNode("file.pbo", PboNodeType::Container, nullptr));
-        const auto item = new TreeWidgetItem(node.get(), iconMgr);
-
         //create tree nodes
+        const auto node = QSharedPointer<PboNode>::create(QString("file.pbo"), PboNodeType::Container, nullptr);
         node->createHierarchy(PboPath("e1/e2/f1.txt"));
         node->createHierarchy(PboPath("e1/e2/f2.txt"));
 
-        //att tree to the widget
+        //build the mock tree
+        const auto iconMgr = QSharedPointer<MockTreeWidgetBaseIconMgr>::create();
+        const auto item = new TreeWidgetItem(node.get(), iconMgr);
         MockTreeWidgetBase tree;
         tree.addTopLevelItem(item);
 

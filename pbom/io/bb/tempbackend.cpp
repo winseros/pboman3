@@ -29,13 +29,16 @@ namespace pboman3::io {
 
 
     void TempBackend::clear(const PboNode* node) const {
-        assert(node->nodeType() == PboNodeType::File);
-
         const QString path = nodeFileSystem_->composeAbsolutePath(node);
         if (QFileInfo(path).exists()) {
-            if (!QFile::remove(path)) {
+            if (node->nodeType() == PboNodeType::File && !QFile::remove(path)) {
                 throw DiskAccessException(
                     "Could not remove the file. Check you have enough permissions and the file is not locked by another process.",
+                    path);
+            }
+            if (node->nodeType() == PboNodeType::Folder && !QDir(path).removeRecursively()) {
+                throw DiskAccessException(
+                    "Could not remove the directory. Check you have enough permissions and the file is not locked by another process.",
                     path);
             }
         }

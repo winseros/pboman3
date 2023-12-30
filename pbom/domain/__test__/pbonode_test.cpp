@@ -154,8 +154,8 @@ namespace pboman3::domain::test {
 
         QObject::connect(root.get(), &PboNode::childCreated, onChildCreated);
 
-        root->createHierarchy(PboPath("f1/e1"));
-        root->createHierarchy(PboPath("f1/e2"));
+        root->createHierarchy(PboPath("f1/e1"), ConflictResolution::Copy);
+        root->createHierarchy(PboPath("f1/e2"), ConflictResolution::Copy);
 
         ASSERT_EQ(count, 1);
     }
@@ -183,8 +183,8 @@ namespace pboman3::domain::test {
 
         QObject::connect(root.get(), &PboNode::childCreated, onChildCreated);
 
-        root->createHierarchy(PboPath("e1"));
-        root->createHierarchy(PboPath("e2"));
+        root->createHierarchy(PboPath("e1"), ConflictResolution::Copy);
+        root->createHierarchy(PboPath("e2"), ConflictResolution::Copy);
 
         ASSERT_EQ(count, 2);
     }

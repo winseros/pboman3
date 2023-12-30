@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QSharedPointer>
-#include <set>
 #include <QHash>
 #include "util/qpointerlistiterator.h"
 

@@ -104,6 +104,44 @@ namespace pboman3::domain::test {
         ASSERT_TRUE(e1Old.isNull());
     }
 
+    TEST(PboNodeTest, CreateHierarchy2_Replaces_Conflicting_Folder_With_File) {
+        const auto root = QSharedPointer<PboNode>::create(QString("file-name"), PboNodeType::Container, nullptr);
+
+        root->createHierarchy(PboPath("f1/f2/e1"));
+        const QPointer e1Old = root->at(0)->at(0);
+
+        PboNode* e1New = root->createHierarchy(PboPath("f1/f2"), ConflictResolution::Replace);
+
+        ASSERT_EQ(root->at(0)->count(), 1);
+        ASSERT_EQ(root->at(0)->at(0), e1New);
+        ASSERT_TRUE(e1Old.isNull());
+
+        ASSERT_EQ(root->at(0)->title(), QString("f1"));
+        ASSERT_EQ(root->at(0)->nodeType(), PboNodeType::Folder);
+        ASSERT_EQ(root->at(0)->at(0)->title(), QString("f2"));
+        ASSERT_EQ(root->at(0)->at(0)->nodeType(), PboNodeType::File);
+    }
+
+    TEST(PboNodeTest, CreateHierarchy2_Replaces_Conflicting_File_With_Folder) {
+        const auto root = QSharedPointer<PboNode>::create(QString("file-name"), PboNodeType::Container, nullptr);
+
+        root->createHierarchy(PboPath("f1/e1"));
+        const QPointer e1Old = root->at(0)->at(0);
+
+        PboNode* e1New = root->createHierarchy(PboPath("f1/e1/e2"), ConflictResolution::Replace);
+
+        ASSERT_EQ(root->at(0)->count(), 1);
+        ASSERT_EQ(root->at(0)->at(0)->at(0), e1New);
+        ASSERT_TRUE(e1Old.isNull());
+
+        ASSERT_EQ(root->at(0)->title(), QString("f1"));
+        ASSERT_EQ(root->at(0)->nodeType(), PboNodeType::Folder);
+        ASSERT_EQ(root->at(0)->at(0)->title(), QString("e1"));
+        ASSERT_EQ(root->at(0)->at(0)->nodeType(), PboNodeType::Folder);
+        ASSERT_EQ(root->at(0)->at(0)->at(0)->title(), QString("e2"));
+        ASSERT_EQ(root->at(0)->at(0)->at(0)->nodeType(), PboNodeType::File);
+    }
+
     TEST(PboNodeTest, CreateHierarchy2_Emits_Once_When_Creating_Folders) {
         const auto root = QSharedPointer<PboNode>::create(QString("file-name"), PboNodeType::Container, nullptr);
 

@@ -57,9 +57,9 @@ namespace pboman3::domain {
 
         PboNode* createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict, bool emitEvents);
 
-        QString pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const;
+        QString pickFolderTitle(const QString& expectedTitle) const;
 
-        QString pickFileTitle(const PboNode* parent, const QString& expectedTitle) const;
+        QString pickFileTitle(const QString& expectedTitle) const;
 
         PboNode* createNode(const QString& title, PboNodeType nodeType);
 

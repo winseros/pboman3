@@ -1,25 +1,37 @@
 #pragma once
 
-#include <QDialogButtonBox>
+#include <QWidget>
+#include "ui_insertdialogbuttons.h"
 
 namespace pboman3::ui {
-    class InsertDialogButtons : public QDialogButtonBox {
-    Q_OBJECT
+    class InsertDialogButtons : public QWidget {
+        Q_OBJECT
 
     public:
         InsertDialogButtons(QWidget* parent = nullptr);
 
-        void setIsTwoStep();
+        ~InsertDialogButtons() override;
+
+        void setIsTwoStep() const;
 
     signals:
         void next();
 
         void back();
 
-    private:
-        QPushButton* btnNext_;
-        QPushButton* btnBack_;
+        void ok();
 
-        void onButtonClicked(const QAbstractButton* btn);
+        void cancel();
+
+    private:
+        Ui::InsertDialogButtons* ui_;
+
+        void onNextClick();
+
+        void onBackClick();
+
+        void onOkClick();
+
+        void onCancelClick();
     };
 }

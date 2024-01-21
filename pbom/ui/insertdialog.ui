@@ -99,11 +99,7 @@
     </widget>
    </item>
    <item>
-    <widget class="pboman3::ui::InsertDialogButtons" name="buttons">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <widget class="pboman3::ui::InsertDialogButtons" name="buttons" native="true"/>
    </item>
   </layout>
  </widget>
@@ -120,11 +116,14 @@
   </customwidget>
   <customwidget>
    <class>pboman3::ui::InsertDialogButtons</class>
-   <extends>QDialogButtonBox</extends>
+   <extends>QWidget</extends>
    <header>ui/insertdialogbuttons.h</header>
+   <container>1</container>
    <slots>
-    <signal>next()</signal>
+    <signal>ok()</signal>
+    <signal>cancel()</signal>
     <signal>back()</signal>
+    <signal>next()</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -132,45 +131,13 @@
  <connections>
   <connection>
    <sender>buttons</sender>
-   <signal>accepted()</signal>
+   <signal>ok()</signal>
    <receiver>InsertDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>393</x>
-     <y>565</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>393</x>
-     <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttons</sender>
-   <signal>rejected()</signal>
-   <receiver>InsertDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>393</x>
-     <y>565</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>393</x>
-     <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttons</sender>
-   <signal>next()</signal>
-   <receiver>InsertDialog</receiver>
-   <slot>next()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>393</x>
-     <y>565</y>
+     <y>572</y>
     </hint>
     <hint type="destinationlabel">
      <x>393</x>
@@ -186,7 +153,39 @@
    <hints>
     <hint type="sourcelabel">
      <x>393</x>
-     <y>565</y>
+     <y>572</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>393</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>cancel()</signal>
+   <receiver>InsertDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>393</x>
+     <y>572</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>393</x>
+     <y>293</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>next()</signal>
+   <receiver>InsertDialog</receiver>
+   <slot>next()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>393</x>
+     <y>572</y>
     </hint>
     <hint type="destinationlabel">
      <x>393</x>

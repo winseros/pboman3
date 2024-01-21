@@ -32,9 +32,9 @@ namespace pboman3::domain::test {
     }
 
     TEST(PboNodeTransactionTest, SetTitle_Throws_If_Node_With_This_Name_Exists) {
-        PboNode node("node.pbo", PboNodeType::Container, nullptr);
-        node.createHierarchy(PboPath("f1.txt"));
-        PboNode* f2 = node.createHierarchy(PboPath("f2.txt"));
+        auto node = QSharedPointer<PboNode>::create(QString("node.pbo"), PboNodeType::Container, nullptr);
+        node->createHierarchy(PboPath("f1.txt"));
+        PboNode* f2 = node->createHierarchy(PboPath("f2.txt"));
 
         const QSharedPointer<PboNodeTransaction> tran = f2->beginTransaction();
         try {
@@ -47,9 +47,9 @@ namespace pboman3::domain::test {
     }
 
     TEST(PboNodeTransactionTest, SetTitle_Renames_Node) {
-        PboNode node("node.pbo", PboNodeType::Container, nullptr);
-        node.createHierarchy(PboPath("f1.txt"));
-        PboNode* f2 = node.createHierarchy(PboPath("f2.txt"));
+        auto node = QSharedPointer<PboNode>::create("node.pbo", PboNodeType::Container, nullptr);
+        node->createHierarchy(PboPath("f1.txt"));
+        PboNode* f2 = node->createHierarchy(PboPath("f2.txt"));
 
         QSharedPointer<PboNodeTransaction> tran = f2->beginTransaction();
         tran->setTitle("f3.txt");

@@ -26,9 +26,7 @@ namespace pboman3::io::test {
         PboNode* e2 = root.createHierarchy(PboPath("folder1/file2.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f2.fileName()));
-        e2->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -72,9 +70,7 @@ namespace pboman3::io::test {
         PboNode* e2 = root.createHierarchy(PboPath("folder1/file2.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
         e2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f2.fileName()));
-        e2->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -87,7 +83,7 @@ namespace pboman3::io::test {
         ASSERT_EQ(QDir(dir.path()).entryList().count(), 0);
     }
 
-    TEST(TempBackendTest, Clear_Cleans_Up_If_Needed) {
+    TEST(TempBackendTest, Clear_Cleans_Up_File) {
         //dummy files
         QTemporaryFile f1;
         f1.open();
@@ -99,7 +95,6 @@ namespace pboman3::io::test {
         PboNode* e1 = root.createHierarchy(PboPath("file1.txt"));
 
         e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
-        e1->binarySource->open();
 
         //the object tested
         const QTemporaryDir dir;
@@ -110,7 +105,33 @@ namespace pboman3::io::test {
         be.clear(e1);
 
         //check
-        ASSERT_FALSE(QFile::exists(sync.at(0).path()));
+        ASSERT_FALSE(QFile::exists(sync.at(0).toLocalFile()));
+    }
+
+    TEST(TempBackendTest, Clear_Cleans_Up_Folder) {
+        //dummy files
+        QTemporaryFile f1;
+        f1.open();
+        f1.write(QByteArray("some text data 1"));
+        f1.close();
+
+        //nodes to sync
+        const auto root = QSharedPointer<PboNode>::create(QString("root"), PboNodeType::Container, nullptr);
+        PboNode* e1 = root->createHierarchy(PboPath("folder1/file1.txt"));
+
+        e1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(f1.fileName()));
+
+        //the object tested
+        const QTemporaryDir dir;
+        const TempBackend be(QDir(dir.path()));
+        const QList<QUrl> sync = be.hddSync(QList({e1}), []() { return false; });
+
+        //call the method
+        const PboNode* fl1 = root->get(PboPath{"folder1"});
+        be.clear(fl1);
+
+        //check
+        ASSERT_FALSE(QFile::exists(sync.at(0).toLocalFile()));
     }
 
     TEST(TempBackendTest, Clear_Does_Not_Clean_Up) {

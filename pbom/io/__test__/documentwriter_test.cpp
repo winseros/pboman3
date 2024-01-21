@@ -36,10 +36,8 @@ namespace pboman3::io::test {
         //pbo entries with content
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
         PboNode* n2 = document.root()->createHierarchy(PboPath("f2/e2.txt"));
         n2->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e2.fileName()));
-        n2->binarySource->open();
 
         //write the file
         const QTemporaryDir temp;
@@ -106,7 +104,6 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
 
         //pbo file
         const QTemporaryDir temp;
@@ -146,7 +143,6 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
 
         //call the method
         int count = 0;
@@ -182,7 +178,6 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
 
         //call the method
         DocumentWriter writer(filePath);
@@ -209,7 +204,6 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
 
         //call the method
         int count = 0;
@@ -217,8 +211,8 @@ namespace pboman3::io::test {
         DocumentWriter writer(filePath);
         writer.write(&document, [&count, expectedHitCount]() { count++; return count > expectedHitCount - 1; });
 
-        //ensure bs left open
-        ASSERT_TRUE(n1->binarySource->isOpen());
+        //ensure bs closed
+        ASSERT_FALSE(n1->binarySource->isOpen());
     }
 
     INSTANTIATE_TEST_SUITE_P(Write_Leaves_Binary_Sources_Open_If_Cancelled, DocumentWriterTest, testing::Range(1, 16));
@@ -239,14 +233,13 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
 
         //call the method
         DocumentWriter writer(filePath);
         writer.write(&document, []() { return false; });
 
         //ensure no junk left
-        ASSERT_TRUE(n1->binarySource->isOpen());
+        ASSERT_FALSE(n1->binarySource->isOpen());
     }
 
     TEST(DocumentWriterTest, Write_Replaces_Existing_File) {
@@ -268,7 +261,6 @@ namespace pboman3::io::test {
         PboDocument document("file.pbo");
         PboNode* n1 = document.root()->createHierarchy(PboPath("e1.txt"));
         n1->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(e1.fileName()));
-        n1->binarySource->open();
 
         //call the method
         DocumentWriter writer(existingFile.fileName());

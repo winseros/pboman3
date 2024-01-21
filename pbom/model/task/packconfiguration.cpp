@@ -24,7 +24,7 @@ namespace pboman3::model::task {
 
     void PackConfiguration::apply() const {
         bool usedPboJson = false;
-        PboNode* pboJson = FindDirectChild(document_->root(), "pbo.json");
+        PboNode* pboJson = document_->root()->get(PboPath{"pbo.json"});
         if (pboJson) {
             LOG(info, "Apply configuration from pbo.json")
             const PboJson packOptions = readPackOptions(pboJson);
@@ -145,8 +145,8 @@ namespace pboman3::model::task {
 
     void PackConfiguration::processPrefixFile(const QString& header, const QString& fileName,
                                               const QString& altFileName, bool cleanupOnly) const {
-        PboNode* file1 = FindDirectChild(document_->root(), fileName);
-        PboNode* file2 = FindDirectChild(document_->root(), altFileName);
+        PboNode* file1 = document_->root()->get(PboPath{fileName});
+        PboNode* file2 = document_->root()->get(PboPath{altFileName});
 
         if (!cleanupOnly) {
             if (file2) {

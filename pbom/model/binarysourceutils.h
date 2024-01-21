@@ -18,12 +18,10 @@ namespace pboman3::model {
         if (compress) {
             if (dynamic_cast<FsRawBinarySource*>(bs.get())) {
                 bs = QSharedPointer<BinarySource>(new FsLzhBinarySource(bs->path()));
-                bs->open();
             }
         } else {
             if (dynamic_cast<FsLzhBinarySource*>(bs.get())) {
                 bs = QSharedPointer<BinarySource>(new FsRawBinarySource(bs->path()));
-                bs->open();
             }
         }
     }

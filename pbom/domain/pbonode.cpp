@@ -3,7 +3,6 @@
 #include "exception.h"
 #include "validationexception.h"
 #include "pbonodetransaction.h"
-#include "func.h"
 #include "util/filenames.h"
 
 namespace pboman3::domain {
@@ -36,11 +35,7 @@ namespace pboman3::domain {
 
         PboNode* p = node->parentNode_;
         assert(p && "Must not be null");
-
-        const qsizetype index = p->children_.indexOf(node);
-        node->parentNode_->children_.remove(index, 1);
-
-        emit p->childRemoved(index);
+        p->removeNode(node->sharedFromThis(), true);
         p->emitHierarchyChanged();
     }
 
@@ -53,15 +48,25 @@ namespace pboman3::domain {
     }
 
     PboNode* PboNode::get(const PboPath& path) {
-        PboNode* result = this;
-        auto it = path.begin();
-        while (it != path.end()) {
-            result = FindDirectChild(result, *it);
-            if (!result)
+        QSharedPointer<PboNode> node = sharedFromThis();
+        assert(node && "sharedFromThis() returned null");
+        for (const QString& seg : path) {
+            node = node->getChild(seg);
+            if (!node)
                 return nullptr;
-            ++it;
         }
-        return result;
+        return node.get();
+    }
+
+    const PboNode* PboNode::get(const PboPath& path) const {
+        QSharedPointer<const PboNode> node = sharedFromThis();
+        assert(node && "sharedFromThis() returned null");
+        for (const QString& seg : path) {
+            node = node->getChild(seg);
+            if (!node)
+                return nullptr;
+        }
+        return node.get();
     }
 
     PboPath PboNode::makePath() const {
@@ -81,42 +86,31 @@ namespace pboman3::domain {
     }
 
     bool PboNode::operator<(const PboNode& node) const {
-        if (nodeType_ == node.nodeType_) {
-            if (nodeType_ == PboNodeType::Folder) {
-                return title_ < node.title_; //folders alphabetically
-            }
-            QString name1, ext1;
-            FileNames::splitByNameAndExtension(title_, name1, ext1);
-            QString name2, ext2;
-            FileNames::splitByNameAndExtension(node.title_, name2, ext2);
-            if (name1 == name2) {
-                return ext1 < ext2; //files alphabetically by extension
-            }
-            return name1 < name2; //files alphabetically by name
-        }
-
-        return nodeType_ > node.nodeType_; //folders first
+        return nodeType_ == node.nodeType_
+        ? title_ < node.title_
+        : nodeType_ > node.nodeType_;
     }
 
     PboNode* PboNode::createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict,
                                       bool emitEvents) {
         PboNode* node = this;
-        for (qsizetype i = 0; i < entryPath.length() - 1; i++) {
-            PboNode* folder = FindDirectChild(node, entryPath.at(i));
+        const auto last = --entryPath.end();
+        auto it = entryPath.begin();
+        while (it != last) {
+            PboNode* folder = node->getChild(*it).get();
             if (!folder) {
-                folder = node->createChild(entryPath.at(i), PboNodeType::Folder);
+                folder = node->createNode(*it, PboNodeType::Folder, emitEvents);
             } else if (folder->nodeType_ == PboNodeType::File) {
                 switch (onConflict) {
                     case ConflictResolution::Replace: {
-                        PboNode* replaceFolder = folder->parentNode_->createChild(
-                            entryPath.last(), PboNodeType::File);
-                        folder->removeFromHierarchy();
-                        folder = replaceFolder;
+                        const auto p = folder->parentNode_;
+                        p->removeNode(folder->sharedFromThis(), emitEvents);
+                        folder = p->createNode(*it, PboNodeType::Folder, emitEvents);
                         break;
                     }
                     case ConflictResolution::Copy: {
-                        const QString folderTitle = pickFolderTitle(node, entryPath.at(i));
-                        folder = node->createChild(folderTitle, PboNodeType::Folder);
+                        const QString folderTitle = node->pickFolderTitle(*it);
+                        folder = node->createNode(folderTitle, PboNodeType::Folder, emitEvents);
                         break;
                     }
                     default:
@@ -124,25 +118,26 @@ namespace pboman3::domain {
                 }
             }
             node = folder;
+            ++it;
         }
 
-        PboNode* file = FindDirectChild(node, entryPath.last());
+        PboNode* file = node->getChild(*last).get();
         if (!file) {
-            file = node->createChild(entryPath.last(), PboNodeType::File);
+            file = node->createNode(*last, PboNodeType::File, emitEvents);
             if (emitEvents)
                 emitHierarchyChanged();
         } else {
             switch (onConflict) {
                 case ConflictResolution::Replace: {
-                    PboNode* replaceFile = file->parentNode_->createChild(entryPath.last(), PboNodeType::File);
-                    //this emits "hierarchyChanged"; this branch never called with emitEvents==false
-                    file->removeFromHierarchy();
-                    file = replaceFile;
+                    node->removeNode(file->sharedFromThis(), emitEvents);
+                    file = node->createNode(*last, PboNodeType::File, emitEvents);
+                    if (emitEvents)
+                        emitHierarchyChanged();
                     break;
                 }
                 case ConflictResolution::Copy: {
-                    const QString fileTitle = pickFileTitle(node, entryPath.last());
-                    file = node->createChild(fileTitle, PboNodeType::File);
+                    const QString fileTitle = node->pickFileTitle(*last);
+                    file = node->createNode(fileTitle, PboNodeType::File, emitEvents);
                     if (emitEvents)
                         emitHierarchyChanged();
                     break;
@@ -155,58 +150,40 @@ namespace pboman3::domain {
         return file;
     }
 
-    QString PboNode::pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const {
+    QString PboNode::pickFolderTitle(const QString& expectedTitle) const {
         int index = 1;
         QString attemptTitle = FileNames::getCopyFolderName(expectedTitle, index);
-        auto it = parent->children_.constBegin();
-        while (it != parent->children_.constEnd()) {
-            if ((*it)->title() == attemptTitle && (*it)->nodeType_ == PboNodeType::File) {
-                index++;
-                attemptTitle = FileNames::getCopyFolderName(expectedTitle, index);
-                it = parent->children_.constBegin();
-            } else {
-                ++it;
-            }
+        while (hasChild(attemptTitle)) {
+            index++;
+            attemptTitle = FileNames::getCopyFolderName(expectedTitle, index);
         }
         return attemptTitle;
     }
 
-    QString PboNode::pickFileTitle(const PboNode* parent, const QString& expectedTitle) const {
+    QString PboNode::pickFileTitle(const QString& expectedTitle) const {
         int index = 1;
         QString attemptTitle = FileNames::getCopyFileName(expectedTitle, index);
-        auto it = parent->children_.constBegin();
-        while (it < parent->children_.constEnd()) {
-            if ((*it)->title() == attemptTitle) {
-                index++;
-                attemptTitle = FileNames::getCopyFileName(expectedTitle, index);
-                it = parent->children_.constBegin();
-            } else {
-                ++it;
-            }
+        while (hasChild(attemptTitle)) {
+            index++;
+            attemptTitle = FileNames::getCopyFileName(expectedTitle, index);
         }
         return attemptTitle;
     }
 
-    PboNode* PboNode::createChild(const QString& title, PboNodeType nodeType) {
-        const auto child = QSharedPointer<PboNode>(new PboNode(title, nodeType, this));
-        const qsizetype index = getChildListIndex(child.get());
-        children_.insert(index, child);
-        emit childCreated(child.get(), index);
+    PboNode* PboNode::createNode(const QString& title, PboNodeType nodeType, bool emitEvents) {
+        const QSharedPointer<PboNode> child(new PboNode(title, nodeType, this));
+        const qsizetype insertedIndex = addChild(child);
+
+        if (emitEvents)
+            emit childCreated(child.get(), insertedIndex);
+
         return child.get();
     }
 
-    qsizetype PboNode::getChildListIndex(const PboNode* node) const {
-        qsizetype index = 0;
-        for (const QSharedPointer<PboNode>& sibling : children_) {
-            if (sibling != node) {
-                if (*sibling < *node) {
-                    index++;
-                } else {
-                    break;
-                }
-            }
-        }
-        return index;
+    void PboNode::removeNode(const QSharedPointer<PboNode>& node, bool emitEvents) {
+        const qsizetype index = removeChild(node);
+        if (emitEvents)
+            emit childRemoved(index);
     }
 
     void PboNode::emitHierarchyChanged() {
@@ -219,19 +196,23 @@ namespace pboman3::domain {
 
     void PboNode::setTitle(QString title) {
         if (title != title_) {
-
-            title_ = std::move(title);
-            emit titleChanged(title_);
+            qsizetype prevIndex = 0;
+            QSharedPointer<PboNode> ptr;
 
             if (parentNode_) {
-                const qsizetype prevIndex = parentNode_->children_.indexOf(this);
-                const qsizetype newIndex = parentNode_->getChildListIndex(this);
+                ptr = sharedFromThis();
+                assert(ptr && "sharedFromThis() returned null");
+                prevIndex = parentNode_->removeChild(ptr);
+            }
+            title_ = std::move(title);
+            if (parentNode_) {
+                const qsizetype newIndex = parentNode_->addChild(ptr);
                 if (prevIndex != newIndex) {
-                    parentNode_->children_.move(prevIndex, newIndex);
                     emit parentNode_->childMoved(prevIndex, newIndex);
                 }
-
             }
+
+            emit titleChanged(title_);
             emitHierarchyChanged();
         }
     }

@@ -367,13 +367,23 @@ namespace pboman3::ui {
             InsertDialog dialog(this, InsertDialog::Mode::InternalFiles, &descriptors, &conflicts);
             if (dialog.exec() == QDialog::DialogCode::Accepted) {
                 LOG(info, "The user accepted the conflicts dialog")
-                model_->createNodeSet(target, descriptors, conflicts);
-                delete_.commit();
+                try {
+                    model_->createNodeSet(target, descriptors, conflicts);
+                    delete_.commit();
+                } catch (const DiskAccessException& ex) {
+                    LOG(info, "Error when creating the node set - show error modal:", ex)
+                    UI_HANDLE_ERROR_RET(ex)
+                }
             }
         } else {
             LOG(info, "There were no conflicts - adding the nodes as is")
-            model_->createNodeSet(target, descriptors, conflicts);
-            delete_.commit();
+            try {
+                model_->createNodeSet(target, descriptors, conflicts);
+                delete_.commit();
+            } catch (const DiskAccessException& ex) {
+                LOG(info, "Error when creating the node set - show error modal:", ex)
+                UI_HANDLE_ERROR_RET(ex)
+            }
         }
     }
 
@@ -412,6 +422,11 @@ namespace pboman3::ui {
             UI_HANDLE_ERROR_RET(ex)
         }
 
+        if (parcel.files->empty()) {
+            LOG(debug, "Collected no files - aborting")
+            return;
+        }
+
         LOG(debug, "Collected descriptors:", parcel.files)
         LOG(info, "Selected node is:", *parcel.target)
 
@@ -421,7 +436,12 @@ namespace pboman3::ui {
         InsertDialog dialog(this, InsertDialog::Mode::ExternalFiles, parcel.files.get(), &conflicts);
         if (dialog.exec() == QDialog::DialogCode::Accepted) {
             LOG(info, "The user accepted the file insert dialog")
-            model_->createNodeSet(parcel.target, *parcel.files, conflicts);
+            try {
+                model_->createNodeSet(parcel.target, *parcel.files, conflicts);
+            } catch (const DiskAccessException& ex) {
+                LOG(info, "Error when creating the node set - show error modal:", ex)
+                UI_HANDLE_ERROR_RET(ex)
+            }
         }
     }
 }

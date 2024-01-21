@@ -21,6 +21,7 @@ list(APPEND PROJECT_SOURCES_UI
     "ui/insertdialog.cpp"
     "ui/insertdialog.ui"
     "ui/insertdialogbuttons.cpp"
+    "ui/insertdialogbuttons.ui"
     "ui/renamedialog.cpp"
     "ui/renamedialog.ui"
     "ui/mainwindow.cpp"

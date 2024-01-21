@@ -103,7 +103,6 @@ namespace pboman3::model {
                 break;
             }
         }
-        bs->open();
 
         return {bs, path};
     }

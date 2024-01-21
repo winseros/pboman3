@@ -64,7 +64,7 @@ namespace pboman3::model::task {
             }
         }
         for (const QString file : files) {
-            if (const PboNode* node = FindDirectChild(document.root(), file); node) {
+            if (const PboNode* node = document.root()->get(PboPath{file}); node) {
                 if (IsCompressed(node->binarySource)) {
                     const QString rule = makeFileCompressionRule(file);
                     options.compress.include.append(rule);

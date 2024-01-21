@@ -43,12 +43,12 @@ jobs:
       - name: Install Qt6
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.5.2'
+          version: '6.6.1'
           host: windows
           target: desktop
           arch: win64_msvc2019_64
           dir: ${{github.workspace}}
-          tools: tools_openssl_x64
+          tools: tools_opensslv3_x64
       
       - name: Checkout
         uses: actions/checkout@v3

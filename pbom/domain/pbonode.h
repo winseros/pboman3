@@ -10,7 +10,7 @@
 namespace pboman3::domain {
     class PboNodeTransaction;
 
-    class PboNode final : public AbstractNode<PboNode> {
+    class PboNode final : public AbstractNode<PboNode>, public QEnableSharedFromThis<PboNode> {
     Q_OBJECT
 
     public:
@@ -29,6 +29,8 @@ namespace pboman3::domain {
         PboNodeType nodeType() const;
 
         PboNode* get(const PboPath& path);
+
+        const PboNode* get(const PboPath& path) const;
 
         PboPath makePath() const;
 
@@ -55,18 +57,18 @@ namespace pboman3::domain {
 
         PboNode* createHierarchy(const PboPath& entryPath, const ConflictResolution& onConflict, bool emitEvents);
 
-        QString pickFolderTitle(const PboNode* parent, const QString& expectedTitle) const;
+        QString pickFolderTitle(const QString& expectedTitle) const;
 
-        QString pickFileTitle(const PboNode* parent, const QString& expectedTitle) const;
+        QString pickFileTitle(const QString& expectedTitle) const;
 
-        PboNode* createChild(const QString& title, PboNodeType nodeType);
+        PboNode* createNode(const QString& title, PboNodeType nodeType, bool emitEvents);
 
-        qsizetype getChildListIndex(const PboNode* node) const;
+        void removeNode(const QSharedPointer<PboNode>& node, bool emitEvents);
 
         void emitHierarchyChanged();
 
         void setTitle(QString title);
 
-        friend PboNodeTransaction;
+    friend PboNodeTransaction;
     };
 }

@@ -6,36 +6,73 @@
 
 namespace pboman3::ui {
     InsertDialogButtons::InsertDialogButtons(QWidget* parent)
-        : QDialogButtonBox(StandardButtons(Ok | Cancel), parent),
-          btnNext_(nullptr),
-          btnBack_(nullptr) {
-        connect(this, &InsertDialogButtons::clicked, this, &InsertDialogButtons::onButtonClicked);
+        : QWidget(parent),
+          ui_(new Ui::InsertDialogButtons) {
+        ui_->setupUi(this);
+        ui_->btnNext->hide();
+        ui_->btnBack->hide();
+
+        connect(ui_->btnOk, &QAbstractButton::clicked, this, &InsertDialogButtons::onOkClick);
+        connect(ui_->btnCancel, &QAbstractButton::clicked, this, &InsertDialogButtons::onCancelClick);
+        connect(ui_->btnNext, &QAbstractButton::clicked, this, &InsertDialogButtons::onNextClick);
+        connect(ui_->btnBack, &QAbstractButton::clicked, this, &InsertDialogButtons::onBackClick);
     }
 
-    void InsertDialogButtons::setIsTwoStep() {
+    InsertDialogButtons::~InsertDialogButtons() {
+        delete ui_;
+    }
+
+    void InsertDialogButtons::setIsTwoStep() const {
         LOG(info, "Set the buttons panel for a 2-step dialog")
-        btnNext_ = addButton("Next", ActionRole);
-        btnNext_->setFocus();
-        btnBack_ = addButton("Back", ActionRole);
-        button(Ok)->hide();
-        btnBack_->hide();
+
+        ui_->btnOk->setAutoDefault(false);
+        ui_->btnOk->setDefault(false);
+        ui_->btnOk->hide();
+
+        ui_->btnNext->show();
+        ui_->btnNext->setFocus();
+        ui_->btnNext->setDefault(true);
+        ui_->btnNext->setAutoDefault(true);
     }
 
-    void InsertDialogButtons::onButtonClicked(const QAbstractButton* btn) {
-        if (btn == btnNext_) {
-            LOG(info, "User clicked the Next button")
-            button(Ok)->show();
-            button(Ok)->setFocus();
-            btnNext_->hide();
-            btnBack_->show();
-            emit next();
-        } else if (btn == btnBack_) {
-            LOG(info, "User clicked the Back button")
-            button(Ok)->hide();
-            btnNext_->show();
-            btnNext_->setFocus();
-            btnBack_->hide();
-            emit back();
-        }
+    void InsertDialogButtons::onNextClick() {
+        LOG(info, "User clicked the Next button")
+        ui_->btnNext->setAutoDefault(false);
+        ui_->btnNext->setDefault(false);
+        ui_->btnNext->hide();
+
+        ui_->btnOk->show();
+        ui_->btnOk->setFocus();
+        ui_->btnOk->setDefault(true);
+        ui_->btnOk->setAutoDefault(true);
+        
+        ui_->btnBack->show();
+        emit next();
+    }
+
+    void InsertDialogButtons::onBackClick() {
+        LOG(info, "User clicked the Back button")
+
+        ui_->btnOk->setAutoDefault(false);
+        ui_->btnOk->setDefault(false);
+        ui_->btnOk->hide();
+
+        ui_->btnNext->show();
+        ui_->btnNext->setFocus();
+        ui_->btnNext->setDefault(true);
+        ui_->btnNext->setAutoDefault(true);
+
+        ui_->btnBack->hide();
+        emit back();
+    }
+
+    void InsertDialogButtons::onOkClick() {
+        LOG(info, "User clicked the Ok button")
+        emit ok();
+    }
+
+    void InsertDialogButtons::onCancelClick() {
+        LOG(info, "User clicked the Cancel button")
+        emit cancel();
     }
 }

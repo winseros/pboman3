@@ -38,10 +38,6 @@ namespace pboman3::io {
 
         void writeSignature(QFileDevice* pbo, PboDocument* document, const Cancel& cancel);
 
-        void suspendBinarySources(PboNode* node) const;
-
-        void resumeBinarySources(PboNode* node) const;
-
         void assignBinarySources(PboNode* node);
 
         void emitWriteEntry();

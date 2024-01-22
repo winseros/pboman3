@@ -89,9 +89,13 @@ namespace pboman3::model {
             LOG(debug, "The conflict resolution for the descriptor was set to:", static_cast<qint32>(resolution))
 
             if (resolution != ConflictResolution::Skip) {
+                if (resolution == ConflictResolution::Replace || resolution == ConflictResolution::Copy) {
+                    const PboNode* existing = parent->get(descriptor.path());
+                    binaryBackend_->clear(existing);
+                }
+
                 PboNode* created = parent->createHierarchy(descriptor.path(), resolution);
                 created->binarySource = descriptor.binarySource();
-                binaryBackend_->clear(created);
             }
         }
     }

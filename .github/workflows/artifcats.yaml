@@ -43,12 +43,12 @@ jobs:
       - name: Install Qt6
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.5.2'
+          version: '6.6.1'
           host: windows
           target: desktop
           arch: win64_msvc2019_64
           dir: ${{github.workspace}}
-          tools: tools_openssl_x64
+          tools: tools_opensslv3_x64
       
       - name: Checkout
         uses: actions/checkout@v3
@@ -101,7 +101,7 @@ jobs:
             makeappx.exe pack /d ${{github.workspace}}\_msix\ /p ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix
       
       - name: Upload MSIX package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: PBOManager-msix-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix

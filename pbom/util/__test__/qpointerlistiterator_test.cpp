@@ -14,8 +14,8 @@ namespace pboman3::util::test {
         headers.append(h1);
         headers.append(h2);
 
-        auto it1 = QPointerListIterator(headers.data());
-        auto it2 = QPointerListIterator(headers.data());
+        auto it1 = QPointerListIterator<PboHeaderEntity>(headers.begin());
+        auto it2 = QPointerListIterator<PboHeaderEntity>(headers.begin());
         ASSERT_EQ(it1, h1.get());
         ASSERT_EQ(it2, h1.get());
         ASSERT_EQ(it1, it2);
@@ -34,8 +34,8 @@ namespace pboman3::util::test {
 
         it1 += 2;
         it2 += 2;
-        ASSERT_EQ(it1, QPointerListIterator(headers.data() + headers.count()));
-        ASSERT_EQ(it2, QPointerListIterator(headers.data() + headers.count()));
+        ASSERT_EQ(it1, QPointerListIterator<PboHeaderEntity>(headers.end()));
+        ASSERT_EQ(it2, QPointerListIterator<PboHeaderEntity>(headers.end()));
         ASSERT_EQ(it1, it2);
 
         it1 -= 2;
@@ -91,8 +91,8 @@ namespace pboman3::util::test {
         headers.append(h1);
         headers.append(h2);
 
-        auto it1 = QPointerListConstIterator(headers.data());
-        auto it2 = QPointerListConstIterator(headers.data());
+        auto it1 = QPointerListConstIterator<PboHeaderEntity>(headers.begin());
+        auto it2 = QPointerListConstIterator<PboHeaderEntity>(headers.begin());
         ASSERT_EQ(it1, h1.get());
         ASSERT_EQ(it2, h1.get());
         ASSERT_EQ(it1, it2);
@@ -111,8 +111,8 @@ namespace pboman3::util::test {
 
         it1 += 2;
         it2 += 2;
-        ASSERT_EQ(it1, QPointerListConstIterator(headers.data() + headers.count()));
-        ASSERT_EQ(it2, QPointerListConstIterator(headers.data() + headers.count()));
+        ASSERT_EQ(it1, QPointerListConstIterator<PboHeaderEntity>(headers.end()));
+        ASSERT_EQ(it2, QPointerListConstIterator<PboHeaderEntity>(headers.end()));
         ASSERT_EQ(it1, it2);
 
         it1 -= 2;

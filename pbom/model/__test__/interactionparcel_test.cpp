@@ -44,11 +44,11 @@ namespace pboman3::model::test {
 
     TEST(NodeDescriptorsTest, PackTree_Creates_Descriptors) {
         //the pbo nodes tree
-        PboNode root("file-name", PboNodeType::Container, nullptr);
-        PboNode* e1 = root.createHierarchy(PboPath("e1"));
-        PboNode* e2 = root.createHierarchy(PboPath("f2/e2"));
-        PboNode* e3 = root.createHierarchy(PboPath("f2/e3"));
-        PboNode* e4 = root.createHierarchy(PboPath("f3/e1"));
+        const auto root = QSharedPointer<PboNode>::create("file-name", PboNodeType::Container, nullptr);
+        PboNode* e1 = root->createHierarchy(PboPath("e1"));
+        PboNode* e2 = root->createHierarchy(PboPath("f2/e2"));
+        PboNode* e3 = root->createHierarchy(PboPath("f2/e3"));
+        PboNode* e4 = root->createHierarchy(PboPath("f3/e1"));
 
         //set binary sources to nodes
         QTemporaryFile t;
@@ -62,7 +62,7 @@ namespace pboman3::model::test {
         e4->binarySource = QSharedPointer<BinarySource>(new FsRawBinarySource(t.fileName()));
 
         //test the method
-        const QList paths{e1, e2, root.get(PboPath("f2")), e4};
+        const QList paths{e1, e2, root->get(PboPath("f2")), e4};
         const NodeDescriptors descriptors = NodeDescriptors::packNodes(paths);
 
         //verify the results
@@ -124,24 +124,5 @@ namespace pboman3::model::test {
         const auto* cs3 = dynamic_cast<FsLzhBinarySource*>(copy.at(2).binarySource().get());
         ASSERT_TRUE(cs3);
         ASSERT_EQ(cs3->path(), bs3->path());
-    }
-
-    TEST(NodeDescriptorsTest, Deserialization_Opens_Binary_Sources) {
-        QTemporaryFile t1;
-        t1.open();
-        t1.close();
-
-        const auto bs1 = QSharedPointer<FsRawBinarySource>(new FsRawBinarySource(t1.fileName()));
-
-        NodeDescriptors source;
-        source.append(NodeDescriptor(bs1, PboPath("pbo/entry/path1")));
-        const QByteArray serialized = NodeDescriptors::serialize(source);
-
-        const NodeDescriptors copy = NodeDescriptors::deserialize(serialized);
-        ASSERT_EQ(copy.length(), 1);
-
-        auto* cs1 = dynamic_cast<FsRawBinarySource*>(copy.at(0).binarySource().get());
-        ASSERT_TRUE(cs1);
-        ASSERT_TRUE(cs1->isOpen());
     }
 }

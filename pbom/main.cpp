@@ -25,7 +25,7 @@
 using namespace std;
 
 namespace pboman3 {
-    template <typename TChr>
+    template <CharOrWChar TChr>
     class PboApplication : public QApplication {
     public:
         PboApplication(int& argc, TChr* argv[])
@@ -171,7 +171,7 @@ namespace pboman3 {
         return 0;
     }
 
-    template <typename TChr>
+    template <CharOrWChar TChr>
     int RunWithCliOptions(int argc, TChr* argv[]) {
         using namespace CLI;
         using namespace pboman3;
@@ -231,7 +231,7 @@ namespace pboman3 {
         return exitCode;
     }
 
-    template <typename TChr>
+    template <CharOrWChar TChr>
     QString ReadFileName(TChr* argv[]) {
         return QString(argv[1]);
     }
@@ -244,7 +244,7 @@ namespace pboman3 {
 #endif
 
 
-    template <typename TChr>
+    template <CharOrWChar TChr>
     int RunMain(int argc, TChr* argv[]) {
         int exitCode;
         if (argc == 2) {
@@ -277,7 +277,7 @@ void HandleEptr(const std::exception_ptr& ptr) try {
     LOG(critical, "Uncaught exception has been thrown:", ex.what())
 }
 
-template <typename TChr>
+template <pboman3::CharOrWChar TChr>
 int MainImpl(int argc, TChr* argv[]) {
     try {
         const int res = pboman3::RunMain(argc, argv);

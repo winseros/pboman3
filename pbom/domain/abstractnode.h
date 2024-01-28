@@ -8,7 +8,7 @@ namespace pboman3::domain {
     template <typename T>
     class AbstractNode : public QObject {
     public:
-        AbstractNode(T* parentNode)
+        explicit AbstractNode(T* parentNode)
             : parentNode_(parentNode) {
         }
 
@@ -20,7 +20,7 @@ namespace pboman3::domain {
             return childList_.at(index).get();
         }
 
-        int depth() const {
+        [[nodiscard]] int depth() const {
             int result = 0;
             T* parentNode = parentNode_;
             while (parentNode) {
@@ -30,7 +30,7 @@ namespace pboman3::domain {
             return result;
         }
 
-        qsizetype count() const {
+        [[nodiscard]] qsizetype count() const {
             return childList_.size();
         }
 

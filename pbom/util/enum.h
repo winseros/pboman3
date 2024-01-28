@@ -21,8 +21,8 @@ namespace pboman3::util {
     }
 
     template <typename TEnum, TEnum... Values>
+    requires std::is_enum_v<TEnum>
     bool TryReadEnum(const QVariant& value, TEnum& result) {
-        static_assert(std::is_enum_v<TEnum>);
         static_assert(sizeof...(Values) > 0);
 
         if (value.typeId() != QMetaType::Int)

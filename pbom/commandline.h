@@ -6,6 +6,9 @@ namespace pboman3 {
     using namespace CLI;
     using namespace std;
 
+    template <typename TChr>
+    concept CharOrWChar = is_same_v<TChr, char> || is_same_v<TChr, wchar_t>;
+
     struct CommandLine {
         struct Command {
             Command() : command(nullptr) {
@@ -15,14 +18,14 @@ namespace pboman3 {
 
             App* command;
 
-            bool hasBeenSet() const {
+            [[nodiscard]] bool hasBeenSet() const {
                 return command->parsed();
             }
 
             virtual void configure(App* cli) = 0;
         };
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         struct CommandOpen : Command {
             basic_string<TChr> fileName;
 
@@ -34,7 +37,7 @@ namespace pboman3 {
             }
         };
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         struct PackCommandBase : Command {
             PackCommandBase()
                 : optOutputPath(nullptr)
@@ -66,7 +69,7 @@ namespace pboman3 {
 #endif
         };
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         struct CommandPack : PackCommandBase<TChr> {
             vector<basic_string<TChr>> folders;
 
@@ -92,7 +95,7 @@ namespace pboman3 {
             }
         };
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         struct CommandUnpack : PackCommandBase<TChr> {
             vector<basic_string<TChr>> files;
 
@@ -116,7 +119,7 @@ namespace pboman3 {
             }
         };
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         struct Result {
 #ifdef PBOM_GUI
             CommandOpen<TChr> open;
@@ -131,7 +134,7 @@ namespace pboman3 {
             : app_(app) {
         }
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         shared_ptr<Result<TChr>> build() const {
             auto result = make_shared<Result<TChr>>();
 #ifdef PBOM_GUI
@@ -143,12 +146,12 @@ namespace pboman3 {
             return result;
         }
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         static QString toQt(const basic_string<TChr>& str) {
             return QString::fromStdString(str);
         }
 
-        template <typename TChr>
+        template <CharOrWChar TChr>
         static QStringList toQt(const vector<basic_string<TChr>>& items) {
             QStringList qtItems;
             qtItems.reserve(static_cast<qsizetype>(items.size()));

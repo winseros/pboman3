@@ -5,7 +5,7 @@
 namespace pboman3::io {
     class SanitizedString {
     public:
-        SanitizedString(const QString& text);
+        explicit SanitizedString(const QString& text);
 
         operator const QString&();
 
@@ -13,8 +13,12 @@ namespace pboman3::io {
         const QString* originalText_;
         QString sanitizedText_;
 
-        static void replaceAll(QString& text, QChar what, const QString& with);
+        static bool needsSanitization(const QString& text, qsizetype* firstInvalidCharIndex);
 
-        static void replaceEnd(QString& text, QChar what, const QString& with);
+        static QString doSanitization(const QString& text, qsizetype firstInvalidCharIndex);
+
+        static bool isCharLegal(const QChar& chr);
+
+        static QString sanitizeChar(const QChar& chr);
     };
 }

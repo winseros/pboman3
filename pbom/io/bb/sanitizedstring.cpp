@@ -3,34 +3,63 @@
 namespace pboman3::io {
     SanitizedString::SanitizedString(const QString& text)
         : originalText_(nullptr) {
+        originalText_ = &text;
 
-        QString sanitized = text; //https://doc.qt.io/qt-6/implicit-sharing.html
-		replaceAll(sanitized, '\t', "%09");
-		replaceAll(sanitized, '?', "%3F");
-		replaceAll(sanitized, '*', "%2A");
-		replaceAll(sanitized, '/', "%2F");
-		replaceAll(sanitized, '\\', "%5C");
-		replaceEnd(sanitized, '.', "%2E");
-
-        if (sanitized.isEmpty())
-            originalText_ = &text;
-        else
-            sanitizedText_ = sanitized;
-    }
-
-    void SanitizedString::replaceAll(QString& text, QChar what, const QString& with) {
-        if (text.contains(what)) {
-            text.replace(what, with);
+        if (qsizetype firstInvalidCharIndex; needsSanitization(text, &firstInvalidCharIndex)) {
+            sanitizedText_ = doSanitization(text, firstInvalidCharIndex);
         }
-    }
-
-    void SanitizedString::replaceEnd(QString& text, QChar what, const QString& with) {
-		if (text.endsWith(what)) {
-			text.replace(text.count() - 1, 1, with);
-		}
     }
 
     SanitizedString::operator const QString&() {
         return sanitizedText_.isEmpty() ? *originalText_ : sanitizedText_;
+    }
+
+    bool SanitizedString::needsSanitization(const QString& text, qsizetype* firstInvalidCharIndex) {
+        auto it = text.constBegin();
+        while (it != text.constEnd()) {
+            if (!isCharLegal(*it)) {
+                *firstInvalidCharIndex = it - text.constBegin();
+                return true;
+            }
+            ++it;
+        }
+        return false;
+    }
+
+    QString SanitizedString::doSanitization(const QString& text, qsizetype firstInvalidCharIndex) {
+        QString sanitized;
+        sanitized.reserve(static_cast<qsizetype>(static_cast<double>(text.size()) * 1.2));
+
+        auto it = text.constBegin();
+        const auto firstInvalid = it + firstInvalidCharIndex;
+        while (it != firstInvalid) {
+            sanitized.append(*it);
+            ++it;
+        }
+
+        while (it != text.constEnd()) {
+            if (isCharLegal(*it)) {
+                sanitized.append(*it);
+            } else {
+                QString s = sanitizeChar(*it);
+                sanitized.append(s);
+            }
+            ++it;
+        }
+        return sanitized;
+    }
+
+    bool SanitizedString::isCharLegal(const QChar& chr) {
+        if (chr == '<' || chr == '>' || chr == ':' || chr == ':' || chr == '"' || chr == '\\' || chr == '/' ||
+            chr == '|' || chr == '?' || chr == '*') {
+            return false;
+        }
+
+        const auto res = chr.isLetterOrNumber() || ((chr.isSpace() || chr.isSymbol() || chr.isPunct()) && chr.isPrint());
+        return res;
+    }
+
+    QString SanitizedString::sanitizeChar(const QChar& chr) {
+        return "%" + QString::number(chr.unicode(), 16);
     }
 }

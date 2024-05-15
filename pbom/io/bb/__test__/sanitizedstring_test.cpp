@@ -17,10 +17,10 @@ namespace pboman3::io::test {
     }
 
     INSTANTIATE_TEST_SUITE_P(SanitizedStringTest, CtorTest, testing::Values(
-                                 CtorParam{"\t1\t", "%091%09"},
-                                 CtorParam{"?1?", "%3F1%3F"},
-                                 CtorParam{"*1*", "%2A1%2A"},
-                                 CtorParam{"1///", "1%2F%2F%2F"},
-                                 CtorParam{"\\2", "%5C2"}
+                                 CtorParam{"\t1\t", "%91%9"},
+                                 CtorParam{"?1?", "%3f1%3f"},
+                                 CtorParam{"*1*", "%2a1%2a"},
+                                 CtorParam{"1///", "1%2f%2f%2f"},
+                                 CtorParam{"\\2", "%5c2"}
                              ));
 }

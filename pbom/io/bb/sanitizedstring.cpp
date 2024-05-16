@@ -14,6 +14,8 @@ namespace pboman3::io {
             sanitizedText_ = doCharacterSanitization(text, firstInvalidCharIndex);
         } else if (QString keyWord; needsKeywordSanitization(text, &keyWord)) {
             sanitizedText_ = doKeywordSanitization(text, keyWord);
+        } else if (needsWhitespaceSanitization(text)) {
+            sanitizedText_ = doWhitespaceSanitization(text);
         } else {
             sanitizedText_ = text;
         }
@@ -74,6 +76,16 @@ namespace pboman3::io {
         QString result(text);
         const qint32 rnd = QRandomGenerator::global()->bounded(1000);
         result.insert(keyword.length(), "-" + QString::number(rnd));
+        return result;
+    }
+
+    bool SanitizedString::needsWhitespaceSanitization(const QString& text) {
+        return !text.trimmed().length();
+    }
+
+    QString SanitizedString::doWhitespaceSanitization(const QString& text) {
+        QString result(text);
+        result = result.replace(' ', "%20");
         return result;
     }
 

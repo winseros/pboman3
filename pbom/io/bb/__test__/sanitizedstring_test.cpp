@@ -22,7 +22,8 @@ namespace pboman3::io::test {
             SanitizedStringTestParam{"?1?", "%3f1%3f"},
             SanitizedStringTestParam{"*1*", "%2a1%2a"},
             SanitizedStringTestParam{"1///", "1%2f%2f%2f"},
-            SanitizedStringTestParam{"\\2", "%5c2"}
+            SanitizedStringTestParam{"\\2", "%5c2"},
+            SanitizedStringTestParam{"    ", "%20%20%20%20"}
     ));
 
     class SanitizedStringRestrictedKeywordsTest : public testing::TestWithParam<SanitizedStringTestParam> {

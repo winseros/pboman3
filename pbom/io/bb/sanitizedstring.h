@@ -23,6 +23,10 @@ namespace pboman3::io {
 
         static QString doKeywordSanitization(const QString& text, const QString& keyword);
 
+        static bool needsWhitespaceSanitization(const QString& text);
+
+        static QString doWhitespaceSanitization(const QString& text);
+
         static bool isCharLegal(const QChar& chr);
 
         static QString sanitizeChar(const QChar& chr);

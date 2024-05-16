@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QList>
 
 namespace pboman3::io {
     class SanitizedString {
@@ -10,12 +11,17 @@ namespace pboman3::io {
         operator const QString&();
 
     private:
-        const QString* originalText_;
+        static const QList<QString> restrictedFileNames_;
+
         QString sanitizedText_;
 
-        static bool needsSanitization(const QString& text, qsizetype* firstInvalidCharIndex);
+        static bool needsCharacterSanitization(const QString& text, qsizetype* firstInvalidCharIndex);
 
-        static QString doSanitization(const QString& text, qsizetype firstInvalidCharIndex);
+        static QString doCharacterSanitization(const QString& text, qsizetype firstInvalidCharIndex);
+
+        static bool needsKeywordSanitization(const QString& text, QString* keyword);
+
+        static QString doKeywordSanitization(const QString& text, const QString& keyword);
 
         static bool isCharLegal(const QChar& chr);
 

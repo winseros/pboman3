@@ -36,6 +36,7 @@ namespace pboman3::io::test {
     }
 
     INSTANTIATE_TEST_SUITE_P(TestSuite, SanitizedStringRestrictedKeywordsTest, testing::Values(
+        SanitizedStringTestParam{"COM1.c", "^COM1-\\d{1,4}.c"},
         SanitizedStringTestParam{"COn", "^COn-\\d{1,4}"},
         SanitizedStringTestParam{"COM1", "^COM1-\\d{1,4}"},
         SanitizedStringTestParam{"lPt2", "^lPt2-\\d{1,4}"},

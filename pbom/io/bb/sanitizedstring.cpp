@@ -37,8 +37,8 @@ namespace pboman3::io {
 
     bool SanitizedString::needsKeywordSanitization(const QString& text, QString* keyword) {
         const QString& fileNameWithoutExtension = util::FileNames::getFileNameWithoutExtension(text);
-        const auto found = std::find_if(restrictedFileNames_.constBegin(), restrictedFileNames_.constEnd(), [&text](const QString& kwd){
-            return QString::compare(kwd, text, Qt::CaseInsensitive) == 0;
+        const auto found = std::find_if(restrictedFileNames_.constBegin(), restrictedFileNames_.constEnd(), [&fileNameWithoutExtension](const QString& kwd){
+            return QString::compare(kwd, fileNameWithoutExtension, Qt::CaseInsensitive) == 0;
         });
         if (found != restrictedFileNames_.constEnd()){
             *keyword = *found;

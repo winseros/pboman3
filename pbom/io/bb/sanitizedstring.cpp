@@ -51,7 +51,7 @@ namespace pboman3::io {
 
     bool SanitizedString::isCharLegal(const QChar& chr) {
         if (chr == '<' || chr == '>' || chr == ':' || chr == ':' || chr == '"' || chr == '\\' || chr == '/' ||
-            chr == '|' || chr == '?' || chr == '*') {
+            chr == '|' || chr == '?' || chr == '*' || chr == '{' || chr == '}') {
             return false;
         }
 

@@ -12,7 +12,7 @@ namespace pboman3::util {
 
     class JsonStructureException : public AppException {
     public:
-        JsonStructureException(QString message);
+        explicit JsonStructureException(QString message);
 
         PBOMAN_EX_HEADER(JsonStructureException)
     };
@@ -37,6 +37,10 @@ namespace pboman3::util {
     }
 
     template <typename T>
+    requires requires (T t) {
+        json::JsonValueTrait<T>::read(t);
+        json::JsonValueTrait<T>::typeName;
+    }
     class JsonValue {
     public:
         T& value() {
@@ -86,7 +90,7 @@ namespace pboman3::util {
 
         void settle(const QJsonValue& parent, const QString& parentPath, const QString& name, JsonMandatory mandatory = JsonMandatory::Yes);
 
-        QJsonObject makeJson() const;
+        [[nodiscard]] QJsonObject makeJson() const;
 
     protected:
         virtual void inflate(const QString& path, const QJsonObject& json) = 0;
@@ -120,6 +124,13 @@ namespace pboman3::util {
     }
 
     template <typename T>
+    requires requires {
+        typename json::JsonArrayTraits<T>::TypeInner;
+        typename json::JsonArrayTraits<T>::TypeOuter;
+        requires requires (typename json::JsonArrayTraits<T>::TypeOuter t) {
+            json::JsonArrayTraits<T>::makeJson(t);
+        };
+    }
     class JsonArray {
     public:
         QList<typename json::JsonArrayTraits<T>::TypeOuter> data() {

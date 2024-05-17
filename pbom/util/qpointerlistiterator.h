@@ -1,9 +1,17 @@
 #pragma once
 
 #include <QSharedPointer>
+#include <concepts>
+#include <iterator>
 
 namespace pboman3::util {
     template <typename TElem, typename TIt = typename QList<QSharedPointer<TElem>>::iterator>
+    requires requires {
+        std::input_iterator<TIt>;
+        requires requires (TElem elem, TIt it) {
+            {it->get()} -> std::convertible_to<TElem*>;
+        };
+    }
     class QPointerListIterator {
     public:
         explicit QPointerListIterator(TIt it)

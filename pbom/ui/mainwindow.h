@@ -79,6 +79,6 @@ namespace pboman3::ui {
 
         void resetIsLoading() const;
 
-        QString makeExtractToTitle(const PboNode* node) const;
+        static QString makeExtractToTitle(const PboNode* node) ;
     };
 }

@@ -19,6 +19,7 @@
 #include "treewidget/treewidget.h"
 #include "util/log.h"
 #include "util/filenames.h"
+#include "io/bb/sanitizedstring.h"
 
 #define LOG(...) LOGGER("ui/MainWindow", __VA_ARGS__)
 
@@ -230,7 +231,7 @@ namespace pboman3::ui {
             selectionRoot = selectionRoot->parentNode();
             folderPath = dir.absolutePath();
         } else {
-            const QString& folderName = selectionRoot->title();
+            const auto folderName = static_cast<QString>(SanitizedString(selectionRoot->title()));
             folderPath = dir.filePath(folderName);
             if (!QDir(dir.filePath(folderName)).exists() && !dir.mkdir(folderName)) {
                 LOG(critical, "Could not create the dir:", folderPath)
@@ -463,7 +464,7 @@ namespace pboman3::ui {
         ui_->statusBar->progressHide();
     }
 
-    QString MainWindow::makeExtractToTitle(const PboNode* node) const {
+    QString MainWindow::makeExtractToTitle(const PboNode* node) {
         return "Extract to ./" + (node->nodeType() == PboNodeType::Container
                                       ? FileNames::getFileNameWithoutExtension(node->title())
                                       : node->title())

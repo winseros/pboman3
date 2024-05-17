@@ -1,5 +1,12 @@
 # PBO Manager change log
 
+# Version 1.9.0
+- File name sanitization enhanced when extracting a PBO
+- Junk filter behavior enhanced
+
+# Version 1.8.0
+- Application performance improved
+
 # Version 1.7.0
 - [Feature] The junk filter can be disabled in the `Options->Settings` menu.
 - [Feature] The `pbo.json` can now be extracted from the user interface.

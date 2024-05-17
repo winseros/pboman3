@@ -36,7 +36,7 @@ namespace pboman3 {
         return 0;
     }
 
-    template <typename TChr>
+    template <CharOrWChar TChr>
     int RunWithCliOptions(int argc, TChr* argv[]) {
         using namespace CLI;
         using namespace pboman3;
@@ -73,7 +73,7 @@ namespace pboman3 {
         return exitCode;
     }
 
-    template <typename TChr>
+    template <CharOrWChar TChr>
     int RunMain(int argc, TChr* argv[]) {
         const int exitCode = RunWithCliOptions(argc, argv);
         return exitCode;

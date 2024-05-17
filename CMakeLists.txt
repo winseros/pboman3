@@ -11,7 +11,7 @@ add_definitions(-DPBOM_VERSION="${PBOM_VERSION}")
 add_definitions(-DPBOM_PROJECT_SITE="https://github.com/winseros/pboman3")
 add_definitions(-DPBOM_API_SITE="https://api.github.com/repos/winseros/pboman3")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(pbom)

@@ -12,7 +12,7 @@ namespace pboman3::io::test {
         const PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.allocatePath(file);
-        const QString expected = dir.path() + "/e1%09/e2%09/e3%09.txt";
+        const QString expected = dir.path() + "/e1%9/e2%9/e3%9.txt";
 
         ASSERT_EQ(expected, path);
 
@@ -29,7 +29,7 @@ namespace pboman3::io::test {
         const PboNode* file = f1.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.allocatePath(&f1, file);
-        const QString expected = dir.path() + "/e1%09/e2%09/e3%09.txt";
+        const QString expected = dir.path() + "/e1%9/e2%9/e3%9.txt";
 
         ASSERT_EQ(expected, path);
 
@@ -55,8 +55,8 @@ namespace pboman3::io::test {
         const PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.composeAbsolutePath(file);
-        const QString expected = dir.path() + QDir::separator() + "e1%09" + QDir::separator() + "e2%09" + QDir::separator() +
-            "e3%09.txt";
+        const QString expected = dir.path() + QDir::separator() + "e1%9" + QDir::separator() + "e2%9" + QDir::separator() +
+            "e3%9.txt";
 
         ASSERT_EQ(expected, path);
 
@@ -72,7 +72,7 @@ namespace pboman3::io::test {
         const PboNode* file = root.createHierarchy(PboPath("e1\t/e2\t/e3\t.txt"));
 
         const QString path = fs.composeRelativePath(file);
-        const QString expected = QString("e1%09") + QDir::separator() + "e2%09" + QDir::separator() + "e3%09.txt";
+        const QString expected = QString("e1%9") + QDir::separator() + "e2%9" + QDir::separator() + "e3%9.txt";
 
         ASSERT_EQ(expected, path);
     }

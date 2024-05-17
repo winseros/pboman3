@@ -1,26 +1,61 @@
 #include "io/bb/sanitizedstring.h"
 #include <QString>
+#include <QRegularExpression>
 #include <gtest/gtest.h>
 
 namespace pboman3::io::test {
-    struct CtorParam {
+    struct SanitizedStringTestParam {
         const QString sourceText;
-        const QString expectedText;
+        const QString expectedTextOrPattern;
     };
 
-    class CtorTest : public testing::TestWithParam<CtorParam> {
+    class SanitizedStringRestrictedCharactersTest : public testing::TestWithParam<SanitizedStringTestParam> {
     };
 
-    TEST_P(CtorTest, Deals_With_Restricted_Characters) {
+    TEST_P(SanitizedStringRestrictedCharactersTest, Deals_With_Restricted_Characters) {
         SanitizedString ss(GetParam().sourceText);
-        ASSERT_EQ(static_cast<QString>(ss), GetParam().expectedText);
+        ASSERT_EQ(static_cast<QString>(ss), GetParam().expectedTextOrPattern);
     }
 
-    INSTANTIATE_TEST_SUITE_P(SanitizedStringTest, CtorTest, testing::Values(
-                                 CtorParam{"\t1\t", "%091%09"},
-                                 CtorParam{"?1?", "%3F1%3F"},
-                                 CtorParam{"*1*", "%2A1%2A"},
-                                 CtorParam{"1///", "1%2F%2F%2F"},
-                                 CtorParam{"\\2", "%5C2"}
-                             ));
+    INSTANTIATE_TEST_SUITE_P(TestSuite, SanitizedStringRestrictedCharactersTest, testing::Values(
+            SanitizedStringTestParam{"\t1\t", "%91%9"},
+            SanitizedStringTestParam{"?1?", "%3f1%3f"},
+            SanitizedStringTestParam{"*1*", "%2a1%2a"},
+            SanitizedStringTestParam{"1///", "1%2f%2f%2f"},
+            SanitizedStringTestParam{"\\2", "%5c2"},
+            SanitizedStringTestParam{"    ", "%20%20%20%20"},
+            SanitizedStringTestParam{"1111.", "1111%2e"},
+            SanitizedStringTestParam{"1111 ", "1111%20"}
+    ));
+
+    class SanitizedStringRestrictedKeywordsTest : public testing::TestWithParam<SanitizedStringTestParam> {
+    };
+
+    TEST_P(SanitizedStringRestrictedKeywordsTest, Deals_With_Restricted_Keywords) {
+        SanitizedString ss(GetParam().sourceText);
+        QRegularExpression re(GetParam().expectedTextOrPattern);
+        const QRegularExpressionMatch match = re.match(static_cast<QString>(ss));
+        ASSERT_TRUE(match.hasMatch());
+    }
+
+    INSTANTIATE_TEST_SUITE_P(TestSuite, SanitizedStringRestrictedKeywordsTest, testing::Values(
+            SanitizedStringTestParam{"COM1.c", "^COM1-\\d{1,4}.c"},
+            SanitizedStringTestParam{"COn", "^COn-\\d{1,4}"},
+            SanitizedStringTestParam{"COM1", "^COM1-\\d{1,4}"},
+            SanitizedStringTestParam{"lPt2", "^lPt2-\\d{1,4}"},
+            SanitizedStringTestParam{"NUL", "^NUL-\\d{1,4}"}
+    ));
+
+    class SanitizedStringLengthTest : public testing::TestWithParam<SanitizedStringTestParam> {
+    };
+
+    TEST_P(SanitizedStringLengthTest, Deals_With_Long_Strings) {
+        SanitizedString ss(GetParam().sourceText, 50);
+        ASSERT_EQ(static_cast<QString>(ss), GetParam().expectedTextOrPattern);
+    }
+
+    INSTANTIATE_TEST_SUITE_P(TestSuite, SanitizedStringLengthTest, testing::Values(
+            SanitizedStringTestParam{"123456789a123456789a123456789a123456789a123456789ab",
+                                     "123456789a1234-d642eb4f7beba2ee9fda95f3ed39de8~37"}
+    ));
 }

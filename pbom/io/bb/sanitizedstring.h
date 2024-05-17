@@ -6,7 +6,8 @@
 namespace pboman3::io {
     class SanitizedString {
     public:
-        explicit SanitizedString(const QString& text, int maxStringLength = 255);
+        //Windows allows names to be up to 255 characters, however I believe that 100 characters is already a garbage name.
+        explicit SanitizedString(const QString& text, int maxStringLength = 100);
 
         operator const QString&();
 

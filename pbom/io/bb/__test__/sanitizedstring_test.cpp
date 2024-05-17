@@ -23,7 +23,9 @@ namespace pboman3::io::test {
             SanitizedStringTestParam{"*1*", "%2a1%2a"},
             SanitizedStringTestParam{"1///", "1%2f%2f%2f"},
             SanitizedStringTestParam{"\\2", "%5c2"},
-            SanitizedStringTestParam{"    ", "%20%20%20%20"}
+            SanitizedStringTestParam{"    ", "%20%20%20%20"},
+            SanitizedStringTestParam{"1111.", "1111%2e"},
+            SanitizedStringTestParam{"1111 ", "1111%20"}
     ));
 
     class SanitizedStringRestrictedKeywordsTest : public testing::TestWithParam<SanitizedStringTestParam> {
@@ -37,10 +39,23 @@ namespace pboman3::io::test {
     }
 
     INSTANTIATE_TEST_SUITE_P(TestSuite, SanitizedStringRestrictedKeywordsTest, testing::Values(
-        SanitizedStringTestParam{"COM1.c", "^COM1-\\d{1,4}.c"},
-        SanitizedStringTestParam{"COn", "^COn-\\d{1,4}"},
-        SanitizedStringTestParam{"COM1", "^COM1-\\d{1,4}"},
-        SanitizedStringTestParam{"lPt2", "^lPt2-\\d{1,4}"},
-        SanitizedStringTestParam{"NUL", "^NUL-\\d{1,4}"}
+            SanitizedStringTestParam{"COM1.c", "^COM1-\\d{1,4}.c"},
+            SanitizedStringTestParam{"COn", "^COn-\\d{1,4}"},
+            SanitizedStringTestParam{"COM1", "^COM1-\\d{1,4}"},
+            SanitizedStringTestParam{"lPt2", "^lPt2-\\d{1,4}"},
+            SanitizedStringTestParam{"NUL", "^NUL-\\d{1,4}"}
+    ));
+
+    class SanitizedStringLengthTest : public testing::TestWithParam<SanitizedStringTestParam> {
+    };
+
+    TEST_P(SanitizedStringLengthTest, Deals_With_Long_Strings) {
+        SanitizedString ss(GetParam().sourceText, 50);
+        ASSERT_EQ(static_cast<QString>(ss), GetParam().expectedTextOrPattern);
+    }
+
+    INSTANTIATE_TEST_SUITE_P(TestSuite, SanitizedStringLengthTest, testing::Values(
+            SanitizedStringTestParam{"123456789a123456789a123456789a123456789a123456789ab",
+                                     "123456789a1234-d642eb4f7beba2ee9fda95f3ed39de8~37"}
     ));
 }

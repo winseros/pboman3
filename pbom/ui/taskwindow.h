@@ -33,7 +33,7 @@ namespace pboman3::ui {
         QHash<ThreadId, ProgressWidget*> progressBars_;
         QPlainTextEdit* log_;
         QString doneText_;
-        QSharedPointer<TaskbarIndicator> taskbar_; 
+//        QSharedPointer<TaskbarIndicator> taskbar_;
 
         void setupConnections();
 

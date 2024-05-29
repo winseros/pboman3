@@ -16,7 +16,7 @@ namespace pboman3::ui {
           log_(nullptr),
           doneText_("Done") {
         ui_->setupUi(this);
-//        taskbar_ = QSharedPointer<TaskbarIndicator>(new TaskbarIndicator(winId()));
+        taskbar_ = QSharedPointer<TaskbarIndicator>(new TaskbarIndicator(winId()));
         setupConnections();
     }
 

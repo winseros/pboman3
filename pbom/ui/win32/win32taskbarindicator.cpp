@@ -1,14 +1,13 @@
 #include "win32taskbarindicator.h"
-#include <Windows.h>
 
 namespace pboman3::ui {
     Win32TaskbarIndicator::Win32TaskbarIndicator(WId windowId)
         : window_(reinterpret_cast<HWND>(windowId)), // NOLINT(performance-no-int-to-ptr)
           isErr_(false) {
-        const HRESULT hr = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_ITaskbarList3,
+        const HRESULT hr = CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3,
                                             reinterpret_cast<LPVOID*>(&progress_));
         if (!SUCCEEDED(hr))
-            progress_ = 0;
+            progress_ = nullptr;
     }
 
     Win32TaskbarIndicator::~Win32TaskbarIndicator() {

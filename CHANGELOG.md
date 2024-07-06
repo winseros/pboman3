@@ -1,5 +1,8 @@
 # PBO Manager change log
 
+# Version 1.9.1
+- File name sanitization enhanced when extracting a PBO
+
 # Version 1.9.0
 - File name sanitization enhanced when extracting a PBO
 - Junk filter behavior enhanced

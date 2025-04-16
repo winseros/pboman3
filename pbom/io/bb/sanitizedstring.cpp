@@ -16,16 +16,16 @@ namespace pboman3::io {
 
         if (qsizetype firstInvalidCharIndex; needsCharacterSanitization(sanitized, &firstInvalidCharIndex)) {
             sanitized = doCharacterSanitization(sanitized, firstInvalidCharIndex);
-        } else if (QString keyWord; needsKeywordSanitization(sanitized, &keyWord)) {
+        }
+        if (QString keyWord; needsKeywordSanitization(sanitized, &keyWord)) {
             sanitized = doKeywordSanitization(sanitized, keyWord);
-        } else if (needsWhitespaceSanitization(sanitized)) {
+        }
+        if (needsWhitespaceSanitization(sanitized)) {
             sanitized = doWhitespaceSanitization(sanitized);
         }
-
         if (QChar ending; needsEndingSanitization(sanitized, &ending)) {
             sanitized = doEndingSanitization(sanitized, ending);
         }
-
         if (needsLengthSanitization(sanitized, maxStringLength)) {
             //such code should run in the beginning of the pipeline to truncate the text before the other processing
             //but unescaped binary character sequences make QString to report its length incorrectly

@@ -43,7 +43,8 @@ namespace pboman3::io::test {
             SanitizedStringTestParam{"COn", "^COn-\\d{1,4}"},
             SanitizedStringTestParam{"COM1", "^COM1-\\d{1,4}"},
             SanitizedStringTestParam{"lPt2", "^lPt2-\\d{1,4}"},
-            SanitizedStringTestParam{"NUL", "^NUL-\\d{1,4}"}
+            SanitizedStringTestParam{"NUL", "^NUL-\\d{1,4}"},
+            SanitizedStringTestParam{"COM6.{69D2CF90-FC33-4FB7-9A0C-EBB0F0FCB43C}", "COM6-\\d{1,4}.%7b69D2CF90-FC33-4FB7-9A0C-EBB0F0FCB43C%7d"}
     ));
 
     class SanitizedStringLengthTest : public testing::TestWithParam<SanitizedStringTestParam> {

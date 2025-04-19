@@ -96,7 +96,8 @@ jobs:
             $env:PATH = $env:PATH + ";C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64"
             cp -Path ${{github.workspace}}\code\msix\package\ -Destination ${{github.workspace}}\_msix\ -Recurse
             makepri.exe new /of ${{github.workspace}}\_msix\resources.pri /mn ${{github.workspace}}\code\msix\AppxManifest.xml  /pr ${{github.workspace}}\_msix\ /cf ${{github.workspace}}\code\msix\priconfig.xml
-            (Get-Content ${{github.workspace}}\code\msix\AppxManifest.xml).Replace('Version="1.0.0.0"', 'Version="${{env.pbom_msix_version}}"') | Set-Content ${{github.workspace}}\_msix\AppxManifest.xml
+            #(Get-Content ${{github.workspace}}\code\msix\AppxManifest.xml).Replace('Version="0.0.0.0"', 'Version="${{env.pbom_msix_version}}"') | Set-Content ${{github.workspace}}\_msix\AppxManifest.xml
+            cp -Path ${{github.workspace}}\code\msix\AppxManifest.xml ${{github.workspace}}\_msix\AppxManifest.xml
             cp -Path ${{github.workspace}}\_install\bin\* -Destination ${{github.workspace}}\_msix\ -Recurse
             makeappx.exe pack /d ${{github.workspace}}\_msix\ /p ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix
       

@@ -67,4 +67,6 @@ namespace pboman3::domain {
     QDebug& operator<<(QDebug& debug, const DocumentHeaders& headers) {
         return debug << "DocumentHeaders(Count=" << headers.count() << ")";
     }
+
+    const QString DocumentHeaders::PREFIX_HEADER_NAME = "prefix";
 }

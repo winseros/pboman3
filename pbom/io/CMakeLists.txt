@@ -2,6 +2,7 @@ list(APPEND PROJECT_SOURCES
     "io/bb/binarybackend.cpp"
     "io/bb/execbackend.cpp"
     "io/bb/nodefilesystem.cpp"
+    "io/bb/sanitizedpath.cpp"
     "io/bb/sanitizedstring.cpp"
     "io/bb/tempbackend.cpp"
     "io/bb/unpackbackend.cpp"
@@ -38,6 +39,7 @@ set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 list(APPEND TEST_SOURCES
     "io/bb/__test__/execbackend_test.cpp"
     "io/bb/__test__/nodefilesystem_test.cpp"
+    "io/bb/__test__/sanitizedpath_test.cpp"
     "io/bb/__test__/sanitizedstring_test.cpp"
     "io/bb/__test__/tempbackend_test.cpp"
     "io/bb/__test__/unpackbackend_test.cpp"

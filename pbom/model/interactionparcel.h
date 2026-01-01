@@ -6,6 +6,7 @@
 #include "io/bs/fsrawbinarysource.h"
 #include "io/bs/pbobinarysource.h"
 #include <QDebug>
+#include <QUrl>
 #include "domain/pbonode.h"
 
 namespace pboman3::model {

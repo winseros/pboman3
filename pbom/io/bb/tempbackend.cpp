@@ -1,5 +1,6 @@
 #include "tempbackend.h"
 #include <QDir>
+#include <QUrl>
 #include "io/diskaccessexception.h"
 
 namespace pboman3::io {

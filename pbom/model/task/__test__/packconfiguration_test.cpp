@@ -269,7 +269,7 @@ namespace pboman3::model::task::test {
     INSTANTIATE_TEST_SUITE_P(PackConfigurationTest, PackConfigurationJsonIssuesTest, testing::Values(
                                  PackConfigurationJsonIssuesParam{"", "illegal value at offset 0"},
                                  PackConfigurationJsonIssuesParam{"[]", "The json must contain an object"},
-                                 PackConfigurationJsonIssuesParam{"ghkjk", "illegal value at offset 1"},
+                                 PackConfigurationJsonIssuesParam{"ghkjk", "illegal number at offset 0"},
                                  PackConfigurationJsonIssuesParam{"{\"compress\":{\"include\":[\"[[\"]}}",
                                  "The regular expression \"[[\" is invalid: missing terminating ] for character class"
                                  }

@@ -58,13 +58,13 @@
        <bool>false</bool>
       </property>
       <property name="dragDropMode">
-       <enum>QAbstractItemView::NoDragDrop</enum>
+       <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
       </property>
       <property name="defaultDropAction">
-       <enum>Qt::IgnoreAction</enum>
+       <enum>Qt::DropAction::IgnoreAction</enum>
       </property>
       <property name="selectionMode">
-       <enum>QAbstractItemView::ExtendedSelection</enum>
+       <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
       </property>
       <property name="rootIsDecorated">
        <bool>true</bool>
@@ -102,7 +102,7 @@
      <x>0</x>
      <y>0</y>
      <width>428</width>
-     <height>22</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -132,6 +132,7 @@
     <addaction name="actionSelectionExtractTo"/>
     <addaction name="actionSelectionExtractFolder"/>
     <addaction name="actionSelectionExtractContainer"/>
+    <addaction name="actionSelectionExtractToPrefix"/>
     <addaction name="separator"/>
     <addaction name="actionSelectionRename"/>
     <addaction name="separator"/>
@@ -342,6 +343,17 @@
    </property>
    <property name="text">
     <string>Export pbo.json</string>
+   </property>
+  </action>
+  <action name="actionSelectionExtractToPrefix">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Extract to Prefix</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
  </widget>

@@ -30,6 +30,7 @@ namespace pboman3 {
     public:
         PboApplication(int& argc, TChr* argv[])
             : QApplication(argc, argv) {
+            setStyle("fusion");
         }
 
         bool notify(QObject* o, QEvent* e) override {
@@ -48,6 +49,7 @@ namespace pboman3 {
     public:
         PboApplication(int& argc, wchar_t* argv[])
             : QApplication(argc, pboman3::Argv8Bit::acquire(argc, argv)) {
+            setStyle("fusion");
         }
 
         ~PboApplication() override {

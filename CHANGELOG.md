@@ -1,5 +1,9 @@
 # PBO Manager change log
 
+# Version 1.10.0
+- The application can extract PBO contents to the prefix folder
+- Dark theme
+
 # Version 1.9.1
 - File name sanitization enhanced when extracting a PBO
 

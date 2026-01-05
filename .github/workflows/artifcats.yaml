@@ -41,17 +41,17 @@ jobs:
           arch: x64
       
       - name: Install Qt6
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
-          version: '6.6.1'
+          version: '6.10.1'
           host: windows
           target: desktop
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64
           dir: ${{github.workspace}}
           tools: tools_opensslv3_x64
       
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: code
           submodules: true
@@ -74,7 +74,7 @@ jobs:
             mv -Path ${{github.workspace}}\_artifacts\bin -Destination "${{github.workspace}}\_artifacts\PBO Manager"
      
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: PBOManager-binaries-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\
@@ -86,7 +86,7 @@ jobs:
          light.exe -ext WixUIExtension -dWixUILicenseRtf=${{github.workspace}}\code\LICENSE.rtf -out ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi ${{github.workspace}}\_artifacts\PBOManager.wixobj
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: PBOManager-installer-${{env.pbom_version}}-${{env.pbom_build_number}}
           path: ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi
@@ -96,7 +96,8 @@ jobs:
             $env:PATH = $env:PATH + ";C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64"
             cp -Path ${{github.workspace}}\code\msix\package\ -Destination ${{github.workspace}}\_msix\ -Recurse
             makepri.exe new /of ${{github.workspace}}\_msix\resources.pri /mn ${{github.workspace}}\code\msix\AppxManifest.xml  /pr ${{github.workspace}}\_msix\ /cf ${{github.workspace}}\code\msix\priconfig.xml
-            (Get-Content ${{github.workspace}}\code\msix\AppxManifest.xml).Replace('Version="1.0.0.0"', 'Version="${{env.pbom_msix_version}}"') | Set-Content ${{github.workspace}}\_msix\AppxManifest.xml
+            #(Get-Content ${{github.workspace}}\code\msix\AppxManifest.xml).Replace('Version="0.0.0.0"', 'Version="${{env.pbom_msix_version}}"') | Set-Content ${{github.workspace}}\_msix\AppxManifest.xml
+            cp -Path ${{github.workspace}}\code\msix\AppxManifest.xml ${{github.workspace}}\_msix\AppxManifest.xml
             cp -Path ${{github.workspace}}\_install\bin\* -Destination ${{github.workspace}}\_msix\ -Recurse
             makeappx.exe pack /d ${{github.workspace}}\_msix\ /p ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_msix_version}}.msix
       

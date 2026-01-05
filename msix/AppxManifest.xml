@@ -15,10 +15,10 @@
   IgnorableNamespaces="uap uap2 uap3 rescap desktop desktop4 desktop5 uap10 com">
   
   <Identity
-    Name="PBOManager"
-    Publisher="CN=PBO Manager, O=Nikita Kobzev"
+    Name="19166NikitaKobzev.PBOManager"
+    Publisher="CN=5C1DD979-FA5A-4F6C-B3F5-EF0E76109FF2"
 	ProcessorArchitecture="x64" 
-    Version="1.0.0.0" />
+    Version="0.0.0.0" />
 
   <Properties>
     <DisplayName>PBO Manager</DisplayName>
@@ -88,7 +88,8 @@
         </com:Extension>
       </Extensions>
     </Application>
-	<Application Id="PBOManagerConsole" 
+    <!--Windows store does not allow headless apps-->
+	<!--<Application Id="PBOManagerConsole" 
 	  Executable="pboc.exe"
       EntryPoint="Windows.FullTrustApplication">
 		  <uap:VisualElements
@@ -111,6 +112,6 @@
 				</uap3:AppExecutionAlias>
 			</uap3:Extension>
 		  </Extensions>
-	  </Application>
+	  </Application>-->
   </Applications>
 </Package>

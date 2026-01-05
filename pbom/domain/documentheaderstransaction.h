@@ -16,9 +16,9 @@ namespace pboman3::domain {
 
         ~DocumentHeadersTransaction() override;
 
-        qsizetype count() const;
+        [[nodiscard]] qsizetype count() const;
 
-        const DocumentHeader* at(qsizetype index) const;
+        [[nodiscard]] const DocumentHeader* at(qsizetype index) const;
 
         void add(const QString& name, const QString& value);
 

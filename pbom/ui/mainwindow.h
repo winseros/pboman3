@@ -57,6 +57,8 @@ namespace pboman3::ui {
 
         void selectionExtractContainerClick() const;
 
+        void selectionExtractToPrefixClick() const;
+
         void exportPboJsonClick();
 
         bool queryCloseUnsaved();
@@ -79,6 +81,10 @@ namespace pboman3::ui {
 
         void resetIsLoading() const;
 
-        static QString makeExtractToTitle(const PboNode* node) ;
+        static QString makeExtractToTitle(const PboNode* node);
+
+        static QString makeExtractToPrefixTitle(const QString* prefixPath);
+
+        static const QString EXTRACT_TO_TEXT;
     };
 }

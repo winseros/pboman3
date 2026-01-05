@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "domain/func.h"
 #include "domain/pbonode.h"
+#include "domain/documentheaders.h"
 
 namespace pboman3::domain::test {
     TEST(FuncTest, CountFilesInTree_Counts_Files) {
@@ -31,5 +32,27 @@ namespace pboman3::domain::test {
         ASSERT_FALSE(IsPathConflict(root.get(), PboPath("e2.txt")));
         ASSERT_FALSE(IsPathConflict(root.get(), PboPath("f2/e3.txt")));
         ASSERT_FALSE(IsPathConflict(root.get(), PboPath("f3/e4.txt")));
+    }
+
+    TEST(FuncTest, TryGetPrefix_Returns_True) {
+        const DocumentHeaders headers(QList{
+            QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
+            QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
+            QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeaders::PREFIX_HEADER_NAME, "prefix_value")),
+        });
+
+        const auto prefixValue = GetPrefixValue(headers);
+        ASSERT_EQ(*prefixValue, QString("prefix_value"));
+    }
+
+    TEST(FuncTest, TryGetPrefix_Returns_False) {
+        const DocumentHeaders headers(QList{
+            QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
+            QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
+            QSharedPointer<DocumentHeader>(new DocumentHeader("h3", "v3")),
+        });
+
+        const auto prefixValue = GetPrefixValue(headers);
+        ASSERT_FALSE(prefixValue);
     }
 }

@@ -1,7 +1,8 @@
 #include "updatesdialog.h"
 #include "ui_updatesdialog.h"
 #include <QNetworkReply>
-#include <QJsonDocument>
+#include <QJsonValue>
+#include <QRegularExpression>
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/UpdatesDialog", __VA_ARGS__)

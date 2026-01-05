@@ -76,7 +76,7 @@
             <ComponentRef Id="C_MainFiles__LibSsl.dll" />
             <ComponentRef Id="C_MainFiles__ImageFormats__qico.dll" />
             <ComponentRef Id="C_MainFiles__Platforms__qwindows.dll" />
-            <ComponentRef Id="C_MainFiles__Styles__qwindowsvistastyle.dll" />
+            <ComponentRef Id="C_MainFiles__Styles__qmodernwindowsstyle.dll" />
             <ComponentRef Id="C_MainFiles__Tls__qcertonlybackend.dll" />
             <ComponentRef Id="C_MainFiles__Tls__qopensslbackend.dll" />
             <ComponentRef Id="C_MainFiles__Tls__qschannelbackend.dll" />
@@ -214,10 +214,10 @@
         </DirectoryRef>
 
         <DirectoryRef Id="D_Styles">
-            <Component Id="C_MainFiles__Styles__qwindowsvistastyle.dll" Guid="720D10E0-AEA8-47E1-9A5C-9EB49C4CCCDB"
+            <Component Id="C_MainFiles__Styles__qmodernwindowsstyle.dll" Guid="720D10E0-AEA8-47E1-9A5C-9EB49C4CCCDD"
                        Win64="yes">
-                <File Id="F_MainFiles__Styles__qwindowsvistastyle.dll" KeyPath="yes" Vital="yes"
-                      Source="$(var.ArtifactsFolder)Styles\qwindowsvistastyle.dll" />
+                <File Id="F_MainFiles__Styles__qmodernwindowsstyle.dll" KeyPath="yes" Vital="yes"
+                      Source="$(var.ArtifactsFolder)Styles\qmodernwindowsstyle.dll" />
             </Component>
         </DirectoryRef>
         

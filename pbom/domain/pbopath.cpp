@@ -11,11 +11,11 @@ namespace pboman3::domain {
     }
 
     PboPath::PboPath(const QString& source)
-        : QList(SplitOntoSegments(source)) {
+        : QList(splitOntoSegments(source)) {
     }
 
     PboPath PboPath::makeParent() const {
-        if (length() == 0) {
+        if (empty()) {
             return *this;
         }
 
@@ -57,15 +57,15 @@ namespace pboman3::domain {
         return "";
     }
 
-    QStringList PboPath::SplitOntoSegments(const QString& source) {
+    QStringList PboPath::splitOntoSegments(const QString& source) {
         QStringList result;
         QString word;
         auto chr = source.rbegin();
         while (chr != source.rend()) {
-            if (IsDirectorySeparatorChar(*chr)) {
+            if (isDirectorySeparatorChar(*chr)) {
                 if (word.size() > 0) {
                     const auto next = PeekNext(chr);
-                    if (next == source.rend() || IsDirectorySeparatorChar(*next)) {
+                    if (next == source.rend() || isDirectorySeparatorChar(*next)) {
                         word.prepend(*chr);
                     } else {
                         result.prepend(word);
@@ -83,7 +83,7 @@ namespace pboman3::domain {
         return result;
     }
 
-    bool PboPath::IsDirectorySeparatorChar(const QChar& chr) {
+    bool PboPath::isDirectorySeparatorChar(const QChar& chr) {
         return chr == '/' || chr == '\\';
     }
 

@@ -19,14 +19,15 @@
   <property name="windowTitle">
    <string>Insert files</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:app.ico</normaloff>:app.ico</iconset>
+  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
   <property name="modal">
    <bool>true</bool>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../res/res.qrc"><normaloff>:app.ico</normaloff>:app.ico</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -42,13 +43,13 @@
       <item>
        <widget class="pboman3::ui::ConflictsList" name="conflictsList">
         <property name="contextMenuPolicy">
-         <enum>Qt::CustomContextMenu</enum>
+         <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
         </property>
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::ExtendedSelection</enum>
+         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
         </property>
         <property name="uniformRowHeights">
          <bool>true</bool>
@@ -76,16 +77,16 @@
       <item>
        <widget class="pboman3::ui::CompressList" name="compressList">
         <property name="frameShape">
-         <enum>QFrame::Box</enum>
+         <enum>QFrame::Shape::Box</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
+         <enum>QFrame::Shadow::Plain</enum>
         </property>
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::ExtendedSelection</enum>
+         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
         </property>
         <property name="uniformRowHeights">
          <bool>true</bool>

@@ -2,7 +2,6 @@
 #include <QClipboard>
 #include <QFileDialog>
 #include <QFutureWatcher>
-#include <QMimeData>
 #include <QPoint>
 #include <QtConcurrent/QtConcurrentRun>
 #include "aboutdialog.h"
@@ -13,8 +12,10 @@
 #include "updatesdialog.h"
 #include "settingsdialog.h"
 #include "ui_mainwindow.h"
+#include "domain/func.h"
 #include "io/diskaccessexception.h"
 #include "io/pbofileformatexception.h"
+#include "io/bb/sanitizedpath.h"
 #include "model/pbomodel.h"
 #include "treewidget/treewidget.h"
 #include "util/log.h"
@@ -121,6 +122,7 @@ namespace pboman3::ui {
         connect(ui_->actionSelectionExtractFolder, &QAction::triggered, this, &MainWindow::selectionExtractFolderClick);
         connect(ui_->actionSelectionExtractContainer, &QAction::triggered, this,
                 &MainWindow::selectionExtractContainerClick);
+        connect(ui_->actionSelectionExtractToPrefix, &QAction::triggered, this, &MainWindow::selectionExtractToPrefixClick);
         connect(ui_->actionExportPboJson, &QAction::triggered, this, &MainWindow::exportPboJsonClick);
 
         connect(ui_->actionSelectionOpen, &QAction::triggered, ui_->treeWidget, &TreeWidget::selectionOpen);
@@ -259,6 +261,25 @@ namespace pboman3::ui {
         ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
     }
 
+    void MainWindow::selectionExtractToPrefixClick() const {
+        LOG(info, "User clicked the ExtractToPrefix button")
+
+        const QDir dir = QFileInfo(model_->loadedPath()).dir();
+        const QString* unsanitizedPrefixValue = GetPrefixValue(*model_->document()->headers());
+        assert(unsanitizedPrefixValue);
+        SanitizedPath sp(*unsanitizedPrefixValue);
+
+        const QString folderPath = dir.filePath(sp);
+        if (!dir.mkpath(sp)) {
+            LOG(critical, "Could not create the dir:", folderPath)
+            ErrorDialog("Could not create the folder<br><br><b>" + folderPath + "<b>").exec();
+            return;
+        }
+
+        LOG(info, "Extracting to:", folderPath)
+        ui_->treeWidget->selectionExtract(folderPath, model_->document()->root());
+    }
+
     void MainWindow::exportPboJsonClick() {
         LOG(info, "User clicked the ExportPboJson button - showing dialog")
 
@@ -296,9 +317,15 @@ namespace pboman3::ui {
         if (ui_->actionSelectionExtractTo->isEnabled()) {
             LOG(debug, "actionSelectionExtract - enabled")
             menu.addAction(ui_->actionSelectionExtractTo);
-            if (ui_->actionSelectionExtractContainer->isEnabled())
+
+            if (ui_->actionSelectionExtractFolder->isEnabled())
                 menu.addAction(ui_->actionSelectionExtractFolder);
+
             menu.addAction(ui_->actionSelectionExtractContainer);
+
+            if (ui_->actionSelectionExtractToPrefix->isEnabled())
+                menu.addAction(ui_->actionSelectionExtractToPrefix);
+
             menu.addSeparator();
         }
 
@@ -346,7 +373,6 @@ namespace pboman3::ui {
 
         ui_->actionSelectionExtractTo->setEnabled(state.canExtract);
 
-
         const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();
         if (selectionRoot) {
             ui_->actionSelectionExtractContainer->setVisible(true);
@@ -359,11 +385,19 @@ namespace pboman3::ui {
                 ui_->actionSelectionExtractFolder->setVisible(true);
                 ui_->actionSelectionExtractFolder->setText(makeExtractToTitle(selectionRoot));
             }
+            const QString* prefixValue = GetPrefixValue(*model_->document()->headers());
+            if (prefixValue && !prefixValue->isEmpty()) {
+                ui_->actionSelectionExtractToPrefix->setVisible(true);
+                ui_->actionSelectionExtractToPrefix->setEnabled(true);
+                ui_->actionSelectionExtractToPrefix->setText(makeExtractToPrefixTitle(prefixValue));
+            }
         } else {
             ui_->actionSelectionExtractFolder->setEnabled(false);
             ui_->actionSelectionExtractFolder->setVisible(false);
             ui_->actionSelectionExtractContainer->setEnabled(false);
             ui_->actionSelectionExtractContainer->setVisible(false);
+            ui_->actionSelectionExtractToPrefix->setVisible(false);
+            ui_->actionSelectionExtractToPrefix->setEnabled(false);
         }
     }
 
@@ -465,9 +499,15 @@ namespace pboman3::ui {
     }
 
     QString MainWindow::makeExtractToTitle(const PboNode* node) {
-        return "Extract to ./" + (node->nodeType() == PboNodeType::Container
+        return EXTRACT_TO_TEXT + " ./" + (node->nodeType() == PboNodeType::Container
                                       ? FileNames::getFileNameWithoutExtension(node->title())
                                       : node->title())
             + (node->nodeType() == PboNodeType::File ? "" : "/");
     }
+
+    QString MainWindow::makeExtractToPrefixTitle(const QString* prefixPath) {
+        return EXTRACT_TO_TEXT + " ./" + *prefixPath + "/";
+    }
+
+    const QString MainWindow::EXTRACT_TO_TEXT = "Extract to";
 }

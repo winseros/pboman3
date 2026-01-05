@@ -55,15 +55,15 @@ namespace pboman3 {
             Option* optNoUi;
 #endif
 
-            bool hasOutputPath() const {
+            [[nodiscard]] bool hasOutputPath() const {
                 return !!*optOutputPath;
             }
 #ifdef PBOM_GUI
-            bool prompt() const {
+            [[nodiscard]] bool prompt() const {
                 return !!*optPrompt;
             }
 
-            bool noUi() const {
+            [[nodiscard]] bool noUi() const {
                 return !!*optNoUi;
             }
 #endif

@@ -2,6 +2,7 @@
 #include "unpackbackend.h"
 #include "io/diskaccessexception.h"
 #include "util/log.h"
+#include <QUrl>
 
 #define LOG(...) LOGGER("io/bb/BinaryBackend", __VA_ARGS__)
 

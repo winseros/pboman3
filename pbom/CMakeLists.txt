@@ -59,7 +59,7 @@ install(FILES
     ${QT_BINARIES_DIR}/plugins/platforms/qwindows${QT_BINARIES_SUFFIX}.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR}/platforms)
 install(FILES 
-    ${QT_BINARIES_DIR}/plugins/styles/qwindowsvistastyle${QT_BINARIES_SUFFIX}.dll
+    ${QT_BINARIES_DIR}/plugins/styles/qmodernwindowsstyle${QT_BINARIES_SUFFIX}.dll
     DESTINATION ${CMAKE_INSTALL_BINDIR}/styles)
 install(FILES 
     ${QT_BINARIES_DIR}/plugins/tls/qcertonlybackend${QT_BINARIES_SUFFIX}.dll

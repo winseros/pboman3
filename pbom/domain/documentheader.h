@@ -14,11 +14,11 @@ namespace pboman3::domain {
 
         explicit DocumentHeader(const InternalData& data);//Repository Ctor
 
-        const QString& name() const;
+        [[nodiscard]] const QString& name() const;
 
         void setName(const QString& name);
 
-        const QString& value() const;
+        [[nodiscard]] const QString& value() const;
 
         void setValue(const QString& value);
 

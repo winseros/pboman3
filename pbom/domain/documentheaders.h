@@ -17,23 +17,25 @@ namespace pboman3::domain {
 
         explicit DocumentHeaders(QList<QSharedPointer<DocumentHeader>> headers); //Repository Ctor
 
-        qsizetype count() const;
+        [[nodiscard]] qsizetype count() const;
 
-        const DocumentHeader* at(qsizetype index) const;
+        [[nodiscard]] const DocumentHeader* at(qsizetype index) const;
 
         QPointerListIterator<DocumentHeader> begin();
 
         QPointerListIterator<DocumentHeader> end();
 
-        QPointerListConstIterator<DocumentHeader> begin() const;
+        [[nodiscard]] QPointerListConstIterator<DocumentHeader> begin() const;
 
-        QPointerListConstIterator<DocumentHeader> end() const;
+        [[nodiscard]] QPointerListConstIterator<DocumentHeader> end() const;
 
         QSharedPointer<DocumentHeadersTransaction> beginTransaction();
 
         friend DocumentHeadersTransaction;
 
         friend QDebug& operator<<(QDebug& debug, const DocumentHeaders& headers);
+
+        static const QString PREFIX_HEADER_NAME;
         
     signals:
         void headersChanged();

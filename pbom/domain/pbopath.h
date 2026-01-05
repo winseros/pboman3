@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QUrl>
-#include <QStringList>
 #include <QDebug>
 
 namespace pboman3::domain {
@@ -13,20 +11,20 @@ namespace pboman3::domain {
 
         explicit PboPath(const QString& source);
 
-        PboPath makeParent() const;
+        [[nodiscard]] PboPath makeParent() const;
 
-        PboPath makeChild(const QString& child) const;
+        [[nodiscard]] PboPath makeChild(const QString& child) const;
 
-        PboPath makeSibling(const QString& sibling) const;
+        [[nodiscard]] PboPath makeSibling(const QString& sibling) const;
 
-        QString toString() const;
+        [[nodiscard]] QString toString() const;
 
         friend QDebug operator <<(QDebug debug, const PboPath& p);
 
     private:
-        static QStringList SplitOntoSegments(const QString& source);
+        static QStringList splitOntoSegments(const QString& source);
 
-        static bool IsDirectorySeparatorChar(const QChar& chr);
+        static bool isDirectorySeparatorChar(const QChar& chr);
 
         static QString::const_reverse_iterator PeekNext(QString::const_reverse_iterator chr);
     };
@@ -54,10 +52,10 @@ namespace pboman3::domain {
         const qsizetype lim = l1 < l2 ? l1 : l2;
 
         for (qsizetype i = 0; i < lim; i++) {
-            const QString s1 = p1.at(i);
-            const QString s2 = p2.at(i);
-            if (s1 != s2) {
-                return s1 < s2;
+            const QString* s1 = &p1.at(i);
+            const QString* s2 = &p2.at(i);
+            if (*s1 != *s2) {
+                return *s1 < *s2;
             }
         }
 

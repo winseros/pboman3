@@ -7,7 +7,7 @@
 namespace pboman3::ui {
     class Win32TaskbarIndicator : public TaskbarIndicator {
     public:
-        Win32TaskbarIndicator(WId windowId);
+        explicit Win32TaskbarIndicator(WId windowId);
 
         ~Win32TaskbarIndicator() override;
 
@@ -20,10 +20,13 @@ namespace pboman3::ui {
     private:
         ITaskbarList3* progress_;
         HWND window_;
+        int progressValue_;
         bool isErr_;
 
-        bool windowHasFocus() const;
+        [[nodiscard]] bool windowHasFocus() const;
 
         void flashWindow() const;
+
+        static const int PROGRESS_VALUE_INITIAL;
     };
 }

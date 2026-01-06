@@ -1,6 +1,5 @@
 #include "unpacktask.h"
 #include <QDir>
-#include <QFile>
 #include "pbojsonhelper.h"
 #include "pbojson.h"
 #include "io/bb/unpacktaskbackend.h"
@@ -11,6 +10,8 @@
 #include "io/diskaccessexception.h"
 #include "io/createdocumentreader.h"
 #include "io/pbofileformatexception.h"
+#include "settings/applicationsettingsfacility.h"
+#include "settings/getsettingsfacility.h"
 #include "util/log.h"
 #include "util/filenames.h"
 
@@ -75,7 +76,8 @@ namespace pboman3::model::task {
 
     bool UnpackTask::tryReadPboHeader(QSharedPointer<PboDocument>* document) {
         try {
-            const DocumentReader reader = CreateDocumentReader(pboPath_);
+            const settings::ApplicationSettings settings = settings::GetSettingsFacility()->readSettings();
+            const DocumentReader reader = CreateDocumentReader(pboPath_, settings.junkFilterEnable);
             *document = reader.read();
             LOG(debug, "The document:", *document)
             return true;
@@ -96,6 +98,7 @@ namespace pboman3::model::task {
         if (!outputDir_.exists(fileNameWithoutExt) && !outputDir_.mkdir(fileNameWithoutExt)) {
             LOG(warning, "Could not create the directory:", absPath)
             emit taskMessage("Could not create the directory | " + absPath);
+            return false;
         }
         LOG(info, "PBO output dir:", absPath)
         *dir = QDir(absPath);

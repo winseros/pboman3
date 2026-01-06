@@ -3,7 +3,7 @@
 #include <QDir>
 #include "task.h"
 #include "domain/pbonode.h"
-#include "io/settings/fileconflictresolutionmode.h"
+#include "io/fileconflictresolutionmode.h"
 
 namespace pboman3::model::task {
     using namespace domain;

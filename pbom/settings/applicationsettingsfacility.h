@@ -2,12 +2,12 @@
 
 #include "applicationsettings.h"
 
-namespace pboman3::io {
+namespace pboman3::settings {
     class ApplicationSettingsFacility {
     public:
         virtual ~ApplicationSettingsFacility() = default;
 
-        virtual ApplicationSettings readSettings() const = 0;
+        [[nodiscard]] virtual ApplicationSettings readSettings() const = 0;
 
         virtual void writeSettings(const ApplicationSettings& settings) = 0;
     };

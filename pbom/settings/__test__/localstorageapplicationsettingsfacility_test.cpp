@@ -1,17 +1,15 @@
-#include <gtest/gtest.h>
+#include <D:/Projects/pboman3/__lib__/googletest/googletest/include/gtest/gtest.h>
 #include "../localstorageapplicationsettingsfacility.h"
 
-namespace pboman3::io::test {
+namespace pboman3::settings::test {
     class LocalStorageApplicationSettingsFacilityTest : public ::testing::Test {
     protected:
         void SetUp() override {
-            LocalStorageApplicationSettingsFacility facility;
-            facility.purge();
+            LocalStorageApplicationSettingsFacility::purge();
         }
 
         void TearDown() override {
-            LocalStorageApplicationSettingsFacility facility;
-            facility.purge();
+            LocalStorageApplicationSettingsFacility::purge();
         }
     };
 

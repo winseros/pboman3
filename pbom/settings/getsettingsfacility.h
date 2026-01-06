@@ -3,6 +3,6 @@
 #include "applicationsettingsfacility.h"
 #include <QSharedPointer>
 
-namespace pboman3::io{
+namespace pboman3::settings{
     QSharedPointer<ApplicationSettingsFacility> GetSettingsFacility();
 }

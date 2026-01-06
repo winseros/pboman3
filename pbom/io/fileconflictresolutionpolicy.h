@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QString>
-#include "settings/fileconflictresolutionmode.h"
+#include "fileconflictresolutionmode.h"
 
 namespace pboman3::io {
     class FileConflictResolutionPolicy {

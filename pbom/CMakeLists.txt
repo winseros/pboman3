@@ -16,6 +16,7 @@ find_package(Qt6 COMPONENTS Widgets Network Test REQUIRED)
 add_subdirectory(domain)
 add_subdirectory(io)
 add_subdirectory(model)
+add_subdirectory(settings)
 add_subdirectory(ui)
 add_subdirectory(util)
 

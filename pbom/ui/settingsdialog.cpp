@@ -1,7 +1,7 @@
 #include "settingsdialog.h"
 #include "util/log.h"
-#include "io/settings/getsettingsfacility.h"
-#include "io/settings/fileconflictresolutionmode.h"
+#include "settings/getsettingsfacility.h"
+#include "io/fileconflictresolutionmode.h"
 
 #define LOG(...) LOGGER("ui/SettingsDialog", __VA_ARGS__)
 
@@ -19,21 +19,23 @@ namespace pboman3::ui {
     }
 
     void SettingsDialog::accept() {
-        using namespace io;
+        using namespace settings;
 
         const auto packConflictResolutionMode = getRadioButtonValue<
-            FileConflictResolutionMode::Enum>(ui_->groupBoxPack);
-        const auto unpackConflictResolutionMode = getRadioButtonValue<FileConflictResolutionMode::Enum>(
+            io::FileConflictResolutionMode::Enum>(ui_->groupBoxPack);
+        const auto unpackConflictResolutionMode = getRadioButtonValue<io::FileConflictResolutionMode::Enum>(
             ui_->groupBoxUnpack);
         const auto packUnpackOperationCompleteBehavior = getRadioButtonValue<OperationCompleteBehavior::Enum>(
             ui_->groupBoxOpComplete);
         const auto filterJunkFiles = ui_->cbJunkFilterEnable->isChecked();
+        const auto colorScheme = getRadioButtonValue<ApplicationColorScheme::Enum>(ui_->groupBoxColorScheme);
 
         const ApplicationSettings settings{
             packConflictResolutionMode,
             unpackConflictResolutionMode,
             packUnpackOperationCompleteBehavior,
-            filterJunkFiles
+            filterJunkFiles,
+            colorScheme
         };
 
         const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
@@ -43,7 +45,8 @@ namespace pboman3::ui {
     }
 
     void SettingsDialog::loadSettings() const {
-        using namespace io;
+        using namespace settings;
+
         const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
         const auto settings = settingsFacility->readSettings();
 
@@ -51,5 +54,6 @@ namespace pboman3::ui {
         setRadioButtonValue(ui_->groupBoxUnpack, settings.unpackConflictResolutionMode);
         setRadioButtonValue(ui_->groupBoxOpComplete, settings.packUnpackOperationCompleteBehavior);
         ui_->cbJunkFilterEnable->setChecked(settings.junkFilterEnable);
+        setRadioButtonValue(ui_->groupBoxColorScheme, settings.applicationColorScheme);
     }
 }

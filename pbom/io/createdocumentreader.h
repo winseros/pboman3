@@ -3,5 +3,5 @@
 #include "documentreader.h"
 
 namespace pboman3::io {
-    DocumentReader CreateDocumentReader(QString path);
+    DocumentReader CreateDocumentReader(QString path, bool junkFilterEnable);
 }

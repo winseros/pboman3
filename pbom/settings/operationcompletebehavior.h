@@ -1,9 +1,8 @@
 #pragma once
 
-#include <QVariant>
 #include "util/enum.h"
 
-namespace pboman3::io {
+namespace pboman3::settings {
     struct OperationCompleteBehavior {
         enum class Enum {
             KeepWindow = 0,

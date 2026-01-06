@@ -1,7 +1,6 @@
 #pragma once
 
 #include "util/enum.h"
-#include <QVariant>
 
 namespace pboman3::io {
     struct FileConflictResolutionMode {

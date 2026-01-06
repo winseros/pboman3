@@ -4,7 +4,7 @@
 
 #include "pbojson.h"
 #include "domain/pbodocument.h"
-#include "io/settings/fileconflictresolutionmode.h"
+#include "io/fileconflictresolutionmode.h"
 
 namespace pboman3::model::task {
     using namespace domain;

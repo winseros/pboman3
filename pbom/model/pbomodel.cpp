@@ -6,6 +6,7 @@
 #include "io/documentwriter.h"
 #include "io/createdocumentreader.h"
 #include "task/pbojsonhelper.h"
+#include "settings/getsettingsfacility.h"
 #include "exception.h"
 #include "util/log.h"
 
@@ -24,7 +25,8 @@ namespace pboman3::model {
 
         setLoadedPath(path);
 
-        const DocumentReader reader = CreateDocumentReader(path);
+        const settings::ApplicationSettings settings = settings::GetSettingsFacility()->readSettings();
+        const DocumentReader reader = CreateDocumentReader(path, settings.junkFilterEnable);
         try {
             document_ = reader.read();
             LOG(info, "Read the document:", *document_)

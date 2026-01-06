@@ -1,7 +1,7 @@
 #pragma once
 
 #include "unpackbackend.h"
-#include "io/settings/fileconflictresolutionmode.h"
+#include "io/fileconflictresolutionmode.h"
 #include "io/fileconflictresolutionpolicy.h"
 #include <QSharedPointer>
 

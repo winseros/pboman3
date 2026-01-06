@@ -13,7 +13,7 @@ namespace pboman3::ui {
         Q_OBJECT
 
     public:
-        SettingsDialog(QWidget* parent);
+        explicit SettingsDialog(QWidget* parent);
 
         ~SettingsDialog() override;
 

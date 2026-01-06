@@ -2,12 +2,12 @@
 
 #include "applicationsettingsfacility.h"
 
-namespace pboman3::io {
+namespace pboman3::settings {
     class LocalStorageApplicationSettingsFacility : public ApplicationSettingsFacility {
     public:
-        void purge();
+        static void purge();
 
-        ApplicationSettings readSettings() const override;
+        [[nodiscard]] ApplicationSettings readSettings() const override;
 
         void writeSettings(const ApplicationSettings& settings) override;
     };

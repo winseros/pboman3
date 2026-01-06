@@ -5,7 +5,7 @@
 #include "exception.h"
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
-#include "settings/getsettingsfacility.h"
+#include "settings/getapplicationsettingsmanager.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
@@ -16,7 +16,7 @@ namespace pboman3 {
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
 
-        const auto settings = settings::GetSettingsFacility()->readSettings();
+        const auto settings = settings::GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
             model::task::PackTask task(folder, outputDir, settings.packConflictResolutionMode);
@@ -27,7 +27,7 @@ namespace pboman3 {
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
-        const auto settings = settings::GetSettingsFacility()->readSettings();
+        const auto settings = settings::GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
             model::task::UnpackTask task(folder, outputDir, settings.unpackConflictResolutionMode);

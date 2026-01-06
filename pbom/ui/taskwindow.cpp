@@ -5,7 +5,7 @@
 #include "ui_taskwindow.h"
 #include "model/task/taskwindowmodel.h"
 #include "win32/win32taskbarindicator.h"
-#include "settings/getsettingsfacility.h"
+#include "settings/getapplicationsettingsmanager.h"
 
 namespace pboman3::ui {
     TaskWindow::TaskWindow(QWidget* parent, TaskWindowModel* model)
@@ -122,8 +122,7 @@ namespace pboman3::ui {
     }
 
     void TaskWindow::closeWindowIfNeeded() {
-        const QSharedPointer<settings::ApplicationSettingsFacility> settingsFacility = settings::GetSettingsFacility();
-        const auto settings = settingsFacility->readSettings();
+        const auto settings = settings::GetApplicationSettingsManager()->readSettings();
 
         if (settings.packUnpackOperationCompleteBehavior == settings::OperationCompleteBehavior::Enum::CloseWindow)
             close();

@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QStyleHints>
 #include <QScopedPointer>
 #include <QTimer>
 #include <CLI/CLI.hpp>
@@ -12,7 +13,7 @@
 #include "model/task/packtask.h"
 #include "model/task/unpacktask.h"
 #include "util/log.h"
-#include "settings/getsettingsfacility.h"
+#include "settings/getapplicationsettingsmanager.h"
 
 #ifdef WIN32
 #include "win32com.h"
@@ -25,12 +26,13 @@
 using namespace std;
 
 namespace pboman3 {
+    using namespace settings;
+
     template <CharOrWChar TChr>
     class PboApplication : public QApplication {
     public:
         PboApplication(int& argc, TChr* argv[])
             : QApplication(argc, argv) {
-            setStyle("fusion");
         }
 
         bool notify(QObject* o, QEvent* e) override {
@@ -49,7 +51,6 @@ namespace pboman3 {
     public:
         PboApplication(int& argc, wchar_t* argv[])
             : QApplication(argc, pboman3::Argv8Bit::acquire(argc, argv)) {
-            setStyle("fusion");
         }
 
         ~PboApplication() override {
@@ -57,6 +58,24 @@ namespace pboman3 {
         }
     };
 #endif
+
+    void applyStyle() {
+        QApplication::setStyle("fusion");
+    }
+
+    void applyColorScheme(const ApplicationSettings& settings) {
+        switch (settings.applicationColorScheme) {
+            case ApplicationColorScheme::Enum::Light:
+                QApplication::styleHints()->setColorScheme(Qt::ColorScheme::Light);
+                break;
+            case ApplicationColorScheme::Enum::Dark:
+                QApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+                break;
+            default:
+                QApplication::styleHints()->setColorScheme(Qt::ColorScheme::Unknown);
+                break;
+        }
+    }
 
     int RunMainWindow(const QApplication& app, const QString& pboFile) {
         using namespace pboman3;
@@ -69,8 +88,15 @@ namespace pboman3 {
         Win32Com _(&app);
 #endif
 
+        applyStyle();
+        const auto settingsManager = GetApplicationSettingsManager();
+        const auto settings = settingsManager->readSettings();
+        applyColorScheme(settings);
+
+        QObject::connect(settingsManager, &ApplicationSettingsManager::settingsChanged, &applyColorScheme);
+
         LOG(info, "Display the main window")
-        
+
         const auto model = QScopedPointer(new model::PboModel());
         ui::MainWindow w(nullptr, model.get());
         w.show();
@@ -105,8 +131,9 @@ namespace pboman3 {
             return 0;
         }
 
-        const QSharedPointer<settings::ApplicationSettingsFacility> settingsFacility = settings::GetSettingsFacility();
-        const auto settings = settingsFacility->readSettings();
+        applyStyle();
+        const auto settings = GetApplicationSettingsManager()->readSettings();
+        applyColorScheme(settings);
 
         const QScopedPointer model(new PackWindowModel(folders, outDir, settings.packConflictResolutionMode));
         ui::PackWindow w(nullptr, model.get());
@@ -136,8 +163,9 @@ namespace pboman3 {
             return 0;
         }
 
-        const QSharedPointer<settings::ApplicationSettingsFacility> settingsFacility = settings::GetSettingsFacility();
-        const auto settings = settingsFacility->readSettings();
+        applyStyle();
+        const auto settings = GetApplicationSettingsManager()->readSettings();
+        applyColorScheme(settings);
 
         const QScopedPointer model(new UnpackWindowModel(files, outDir, settings.unpackConflictResolutionMode));
         ui::UnpackWindow w(nullptr, model.get());
@@ -151,8 +179,7 @@ namespace pboman3 {
 
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
-        const QSharedPointer<settings::ApplicationSettingsFacility> settingsFacility = settings::GetSettingsFacility();
-        const auto settings = settingsFacility->readSettings();
+        const auto settings = GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
             model::task::PackTask task(folder, outputDir, settings.packConflictResolutionMode);
@@ -163,8 +190,7 @@ namespace pboman3 {
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
         util::UseLoggingMessagePattern();
-        const QSharedPointer<settings::ApplicationSettingsFacility> settingsFacility = settings::GetSettingsFacility();
-        const auto settings = settingsFacility->readSettings();
+        const auto settings = GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
             model::task::UnpackTask task(folder, outputDir, settings.unpackConflictResolutionMode);
@@ -244,7 +270,6 @@ namespace pboman3 {
         return QString::fromWCharArray(argv[1]);
     }
 #endif
-
 
     template <CharOrWChar TChr>
     int RunMain(int argc, TChr* argv[]) {

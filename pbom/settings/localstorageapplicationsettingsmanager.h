@@ -1,9 +1,11 @@
 #pragma once
 
-#include "applicationsettingsfacility.h"
+#include "applicationsettingsmanager.h"
 
 namespace pboman3::settings {
-    class LocalStorageApplicationSettingsFacility : public ApplicationSettingsFacility {
+    class LocalStorageApplicationSettingsManager : public ApplicationSettingsManager {
+        Q_OBJECT
+
     public:
         static void purge();
 

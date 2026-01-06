@@ -2,7 +2,6 @@
 #include "jf/compositefilter.h"
 #include "jf/dummyfilter.h"
 #include "jf/zerosizefilter.h"
-#include "../settings/getsettingsfacility.h"
 
 namespace pboman3::io {
     DocumentReader CreateDocumentReader(QString path, const bool junkFilterEnable) {

@@ -1,5 +1,5 @@
-#include "localstorageapplicationsettingsfacility.h"
-#include "../io/fileconflictresolutionmode.h"
+#include "localstorageapplicationsettingsmanager.h"
+#include "io/fileconflictresolutionmode.h"
 #include <QSettings>
 
 #define QSETTINGS(VAR_NAME) QSettings VAR_NAME(QSettings::Format::NativeFormat, QSettings::Scope::UserScope, "pboman3", "settings");
@@ -10,12 +10,12 @@
 #define KEY_APPLICATION_COLOR_SCHEME "application_color_scheme"
 
 namespace pboman3::settings {
-    void LocalStorageApplicationSettingsFacility::purge() {
+    void LocalStorageApplicationSettingsManager::purge() {
         QSETTINGS(storage)
         storage.clear();
     }
 
-    ApplicationSettings LocalStorageApplicationSettingsFacility::readSettings() const {
+    ApplicationSettings LocalStorageApplicationSettingsManager::readSettings() const {
         QSETTINGS(const storage)
 
         const QVariant vPackConflictResolutionMode = storage.value(KEY_PACK_CONFLICT_RESOLUTION_MODE);
@@ -49,7 +49,7 @@ namespace pboman3::settings {
         };
     }
 
-    void LocalStorageApplicationSettingsFacility::writeSettings(const ApplicationSettings& settings) {
+    void LocalStorageApplicationSettingsManager::writeSettings(const ApplicationSettings& settings) {
         QSETTINGS(storage)
 
         storage.setValue(
@@ -65,5 +65,7 @@ namespace pboman3::settings {
         storage.setValue(
             KEY_APPLICATION_COLOR_SCHEME,
             QVariant(static_cast<int>(settings.applicationColorScheme)));
+
+        emit settingsChanged(settings);
     }
 }

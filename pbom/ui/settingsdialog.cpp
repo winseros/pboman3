@@ -1,6 +1,6 @@
 #include "settingsdialog.h"
 #include "util/log.h"
-#include "settings/getsettingsfacility.h"
+#include "settings/getapplicationsettingsmanager.h"
 #include "io/fileconflictresolutionmode.h"
 
 #define LOG(...) LOGGER("ui/SettingsDialog", __VA_ARGS__)
@@ -38,8 +38,7 @@ namespace pboman3::ui {
             colorScheme
         };
 
-        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
-        settingsFacility->writeSettings(settings);
+        GetApplicationSettingsManager()->writeSettings(settings);
 
         close();
     }
@@ -47,8 +46,7 @@ namespace pboman3::ui {
     void SettingsDialog::loadSettings() const {
         using namespace settings;
 
-        const QSharedPointer<ApplicationSettingsFacility> settingsFacility = GetSettingsFacility();
-        const auto settings = settingsFacility->readSettings();
+        const auto settings = GetApplicationSettingsManager()->readSettings();
 
         setRadioButtonValue(ui_->groupBoxPack, settings.packConflictResolutionMode);
         setRadioButtonValue(ui_->groupBoxUnpack, settings.unpackConflictResolutionMode);

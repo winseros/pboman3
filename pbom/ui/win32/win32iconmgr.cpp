@@ -23,7 +23,7 @@ namespace pboman3::ui {
             return cache_[extension];
         }
 
-        LOG(info, "Get icon for extension:", extension)
+        LOG(debug, "Get icon for extension:", extension)
 
         SHFILEINFOW info;
         const QString fn = "file." + extension;
@@ -34,7 +34,7 @@ namespace pboman3::ui {
             sizeof info,
             SHGFI_ICON | SHGFI_USEFILEATTRIBUTES);
 
-        LOG(info, "Retrieve from the OS:", hr)
+        LOG(debug, "Retrieve from the OS:", hr)
 
         if (SUCCEEDED(hr)) {
             cache_[extension] = QIcon(QPixmap::fromImage(QImage::fromHICON(info.hIcon)));

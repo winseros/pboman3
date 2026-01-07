@@ -30,10 +30,10 @@ namespace pboman3::util {
             qInstallMessageHandler(defaultHandler_);
     }
 
-    void LoggingInfrastructure::run() {
+    void LoggingInfrastructure::run(const ApplicationLogLevel logLevel) {
         assert(!defaultHandler_ && !worker_);
 
-        UseLoggingMessagePattern();
+        SetLoggerParameters(logLevel);
 
         defaultHandler_ = qInstallMessageHandler(handleMessage);
         worker_ = new LogWorker(defaultHandler_);
@@ -49,11 +49,21 @@ namespace pboman3::util {
         emit logging_->messageReceived(type, context.file, message);
     }
 
-    void UseLoggingMessagePattern() {
+    void SetLoggerParameters(const ApplicationLogLevel logLevel) {
         qSetMessagePattern(
             "%{time yyyy-MM-dd HH:mm:ss.zzz}|%{if-debug}DBG%{endif}%{if-info}INF%{endif}%{if-warning}WRN%{endif}%{if-critical}CRT%{endif}%{if-fatal}FTL%{endif}|%{file}|%{message}");
 #ifdef NDEBUG
-        QLoggingCategory::setFilterRules("*.debug=false");
+        switch (logLevel) {
+            case ApplicationLogLevel::INFO:
+                QLoggingCategory::setFilterRules("*.debug=false");
+                break;
+            case ApplicationLogLevel::WARN:
+                QLoggingCategory::setFilterRules("*.debug=false\n*.info=false");
+                break;
+            default:
+                break;
+        }
+
 #endif
     }
 

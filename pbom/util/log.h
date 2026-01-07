@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDebug>
+#include "applicationloglevel.h"
 
 #define M_NUM_ARGS_10TH(A10, A9, A8, A7, A6, A5, A4, A3, A2, A1, A0, ...) A0
 #define M_NUM_ARGS(...) M_NUM_ARGS_10TH(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
@@ -29,10 +30,9 @@ USE THIS CODE FOR MACRO DEBUGGING
 #pragma message(DEBUG_STRING(LOGGER("Main", debug, "Hello!")))
 */
 
-#include <QScopedPointer>
 #include <QThread>
 
-#define ACTIVATE_ASYNC_LOG_SINK auto logging = QScopedPointer(new util::LoggingInfrastructure); logging->run();
+#define ACTIVATE_ASYNC_LOG_SINK(LEVEL) auto logging = QScopedPointer(new util::LoggingInfrastructure); logging->run(LEVEL);
 
 namespace pboman3::util {
     /*These two guys make standard QT logs be output on a non UI-thread*/
@@ -56,7 +56,7 @@ namespace pboman3::util {
 
         ~LoggingInfrastructure() override;
 
-        void run();
+        void run(ApplicationLogLevel logLevel);
 
     signals:
         void messageReceived(QtMsgType type, const QString& file, const QString& message);
@@ -71,5 +71,5 @@ namespace pboman3::util {
         QtMessageHandler defaultHandler_;
     };
 
-    void UseLoggingMessagePattern();
+    void SetLoggerParameters(ApplicationLogLevel logLevel);
 }

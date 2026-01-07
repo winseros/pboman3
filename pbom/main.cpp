@@ -77,10 +77,10 @@ namespace pboman3 {
         }
     }
 
-    int RunMainWindow(const QApplication& app, const QString& pboFile) {
+    int RunMainWindow(const QApplication& app, const QString& pboFile, const util::ApplicationLogLevel logLevel) {
         using namespace pboman3;
 
-        ACTIVATE_ASYNC_LOG_SINK
+        ACTIVATE_ASYNC_LOG_SINK(logLevel);
 
         LOG(info, "Starting the app")
 
@@ -113,11 +113,12 @@ namespace pboman3 {
         return exitCode;
     }
 
-    int RunPackWindow(const QApplication& app, const QStringList& folders, const QString& outputDir) {
+    int RunPackWindow(const QApplication& app, const QStringList& folders, const QString& outputDir,
+                      const util::ApplicationLogLevel logLevel) {
         using namespace pboman3;
         using namespace pboman3::model::task;
 
-        ACTIVATE_ASYNC_LOG_SINK
+        ACTIVATE_ASYNC_LOG_SINK(logLevel);
 
         LOG(info, "Starting the app")
 
@@ -145,11 +146,12 @@ namespace pboman3 {
         return exitCode;
     }
 
-    int RunUnpackWindow(const QApplication& app, const QStringList& files, const QString& outputDir) {
+    int RunUnpackWindow(const QApplication& app, const QStringList& files, const QString& outputDir,
+                        const util::ApplicationLogLevel logLevel) {
         using namespace pboman3;
         using namespace pboman3::model::task;
 
-        ACTIVATE_ASYNC_LOG_SINK
+        ACTIVATE_ASYNC_LOG_SINK(logLevel);
 
         LOG(info, "Starting the app")
 
@@ -177,8 +179,10 @@ namespace pboman3 {
         return exitCode;
     }
 
-    int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
-        util::UseLoggingMessagePattern();
+    int RunConsolePackOperation(const QStringList& folders, const QString& outputDir,
+                                const util::ApplicationLogLevel logLevel) {
+        util::SetLoggerParameters(logLevel);
+
         const auto settings = GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
@@ -188,8 +192,10 @@ namespace pboman3 {
         return 0;
     }
 
-    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
-        util::UseLoggingMessagePattern();
+    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir,
+        const util::ApplicationLogLevel logLevel) {
+        util::SetLoggerParameters(logLevel);
+
         const auto settings = GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
@@ -207,7 +213,7 @@ namespace pboman3 {
         int exitCode;
         if (argc == 1) {
             const PboApplication<TChr> app(argc, argv);
-            exitCode = RunMainWindow(app, "");
+            exitCode = RunMainWindow(app, "", util::ApplicationLogLevel::WARN);
         } else {
             App cli;
             const CommandLine cmd(&cli);
@@ -217,7 +223,7 @@ namespace pboman3 {
             if (commandLine->open.hasBeenSet()) {
                 const PboApplication<TChr> app(argc, argv);
                 const QString file = CommandLine::toQt(commandLine->open.fileName);
-                exitCode = RunMainWindow(app, file);
+                exitCode = RunMainWindow(app, file, commandLine->logLevel.get());
             } else if (commandLine->pack.hasBeenSet()) {
                 QString outputDir;
                 if (commandLine->pack.hasOutputPath())
@@ -229,10 +235,10 @@ namespace pboman3 {
 
                 const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
                 if (commandLine->pack.noUi()) {
-                    exitCode = RunConsolePackOperation(folders, outputDir);
+                    exitCode = RunConsolePackOperation(folders, outputDir, commandLine->logLevel.get());
                 } else {
                     const PboApplication<TChr> app(argc, argv);
-                    exitCode = RunPackWindow(app, folders, outputDir);
+                    exitCode = RunPackWindow(app, folders, outputDir, commandLine->logLevel.get());
                 }
             } else if (commandLine->unpack.hasBeenSet()) {
                 QString outputDir;
@@ -245,10 +251,10 @@ namespace pboman3 {
 
                 const QStringList files = CommandLine::toQt(commandLine->unpack.files);
                 if (commandLine->unpack.noUi()) {
-                    exitCode = RunConsoleUnpackOperation(files, outputDir);
+                    exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->logLevel.get());
                 } else {
                     const PboApplication<TChr> app(argc, argv);
-                    exitCode = RunUnpackWindow(app, files, outputDir);
+                    exitCode = RunUnpackWindow(app, files, outputDir, commandLine->logLevel.get());
                 }
             } else {
                 //should not normally get here; if did - CLI11 was misconfigured somewhere
@@ -284,7 +290,7 @@ namespace pboman3 {
             const QFileInfo fi(file);
             if (fi.isFile() && !fi.isSymLink()) {
                 const PboApplication app(argc, argv);
-                exitCode = RunMainWindow(app, file);
+                exitCode = RunMainWindow(app, file, util::ApplicationLogLevel::WARN);
             } else {
                 //but still call regular CLI if the input argument we thought
                 //might be a file - was not a file
@@ -320,7 +326,21 @@ int MainImpl(int argc, TChr* argv[]) {
     }
 }
 
+void AttachConsole() {
+    //Console won't work in release so user won't see command line help messages
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        FILE* pFile;
+        freopen_s(&pFile, "CONOUT$", "w", stdout);
+        freopen_s(&pFile, "CONOUT$", "w", stderr);
+        freopen_s(&pFile, "CONIN$", "r", stdin);
+    }
+}
+
 int main(int argc, char* argv[]) {
+#ifdef NDEBUG
+    AttachConsole();
+#endif
+
 #ifdef WIN32
     const pboman3::Argv16Bit arg;
     MainImpl(arg.argc, arg.argv);

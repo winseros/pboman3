@@ -13,8 +13,9 @@
 using namespace std;
 
 namespace pboman3 {
-    int RunConsolePackOperation(const QStringList& folders, const QString& outputDir) {
-        util::UseLoggingMessagePattern();
+    int RunConsolePackOperation(const QStringList& folders, const QString& outputDir,
+                                const util::ApplicationLogLevel logLevel) {
+        util::SetLoggerParameters(logLevel);
 
         const auto settings = settings::GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
@@ -25,8 +26,10 @@ namespace pboman3 {
         return 0;
     }
 
-    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir) {
-        util::UseLoggingMessagePattern();
+    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir,
+                                  const util::ApplicationLogLevel logLevel) {
+        util::SetLoggerParameters(logLevel);
+
         const auto settings = settings::GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
@@ -55,7 +58,7 @@ namespace pboman3 {
                 outputDir = QDir::currentPath();
 
             const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
-            exitCode = RunConsolePackOperation(folders, outputDir);
+            exitCode = RunConsolePackOperation(folders, outputDir, commandLine->logLevel.get());
         } else if (commandLine->unpack.hasBeenSet()) {
             QString outputDir;
             if (commandLine->unpack.hasOutputPath())
@@ -64,7 +67,7 @@ namespace pboman3 {
                 outputDir = QDir::currentPath();
 
             const QStringList files = CommandLine::toQt(commandLine->unpack.files);
-            exitCode = RunConsoleUnpackOperation(files, outputDir);
+            exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->logLevel.get());
         } else {
             //should not normally get here; if did - CLI11 was misconfigured somewhere
             cout << cli.help();

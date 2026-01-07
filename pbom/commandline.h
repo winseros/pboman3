@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CLI/CLI.hpp>
+#include "util/applicationloglevel.h"
 
 namespace pboman3 {
     using namespace CLI;
@@ -119,6 +120,41 @@ namespace pboman3 {
             }
         };
 
+        struct Parameter {
+            Parameter(): option(nullptr) {
+            }
+
+            virtual ~Parameter() = default;
+
+            Option* option;
+
+            virtual void configure(App* cli) = 0;
+        };
+
+        struct ParameterLogLevel : Parameter {
+            std::string value;
+
+#define LVL_WARN "warn"
+#define LVL_INFO "info"
+#define LVL_DEBUG "debug"
+
+            void configure(App* app) override {
+                option = app->add_option("-l,--log-level", value, "Log output level [warn,info,debug]")
+                                   ->option_text(" ")
+                                   ->default_val(LVL_WARN)
+                                   ->check(IsMember({LVL_WARN, LVL_INFO, LVL_DEBUG}));
+            }
+            [[nodiscard]] util::ApplicationLogLevel get() const {
+                if (value == LVL_DEBUG) {
+                    return util::ApplicationLogLevel::DEBUG;
+                }
+                if (value == LVL_INFO) {
+                    return util::ApplicationLogLevel::INFO;
+                }
+                return util::ApplicationLogLevel::WARN;
+            }
+        };
+
         template <CharOrWChar TChr>
         struct Result {
 #ifdef PBOM_GUI
@@ -128,6 +164,8 @@ namespace pboman3 {
             CommandPack<TChr> pack;
 
             CommandUnpack<TChr> unpack;
+
+            ParameterLogLevel logLevel;
         };
 
         explicit CommandLine(App* app)
@@ -142,6 +180,7 @@ namespace pboman3 {
 #endif
             result->pack.configure(app_);
             result->unpack.configure(app_);
+            result->logLevel.configure(app_);
 
             return result;
         }

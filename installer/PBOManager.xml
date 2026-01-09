@@ -12,11 +12,12 @@
     <Package Manufacturer="$(var.Author)" Name="PBO Manager" Version="$(var.ProductVersion)"
              UpgradeCode="$(var.UpgradeCode)" Scope="perMachine">
 
-        <util:QueryNativeMachine/>
+        <Icon Id="ICON_PBOM" SourceFile="$(var.ArtifactsFolder)pbom.exe"/>
+        <Property Id="ARPPRODUCTICON" Value="ICON_PBOM" />
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
+        <MediaTemplate EmbedCab="yes"/>
 
-        <Launch Condition="WIX_NATIVE_MACHINE = 34404" Message="Must run only on an x64 machine!"/>
-        <Launch Condition="Installed OR (VersionNT64 >= 603)"
-                Message="This application is only supported on Windows 10, or higher."/>
+        <util:QueryNativeMachine/>
 
         <Property Id="PBOMCPPREDISTEXISTS">
             <DirectorySearch Id="VcRedistDir" Path="[System64Folder]" Depth="0">
@@ -24,33 +25,27 @@
             </DirectorySearch>
         </Property>
 
+        <Launch Condition="WIX_NATIVE_MACHINE = 34404" Message="Must run only on an x64 machine!"/>
+        <Launch Condition="Installed OR (VersionNT64 >= 603)"
+                Message="This application is only supported on Windows 10, or higher."/>
         <Launch Condition="Installed OR PBOMCPPREDISTEXISTS"
                 Message="This application requires Microsoft Visual C++ Redistributable 2015 or higher. Please install it, then run this installer again."/>
 
-        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
-        <MediaTemplate EmbedCab="yes"/>
+        <Property Id="PbomInstallScope" Value="machine"/>
+        <WixVariable Id="WixUILicenseRtf" Value="$(sys.SOURCEFILEDIR)..\LICENSE.rtf" />
+        <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" ExtendedPathValidation="yes"/>
 
-        <Icon Id="ICON_PBOM" SourceFile="$(var.ArtifactsFolder)pbom.exe"/>
+        <UIRef Id="PBOMan_Dialogs"/>
+        <UIRef Id="PBOMan_UiSequence"/>
 
         <FeatureRef Id="F_MainFiles"/>
-        <FeatureRef Id="F_ProgramMenuShortcut"/>
-        <FeatureRef Id="F_DesktopShortcut"/>
-
-        <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER"/>
-        <UI>
-            <UIRef Id="PBOMan_Ui"/>
-        </UI>
 
         <InstallExecuteSequence>
             <ScheduleReboot After="InstallFinalize"/>
         </InstallExecuteSequence>
 
-        <Property Id="PbomInstallPer" Value="user"/>
-
         <StandardDirectory Id="TARGETDIR">
-            <Directory Id="ApplicationDataFolder">
-                <Directory Id="INSTALLFOLDER" Name="$(var.AppName)"/>
-            </Directory>
+            <Directory Id="INSTALLFOLDER" Name="$(var.AppName)"/>
         </StandardDirectory>
     </Package>
 
@@ -77,77 +72,23 @@
             <ComponentRef Id="C_MainFiles__Tls__qopensslbackend.dll"/>
             <ComponentRef Id="C_MainFiles__Tls__qschannelbackend.dll"/>
         </ComponentGroup>
-
-        <Feature Id="F_MainFiles" Title="Application" Level="1" InstallDefault="local" AllowAbsent="no"
-                 Description="The main application files.">
-            <ComponentGroupRef Id="CG_MainFiles"/>
-        </Feature>
-
-        <CustomAction Id="PbomSetDefaultMainFilesUserFolder" Property="PbomMainFilesUserFolder"
-                      Value="[LocalAppDataFolder]$(var.AppName)" Execute="immediate"/>
-        <CustomAction Id="PbomSetDefaultMainFilesMachineFolder" Property="PbomMainFilesMachineFolder"
-                      Value="[ProgramFiles64Folder]$(var.AppName)" Execute="immediate"/>
-        <CustomAction Id="PbomSetMainFilesUserFolder" Property="INSTALLFOLDER" Value="[PbomMainFilesUserFolder]"
-                      Execute="immediate"/>
-        <CustomAction Id="PbomSetMainFilesMachineFolder" Property="INSTALLFOLDER" Value="[PbomMainFilesMachineFolder]"
-                      Execute="immediate"/>
-
-        <InstallExecuteSequence>
-            <Custom Action="PbomSetDefaultMainFilesUserFolder" Before="CostFinalize"/>
-            <Custom Action="PbomSetDefaultMainFilesMachineFolder" After="PbomSetDefaultMainFilesUserFolder"/>
-            <Custom Action="PbomSetMainFilesUserFolder" After="PbomSetDefaultMainFilesMachineFolder"
-                    Condition="ACTION=&quot;INSTALL&quot; AND INSTALLFOLDER=&quot;&quot; AND (ALLUSERS=&quot;&quot; OR (ALLUSERS=2 AND (NOT Privileged)))"/>
-            <Custom Action="PbomSetMainFilesMachineFolder" After="PbomSetMainFilesUserFolder"
-                    Condition="ACTION=&quot;INSTALL&quot; AND INSTALLFOLDER=&quot;&quot; AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))"/>
-        </InstallExecuteSequence>
-        <InstallUISequence>
-            <Custom Action="PbomSetDefaultMainFilesUserFolder" Before="CostFinalize"/>
-            <Custom Action="PbomSetDefaultMainFilesMachineFolder" After="PbomSetDefaultMainFilesUserFolder"/>
-            <Custom Action="PbomSetMainFilesUserFolder" After="PbomSetDefaultMainFilesMachineFolder"
-                    Condition="ACTION=&quot;INSTALL&quot; AND INSTALLFOLDER=&quot;&quot; AND (ALLUSERS=&quot;&quot; OR (ALLUSERS=2 AND (NOT Privileged)))"/>
-            <Custom Action="PbomSetMainFilesMachineFolder" After="PbomSetMainFilesUserFolder"
-                    Condition="ACTION=&quot;INSTALL&quot; AND INSTALLFOLDER=&quot;&quot; AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))"/>
-        </InstallUISequence>
     </Fragment>
 
     <Fragment>
+        <Feature Id="F_MainFiles" Title="$(var.AppName)" Level="1" InstallDefault="local" AllowAbsent="no"
+                 Description="The main application files." AllowAdvertise="no">
+            <ComponentGroupRef Id="CG_MainFiles"/>
+
+            <FeatureRef Id="F_ShellExtension"/>
+            <FeatureRef Id="F_ProgramMenuShortcut"/>
+            <FeatureRef Id="F_DesktopShortcut"/>
+            <FeatureRef Id="F_EnvVariables"/>
+        </Feature>
+
         <DirectoryRef Id="INSTALLFOLDER">
             <Component Id="C_MainFiles__pboe.dll" Guid="08AE24AD-11EE-481E-8E38-2A30968FA898" Bitness="always64">
                 <File Id="F_MainFiles__pboe.dll" KeyPath="yes" Vital="yes"
                       Source="$(var.ArtifactsFolder)pboe.dll"/>
-
-                <Class Id="$(var.RegClsId)" Context="InprocServer32" Description="[ProductName] shell extension"
-                       Server="F_MainFiles__pboe.dll" ThreadingModel="apartment" Advertise="no">
-                </Class>
-
-                <RegistryValue Root="HKCR"
-                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
-                               Value="$(var.RegClsId)" Name="ExplorerCommandHandler" Type="string"/>
-
-                <RegistryValue Root="HKCR"
-                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
-                               Value="$(var.AppName)" Type="string"/>
-
-                <RegistryValue Root="HKCR"
-                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
-                               Value="" Name="NeverDefault" Type="string"/>
-
-                <RegistryValue Root="HKCR"
-                               Key="$(var.RegProgId)"
-                               Name="Path"
-                               Value="[INSTALLFOLDER]pbom.exe" Type="string"/>
-
-                <RegistryValue Root="HKCR"
-                               Key="Directory\Shell\$(var.RegAppId).menu"
-                               Value="$(var.RegClsId)" Name="ExplorerCommandHandler" Type="string"/>
-
-                <RegistryValue Root="HKCR"
-                               Key="Directory\Shell\$(var.RegAppId).menu"
-                               Value="$(var.AppName)" Type="string"/>
-
-                <RegistryValue Root="HKCR"
-                               Key="Directory\Shell\$(var.RegAppId).menu"
-                               Value="" Name="NeverDefault" Type="string"/>
             </Component>
 
             <Component Id="C_MainFiles__pbom.exe" Guid="7FC3F37E-AE6D-4BA0-8677-3C056F13519C" Bitness="always64">
@@ -227,13 +168,62 @@
     </Fragment>
 
     <Fragment>
-        <Feature Id="F_ProgramMenuShortcut" Title="&quot;Start&quot; menu entry" Level="1" InstallDefault="local"
-                 Description="Application shortcut in the &quot;Start&quot; menu.">
-            <ComponentRef Id="C_ProgramMenuShortcut" />
+        <Feature Id="F_ShellExtension" Title="Windows Context Menu extension" Level="1" InstallDefault="local" AllowAbsent="yes"
+                 Description="$(var.AppName) items in the Windows Explorer Context Menu."  AllowAdvertise="no">
+            <ComponentGroupRef Id="CG_ShellExtension"/>
         </Feature>
-        <Feature Id="F_DesktopShortcut" Title="Desktop shortcut" Level="1" InstallDefault="local"
-                 Description="Application shortcut on the desktop.">
-            <ComponentRef Id="C_DesktopShortcut" />
+
+        <ComponentGroup Id="CG_ShellExtension">
+            <Component Id="C_Registry_1">
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
+                               Value="$(var.RegClsId)" Name="ExplorerCommandHandler"
+                               Type="string" KeyPath="yes"/>
+
+                <Class Id="$(var.RegClsId)" Context="InprocServer32" Description="[ProductName] shell extension"
+                       Server="F_MainFiles__pboe.dll" ThreadingModel="apartment" Advertise="no" >
+                </Class>
+            </Component>
+            <Component Id="C_Registry_2">
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
+                               Value="$(var.AppName)" Type="string" KeyPath="yes"/>
+            </Component>
+            <Component Id="C_Registry_3">
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)\Shell\$(var.RegAppId).menu"
+                               Value="" Name="NeverDefault" Type="string" KeyPath="yes"/>
+            </Component>
+            <Component Id="C_Registry_4">
+                <RegistryValue Root="HKCR"
+                               Key="$(var.RegProgId)"
+                               Name="Path"
+                               Value="[INSTALLFOLDER]pbom.exe" Type="string"
+                               KeyPath="yes"/>
+            </Component>
+            <Component Id="C_Registry_5">
+                <RegistryValue Root="HKCR"
+                               Key="Directory\Shell\$(var.RegAppId).menu"
+                               Value="$(var.RegClsId)" Name="ExplorerCommandHandler"
+                               Type="string" KeyPath="yes"/>
+            </Component>
+            <Component Id="C_Registry_6">
+                <RegistryValue Root="HKCR"
+                               Key="Directory\Shell\$(var.RegAppId).menu"
+                               Value="$(var.AppName)" Type="string" KeyPath="yes"/>
+            </Component>
+            <Component Id="C_Registry_7">
+                <RegistryValue Root="HKCR"
+                               Key="Directory\Shell\$(var.RegAppId).menu"
+                               Value="" Name="NeverDefault" Type="string" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <Feature Id="F_ProgramMenuShortcut" Title="Start Menu shortcut" Level="1" InstallDefault="local"
+                 Description="$(var.AppName) shortcut in the Windows Start Menu."  AllowAdvertise="no">
+            <ComponentRef Id="C_ProgramMenuShortcut" />
         </Feature>
 
         <StandardDirectory Id="ProgramMenuFolder">
@@ -250,6 +240,13 @@
                 </Component>
             </Directory>
         </StandardDirectory>
+    </Fragment>
+
+    <Fragment>
+        <Feature Id="F_DesktopShortcut" Title="Desktop shortcut" Level="1" InstallDefault="local"
+                 Description="$(var.AppName) shortcut on the desktop." AllowAdvertise="no">
+            <ComponentRef Id="C_DesktopShortcut" />
+        </Feature>
 
         <StandardDirectory Id="DesktopFolder">
             <Component Id="C_DesktopShortcut" Guid="886844F8-FF22-4F40-8332-FEDE21F42928">
@@ -264,56 +261,87 @@
     </Fragment>
 
     <Fragment>
-        <UI Id="PBOMan_Ui">
+        <Feature Id="F_EnvVariables" Title="Add to PATH" Level="2"
+                 Description="Add $(var.AppName) to the system PATH. Useful for script automation."
+                 AllowAdvertise="no">
+            <Component Id="C_EnvVariablesUser" Guid="b5ec4b4e-9dbb-4189-9660-55611c800a51" Condition="NOT ALLUSERS">
+                <Environment Id="EV_PathUser" Name="PATH" Action="set" Value="[INSTALLFOLDER]" Part="last" System="no"/>
+            </Component>
+            <Component Id="C_EnvVariablesSystem" Guid="b5ec4b4e-9dbb-4189-9660-55611c800a52" Condition="ALLUSERS">
+                <Environment Id="EV_PathSystem" Name="PATH" Action="set" Value="[INSTALLFOLDER]" Part="last" System="yes"/>
+            </Component>
+        </Feature>
+    </Fragment>
+
+    <Fragment>
+        <CustomAction Id="PbomSetDefaultUserFolder" Property="PbomUserFolder"
+                      Value="[LocalAppDataFolder]$(var.AppName)\" Execute="immediate"/>
+        <CustomAction Id="PbomSetDefaultMachineFolder" Property="PbomMachineFolder"
+                      Value="[ProgramFiles64Folder]$(var.AppName)\" Execute="immediate"/>
+        <CustomAction Id="PbomSetUserFolder" Property="INSTALLFOLDER" Value="[PbomUserFolder]"
+                      Execute="immediate"/>
+        <CustomAction Id="PbomSetMachineFolder" Property="INSTALLFOLDER" Value="[PbomMachineFolder]"
+                      Execute="immediate"/>
+
+        <InstallExecuteSequence>
+            <Custom Action="PbomSetDefaultUserFolder" Before="CostFinalize"/>
+            <Custom Action="PbomSetDefaultMachineFolder" After="PbomSetDefaultUserFolder"/>
+            <Custom Action="PbomSetUserFolder" After="PbomSetDefaultMachineFolder"
+                    Condition="ACTION=&quot;INSTALL&quot; AND NOT INSTALLFOLDER AND (NOT ALLUSERS OR (ALLUSERS=2 AND (NOT Privileged)))"/>
+            <Custom Action="PbomSetMachineFolder" After="PbomSetUserFolder"
+                    Condition="ACTION=&quot;INSTALL&quot; AND NOT INSTALLFOLDER AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))"/>
+        </InstallExecuteSequence>
+        <InstallUISequence>
+            <Custom Action="PbomSetDefaultUserFolder" Before="CostFinalize"/>
+            <Custom Action="PbomSetDefaultMachineFolder" After="PbomSetDefaultUserFolder"/>
+            <Custom Action="PbomSetUserFolder" After="PbomSetDefaultMachineFolder"
+                    Condition="ACTION=&quot;INSTALL&quot; AND NOT INSTALLFOLDER AND (NOT ALLUSERS OR (ALLUSERS=2 AND (NOT Privileged)))"/>
+            <Custom Action="PbomSetMachineFolder" After="PbomSetUserFolder"
+                    Condition="ACTION=&quot;INSTALL&quot; AND NOT INSTALLFOLDER AND (ALLUSERS=1 OR (ALLUSERS=2 AND Privileged))"/>
+        </InstallUISequence>
+
+        <UI Id="PBOMan_UiSequence">
             <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="MachineOrUserDlg"
                      Condition="LicenseAccepted = &quot;1&quot;"/>
 
             <Publish Dialog="MachineOrUserDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg"/>
             <Publish Dialog="MachineOrUserDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"/>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="{}"
-                     Condition="PbomInstallPer = &quot;user&quot;"/>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="1"
-                     Condition="PbomInstallPer = &quot;user&quot;"/>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="2"
-                     Condition="PbomInstallPer = &quot;machine&quot;"/>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="{}"
-                     Condition="PbomInstallPer = &quot;machine&quot;"/>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER"
-                     Value="[PbomMainFilesUserFolder]" Condition="PbomInstallPer = &quot;user&quot;"/>
-            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER"
-                     Value="[PbomMainFilesMachineFolder]" Condition="PbomInstallPer = &quot;machine&quot;"/>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="{}" Condition="PbomInstallScope = &quot;user&quot;"/>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="1" Condition="PbomInstallScope = &quot;user&quot;"/>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="ALLUSERS" Value="2" Condition="PbomInstallScope = &quot;machine&quot;"/>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="MSIINSTALLPERUSER" Value="{}" Condition="PbomInstallScope = &quot;machine&quot;"/>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomUserFolder]" Condition="PbomInstallScope = &quot;user&quot;"/>
+            <Publish Dialog="MachineOrUserDlg" Control="Next" Property="INSTALLFOLDER" Value="[PbomMachineFolder]" Condition="PbomInstallScope = &quot;machine&quot;"/>
             <Publish Dialog="MachineOrUserDlg" Control="Next" Event="DoAction" Value="FindRelatedProducts" Order="10"/>
-            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="MachineOrUserDlg"/>
 
-            <Dialog Id="MachineOrUserDlg" Width="370" Height="270" Title="!(loc.InstallScopeDlg_Title)"
-                    KeepModeless="yes">
-                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no"
-                         Text="!(loc.InstallScopeDlgBannerBitmap)"/>
-                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0"/>
-                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0"/>
-                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes"
-                         NoPrefix="yes" Text="!(loc.InstallScopeDlgDescription)"/>
-                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes"
-                         Text="!(loc.InstallScopeDlgTitle)"/>
-                <Control Id="BothScopes" Type="RadioButtonGroup" X="20" Y="55" Width="330" Height="120"
-                         Property="PbomInstallPer">
-                    <RadioButtonGroup Property="PbomInstallPer">
-                        <RadioButton Value="user" X="0" Y="0" Width="295" Height="16"
-                                     Text="!(loc.InstallScopeDlgPerUser)"/>
-                        <RadioButton Value="machine" X="0" Y="60" Width="295" Height="16"
-                                     Text="!(loc.InstallScopeDlgPerMachine)"/>
+            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="MachineOrUserDlg"/>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="FeaturesDlg" Order="4" Condition="WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
+
+            <Publish Dialog="FeaturesDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" />
+            <Publish Dialog="FeaturesDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" />
+        </UI>
+    </Fragment>
+
+    <Fragment>
+        <UI Id="PBOMan_Dialogs">
+            <Dialog Id="MachineOrUserDlg" Width="370" Height="270" Title="!(loc.InstallScopeDlg_Title)" KeepModeless="yes">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallScopeDlgBannerBitmap)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="373" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="373" Height="0" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallScopeDlgDescription)" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallScopeDlgTitle)" />
+                <Control Id="BothScopes" Type="RadioButtonGroup" X="20" Y="55" Width="330" Height="120" Property="PbomInstallScope">
+                    <RadioButtonGroup Property="PbomInstallScope">
+                        <RadioButton Value="user" X="0" Y="0" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerUser)" />
+                        <RadioButton Value="machine" X="0" Y="60" Width="295" Height="16" Text="!(loc.InstallScopeDlgPerMachine)" />
                     </RadioButtonGroup>
                 </Control>
-                <Control Id="PerUserDescription" Type="Text" X="33" Y="70" Width="300" Height="36" NoPrefix="yes"
-                         Text="!(loc.InstallScopeDlgPerUserDescription)"/>
-                <Control Id="PerMachineDescription" Type="Text" X="33" Y="131" Width="300" Height="36" NoPrefix="yes"
-                         Text="!(loc.InstallScopeDlgPerMachineDescription)"/>
-                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)"/>
-                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes"
-                         Text="!(loc.WixUINext)"/>
-                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes"
-                         Text="!(loc.WixUICancel)">
-                    <Publish Event="SpawnDialog" Value="CancelDlg"/>
+                <Control Id="PerUserDescription" Type="Text" X="33" Y="70" Width="300" Height="36" NoPrefix="yes" Text="!(loc.InstallScopeDlgPerUserDescription)"  />
+                <Control Id="PerMachineDescription" Type="Text" X="33" Y="131" Width="300" Height="36" NoPrefix="yes" Text="!(loc.InstallScopeDlgPerMachineDescription)" />
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg" />
                 </Control>
             </Dialog>
         </UI>

@@ -89,7 +89,7 @@ jobs:
           dotnet tool run wix build `
             -d ArtifactsFolder=${{github.workspace}}\_install\bin\ `
             -d ProductVersion="${{env.pbom_installer_version}}" `
-            -d WixUILicenseRtf=${{github.workspace}}\code\LICENSE.rtf `
+            -arch x64 `
             -out ${{github.workspace}}\_artifacts\PBOManager.${{env.pbom_installer_version}}.msi `
             -ext WixToolset.UI.wixext `
             -ext WixToolset.Util.wixext `

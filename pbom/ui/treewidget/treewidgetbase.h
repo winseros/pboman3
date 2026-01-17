@@ -14,16 +14,16 @@ namespace pboman3::ui {
 
         void resetRoot();
 
-        QList<PboNode*> getSelectedHierarchies() const;
+        [[nodiscard]] QList<PboNode*> getSelectedHierarchies() const;
 
-        PboNode* getSelectionRoot() const;
+        [[nodiscard]] PboNode* getSelectionRoot() const;
 
     protected:
         explicit TreeWidgetBase(QWidget* parent = nullptr);
 
-        PboNode* getCurrentFolder() const;
+        [[nodiscard]] PboNode* getCurrentFolder() const;
 
-        PboNode* getCurrentFile() const;
+        [[nodiscard]] PboNode* getCurrentFile() const;
 
         virtual void dragStarted(const QList<PboNode*>& items) = 0;
 
@@ -43,7 +43,7 @@ namespace pboman3::ui {
         TreeWidgetItem* root_;
         TreeWidgetItem* dragOverItem_;
 
-        void itemSyncIcon(QTreeWidgetItem* item);
+        static void itemSyncIcon(QTreeWidgetItem* item);
 
         bool tryAcceptEvent(const QMimeData* mimeData, const QPoint& pos);
 

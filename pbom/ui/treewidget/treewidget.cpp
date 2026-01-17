@@ -148,6 +148,13 @@ namespace pboman3::ui {
         model_ = model;
     }
 
+    void TreeWidget::selectContainerItem() {
+        if (topLevelItemCount() > 0) {
+            setFocus();
+            topLevelItem(0)->setSelected(true);
+        }
+    }
+
     void TreeWidget::dragStarted(const QList<PboNode*>& items) {
         LOG(info, "Drag operation has started for", items.length(), "items")
 
@@ -194,15 +201,18 @@ namespace pboman3::ui {
     void TreeWidget::onSelectionChanged() {
         LOG(debug, "Selection changed")
 
-        actionState_.canOpen = getCurrentFile();
-        actionState_.canRename = !!currentItem();
+        const PboNode* currentFile = getCurrentFile();
+        const PboNode* currentFolder = getCurrentFolder();
+
+        actionState_.canOpen = !!currentFile;
+        actionState_.canRename = !!currentFile || !!currentFolder;
         actionState_.canExtract = actionState_.canRename;
 
         auto canCopy = [this]() {
             QList<PboNode*> nodes = getSelectedHierarchies();
             if (!nodes.count())
                 return false;
-            const bool rootSelected = !std::any_of(nodes.begin(), nodes.end(), [](const PboNode* n) {
+            const bool rootSelected = !std::ranges::any_of(nodes, [](const PboNode* n) {
                 return !n->parentNode();
             });
             return rootSelected;
@@ -212,7 +222,7 @@ namespace pboman3::ui {
         actionState_.canCut = actionState_.canCopy;
         actionState_.canRemove = actionState_.canCopy;
 
-        actionState_.canPaste = getCurrentFolder();
+        actionState_.canPaste = !!currentFolder;
 
         LOG(debug, "Action state is:", actionState_)
 

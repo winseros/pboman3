@@ -36,9 +36,10 @@ namespace pboman3::ui {
     QList<PboNode*> TreeWidgetBase::getSelectedHierarchies() const {
         QList<QTreeWidgetItem*> items = selectedItems();
         QList<PboNode*> result;
-        result.reserve(items.length());
 
         if (items.count() > 1) {
+            result.reserve(items.length());
+
             for (QTreeWidgetItem* item : items) {
                 QTreeWidgetItem* p = item->parent();
                 bool abortItem = false;
@@ -51,11 +52,12 @@ namespace pboman3::ui {
                 if (!abortItem)
                     result.append(dynamic_cast<TreeWidgetItem*>(item)->node());
             }
-        } else {
+        } else if (items.count() == 1) {
             for (QTreeWidgetItem* item : items) {
                 result.append(dynamic_cast<TreeWidgetItem*>(item)->node());
             }
         }
+
         return result;
     }
 
@@ -99,13 +101,13 @@ namespace pboman3::ui {
 
     PboNode* TreeWidgetBase::getCurrentFolder() const {
         PboNode* result = nullptr;
-        const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
-        if (selected) {
-            if (selected->node()->nodeType() == PboNodeType::Container || selected->node()->nodeType() ==
-                PboNodeType::Folder) {
-                result = selected->node();
-            } else {
-                result = selected->node()->parentNode();
+
+        const QList<QTreeWidgetItem*> selected = selectedItems();
+        if (selected.length() == 1) {
+            const auto selectedItem = dynamic_cast<TreeWidgetItem*>(selected.at(0));
+            if (selectedItem->node()->nodeType() == PboNodeType::Container
+                || selectedItem->node()->nodeType() == PboNodeType::Folder) {
+                result = selectedItem->node();
             }
         }
 
@@ -114,10 +116,12 @@ namespace pboman3::ui {
 
     PboNode* TreeWidgetBase::getCurrentFile() const {
         PboNode* result = nullptr;
-        const auto* selected = dynamic_cast<TreeWidgetItem*>(currentItem());
-        if (selected) {
-            if (selected->node()->nodeType() == PboNodeType::File) {
-                result = selected->node();
+
+        const QList<QTreeWidgetItem*> selected = selectedItems();
+        if (selected.length() == 1) {
+            const auto selectedItem = dynamic_cast<TreeWidgetItem*>(selected.at(0));
+            if (selectedItem->node()->nodeType() == PboNodeType::File) {
+                result = selectedItem->node();
             }
         }
 
@@ -138,7 +142,7 @@ namespace pboman3::ui {
                 selected.removeOne(item);
         }
 
-        if (selected.length()) {
+        if (!selected.empty()) {
             dragStarted(selected);
         }
     }

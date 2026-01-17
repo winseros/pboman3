@@ -46,6 +46,8 @@ namespace pboman3::ui {
 
         void setWidgetModel(PboModel* model);
 
+        void selectContainerItem();
+
     signals:
         void backgroundOpStarted(QFuture<void> future);
 

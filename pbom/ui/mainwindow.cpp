@@ -72,6 +72,7 @@ namespace pboman3::ui {
             future.takeResult(); //to get exceptions rethrown
             LOG(info, "File loading is complete")
             setHasChanges(false);
+            ui_->treeWidget->selectContainerItem();
         } catch (const PboFileFormatException& ex) {
             LOG(info, "Error when loading file - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
@@ -359,8 +360,14 @@ namespace pboman3::ui {
             menu.addAction(ui_->actionExportPboJson);
         }
 
-        LOG(debug, "Creating the context menu")
-        menu.exec(ui_->treeWidget->mapToGlobal(point));
+        if (!menu.isEmpty()) {
+            LOG(debug, "Creating the context menu")
+            menu.exec(ui_->treeWidget->mapToGlobal(point));
+        }
+        else {
+            LOG(debug, "Context menu resulted empty. Not showing.")
+        }
+
     }
 
     void MainWindow::treeActionStateChanged(const TreeWidget::ActionState& state) const {
@@ -370,7 +377,6 @@ namespace pboman3::ui {
         ui_->actionSelectionCut->setEnabled(state.canCut);
         ui_->actionSelectionPaste->setEnabled(state.canPaste);
         ui_->actionSelectionDelete->setEnabled(state.canRemove);
-
         ui_->actionSelectionExtractTo->setEnabled(state.canExtract);
 
         const PboNode* selectionRoot = ui_->treeWidget->getSelectionRoot();

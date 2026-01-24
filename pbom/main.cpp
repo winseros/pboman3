@@ -326,25 +326,42 @@ int MainImpl(int argc, TChr* argv[]) {
     }
 }
 
-void AttachConsole() {
-    //Console won't work in release so user won't see command line help messages
-    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-        FILE* pFile;
-        freopen_s(&pFile, "CONOUT$", "w", stdout);
-        freopen_s(&pFile, "CONOUT$", "w", stderr);
-        freopen_s(&pFile, "CONIN$", "r", stdin);
+#ifdef NDEBUG
+class ConsoleAttach final {
+public:
+    ConsoleAttach() {
+        //By-default console won't work in release so user won't see command line help messages
+        //this adds console to the release build application
+        attached_ = AttachConsole(ATTACH_PARENT_PROCESS);
+        if (attached_) {
+            FILE* pFile;
+            freopen_s(&pFile, "CONOUT$", "w", stdout);
+            freopen_s(&pFile, "CONOUT$", "w", stderr);
+            freopen_s(&pFile, "CONIN$", "r", stdin);
+        }
     }
-}
+
+    ~ConsoleAttach() {
+        if (attached_) {
+            FreeConsole();
+        }
+    }
+private:
+    bool attached_;
+};
+#endif
 
 int main(int argc, char* argv[]) {
 #ifdef NDEBUG
-    AttachConsole();
+    ConsoleAttach _;
 #endif
 
+    int exitCode;
 #ifdef WIN32
     const pboman3::Argv16Bit arg;
-    MainImpl(arg.argc, arg.argv);
+    exitCode = MainImpl(arg.argc, arg.argv);
 #else
-    MainImpl(argc, argv);
+    exitCode = MainImpl(argc, argv);
 #endif
+    return exitCode;
 }

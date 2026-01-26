@@ -11,7 +11,8 @@ namespace pboman3::model::task {
 
     class UnpackTask : public Task {
     public:
-        UnpackTask(QString pboPath, const QString& outputDir, FileConflictResolutionMode::Enum fileConflictResolutionMode);
+        UnpackTask(QString pboPath, const QString& outputDir, const bool usePboPrefix,
+                   FileConflictResolutionMode::Enum fileConflictResolutionMode);
 
         void execute(const Cancel& cancel) override;
 
@@ -20,6 +21,7 @@ namespace pboman3::model::task {
     private:
         QString pboPath_;
         QDir outputDir_;
+        bool usePboPrefix_;
         FileConflictResolutionMode::Enum fileConflictResolutionMode_;
 
         bool tryReadPboHeader(QSharedPointer<PboDocument>* document);

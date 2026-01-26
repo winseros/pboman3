@@ -99,6 +99,7 @@ namespace pboman3 {
         template <CharOrWChar TChr>
         struct CommandUnpack : PackCommandBase<TChr> {
             vector<basic_string<TChr>> files;
+            Option* optUsePboPrefix;
 
             void configure(App* cli) override {
                 this->command = cli->add_subcommand("unpack", "Unpack the specified PBO(s)");
@@ -110,18 +111,30 @@ namespace pboman3 {
                 this->optOutputPath = this->command->add_option("-o,--output-directory", this->outputPath,
                                                                 "The directory to write the PBO(s) contents")
                                           ->check(ExistingDirectory);
+
+                this->optUsePboPrefix = this->command->add_flag("-u,--use-pbo-prefix",
+                                                                "Extract PBO contents to the $prefix$ directory");
+
+
 #ifdef PBOM_GUI
+                this->optUsePboPrefix = this->optUsePboPrefix->excludes(this->optPrompt);
+
                 this->optPrompt = this->command->add_flag("-p,--prompt",
-                                                          "Show a UI dialog for the output directory selection");
+                                                          "Show a UI dialog for the output directory selection")
+                                      ->excludes(this->optOutputPath);
 
                 this->optNoUi = this->command->add_flag("-u,--no-ui", "Run the application without the GUI")
                                     ->excludes(this->optPrompt);
 #endif
             }
+
+            [[nodiscard]] bool usePboPrefix() const {
+                return !!optUsePboPrefix;
+            }
         };
 
         struct Parameter {
-            Parameter(): option(nullptr) {
+            Parameter() : option(nullptr) {
             }
 
             virtual ~Parameter() = default;
@@ -140,10 +153,11 @@ namespace pboman3 {
 
             void configure(App* app) override {
                 option = app->add_option("-l,--log-level", value, "Log output level [warn,info,debug]")
-                                   ->option_text(" ")
-                                   ->default_val(LVL_WARN)
-                                   ->check(IsMember({LVL_WARN, LVL_INFO, LVL_DEBUG}));
+                            ->option_text(" ")
+                            ->default_val(LVL_WARN)
+                            ->check(IsMember({LVL_WARN, LVL_INFO, LVL_DEBUG}));
             }
+
             [[nodiscard]] util::ApplicationLogLevel get() const {
                 if (value == LVL_DEBUG) {
                     return util::ApplicationLogLevel::DEBUG;

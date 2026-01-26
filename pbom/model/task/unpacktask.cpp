@@ -19,10 +19,11 @@
 namespace pboman3::model::task {
     using namespace io;
 
-    UnpackTask::UnpackTask(QString pboPath, const QString& outputDir,
+    UnpackTask::UnpackTask(QString pboPath, const QString& outputDir, const bool usePboPrefix,
                            FileConflictResolutionMode::Enum fileConflictResolutionMode)
         : pboPath_(std::move(pboPath)),
           outputDir_(outputDir),
+          usePboPrefix_(usePboPrefix),
           fileConflictResolutionMode_(fileConflictResolutionMode) {
     }
 

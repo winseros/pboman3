@@ -27,13 +27,13 @@ namespace pboman3 {
     }
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir,
-                                  const util::ApplicationLogLevel logLevel) {
+                                  const bool usePboPrefix, const util::ApplicationLogLevel logLevel) {
         util::SetLoggerParameters(logLevel);
 
         const auto settings = settings::GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::UnpackTask task(folder, outputDir, settings.unpackConflictResolutionMode);
+            model::task::UnpackTask task(folder, outputDir, usePboPrefix, settings.unpackConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
@@ -67,7 +67,8 @@ namespace pboman3 {
                 outputDir = QDir::currentPath();
 
             const QStringList files = CommandLine::toQt(commandLine->unpack.files);
-            exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->logLevel.get());
+            exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->unpack.usePboPrefix()
+                                                 , commandLine->logLevel.get());
         } else {
             //should not normally get here; if did - CLI11 was misconfigured somewhere
             cout << cli.help();

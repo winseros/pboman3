@@ -147,7 +147,7 @@ namespace pboman3 {
     }
 
     int RunUnpackWindow(const QApplication& app, const QStringList& files, const QString& outputDir,
-                        const util::ApplicationLogLevel logLevel) {
+                        const bool usePboPrefix, const util::ApplicationLogLevel logLevel) {
         using namespace pboman3;
         using namespace pboman3::model::task;
 
@@ -169,7 +169,7 @@ namespace pboman3 {
         const auto settings = GetApplicationSettingsManager()->readSettings();
         applyColorScheme(settings);
 
-        const QScopedPointer model(new UnpackWindowModel(files, outDir, settings.unpackConflictResolutionMode));
+        const QScopedPointer model(new UnpackWindowModel(files, outDir, usePboPrefix, settings.unpackConflictResolutionMode));
         ui::UnpackWindow w(nullptr, model.get());
         w.showAndRunTasks();
         const auto exitCode = QApplication::exec();
@@ -193,13 +193,13 @@ namespace pboman3 {
     }
 
     int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir,
-        const util::ApplicationLogLevel logLevel) {
+                                  const bool usePboPrefix, const util::ApplicationLogLevel logLevel) {
         util::SetLoggerParameters(logLevel);
 
         const auto settings = GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::UnpackTask task(folder, outputDir, settings.unpackConflictResolutionMode);
+            model::task::UnpackTask task(folder, outputDir, usePboPrefix, settings.unpackConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
@@ -251,10 +251,12 @@ namespace pboman3 {
 
                 const QStringList files = CommandLine::toQt(commandLine->unpack.files);
                 if (commandLine->unpack.noUi()) {
-                    exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->logLevel.get());
+                    exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->unpack.usePboPrefix(),
+                                                         commandLine->logLevel.get());
                 } else {
                     const PboApplication<TChr> app(argc, argv);
-                    exitCode = RunUnpackWindow(app, files, outputDir, commandLine->logLevel.get());
+                    exitCode = RunUnpackWindow(app, files, outputDir, commandLine->unpack.usePboPrefix(),
+                                               commandLine->logLevel.get());
                 }
             } else {
                 //should not normally get here; if did - CLI11 was misconfigured somewhere

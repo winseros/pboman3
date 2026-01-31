@@ -10,6 +10,7 @@
 #include "io/diskaccessexception.h"
 #include "io/createdocumentreader.h"
 #include "io/pbofileformatexception.h"
+#include "io/bb/sanitizedpath.h"
 #include "settings/getapplicationsettingsmanager.h"
 #include "util/log.h"
 #include "util/filenames.h"
@@ -30,14 +31,27 @@ namespace pboman3::model::task {
     void UnpackTask::execute(const Cancel& cancel) {
         LOG(info, "PBO file: ", pboPath_)
         LOG(info, "Output dir: ", outputDir_.absolutePath())
+        LOG(info, "Use pbo prefix: ", usePboPrefix_)
 
         emit taskThinking("Preparing to extract the file: " + pboPath_);
 
         QSharedPointer<PboDocument> document;
         if (!tryReadPboHeader(&document))
             return;
+
+        const QString* pboPrefix = nullptr;
+        if (usePboPrefix_) {
+            pboPrefix = GetPrefixValueUnsanitized(*document->headers());
+            if (!pboPrefix) {
+                emit taskMessage("The PBO file contains no $prefix$ header.");
+            }
+            else {
+                LOG(info, "PBO prefix: ", *pboPrefix)
+            }
+        }
+
         QDir pboDir;
-        if (!tryCreatePboDir(&pboDir))
+        if (!tryCreatePboDir(&pboDir, pboPrefix))
             return;
 
         constexpr qsizetype startProgress = 0;
@@ -92,14 +106,25 @@ namespace pboman3::model::task {
         }
     }
 
-    bool UnpackTask::tryCreatePboDir(QDir* dir) {
-        const QString fileNameWithoutExt = FileNames::getFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
-        const QString absPath = outputDir_.absoluteFilePath(fileNameWithoutExt);
-        if (!outputDir_.exists(fileNameWithoutExt) && !outputDir_.mkdir(fileNameWithoutExt)) {
+    bool UnpackTask::tryCreatePboDir(QDir* dir, const QString* pboPrefix) {
+        QString extractPath;
+        try {
+            if (!tryUsePboPrefixAsPath(pboPrefix, extractPath)) {
+                extractPath = FileNames::getFileNameWithoutExtension(QFileInfo(pboPath_).fileName());
+            }
+        } catch (const PboPrefixException& ex) {
+            LOG(warning, ex.message())
+            emit taskMessage(ex.windowMessage());
+            return false;
+        }
+
+        QString absPath = outputDir_.absoluteFilePath(extractPath);
+        if (!outputDir_.exists(extractPath) && !outputDir_.mkpath(extractPath)) {
             LOG(warning, "Could not create the directory:", absPath)
             emit taskMessage("Could not create the directory | " + absPath);
             return false;
         }
+
         LOG(info, "PBO output dir:", absPath)
         *dir = QDir(absPath);
         return true;
@@ -136,4 +161,30 @@ namespace pboman3::model::task {
             emit taskMessage(ex.message().left(ex.message().length() - 1) + " | " + ex.file());
         }
     }
+
+    bool UnpackTask::tryUsePboPrefixAsPath(const QString* pboPrefix, QString& result) {
+        if (!pboPrefix || pboPrefix->isEmpty()) {
+            return false;
+        }
+
+        if (!QDir::isRelativePath(*pboPrefix)) {
+            throw PboPrefixException("PBO prefix must be a relative path:" + *pboPrefix,
+                                     "PBO prefix must be a relative path | " + *pboPrefix);
+        }
+
+        const QString pboPrefixClean = QDir::cleanPath(*pboPrefix);
+        if (pboPrefixClean.isEmpty())
+            return false;
+
+        if (pboPrefixClean.startsWith("..\\") || pboPrefixClean.startsWith("../") || pboPrefixClean == "..") {
+            throw PboPrefixException("The directory must not leave the unpack folder:" + *pboPrefix,
+                                     "The directory must not leave the unpack folder | " + *pboPrefix);
+        }
+
+        SanitizedPath sp(pboPrefixClean);
+        result = sp;
+        return true;
+    }
+
+    PBOMAN_EX_IMPL_DEFAULT(UnpackTask::PboPrefixException)
 }

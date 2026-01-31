@@ -29,22 +29,11 @@ namespace pboman3::domain {
         return file;
     }
 
-    const QString* GetPrefixValue(const DocumentHeaders& headers) {
+    const QString* GetPrefixValueUnsanitized(const DocumentHeaders& headers) {
         auto header = headers.begin();
         while (header != headers.end()) {
             if (header->name() == DocumentHeaders::PREFIX_HEADER_NAME) {
                 return &header->value();
-                /*const PboPath path(header->value());
-
-                PboPath sanitizedPath;
-                auto pathSeg = path.begin();
-                while (pathSeg != path.end()) {
-                    io::SanitizedString sanitizedSeg(*pathSeg);
-                    sanitizedPath = sanitizedPath.makeChild(sanitizedSeg);
-                    ++pathSeg;
-                }
-
-                return sanitizedPath.toString();*/
             }
             ++header;
         }

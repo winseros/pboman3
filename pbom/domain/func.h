@@ -8,5 +8,5 @@ namespace pboman3::domain {
 
     bool IsPathConflict(const PboNode* node, const PboPath& path);
 
-    const QString* GetPrefixValue(const DocumentHeaders& headers);
+    const QString* GetPrefixValueUnsanitized(const DocumentHeaders& headers);
 }

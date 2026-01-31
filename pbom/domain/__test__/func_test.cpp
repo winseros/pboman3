@@ -41,7 +41,7 @@ namespace pboman3::domain::test {
             QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeaders::PREFIX_HEADER_NAME, "prefix_value")),
         });
 
-        const auto prefixValue = GetPrefixValue(headers);
+        const auto prefixValue = GetPrefixValueUnsanitized(headers);
         ASSERT_EQ(*prefixValue, QString("prefix_value"));
     }
 
@@ -52,7 +52,7 @@ namespace pboman3::domain::test {
             QSharedPointer<DocumentHeader>(new DocumentHeader("h3", "v3")),
         });
 
-        const auto prefixValue = GetPrefixValue(headers);
+        const auto prefixValue = GetPrefixValueUnsanitized(headers);
         ASSERT_FALSE(prefixValue);
     }
 }

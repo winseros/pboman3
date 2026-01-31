@@ -4,6 +4,7 @@
 #include "task.h"
 #include "domain/pbodocument.h"
 #include "io/fileconflictresolutionmode.h"
+#include "exception.h"
 
 namespace pboman3::model::task {
     using namespace domain;
@@ -26,10 +27,30 @@ namespace pboman3::model::task {
 
         bool tryReadPboHeader(QSharedPointer<PboDocument>* document);
 
-        bool tryCreatePboDir(QDir* dir);
+        bool tryCreatePboDir(QDir* dir, const QString* pboPrefix);
 
         bool tryCreateEntryDir(const QDir& pboDir, const QSharedPointer<PboNode>& entry);
 
         void extractPboConfig(const PboDocument& document, const QDir& dir);
+
+        static bool tryUsePboPrefixAsPath(const QString* pboPrefix, QString& result);
+
+    public:
+        class PboPrefixException : public AppException {
+        public:
+            PboPrefixException(QString consoleMessage, QString windowMessage)
+                : AppException(std::move(consoleMessage)),
+                  windowMessage_(std::move(windowMessage)) {
+            }
+
+            PBOMAN_EX_HEADER(PboPrefixException)
+
+            [[nodiscard]] const QString& windowMessage() const {
+                return windowMessage_;
+            }
+
+        private:
+            QString windowMessage_;
+        };
     };
 }

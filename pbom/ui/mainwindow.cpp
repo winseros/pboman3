@@ -266,7 +266,7 @@ namespace pboman3::ui {
         LOG(info, "User clicked the ExtractToPrefix button")
 
         const QDir dir = QFileInfo(model_->loadedPath()).dir();
-        const QString* unsanitizedPrefixValue = GetPrefixValue(*model_->document()->headers());
+        const QString* unsanitizedPrefixValue = GetPrefixValueUnsanitized(*model_->document()->headers());
         assert(unsanitizedPrefixValue);
         SanitizedPath sp(*unsanitizedPrefixValue);
 
@@ -391,7 +391,7 @@ namespace pboman3::ui {
                 ui_->actionSelectionExtractFolder->setVisible(true);
                 ui_->actionSelectionExtractFolder->setText(makeExtractToTitle(selectionRoot));
             }
-            const QString* prefixValue = GetPrefixValue(*model_->document()->headers());
+            const QString* prefixValue = GetPrefixValueUnsanitized(*model_->document()->headers());
             if (prefixValue && !prefixValue->isEmpty()) {
                 ui_->actionSelectionExtractToPrefix->setVisible(true);
                 ui_->actionSelectionExtractToPrefix->setEnabled(true);

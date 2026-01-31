@@ -112,13 +112,11 @@ namespace pboman3 {
                                                                 "The directory to write the PBO(s) contents")
                                           ->check(ExistingDirectory);
 
-                this->optUsePboPrefix = this->command->add_flag("-u,--use-pbo-prefix",
+                this->optUsePboPrefix = this->command->add_flag("-x,--use-pbo-prefix",
                                                                 "Extract PBO contents to the $prefix$ directory");
 
 
 #ifdef PBOM_GUI
-                this->optUsePboPrefix = this->optUsePboPrefix->excludes(this->optPrompt);
-
                 this->optPrompt = this->command->add_flag("-p,--prompt",
                                                           "Show a UI dialog for the output directory selection")
                                       ->excludes(this->optOutputPath);

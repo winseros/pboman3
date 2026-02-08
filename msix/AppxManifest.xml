@@ -15,8 +15,8 @@
   IgnorableNamespaces="uap uap2 uap3 rescap desktop desktop4 desktop5 uap10 com">
   
   <Identity
-    Name="19166NikitaKobzev.PBOManager"
-    Publisher="CN=5C1DD979-FA5A-4F6C-B3F5-EF0E76109FF2"
+    Name="PBOManager"
+    Publisher="CN=PBO Manager, O=Nikita Kobzev"
 	ProcessorArchitecture="x64" 
     Version="0.0.0.0" />
 

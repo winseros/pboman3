@@ -108,7 +108,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(DocumentHeadersTransactionTest, Transaction_Does_Not_Change_Source_Data_On_Rollback) {
-        DocumentHeaders headers(QList{
+        DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });

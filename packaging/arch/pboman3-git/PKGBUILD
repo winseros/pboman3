@@ -1,0 +1,71 @@
+# Maintainer: milutinke <milutinke@protonmail.com>
+
+pkgname=pboman3-git
+pkgver=1.11.0.r0.ga39c79c
+pkgrel=1
+pkgdesc='Qt application and command-line tool for packing and unpacking Arma PBO files (development version)'
+arch=('x86_64')
+url='https://github.com/winseros/pboman3'
+license=('AGPL-3.0-or-later')
+depends=(
+  'desktop-file-utils'
+  'glibc'
+  'hicolor-icon-theme'
+  'libgcc'
+  'libstdc++'
+  'qt6-base>=6.8'
+  'shared-mime-info'
+)
+makedepends=(
+  'cmake'
+  'git'
+  'ninja'
+)
+optdepends=(
+  'dolphin: KDE Dolphin context-menu integration'
+  'nautilus-python: GNOME Files context-menu integration'
+  'qt6-wayland: native Wayland platform support'
+)
+provides=('pboman3')
+conflicts=('pboman3' 'pboman3-bin')
+source=(
+  'pboman3::git+https://github.com/winseros/pboman3.git#branch=develop'
+  'cli11::git+https://github.com/CLIUtils/CLI11.git'
+)
+sha256sums=('SKIP' 'SKIP')
+
+pkgver() {
+  cd pboman3
+  git describe --long --tags --abbrev=7 \
+    | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  git -C pboman3 submodule init
+  git -C pboman3 config submodule.__lib__/cli11.url "$srcdir/cli11"
+  git -C pboman3 -c protocol.file.allow=always submodule update __lib__/cli11
+}
+
+build() {
+  local upstream_version
+  upstream_version=$(git -C pboman3 describe --tags --abbrev=0 | sed 's/^v//')
+
+  cmake \
+    -B build \
+    -S pboman3 \
+    -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DPBOM_BUILD_GUI=ON \
+    -DPBOM_BUILD_CLI=ON \
+    -DPBOM_VERSION:STRING="$upstream_version" \
+    -DPBOM_BUILD_NUMBER:STRING="$pkgver"
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 pboman3/LICENSE \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

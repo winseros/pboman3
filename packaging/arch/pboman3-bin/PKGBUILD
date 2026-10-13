@@ -1,0 +1,64 @@
+# Maintainer: milutinke <milutinke@protonmail.com>
+
+pkgname=pboman3-bin
+pkgver=1.11.0
+pkgrel=1
+pkgdesc='Qt application and command-line tool for packing and unpacking Arma PBO files (prebuilt AppImage)'
+arch=('x86_64')
+url='https://github.com/winseros/pboman3'
+license=('AGPL-3.0-or-later')
+depends=(
+  'desktop-file-utils'
+  'fuse2'
+  'glibc'
+  'hicolor-icon-theme'
+  'shared-mime-info'
+  'xdg-utils'
+)
+optdepends=(
+  'dolphin: KDE Dolphin context-menu integration'
+  'nautilus-python: GNOME Files context-menu integration'
+)
+provides=("pboman3=$pkgver")
+conflicts=('pboman3' 'pboman3-git')
+options=('!debug' '!strip')
+source=(
+  "PBOManager-$pkgver-x86_64.AppImage::$url/releases/download/v$pkgver/PBOManager-x86_64.AppImage"
+  "$pkgname-$pkgver-LICENSE::$url/raw/v$pkgver/LICENSE"
+)
+sha256sums=(
+  'SKIP' # Pin after upstream publishes v1.11.0.
+  '8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef'
+)
+
+prepare() {
+  chmod +x "PBOManager-$pkgver-x86_64.AppImage"
+  ./"PBOManager-$pkgver-x86_64.AppImage" --appimage-extract >/dev/null
+}
+
+package() {
+  install -Dm755 "PBOManager-$pkgver-x86_64.AppImage" \
+    "$pkgdir/opt/pboman3/PBOManager-x86_64.AppImage"
+
+  install -d "$pkgdir/usr/bin"
+  ln -s ../../opt/pboman3/PBOManager-x86_64.AppImage "$pkgdir/usr/bin/pbom"
+  install -Dm755 /dev/stdin "$pkgdir/usr/bin/pboc" <<'EOF'
+#!/bin/sh
+exec /opt/pboman3/PBOManager-x86_64.AppImage --cli "$@"
+EOF
+
+  install -Dm644 squashfs-root/usr/share/applications/io.github.winseros.pboman3.desktop \
+    "$pkgdir/usr/share/applications/io.github.winseros.pboman3.desktop"
+  install -Dm644 squashfs-root/usr/share/mime/packages/io.github.winseros.pboman3.xml \
+    "$pkgdir/usr/share/mime/packages/io.github.winseros.pboman3.xml"
+  install -Dm644 squashfs-root/usr/share/icons/hicolor/512x512/apps/io.github.winseros.pboman3.png \
+    "$pkgdir/usr/share/icons/hicolor/512x512/apps/io.github.winseros.pboman3.png"
+  install -Dm755 squashfs-root/usr/share/kio/servicemenus/pboman3-pbo.desktop \
+    "$pkgdir/usr/share/kio/servicemenus/pboman3-pbo.desktop"
+  install -Dm755 squashfs-root/usr/share/kio/servicemenus/pboman3-folder.desktop \
+    "$pkgdir/usr/share/kio/servicemenus/pboman3-folder.desktop"
+  install -Dm644 squashfs-root/usr/share/nautilus-python/extensions/pboman3.py \
+    "$pkgdir/usr/share/nautilus-python/extensions/pboman3.py"
+  install -Dm644 "$pkgname-$pkgver-LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

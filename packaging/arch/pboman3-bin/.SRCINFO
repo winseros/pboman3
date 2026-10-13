@@ -1,0 +1,26 @@
+pkgbase = pboman3-bin
+	pkgdesc = Qt application and command-line tool for packing and unpacking Arma PBO files (prebuilt AppImage)
+	pkgver = 1.11.0
+	pkgrel = 1
+	url = https://github.com/winseros/pboman3
+	arch = x86_64
+	license = AGPL-3.0-or-later
+	depends = desktop-file-utils
+	depends = fuse2
+	depends = glibc
+	depends = hicolor-icon-theme
+	depends = shared-mime-info
+	depends = xdg-utils
+	optdepends = dolphin: KDE Dolphin context-menu integration
+	optdepends = nautilus-python: GNOME Files context-menu integration
+	provides = pboman3=1.11.0
+	conflicts = pboman3
+	conflicts = pboman3-git
+	options = !debug
+	options = !strip
+	source = PBOManager-1.11.0-x86_64.AppImage::https://github.com/winseros/pboman3/releases/download/v1.11.0/PBOManager-x86_64.AppImage
+	source = pboman3-bin-1.11.0-LICENSE::https://github.com/winseros/pboman3/raw/v1.11.0/LICENSE
+	sha256sums = SKIP
+	sha256sums = 8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef
+
+pkgname = pboman3-bin

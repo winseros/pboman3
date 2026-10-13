@@ -1,5 +1,6 @@
 #include "model/task/packconfiguration.h"
 #include <QTemporaryFile>
+#include <QJsonDocument>
 #include <gtest/gtest.h>
 #include "domain/pbodocument.h"
 #include "io/bs/fslzhbinarysource.h"
@@ -239,6 +240,13 @@ namespace pboman3::model::task::test {
         ASSERT_TRUE(dynamic_cast<io::FsRawBinarySource*>(node3->binarySource.get()));
     }
 
+    // Qt versions report different diagnostics for malformed JSON.
+    QString JsonParseErrorMessage(const QByteArray& json) {
+        QJsonParseError error;
+        QJsonDocument::fromJson(json, &error);
+        return error.errorString() + " at offset " + QString::number(error.offset);
+    }
+
     struct PackConfigurationJsonIssuesParam {
         QString json;
         QString expectedMessage;
@@ -269,7 +277,7 @@ namespace pboman3::model::task::test {
     INSTANTIATE_TEST_SUITE_P(PackConfigurationTest, PackConfigurationJsonIssuesTest, testing::Values(
                                  PackConfigurationJsonIssuesParam{"", "illegal value at offset 0"},
                                  PackConfigurationJsonIssuesParam{"[]", "The json must contain an object"},
-                                 PackConfigurationJsonIssuesParam{"ghkjk", "illegal number at offset 0"},
+                                 PackConfigurationJsonIssuesParam{"ghkjk", JsonParseErrorMessage("ghkjk")},
                                  PackConfigurationJsonIssuesParam{"{\"compress\":{\"include\":[\"[[\"]}}",
                                  "The regular expression \"[[\" is invalid: missing terminating ] for character class"
                                  }

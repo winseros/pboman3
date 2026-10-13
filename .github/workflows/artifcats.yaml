@@ -61,6 +61,10 @@ jobs:
           path: code
           submodules: true
       
+      - name: Set source version
+        run: |
+          Set-Content -Path "${{github.workspace}}\code\VERSION" -Value $env:pbom_version -Encoding ascii
+
       - name: CMake Cache
         run: |
          cmake -S ${{github.workspace}}\code\ -B ${{github.workspace}}\_build\ `

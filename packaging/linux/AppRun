@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+appdir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export PATH="$appdir/usr/bin${PATH:+:$PATH}"
+export XDG_DATA_DIRS="$appdir/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
+
+if [ "${1:-}" = "--install-integration" ]; then
+    launcher=${APPIMAGE:-"$appdir/AppRun"}
+    exec "$appdir/usr/share/pboman3/integration/install-user.sh" --launcher "$launcher"
+fi
+
+if [ "${1:-}" = "--uninstall-integration" ]; then
+    exec "$appdir/usr/share/pboman3/integration/uninstall-user.sh"
+fi
+
+if [ "${1:-}" = "--cli" ]; then
+    shift
+    exec "$appdir/usr/bin/pboc" "$@"
+fi
+
+exec "$appdir/usr/bin/pbom" "$@"

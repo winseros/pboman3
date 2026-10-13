@@ -57,7 +57,7 @@ namespace pboman3::ui {
 
         class TaskbarIndicator {
         public:
-            TaskbarIndicator(WId windowId);
+            explicit TaskbarIndicator(QWidget* window);
 
             void threadThinking() const;
 

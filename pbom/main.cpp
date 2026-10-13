@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QFileInfo>
 #include <QStyleHints>
 #include <QScopedPointer>
 #include <QTimer>
@@ -27,6 +28,12 @@ using namespace std;
 
 namespace pboman3 {
     using namespace settings;
+
+    namespace {
+        QString OutputDirectoryFor(const QString& input, const QString& outputDir, const bool besideInput) {
+            return besideInput ? QFileInfo(input).absolutePath() : outputDir;
+        }
+    }
 
     template <CharOrWChar TChr>
     class PboApplication : public QApplication {
@@ -114,6 +121,7 @@ namespace pboman3 {
     }
 
     int RunPackWindow(const QApplication& app, const QStringList& folders, const QString& outputDir,
+                      const bool besideInput,
                       const util::ApplicationLogLevel logLevel) {
         using namespace pboman3;
         using namespace pboman3::model::task;
@@ -136,7 +144,8 @@ namespace pboman3 {
         const auto settings = GetApplicationSettingsManager()->readSettings();
         applyColorScheme(settings);
 
-        const QScopedPointer model(new PackWindowModel(folders, outDir, settings.packConflictResolutionMode));
+        const QScopedPointer model(new PackWindowModel(folders, outDir, besideInput,
+                                                       settings.packConflictResolutionMode));
         ui::PackWindow w(nullptr, model.get());
         w.showAndRunTasks();
         const auto exitCode = QApplication::exec();
@@ -147,7 +156,8 @@ namespace pboman3 {
     }
 
     int RunUnpackWindow(const QApplication& app, const QStringList& files, const QString& outputDir,
-                        const bool usePboPrefix, const util::ApplicationLogLevel logLevel) {
+                        const bool besideInput, const bool usePboPrefix,
+                        const util::ApplicationLogLevel logLevel) {
         using namespace pboman3;
         using namespace pboman3::model::task;
 
@@ -169,7 +179,8 @@ namespace pboman3 {
         const auto settings = GetApplicationSettingsManager()->readSettings();
         applyColorScheme(settings);
 
-        const QScopedPointer model(new UnpackWindowModel(files, outDir, usePboPrefix, settings.unpackConflictResolutionMode));
+        const QScopedPointer model(new UnpackWindowModel(files, outDir, besideInput, usePboPrefix,
+                                                         settings.unpackConflictResolutionMode));
         ui::UnpackWindow w(nullptr, model.get());
         w.showAndRunTasks();
         const auto exitCode = QApplication::exec();
@@ -180,26 +191,28 @@ namespace pboman3 {
     }
 
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir,
-                                const util::ApplicationLogLevel logLevel) {
+                                const bool besideInput, const util::ApplicationLogLevel logLevel) {
         util::SetLoggerParameters(logLevel);
 
         const auto settings = GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::PackTask task(folder, outputDir, settings.packConflictResolutionMode);
+            model::task::PackTask task(folder, OutputDirectoryFor(folder, outputDir, besideInput),
+                                       settings.packConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
     }
 
-    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir,
+    int RunConsoleUnpackOperation(const QStringList& files, const QString& outputDir, const bool besideInput,
                                   const bool usePboPrefix, const util::ApplicationLogLevel logLevel) {
         util::SetLoggerParameters(logLevel);
 
         const auto settings = GetApplicationSettingsManager()->readSettings();
-        for (const QString& folder : folders) {
+        for (const QString& file : files) {
             //don't parallelize to avoid mess in the console
-            model::task::UnpackTask task(folder, outputDir, usePboPrefix, settings.unpackConflictResolutionMode);
+            model::task::UnpackTask task(file, OutputDirectoryFor(file, outputDir, besideInput), usePboPrefix,
+                                         settings.unpackConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
@@ -235,10 +248,12 @@ namespace pboman3 {
 
                 const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
                 if (commandLine->pack.noUi()) {
-                    exitCode = RunConsolePackOperation(folders, outputDir, commandLine->logLevel.get());
+                    exitCode = RunConsolePackOperation(folders, outputDir, commandLine->pack.besideInput(),
+                                                       commandLine->logLevel.get());
                 } else {
                     const PboApplication<TChr> app(argc, argv);
-                    exitCode = RunPackWindow(app, folders, outputDir, commandLine->logLevel.get());
+                    exitCode = RunPackWindow(app, folders, outputDir, commandLine->pack.besideInput(),
+                                             commandLine->logLevel.get());
                 }
             } else if (commandLine->unpack.hasBeenSet()) {
                 QString outputDir;
@@ -251,12 +266,12 @@ namespace pboman3 {
 
                 const QStringList files = CommandLine::toQt(commandLine->unpack.files);
                 if (commandLine->unpack.noUi()) {
-                    exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->unpack.usePboPrefix(),
-                                                         commandLine->logLevel.get());
+                    exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->unpack.besideInput(),
+                                                         commandLine->unpack.usePboPrefix(), commandLine->logLevel.get());
                 } else {
                     const PboApplication<TChr> app(argc, argv);
-                    exitCode = RunUnpackWindow(app, files, outputDir, commandLine->unpack.usePboPrefix(),
-                                               commandLine->logLevel.get());
+                    exitCode = RunUnpackWindow(app, files, outputDir, commandLine->unpack.besideInput(),
+                                               commandLine->unpack.usePboPrefix(), commandLine->logLevel.get());
                 }
             } else {
                 //should not normally get here; if did - CLI11 was misconfigured somewhere
@@ -291,7 +306,7 @@ namespace pboman3 {
 
             const QFileInfo fi(file);
             if (fi.isFile() && !fi.isSymLink()) {
-                const PboApplication app(argc, argv);
+                const PboApplication<TChr> app(argc, argv);
                 exitCode = RunMainWindow(app, file, util::ApplicationLogLevel::WARN);
             } else {
                 //but still call regular CLI if the input argument we thought
@@ -328,7 +343,7 @@ int MainImpl(int argc, TChr* argv[]) {
     }
 }
 
-#ifdef NDEBUG
+#if defined(WIN32) && defined(NDEBUG)
 class ConsoleAttach final {
 public:
     ConsoleAttach() {
@@ -354,7 +369,7 @@ private:
 #endif
 
 int main(int argc, char* argv[]) {
-#ifdef NDEBUG
+#if defined(WIN32) && defined(NDEBUG)
     ConsoleAttach _;
 #endif
 

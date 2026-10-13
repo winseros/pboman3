@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-pbo">
+    <comment>Arma PBO archive</comment>
+    <icon name="io.github.winseros.pboman3"/>
+    <glob pattern="*.pbo"/>
+  </mime-type>
+</mime-info>

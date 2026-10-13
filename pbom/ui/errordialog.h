@@ -4,10 +4,7 @@
 #include "io/diskaccessexception.h"
 #include "io/pbofileformatexception.h"
 #include "exception.h"
-
-#ifdef WIN32
-#include "win32/win32fileviewer.h"
-#endif
+#include "fileviewer.h"
 
 namespace Ui {
     class ErrorDialog;
@@ -24,9 +21,7 @@ namespace pboman3::ui {
 
         ErrorDialog(const AppException& ex, QWidget* parent = nullptr);
 
-#ifdef WIN32
-        ErrorDialog(const Win32FileViewerException& ex, QWidget* parent = nullptr);
-#endif
+        ErrorDialog(const FileViewerException& ex, QWidget* parent = nullptr);
 
         ErrorDialog(const QString& text, QWidget* parent = nullptr);
 

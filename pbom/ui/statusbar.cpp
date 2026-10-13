@@ -1,7 +1,7 @@
 #include "statusbar.h"
 #include "exception.h"
 #include "util/log.h"
-#include "ui/win32/win32taskbarindicator.h"
+#include "ui/platform/platformservices.h"
 
 namespace pboman3::ui {
     StatusBar::StatusBar(QWidget* parent)
@@ -32,7 +32,7 @@ namespace pboman3::ui {
         if (supportsCancellation)
             button_->setVisible(true);
 
-        taskbar_ = QSharedPointer<TaskbarIndicator>(new Win32TaskbarIndicator(effectiveWinId()));
+        taskbar_ = CreateTaskbarIndicator(window());
         taskbar_->setIndeterminate();
     }
 

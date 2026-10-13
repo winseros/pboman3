@@ -73,6 +73,9 @@ namespace pboman3::ui::test {
                              ));
 
     TEST(GithubLatestVersionTest, Returns_Valid_Version) {
+#ifdef Q_OS_LINUX
+        GTEST_SKIP() << "Live GitHub requests are not part of the Linux unit-test suite.";
+#endif
         GithubLatestVersion githubVersion;
 
         int argc = 0;

@@ -35,7 +35,6 @@ list(APPEND PROJECT_SOURCES
 set(PROJECT_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
 
 list(APPEND TEST_SOURCES
-    "io/bb/__test__/execbackend_test.cpp"
     "io/bb/__test__/nodefilesystem_test.cpp"
     "io/bb/__test__/sanitizedpath_test.cpp"
     "io/bb/__test__/sanitizedstring_test.cpp"
@@ -57,5 +56,9 @@ list(APPEND TEST_SOURCES
     "io/__test__/pboheaderio_test.cpp"
     "io/__test__/pboheaderreader_test.cpp"
     "io/__test__/pbonodeentity_test.cpp")
+
+if(WIN32)
+    list(APPEND TEST_SOURCES "io/bb/__test__/execbackend_test.cpp")
+endif()
 
 set(TEST_SOURCES ${TEST_SOURCES} PARENT_SCOPE)

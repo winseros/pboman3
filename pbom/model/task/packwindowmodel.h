@@ -6,6 +6,7 @@
 namespace pboman3::model::task {
     class PackWindowModel: public TaskWindowModel{
     public:
-        PackWindowModel(const QStringList& folders, const QString& outputDir, io::FileConflictResolutionMode::Enum fileConflictResolutionMode);
+        PackWindowModel(const QStringList& folders, const QString& outputDir, bool besideInput,
+                        io::FileConflictResolutionMode::Enum fileConflictResolutionMode);
     };
 }

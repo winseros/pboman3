@@ -1,0 +1,62 @@
+# Maintainer: milutinke <milutinke@protonmail.com>
+
+pkgname=pboman3
+pkgver=1.11.0
+pkgrel=1
+pkgdesc='Qt application and command-line tool for packing and unpacking Arma PBO files'
+arch=('x86_64')
+url='https://github.com/winseros/pboman3'
+license=('AGPL-3.0-or-later')
+depends=(
+  'desktop-file-utils'
+  'glibc'
+  'hicolor-icon-theme'
+  'libgcc'
+  'libstdc++'
+  'qt6-base>=6.8'
+  'shared-mime-info'
+)
+makedepends=(
+  'cmake'
+  'ninja'
+)
+optdepends=(
+  'dolphin: KDE Dolphin context-menu integration'
+  'nautilus-python: GNOME Files context-menu integration'
+  'qt6-wayland: native Wayland platform support'
+)
+conflicts=('pboman3-bin' 'pboman3-git')
+_cli11_version=2.6.1
+source=(
+  "$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+  "CLI11-$_cli11_version.tar.gz::https://github.com/CLIUtils/CLI11/archive/refs/tags/v$_cli11_version.tar.gz"
+)
+sha256sums=(
+  'SKIP' # Pin after upstream publishes v1.11.0.
+  '377691f3fac2b340f12a2f79f523c780564578ba3d6eaf5238e9f35895d5ba95'
+)
+
+prepare() {
+  rm -rf "$srcdir/$pkgname-$pkgver/__lib__/cli11"
+  ln -s "$srcdir/CLI11-$_cli11_version" \
+    "$srcdir/$pkgname-$pkgver/__lib__/cli11"
+}
+
+build() {
+  cmake \
+    -B build \
+    -S "$pkgname-$pkgver" \
+    -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DPBOM_BUILD_GUI=ON \
+    -DPBOM_BUILD_CLI=ON
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 "$pkgname-$pkgver/LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

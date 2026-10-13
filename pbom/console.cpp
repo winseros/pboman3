@@ -1,3 +1,6 @@
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QScopeGuard>
 #include <QTimer>
 #include <CLI/CLI.hpp>
 #include "commandline.h"
@@ -8,32 +11,44 @@
 #include "settings/getapplicationsettingsmanager.h"
 #include "util/log.h"
 
+#ifdef WIN32
+#include "argv8bit.h"
+#endif
+
 #define LOG(...) LOGGER("Main", __VA_ARGS__)
 
 using namespace std;
 
 namespace pboman3 {
+    namespace {
+        QString OutputDirectoryFor(const QString& input, const QString& outputDir, const bool besideInput) {
+            return besideInput ? QFileInfo(input).absolutePath() : outputDir;
+        }
+    }
+
     int RunConsolePackOperation(const QStringList& folders, const QString& outputDir,
-                                const util::ApplicationLogLevel logLevel) {
+                                const bool besideInput, const util::ApplicationLogLevel logLevel) {
         util::SetLoggerParameters(logLevel);
 
         const auto settings = settings::GetApplicationSettingsManager()->readSettings();
         for (const QString& folder : folders) {
             //don't parallelize to avoid mess in the console
-            model::task::PackTask task(folder, outputDir, settings.packConflictResolutionMode);
+            model::task::PackTask task(folder, OutputDirectoryFor(folder, outputDir, besideInput),
+                                       settings.packConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
     }
 
-    int RunConsoleUnpackOperation(const QStringList& folders, const QString& outputDir,
+    int RunConsoleUnpackOperation(const QStringList& files, const QString& outputDir, const bool besideInput,
                                   const bool usePboPrefix, const util::ApplicationLogLevel logLevel) {
         util::SetLoggerParameters(logLevel);
 
         const auto settings = settings::GetApplicationSettingsManager()->readSettings();
-        for (const QString& folder : folders) {
+        for (const QString& file : files) {
             //don't parallelize to avoid mess in the console
-            model::task::UnpackTask task(folder, outputDir, usePboPrefix, settings.unpackConflictResolutionMode);
+            model::task::UnpackTask task(file, OutputDirectoryFor(file, outputDir, besideInput), usePboPrefix,
+                                         settings.unpackConflictResolutionMode);
             task.execute([] { return false; });
         }
         return 0;
@@ -58,7 +73,8 @@ namespace pboman3 {
                 outputDir = QDir::currentPath();
 
             const QStringList folders = CommandLine::toQt(commandLine->pack.folders);
-            exitCode = RunConsolePackOperation(folders, outputDir, commandLine->logLevel.get());
+            exitCode = RunConsolePackOperation(folders, outputDir, commandLine->pack.besideInput(),
+                                               commandLine->logLevel.get());
         } else if (commandLine->unpack.hasBeenSet()) {
             QString outputDir;
             if (commandLine->unpack.hasOutputPath())
@@ -67,8 +83,8 @@ namespace pboman3 {
                 outputDir = QDir::currentPath();
 
             const QStringList files = CommandLine::toQt(commandLine->unpack.files);
-            exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->unpack.usePboPrefix()
-                                                 , commandLine->logLevel.get());
+            exitCode = RunConsoleUnpackOperation(files, outputDir, commandLine->unpack.besideInput(),
+                                                 commandLine->unpack.usePboPrefix(), commandLine->logLevel.get());
         } else {
             //should not normally get here; if did - CLI11 was misconfigured somewhere
             cout << cli.help();
@@ -79,9 +95,18 @@ namespace pboman3 {
 
     template <CharOrWChar TChr>
     int RunMain(int argc, TChr* argv[]) {
-        const int exitCode = RunWithCliOptions(argc, argv);
-        return exitCode;
+        QCoreApplication app(argc, argv);
+        return RunWithCliOptions(argc, argv);
     }
+
+#ifdef WIN32
+    template <>
+    int RunMain(int argc, wchar_t* argv[]) {
+        QCoreApplication app(argc, Argv8Bit::acquire(argc, argv));
+        const auto releaseArgv = qScopeGuard([] { Argv8Bit::release(); });
+        return RunWithCliOptions(argc, argv);
+    }
+#endif
 }
 
 void HandleEptr(const std::exception_ptr& ptr) try {

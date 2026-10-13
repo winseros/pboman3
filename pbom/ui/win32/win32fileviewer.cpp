@@ -9,10 +9,9 @@
 namespace pboman3::ui {
     Win32FileViewerException::Win32FileViewerException(QString message, unsigned long systemErrorCode,
                                                        QString systemErrorDescription, QString filePath)
-        : AppException(std::move(message)),
+        : FileViewerException(std::move(message), std::move(filePath)),
           systemErrorCode_(systemErrorCode),
-          systemErrorDescription_(std::move(systemErrorDescription)),
-          filePath_(std::move(filePath)) {
+          systemErrorDescription_(std::move(systemErrorDescription)) {
     }
 
     PBOMAN_EX_IMPL_DEFAULT(Win32FileViewerException)

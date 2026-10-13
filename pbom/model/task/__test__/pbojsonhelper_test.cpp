@@ -114,7 +114,7 @@ namespace pboman3::model::task {
         const QTemporaryDir t;
 
         PboJson options;
-        options.headers = QList{PboJsonHeader("h1", "v1"), PboJsonHeader("h2", "v2")};
+        options.headers = QList<PboJsonHeader>{PboJsonHeader("h1", "v1"), PboJsonHeader("h2", "v2")};
         options.compress.include = QList<QString>{"i1", "i2"};
         options.compress.exclude = QList<QString>{"e1", "e2"};
 

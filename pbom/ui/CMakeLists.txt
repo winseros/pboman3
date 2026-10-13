@@ -4,9 +4,7 @@ list(APPEND PROJECT_SOURCES_UI
     "ui/treewidget/treewidget.cpp"
     "ui/treewidget/treewidgetbase.cpp"
     "ui/treewidget/treewidgetitem.cpp"
-    "ui/win32/win32iconmgr.cpp"
-    "ui/win32/win32fileviewer.cpp"
-    "ui/win32/win32taskbarindicator.cpp"
+    "ui/platform/platformservices.cpp"
     "ui/aboutdialog.cpp"
     "ui/aboutdialog.ui"
     "ui/closedialog.cpp"
@@ -15,6 +13,7 @@ list(APPEND PROJECT_SOURCES_UI
     "ui/conflictslist.cpp"
     "ui/errordialog.ui"
     "ui/errordialog.cpp"
+    "ui/fileviewer.cpp"
     "ui/fscollector.cpp"
     "ui/headersdialog.cpp"
     "ui/headersdialog.ui"
@@ -32,12 +31,23 @@ list(APPEND PROJECT_SOURCES_UI
     "ui/signaturedialog.cpp"
     "ui/signaturedialog.ui"
     "ui/statusbar.cpp"
-    "ui/statusbar.cpp"
     "ui/taskwindow.cpp"
     "ui/taskwindow.ui"
     "ui/unpackwindow.cpp"
     "ui/updatesdialog.ui"
     "ui/updatesdialog.cpp")
+
+if(WIN32)
+    list(APPEND PROJECT_SOURCES_UI
+        "ui/win32/win32iconmgr.cpp"
+        "ui/win32/win32fileviewer.cpp"
+        "ui/win32/win32taskbarindicator.cpp")
+else()
+    list(APPEND PROJECT_SOURCES_UI
+        "ui/linux/linuxiconmgr.cpp"
+        "ui/linux/linuxfileviewer.cpp"
+        "ui/linux/linuxtaskbarindicator.cpp")
+endif()
 
 set(PROJECT_SOURCES_UI ${PROJECT_SOURCES_UI} PARENT_SCOPE)
 

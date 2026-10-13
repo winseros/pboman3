@@ -1,12 +1,12 @@
 #include "treewidgetitem.h"
 #include <QFileInfo>
 #include "ui/renamedialog.h"
-#include "ui/win32/win32iconmgr.h"
+#include "ui/platform/platformservices.h"
 #include "util/filenames.h"
 
 namespace pboman3::ui {
     TreeWidgetItem::TreeWidgetItem(PboNode* node)
-        : TreeWidgetItem(node, QSharedPointer<IconMgr>(new Win32IconMgr)) {
+        : TreeWidgetItem(node, CreateIconMgr()) {
     }
 
     TreeWidgetItem::TreeWidgetItem(PboNode* node, const QSharedPointer<IconMgr>& icons)

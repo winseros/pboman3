@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Service
+Name=PBO Manager PBO actions
+MimeType=application/x-pbo;
+Actions=pbom-unpack-to;pbom-unpack-beside;
+X-KDE-Submenu=PBO Manager
+X-KDE-Protocol=file
+
+[Desktop Action pbom-unpack-to]
+Name=Unpack to…
+Icon=io.github.winseros.pboman3
+Exec=@PBOM_EXECUTABLE@ unpack --prompt -- %F
+
+[Desktop Action pbom-unpack-beside]
+Name=Unpack beside archive(s)
+Icon=io.github.winseros.pboman3
+Exec=@PBOM_EXECUTABLE@ unpack --beside-input -- %F

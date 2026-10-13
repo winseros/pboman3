@@ -37,7 +37,7 @@ namespace pboman3::ui::test {
         f5.open(QIODeviceBase::ReadWrite);
         f5.close();
 
-        const QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(QList{
+        const QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(QList<QUrl>{
                 QUrl::fromLocalFile(tempDir.filePath(d2)),
                 QUrl::fromLocalFile(f1.fileName()),
                 QUrl::fromLocalFile(tempDir.filePath(d1))
@@ -86,7 +86,7 @@ namespace pboman3::ui::test {
         ASSERT_TRUE(QFile::link(tempDir.filePath(d1), tempDir.filePath("d1.lnk")));
 
         //run the code
-        const QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(QList{
+        const QSharedPointer<NodeDescriptors> files = FsCollector::collectFiles(QList<QUrl>{
                 QUrl::fromLocalFile(tempDir.absolutePath())
             }, []() { return false; });
 

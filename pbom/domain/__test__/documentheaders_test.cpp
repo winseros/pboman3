@@ -4,7 +4,7 @@
 
 namespace pboman3::domain::test {
     TEST(DocumentHeadersTest, Count_Returns_Headers_Count) {
-        const DocumentHeaders headers(QList{
+        const DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });
@@ -12,7 +12,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(DocumentHeadersTest, At_Returns_Header) {
-        const DocumentHeaders headers(QList{
+        const DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });
@@ -25,7 +25,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(DocumentHeadersTest, Begin_End_Work) {
-        DocumentHeaders headers(QList{
+        DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });
@@ -40,7 +40,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(DocumentHeadersTest, HeadersChanged_Fires_If_Count_Of_Headers_Changed) {
-        DocumentHeaders headers(QList{
+        DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });
@@ -57,7 +57,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(DocumentHeadersTest, HeadersChanged_Fires_If_Header_Changed) {
-        DocumentHeaders headers(QList{
+        DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });
@@ -76,7 +76,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(DocumentHeadersTest, HeadersChanged_Not_Fires_If_Header_Replaced) {
-        DocumentHeaders headers(QList{
+        DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
         });

@@ -1,5 +1,7 @@
 #include "updatesdialog.h"
 #include "ui_updatesdialog.h"
+#include <QJsonDocument>
+#include <QJsonParseError>
 #include <QNetworkReply>
 #include <QJsonValue>
 #include <QRegularExpression>

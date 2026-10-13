@@ -6,7 +6,7 @@ A tool to open, pack and unpack ArmA PBO files.
  - Can pack/unpack PBO files.
  - Can preview files inside a PBO.
  - Can open mangled (by Mikero's tools) PBO.
- - Integrates with Windows Explorer / immersive menu.
+ - Integrates with Windows Explorer / immersive menu, GNOME Files and KDE Dolphin.
  - Supports PBO metadata provisioning through [pbo.json](doc/pbo_json.md) or [\$PBOPREFIX\$](doc/prefix_files.md) files.
 
 ## Screenshots
@@ -49,6 +49,37 @@ A tool to open, pack and unpack ArmA PBO files.
 
 The [Windows 10](#windows-10) installation instructions are still valid for Windows 11, although the MSIX package is the suggested method of installation. The Windows 11 immersive menu integration won't function otherwise. :pushpin:
 
+## Linux
+
+Download the Linux AppImage from [Releases](https://github.com/winseros/pboman3/releases).
+Make it executable, then run it or register desktop integration for the current
+user:
+
+```sh
+chmod +x PBOManager-x86_64.AppImage
+./PBOManager-x86_64.AppImage
+./PBOManager-x86_64.AppImage --install-integration
+```
+
+GNOME Files requires `nautilus-python`. Restart GNOME Files or Dolphin after
+installation. Use the AppImage's `--uninstall-integration` option to remove the
+per-user desktop integration. See [the Linux integration notes](linux/README.md)
+for manual and portable installation.
+
+The repository also contains three local Arch package recipes:
+
+- `packaging/arch/pboman3` builds a tagged source release.
+- `packaging/arch/pboman3-bin` installs the AppImage release.
+- `packaging/arch/pboman3-git` builds the current development branch.
+
+They have not been published to the AUR. See
+[the Arch package notes](packaging/arch/README.md) for dependencies and local
+installation.
+
+Nix users can run `nix build .` or `nix profile install .`. The flake also
+exports `nixosModules.default`, with optional Nautilus integration through
+`programs.pboman3.nautilusIntegration`.
+
 
 ## Building from source
 
@@ -56,7 +87,7 @@ The [Windows 10](#windows-10) installation instructions are still valid for Wind
 
    | Variable | Description                                                       | Example                         |
    |----------|-------------------------------------------------------------------|---------------------------------|
-   | Qt6_ROOT | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.3.3\msvc2019_64         |
+   | Qt6_ROOT | Where QT is located. Needed for CMAKE to build.                   | G:\Qt\6.10.1\msvc2022_64        |
 
 
 2. Run the script:
@@ -69,6 +100,17 @@ The [Windows 10](#windows-10) installation instructions are still valid for Wind
    ```
 
 Also, see [how CI builds](.github/workflows/artifcats.yaml).
+
+Linux source builds require Qt 6. Build and install with CMake:
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
+cmake --build build
+cmake --install build
+```
+
+The Linux CI workflow builds and tests with GCC and Clang and produces an
+AppImage artifact. See [the Linux packaging notes](packaging/linux/README.md).
 
 ## Open in IDE
 

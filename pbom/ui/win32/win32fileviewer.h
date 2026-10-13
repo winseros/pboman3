@@ -4,7 +4,7 @@
 #include "exception.h"
 
 namespace pboman3::ui {
-    class Win32FileViewerException : public AppException {
+    class Win32FileViewerException : public FileViewerException {
     public:
         Win32FileViewerException(QString message, unsigned long systemErrorCode, QString systemErrorDescription,
                                  QString filePath);
@@ -19,14 +19,9 @@ namespace pboman3::ui {
             return systemErrorDescription_;
         }
 
-        [[nodiscard]] QString filePath() const {
-            return filePath_;
-        }
-
     private:
         unsigned long systemErrorCode_;
         QString systemErrorDescription_;
-        QString filePath_;
     };
 
     class Win32FileViewer : public FileViewer {

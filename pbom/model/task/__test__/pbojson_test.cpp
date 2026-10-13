@@ -60,7 +60,7 @@ namespace pboman3::model::task::test {
 
     TEST(PboJsonTest, MakeJson_Builds_Document) {
         PboJson options;
-        options.headers = QList{PboJsonHeader("h1", "v1"), PboJsonHeader("h2", "v2")};
+        options.headers = QList<PboJsonHeader>{PboJsonHeader("h1", "v1"), PboJsonHeader("h2", "v2")};
         options.compress.include = QList<QString>{"i1", "i2"};
         options.compress.exclude = QList<QString>{"e1", "e2"};
 

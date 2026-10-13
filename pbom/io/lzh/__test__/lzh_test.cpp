@@ -1,4 +1,5 @@
 #include "io/lzh/lzh.h"
+#include <QDir>
 #include <QTemporaryFile>
 #include <gtest/gtest.h>
 
@@ -108,24 +109,24 @@ namespace pboman3::io::test {
         ASSERT_EQ(targetBytes.length(), 9);
     }
 
-#define TEST_FILE(F) SOURCE_DIR F
+#define TEST_FILE(F) QDir(SOURCE_DIR).filePath(F)
     INSTANTIATE_TEST_SUITE_P(LzhTest, DecompressTest,
                              testing::Values(
                                  LzhTestParam{
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\gpl-3.0.txt") ,
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\gpl-3.0.lzh") },
+                                 TEST_FILE("io/lzh/__test__/data/lzh/gpl-3.0.txt") ,
+                                 TEST_FILE("io/lzh/__test__/data/lzh/gpl-3.0.lzh") },
                                  LzhTestParam{
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\mission.sqm") ,
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\mission.lzh") }
+                                 TEST_FILE("io/lzh/__test__/data/lzh/mission.sqm") ,
+                                 TEST_FILE("io/lzh/__test__/data/lzh/mission.lzh") }
                              ));
 
     INSTANTIATE_TEST_SUITE_P(LzhTest, CompressTest,
                              testing::Values(
                                  LzhTestParam{
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\gpl-3.0.lzh") ,
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\gpl-3.0.txt") },
+                                 TEST_FILE("io/lzh/__test__/data/lzh/gpl-3.0.lzh") ,
+                                 TEST_FILE("io/lzh/__test__/data/lzh/gpl-3.0.txt") },
                                  LzhTestParam{
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\mission.lzh") ,
-                                 TEST_FILE("\\io\\lzh\\__test__\\data\\lzh\\mission.sqm") }
+                                 TEST_FILE("io/lzh/__test__/data/lzh/mission.lzh") ,
+                                 TEST_FILE("io/lzh/__test__/data/lzh/mission.sqm") }
                              ));
 }

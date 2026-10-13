@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include "ui_taskwindow.h"
 #include "model/task/taskwindowmodel.h"
-#include "win32/win32taskbarindicator.h"
+#include "platform/platformservices.h"
 #include "settings/getapplicationsettingsmanager.h"
 
 namespace pboman3::ui {
@@ -16,7 +16,13 @@ namespace pboman3::ui {
           log_(nullptr),
           doneText_("Done") {
         ui_->setupUi(this);
-        taskbar_ = QSharedPointer<TaskbarIndicator>(new TaskbarIndicator(winId()));
+#ifdef Q_OS_LINUX
+        resize(480, 92);
+        setMinimumSize(360, 84);
+        setMaximumWidth(600);
+        ui_->buttonBox->setMinimumHeight(32);
+#endif
+        taskbar_ = QSharedPointer<TaskbarIndicator>(new TaskbarIndicator(this));
         setupConnections();
     }
 
@@ -128,10 +134,10 @@ namespace pboman3::ui {
             close();
     }
 
-    TaskWindow::TaskbarIndicator::TaskbarIndicator(WId windowId)
+    TaskWindow::TaskbarIndicator::TaskbarIndicator(QWidget* window)
         : maxValue_(0),
           currentValue_(0) {
-        taskbar_ = QSharedPointer<ui::TaskbarIndicator>(new Win32TaskbarIndicator(windowId));
+        taskbar_ = CreateTaskbarIndicator(window);
     }
 
     void TaskWindow::TaskbarIndicator::threadThinking() const {

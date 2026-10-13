@@ -1,0 +1,124 @@
+name: Linux
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.compiler }} ${{ matrix.build_type }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        build_type: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build libgl1-mesa-dev libxkbcommon-x11-0 libxcb-cursor0
+
+      - name: Set release version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            printf '%s\n' "${GITHUB_REF#refs/tags/v}" > VERSION
+          fi
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+
+      - name: Configure
+        env:
+          CC: ${{ matrix.compiler == 'gcc' && 'gcc' || 'clang' }}
+          CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure
+
+  package:
+    name: Ubuntu 22.04 package
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install packaging dependencies
+        run: sudo apt-get update && sudo apt-get install -y binutils cmake file ninja-build libgl1-mesa-dev libxkbcommon-x11-0 libxcb-cursor0
+
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Set release version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            printf '%s\n' "${GITHUB_REF#refs/tags/v}" > VERSION
+          fi
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+
+      - name: Configure release
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_INSTALL_PREFIX=/usr
+          -DBUILD_TESTING=OFF
+
+      - name: Build release
+        run: cmake --build build
+
+      - name: Download pinned deployment tools
+        run: |
+          mkdir -p tools
+          curl --fail --location --output tools/linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20250213-2/linuxdeploy-x86_64.AppImage
+          curl --fail --location --output tools/linuxdeploy-plugin-qt-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x tools/linuxdeploy-x86_64.AppImage tools/linuxdeploy-plugin-qt-x86_64.AppImage packaging/linux/*.sh packaging/linux/AppRun
+
+      - name: Package AppDir, tarball, and AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+          LINUXDEPLOY: ${{ github.workspace }}/tools/linuxdeploy-x86_64.AppImage
+          QMAKE: ${{ env.QT_ROOT_DIR }}/bin/qmake
+        run: packaging/linux/package.sh build dist
+
+      - name: Audit binary ABI requirements
+        run: |
+          set -o pipefail
+          find dist/PBOManager.AppDir -type f -perm /111 -exec file {} + | grep ELF | cut -d: -f1 | xargs -r objdump -T | grep -E 'GLIBC(X{2})?_[0-9]' > dist/abi-symbols.txt
+          ! grep -E 'GLIBC_2\.(3[6-9]|[4-9][0-9])' dist/abi-symbols.txt
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: PBOManager-linux-x86_64
+          path: |
+            dist/PBOManager-x86_64.AppDir.tar.gz
+            dist/PBOManager-x86_64.AppImage
+            dist/SHA256SUMS
+            dist/abi-symbols.txt

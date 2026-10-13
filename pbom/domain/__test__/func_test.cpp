@@ -35,7 +35,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(FuncTest, TryGetPrefix_Returns_True) {
-        const DocumentHeaders headers(QList{
+        const DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
             QSharedPointer<DocumentHeader>(new DocumentHeader(DocumentHeaders::PREFIX_HEADER_NAME, "prefix_value")),
@@ -46,7 +46,7 @@ namespace pboman3::domain::test {
     }
 
     TEST(FuncTest, TryGetPrefix_Returns_False) {
-        const DocumentHeaders headers(QList{
+        const DocumentHeaders headers(QList<QSharedPointer<DocumentHeader>>{
             QSharedPointer<DocumentHeader>(new DocumentHeader("h1", "v1")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h2", "v2")),
             QSharedPointer<DocumentHeader>(new DocumentHeader("h3", "v3")),

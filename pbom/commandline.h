@@ -41,7 +41,8 @@ namespace pboman3 {
         template <CharOrWChar TChr>
         struct PackCommandBase : Command {
             PackCommandBase()
-                : optOutputPath(nullptr)
+                : optOutputPath(nullptr),
+                  optBesideInput(nullptr)
 #ifdef PBOM_GUI
                   , optPrompt(nullptr)
                   , optNoUi(nullptr)
@@ -51,6 +52,7 @@ namespace pboman3 {
 
             basic_string<TChr> outputPath;
             Option* optOutputPath;
+            Option* optBesideInput;
 #ifdef PBOM_GUI
             Option* optPrompt;
             Option* optNoUi;
@@ -58,6 +60,10 @@ namespace pboman3 {
 
             [[nodiscard]] bool hasOutputPath() const {
                 return !!*optOutputPath;
+            }
+
+            [[nodiscard]] bool besideInput() const {
+                return !!*optBesideInput;
             }
 #ifdef PBOM_GUI
             [[nodiscard]] bool prompt() const {
@@ -85,10 +91,15 @@ namespace pboman3 {
                                                                 "The directory to write the resulting PBO(s)")
                                           ->check(ExistingDirectory);
 
+                this->optBesideInput = this->command->add_flag("--beside-input",
+                                                               "Write each PBO beside its source folder")
+                                           ->excludes(this->optOutputPath);
+
 #ifdef PBOM_GUI
                 this->optPrompt = this->command->add_flag("-p,--prompt",
                                                           "Show a UI dialog for the output directory selection")
-                                      ->excludes(this->optOutputPath);
+                                      ->excludes(this->optOutputPath)
+                                      ->excludes(this->optBesideInput);
 
                 this->optNoUi = this->command->add_flag("-u,--no-ui", "Run the application without the GUI")
                                     ->excludes(this->optPrompt);
@@ -112,6 +123,10 @@ namespace pboman3 {
                                                                 "The directory to write the PBO(s) contents")
                                           ->check(ExistingDirectory);
 
+                this->optBesideInput = this->command->add_flag("--beside-input",
+                                                               "Unpack each PBO beside its archive")
+                                           ->excludes(this->optOutputPath);
+
                 this->optUsePboPrefix = this->command->add_flag("-x,--use-pbo-prefix",
                                                                 "Extract PBO contents to the $prefix$ directory");
 
@@ -119,7 +134,8 @@ namespace pboman3 {
 #ifdef PBOM_GUI
                 this->optPrompt = this->command->add_flag("-p,--prompt",
                                                           "Show a UI dialog for the output directory selection")
-                                      ->excludes(this->optOutputPath);
+                                      ->excludes(this->optOutputPath)
+                                      ->excludes(this->optBesideInput);
 
                 this->optNoUi = this->command->add_flag("-u,--no-ui", "Run the application without the GUI")
                                     ->excludes(this->optPrompt);
@@ -127,7 +143,7 @@ namespace pboman3 {
             }
 
             [[nodiscard]] bool usePboPrefix() const {
-                return !!optUsePboPrefix;
+                return !!*optUsePboPrefix;
             }
         };
 

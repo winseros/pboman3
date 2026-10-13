@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Service
+Name=PBO Manager folder actions
+MimeType=inode/directory;
+Actions=pbom-pack-to;pbom-pack-beside;
+X-KDE-Submenu=PBO Manager
+X-KDE-Protocol=file
+
+[Desktop Action pbom-pack-to]
+Name=Pack to…
+Icon=io.github.winseros.pboman3
+Exec=@PBOM_EXECUTABLE@ pack --prompt -- %F
+
+[Desktop Action pbom-pack-beside]
+Name=Pack beside folder(s)
+Icon=io.github.winseros.pboman3
+Exec=@PBOM_EXECUTABLE@ pack --beside-input -- %F

@@ -9,7 +9,8 @@
 #include <QDesktopServices>
 #include "io/diskaccessexception.h"
 #include "ui/errordialog.h"
-#include "ui/win32/win32fileviewer.h"
+#include "ui/fileviewer.h"
+#include "ui/platform/platformservices.h"
 #include "util/log.h"
 
 #define LOG(...) LOGGER("ui/treewidget/TreeWidget", __VA_ARGS__)
@@ -269,11 +270,11 @@ namespace pboman3::ui {
         try {
             const QString path = future.takeResult();
             LOG(info, "The open operation result is:", path)
-            Win32FileViewer().previewFile(path);
+            CreateFileViewer()->previewFile(path);
         } catch (const DiskAccessException& ex) {
             LOG(info, "Error when running sync - show error modal:", ex)
             UI_HANDLE_ERROR(ex)
-        } catch (const Win32FileViewerException& ex) {
+        } catch (const FileViewerException& ex) {
             UI_HANDLE_ERROR(ex)
         }
     }
